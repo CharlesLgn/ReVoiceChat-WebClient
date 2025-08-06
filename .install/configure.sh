@@ -9,4 +9,4 @@ else
     sudo systemctl reload apache2
 fi
 
-sudo chown www-data /var/www/html/ReVoiceChat-Client/logs/
+sudo chown www-data /var/www/html/ReVoiceChat-Client/src/logs/
