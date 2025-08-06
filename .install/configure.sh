@@ -8,3 +8,5 @@ else
     sudo a2ensite rvc-client.conf
     sudo systemctl reload apache2
 fi
+
+sudo chown www-data /var/www/html/ReVoiceChat-Client/logs/
