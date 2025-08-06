@@ -1,0 +1,5 @@
+# Logs
+src/logs/*
+
+# Placeholder
+!src/logs/placeholder
