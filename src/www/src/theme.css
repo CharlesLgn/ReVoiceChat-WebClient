@@ -1,0 +1,30 @@
+.rvc-sidebar-servers {
+    position: absolute;
+    width: 150px;
+    height: 100vh;
+}
+
+.rvc-sidebar-channels {
+    position: absolute;
+    margin-left: 150px;
+    width: 150px;
+    height: 100vh;
+}
+
+.rvc-channel {
+    position: absolute;
+    margin-left: 300px;
+    margin-right:150px;
+    height: 100vh;
+    width: 100vw;
+}
+
+.rvc-message{
+    width: 100%;
+}
+
+.rvc-message-input{
+    position: absolute;
+    width: 80%;
+    bottom: 25px;
+}
