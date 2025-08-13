@@ -19,12 +19,12 @@ sudo nano /etc/apache2/sites-available/rvc-client.conf
 VirtualHost exemple
 ```apache
 <VirtualHost *:80>
-	Alias / /var/www/html/ReVoiceChat-Client/www/
+    DocumentRoot /var/www/html/ReVoiceChat-WebClient/www/
     DirectoryIndex index.html
-	
-	<Directory /var/www/html/ReVoiceChat-Client/www/>
-        	AllowOverride All
-        	Require all granted
+
+    <Directory /var/www/html/ReVoiceChat-WebClient/www/>
+            AllowOverride All
+            Require all granted
     </Directory>
 
     ErrorLog /var/www/html/logs/rvcs_http_error.log
