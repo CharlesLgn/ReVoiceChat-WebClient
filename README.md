@@ -25,10 +25,10 @@ VirtualHost exemple
 	<Directory /var/www/html/ReVoiceChat-Client/src/www/>
         	AllowOverride All
         	Require all granted
-    	</Directory>
+    </Directory>
 
-    	ErrorLog /var/www/html/logs/rvcs_http_error.log
-    	LogLevel info
+    ErrorLog /var/www/html/logs/rvcs_http_error.log
+    LogLevel info
 </VirtualHost>
 ```
 
