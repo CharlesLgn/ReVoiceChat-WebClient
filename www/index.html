@@ -1,47 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <title>ReVoiceChat</title>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
-    <link rel="stylesheet" href="src/theme.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="src/theme.css" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="src/favicon.png" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css" />
+    <title>ReVoiceChat - WebClient</title>
 </head>
-
-<body>
-    <!-- Servers -->
-    <div class="rvc-sidebar-servers w3-sidebar w3-bar-block w3-black w3-border-right" id="srv-list">
-        <!-- <a href="#" class="w3-bar-item w3-button">Server 1</a> -->
+<body class="bg-gray-900 text-white min-h-screen overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="fixed inset-0 opacity-5">
+        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
     </div>
-
-    <!-- Channels -->
-    <div class="rvc-sidebar-channels w3-bar-block w3-black w3-border-right" id="room-list">
-        <!-- <a href="#" class="w3-bar-item w3-button">Channel 1</a> -->
-    </div>
-
-    <!-- Channel Text -->
-    <div class="rvc-channel w3-black w3-border-right w3-display-container">
-        <!-- 
-        <ul class="w3-ul w3-hoverable">
-            <li class="w3-bar">
-                <div class="rvc-message w3-bar-item">
-                    <span>12:22</span>&nbsp;
-                    <span><b>Mike</b></span>&nbsp;
-                    <span>Hello world</span>
+    
+    <!-- Main Container -->
+    <div class="flex h-screen relative z-10">
+        
+        <!-- Sidebar -->
+        <div class="w-80 bg-gray-800 border-r border-gray-700 flex flex-col perspective-card">
+            <div class="card-3d h-full">
+                <!-- Header -->
+                <div class="p-4 border-b border-gray-700 glass-effect">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <img src="src/favicon.png" 
+                                     alt="Profile" class="w-10 h-10 rounded-full ring-2 ring-green-400">
+                            </div>
+                            <div>
+                                <h2 class="font-semibold text-white">SERVER</h2>
+                                <p class="text-xs text-gray-400">Proof of concept</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="p-2 hover:bg-gray-700 rounded-full transition-colors">
+                                <i class="fas fa-ellipsis-v text-gray-400"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </li>
-        </ul>
-        -->
-
-        <form class="rvc-message-input w3-container">
-            <input class="w3-input w3-asphalt" type="text">
-        </form>
+                
+                <!-- Room List -->
+                <div class="flex-1 overflow-y-auto custom-scrollbar" id="room-list">
+                    <!-- JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col perspective-card">
+            <div class="card-3d flex flex-col h-full">
+                <!-- Chat Header -->
+                <div class="p-4 border-b border-gray-700 glass-effect">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div>
+                                <h3 class="font-semibold text-white" id="room-name">CHANNEL 2</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Messages Area -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="messagesArea">
+                    <!-- Received Message -->
+                    <div class="flex items-start space-x-2 message-bubble">
+                        <div class="max-w-xs lg:max-w-md">
+                            <div class="bg-gray-700 rounded-2xl rounded-tl-sm p-3 shadow-lg">
+                                <p class="text-white">TEXT</p>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1 ml-2">TIMESTAMP</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Sent Message -->
+                    <div class="flex items-end justify-end space-x-2 message-bubble">
+                        <div class="max-w-xs lg:max-w-md">
+                            <div class="chat-gradient rounded-2xl rounded-tr-sm p-3 shadow-lg">
+                                <p class="text-white">TEXT</p>
+                            </div>
+                            <div class="flex items-center justify-end mt-1 mr-2 space-x-1">
+                                <p class="text-xs text-gray-400">TIMESTAMP</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Message Input -->
+                <div class="p-4 border-t border-gray-700 glass-effect">
+                    <div class="flex items-center space-x-3">
+                        <button class="p-2 hover:bg-gray-700 rounded-full transition-colors">
+                            <i class="fas fa-paperclip text-gray-400 hover:text-white"></i>
+                        </button>
+                        <div class="flex-1 relative">
+                            <input type="text" 
+                                   placeholder="Type a message..." 
+                                   class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-full pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all"
+                                   id="messageInput">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-600 rounded-full transition-colors">
+                                <i class="fas fa-smile text-gray-400 hover:text-yellow-400"></i>
+                            </button>
+                        </div>
+                        <button class="p-3 chat-gradient rounded-full hover:scale-105 transition-transform shadow-lg" id="sendButton">
+                            <i class="fas fa-paper-plane text-white"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="src/index.js"></script>
-    <script src="src/dom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script src="src/servers.js"></script>
+    <script src="src/rooms.js"></script>
 </body>
-
 </html>

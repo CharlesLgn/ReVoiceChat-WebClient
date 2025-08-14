@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         inputPlaceholder: "Enter the URL",
         inputValue: hostUrl,
         allowOutsideClick: false,
-        allowEscapeKey: false
+        allowEscapeKey: false,
+        confirmButtonText: "Connect"
     });
     if (inputUrl) {
         hostUrl = inputUrl;
@@ -53,69 +54,22 @@ async function getServers(loadingSwal) {
 }
 
 function buildServerList(data) {
-    const serverList = document.getElementById("srv-list");
+    /*const serverList = document.getElementById("srv-list");
     for (const neddle in data) {
         serverList.appendChild(createAnchor(data[neddle].name, () => selectServer(data[neddle].id), data[neddle].id));
-    }
+    }*/
 }
 
 function selectServer(serverId) {
     console.log(`Select server : ${serverId}`);
-    if (currentState.serverId !== null) {
-        document.getElementById(currentState.serverId).classList.remove("rvc-active");
-    }
     currentState.serverId = serverId;
-    document.getElementById(serverId).classList.add("rvc-active");
     getRooms(serverId);
-}
-
-async function getRooms(serverId) {
-    fetch(`${hostUrl}/server/${serverId}/room`, {
-        cache: "no-store",
-        signal: AbortSignal.timeout(5000),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then((response) => {
-        return response.json();
-    }).then((body) => {
-        buildRoomList(body);
-        selectRoom(body[0].id);
-    }).catch((error) => {
-        console.log(error)
-    });
 }
 
 function buildRoomList(data) {
     const roomList = document.getElementById("room-list");
     roomList.innerHTML = "";
     for (const neddle in data) {
-        roomList.appendChild(createAnchor(data[neddle].name, () => selectRoom(data[neddle].id), data[neddle].id));
+        roomList.appendChild(createRoom(data[neddle], () => selectRoom(data[neddle].id)));
     }
-}
-
-function selectRoom(roomId) {
-    console.log(`Select room : ${roomId}`);
-    if (currentState.roomId !== null) {
-        document.getElementById(currentState.roomId).classList.remove("rvc-active");
-    }
-    currentState.roomId = roomId;
-    document.getElementById(roomId).classList.add("rvc-active");
-    getContent(roomId);
-}
-
-async function getContent(roomId) {
-    fetch(`${hostUrl}/room/${roomId}/chat`, {
-        cache: "no-store",
-        signal: AbortSignal.timeout(5000),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then((response) => {
-        return response.json();
-    }).then((body) => {
-        console.log("Text from room : ", body);
-    }).catch((error) => {
-        console.log(error)
-    });
 }
