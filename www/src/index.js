@@ -101,10 +101,17 @@ function selectRoom(roomId) {
     }
     currentState.roomId = roomId;
     document.getElementById(roomId).classList.add("rvc-active");
+    getContent(roomId);
 }
 
-async function getRoomText(roomId) {
-    fetch(`${hostUrl}/room/${roomId}`, fetchInit).then((response) => {
+async function getContent(roomId) {
+    fetch(`${hostUrl}/room/${roomId}/chat`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(5000),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then((response) => {
         return response.json();
     }).then((body) => {
         console.log("Text from room : ", body);
