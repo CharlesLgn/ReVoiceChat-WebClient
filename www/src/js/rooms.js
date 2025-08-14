@@ -6,12 +6,13 @@ async function getRooms(serverId) {
             'Content-Type': 'application/json'
         }
     }).then((response) => {
+        if (!response.ok) {
+            return;
+        }
         return response.json();
     }).then((body) => {
         createRoomList(body);
         selectRoom(body[0]);
-    }).catch((error) => {
-        console.log(error)
     });
 }
 
@@ -50,7 +51,7 @@ function selectRoom(roomData) {
         document.getElementById(currentState.room.id).classList.remove("bg-green-900", "bg-opacity-20", "border-l-4", "border-green-400");
     }
     currentState.room = roomData;
-    
+
     document.getElementById(roomData.id).classList.add("bg-green-900", "bg-opacity-20", "border-l-4", "border-green-400");
     document.getElementById("room-header-name").innerText = roomData.name;
 

@@ -1,11 +1,12 @@
 let hostUrl = "https://srv.revoicechat.fr";
 
 const currentState = {
-    server:{
+    server: {
         id: null,
     },
     room: {
         id: null,
+        sse: null,
     }
 }
 
@@ -46,15 +47,16 @@ async function getServers(loadingSwal) {
             'Content-Type': 'application/json'
         }
     }).then((response) => {
+        if (!response.ok) {
+            return;
+        }
         return response.json();
     }).then((body) => {
         loadingSwal.close();
         buildServerList(body);
-        selectServer(body[0].id);
+        selectServer(body[0]);
 
-    }).catch((error) => {
-        console.log(error)
-    });
+    })
 }
 
 function buildServerList(data) {
@@ -64,8 +66,9 @@ function buildServerList(data) {
     }*/
 }
 
-function selectServer(serverId) {
-    console.log(`Selected server : ${serverId}`);
-    currentState.server.id = serverId;
-    getRooms(serverId);
+function selectServer(serverData) {
+    console.log(`Selected server : ${serverData.id}`);
+    currentState.server.id = serverData.id;
+    document.getElementById("server-name").innerText = serverData.name;
+    getRooms(serverData.id);
 }

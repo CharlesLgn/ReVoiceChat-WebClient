@@ -30,7 +30,7 @@
                                 <img src="src/img/favicon.png" alt="Profile" class="w-10 h-10 rounded-full ring-2 ring-green-400">
                             </div>
                             <div>
-                                <h2 class="font-semibold text-white">SERVER NAME</h2>
+                                <h2 class="font-semibold text-white" id="server-name"></h2>
                                 <p class="text-xs text-gray-400">Proof of concept</p>
                             </div>
                         </div>
@@ -78,12 +78,12 @@
                             <input type="text" 
                                    placeholder="Type a message..." 
                                    class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-full pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all"
-                                   id="messageInput">
+                                   id="message-input">
                             <button class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-600 rounded-full transition-colors">
                                 <i class="fas fa-smile text-gray-400 hover:text-yellow-400"></i>
                             </button>
                         </div>
-                        <button class="p-3 chat-gradient rounded-full hover:scale-105 transition-transform shadow-lg" id="sendButton">
+                        <button class="p-3 chat-gradient rounded-full hover:scale-105 transition-transform shadow-lg" id="send-button" onclick="sendMessage()">
                             <i class="fas fa-paper-plane text-white"></i>
                         </button>
                     </div>

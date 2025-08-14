@@ -1,19 +1,21 @@
-
-
 async function getMessages(roomId) {
-    fetch(`${hostUrl}/room/${roomId}/chat/messages`, {
+    fetch(`${hostUrl}/room/${roomId}/message`, {
         cache: "no-store",
         signal: AbortSignal.timeout(5000),
         headers: {
             'Content-Type': 'application/json'
         }
     }).then((response) => {
+        if(!response.ok){
+            return;
+        }
         return response.json();
     }).then((body) => {
         createMessageList(body);
-    }).catch((error) => {
-        console.log(error)
     });
+
+    currentState.room.sse = new EventSource(`${hostUrl}/room/${roomId}/sse`);
+    currentState.room.sse.onmessage = (data) => createMessage(data);
 }
 
 function createMessageList(data) {
@@ -37,4 +39,23 @@ function createMessage(messageData) {
             <p class="text-xs text-gray-400 mt-1 ml-2">${messageData.createdDate}</p>
         </div>`;
     return DIV;
+}
+
+function sendMessage() {
+    const data = {
+        text: document.getElementById('message-input').value
+    }
+
+    fetch(`${hostUrl}/room/${currentState.room.id}/message`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then((response) => {
+        if(response.ok){
+            document.getElementById('message-input').value = "";
+            return;
+        }
+    });
 }
