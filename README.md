@@ -8,6 +8,7 @@ Proof of concept RevoiceChat Webclient
 ```sh
 sudo apt-get install apache2-utils apache2 -y
 sudo systemctl enable apache2
+sudo a2enmod headers
 ```
 ### Create VirtualHost
 
@@ -19,6 +20,7 @@ sudo nano /etc/apache2/sites-available/rvc-client.conf
 VirtualHost exemple
 ```apache
 <VirtualHost *:80>
+    Header set Access-Control-Allow-Origin "*"
     DocumentRoot /var/www/html/ReVoiceChat-WebClient/www/
     DirectoryIndex index.html
 
