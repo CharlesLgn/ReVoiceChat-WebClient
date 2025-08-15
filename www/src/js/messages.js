@@ -42,15 +42,9 @@ function createMessage(messageData) {
             <div class="bg-gray-700 rounded-2xl rounded-tl-sm p-3 shadow-lg">
                 <p class="text-white">${messageData.text}</p>
             </div>
-            <p class="text-xs text-gray-400 mt-1 ml-2">${messageData.createdDate}</p>
+            <p class="text-xs text-gray-400 mt-1 ml-2">${timestampToText(messageData.createdDate)}</p>
         </div>`;
     return DIV;
-}
-
-function sanitizeString(str){
-    str = str.substring(0, 2000);
-    str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim,"");
-    return str.trim();
 }
 
 function sendMessage() {
