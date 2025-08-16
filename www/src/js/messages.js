@@ -68,6 +68,7 @@ async function sendMessage() {
         });
 
         const result = await response.ok;
+        document.getElementById('message-input').value = "";
     }
     catch (error) {
         console.error("Error while sending message : ", error);
