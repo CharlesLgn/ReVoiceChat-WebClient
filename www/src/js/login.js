@@ -8,22 +8,10 @@ function userLogin() {
     };
 
     host = FORM.host.value;
-
-    let connectingSwal = Swal.fire({
-        icon: "info",
-        title: `Connecting to\n ${host}`,
-        focusConfirm: false,
-        allowOutsideClick: false,
-        timerProgressBar: true,
-        animation: false,
-        didOpen: () => {
-            Swal.showLoading();
-            login(LOGIN, connectingSwal);
-        }
-    })
+    login(LOGIN);
 }
 
-async function login(loginData, connectingSwal) {
+async function login(loginData) {
     try {
         const response = await fetch(`${host}/login`, {
             cache: "no-store",
@@ -37,13 +25,16 @@ async function login(loginData, connectingSwal) {
         });
 
         const result = await response.ok;
-
-        connectingSwal.close();
-
         document.location.href = `app.html?host=${host}`;
     }
     catch (error) {
-        connectingSwal.close();
         console.error("Error while login : ", error);
+        Swal.fire({
+            icon: "error",
+            title: `Unable to connect to\n ${host}`,
+            focusConfirm: false,
+            allowOutsideClick: false,
+            animation: false,
+        })
     }
 }

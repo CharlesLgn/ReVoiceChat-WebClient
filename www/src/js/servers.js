@@ -19,22 +19,11 @@ document.addEventListener('DOMContentLoaded', function () {
         document.location.href = `index.html`;
     }
 
-    let loadingSwal = Swal.fire({
-        icon: "info",
-        title: `Loading server list from host\n ${currentState.hostUrl}`,
-        focusConfirm: false,
-        allowOutsideClick: false,
-        timerProgressBar: true,
-        animation: false,
-        didOpen: () => {
-            Swal.showLoading();
-            getServers(loadingSwal);
-            sseConnect();
-        }
-    })
+    getServers();
+    sseConnect();
 });
 
-async function getServers(loadingSwal) {
+async function getServers() {
     try {
         const response = await fetch(`${currentState.hostUrl}/server`, {
             cache: "no-store",
@@ -46,13 +35,10 @@ async function getServers(loadingSwal) {
         });
 
         const result = await response.json();
-
-        loadingSwal.close();
         buildServerList(result);
         selectServer(result[0]);
     }
     catch (error) {
-        loadingSwal.close();
         console.error("Error while retrieving server list : ", error);
     }
 }
