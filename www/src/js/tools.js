@@ -7,9 +7,10 @@ function sanitizeString(str) {
 function timestampToText(timestamp) {
     // By default timestamp is UTC (shouldn't matter for this function)
     timestamp = new Date(`${timestamp}Z`);
+
+    /*
     let current = new Date().getTime();
     let elpase = parseInt((current - timestamp) / 1000); // Elpase time in seconds
-
     // Less than a minute
     if (elpase < 60) {
         return "Now";
@@ -32,6 +33,9 @@ function timestampToText(timestamp) {
         }
         return `${hours} hours ago`;
     }
+    */
 
-    return timestamp.toLocaleString();
+    timestamp = timestamp.toLocaleString();
+
+    return timestamp.substring(0, timestamp.length - 3);
 }
