@@ -5,21 +5,24 @@ document.getElementById("message-input").addEventListener('keydown', function (e
 });
 
 async function getMessages(roomId) {
-    fetch(`${hostUrl}/room/${roomId}/message`, {
-        cache: "no-store",
-        signal: AbortSignal.timeout(5000),
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then((response) => {
-        if (!response.ok) {
-            return;
-        }
-        return response.json();
-    }).then((body) => {
-        createMessageList(body);
-    });
+    try {
+        const response = await fetch(`${hostUrl}/room/${roomId}/message`, {
+            cache: "no-store",
+            signal: AbortSignal.timeout(5000),
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        createMessageList(result);
+    }
+    catch (error) {
+        loadingSwal.close();
+        console.error("Error while retrieving message : ", error);
+    }
 }
 
 function createMessageList(data) {
@@ -47,24 +50,27 @@ function createMessage(messageData) {
     return DIV;
 }
 
-function sendMessage() {
+async function sendMessage() {
     let textInput = sanitizeString(document.getElementById('message-input').value);
 
     if (textInput == "" || textInput == null) {
         return;
     }
 
-    fetch(`${hostUrl}/room/${currentState.room.id}/message`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ text: textInput })
-    }).then((response) => {
-        if (response.ok) {
-            document.getElementById('message-input').value = "";
-            return;
-        }
-    });
+    try {
+        const response = await fetch(`${hostUrl}/room/${currentState.room.id}/message`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text: textInput })
+        });
+
+        const result = await response.ok;
+    }
+    catch (error) {
+        loadingSwal.close();
+        console.error("Error while sending message : ", error);
+    }
 }

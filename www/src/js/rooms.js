@@ -1,20 +1,23 @@
 async function getRooms(serverId) {
-    fetch(`${hostUrl}/server/${serverId}/room`, {
-        cache: "no-store",
-        signal: AbortSignal.timeout(5000),
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then((response) => {
-        if (!response.ok) {
-            return;
-        }
-        return response.json();
-    }).then((body) => {
-        createRoomList(body);
-        selectRoom(body[0]);
-    });
+    try {
+        const response = await fetch(`${hostUrl}/server/${serverId}/room`, {
+            cache: "no-store",
+            signal: AbortSignal.timeout(5000),
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        createRoomList(result);
+        selectRoom(result[0]);
+    }
+    catch (error) {
+        connectingSwal.close();
+        console.error("Error getting room : ", error);
+    }
 }
 
 function createRoomList(data) {
@@ -46,6 +49,11 @@ function createRoom(roomData, onclick) {
 }
 
 function selectRoom(roomData) {
+    if (roomData === undefined || roomData === null) {
+        console.error("roomData is null or undefined");
+        return;
+    }
+ 
     console.log(`Selected room : ${roomData.id}`);
 
     if (currentState.room.id !== null) {
