@@ -31,7 +31,7 @@ function createRoomList(data) {
 function createRoom(roomData, onclick) {
     const DIV = document.createElement('div');
     DIV.id = roomData.id;
-    DIV.className = "chat-hover p-4 border-b border-gray-700 cursor-pointer relative";
+    DIV.className = "room p-4 border-b border-gray-700 cursor-pointer relative";
 
     const ANCHOR = document.createElement('a');
     ANCHOR.onclick = onclick;

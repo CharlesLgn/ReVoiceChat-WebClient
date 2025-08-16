@@ -18,12 +18,11 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.chat-hover {
+.room {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.chat-hover:hover {
-    transform: translateX(8px) scale(1.02);
+.room:hover {
     background: rgba(37, 211, 102, 0.1);
     box-shadow: 0 10px 30px rgba(37, 211, 102, 0.2);
 }
