@@ -21,7 +21,7 @@ async function getRooms(serverId) {
 }
 
 function createRoomList(data) {
-    const roomList = document.getElementById("room-list");
+    const roomList = document.getElementById("room-container");
     roomList.innerHTML = "";
     for (const neddle in data) {
         roomList.appendChild(createRoom(data[neddle], () => selectRoom(data[neddle])));
@@ -51,8 +51,10 @@ function selectRoom(roomData) {
         currentState.room = roomData;
 
         document.getElementById(roomData.id).classList.add("active");
-        document.getElementById("room-header-name").innerText = roomData.name;
-
+        document.getElementById("room-name").innerText = roomData.name;
+        document.getElementById("chat-input").placeholder = `Send a message in ${roomData.name}`;
+        document.getElementById("chat-input").focus();
+        
         getMessages(roomData.id);
     }
 }

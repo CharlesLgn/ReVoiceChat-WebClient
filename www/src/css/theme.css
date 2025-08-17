@@ -1,60 +1,105 @@
-/* MAIN */
-body.theme{
+/* Body */
+body {
     color: rgb(255, 255, 255);
     background-color: rgb(17, 24, 39);
 }
 
-.sidebar.theme{
+/* Sidebar */
+
+.sidebar {
     background-color: rgb(31, 41, 55);
     border-color: rgb(55, 65, 81);
 }
 
-.sidebar > .header.theme{
+.sidebar-header {
     border-color: rgb(55, 65, 81);
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* ROOM THEME */
-.room.theme {
+.sidebar-title h2{
+    color: white;
+}
+
+.sidebar-title p{
+    color: rgb(156 163 175);
+}
+
+/* Room */
+.room {
     border-color: rgb(55, 65, 81);
     color: rgb(255, 255, 255);
 }
 
-.room.theme:hover {
+.room:hover {
     background-color: rgb(7, 89, 133);
 }
 
-.room.theme.active {
+.room.active {
     background-color: rgba(12, 74, 110, 0.5);
 }
 
-.room.theme.active:hover {
+.room.active:hover {
     background-color: rgb(7, 89, 133);
 }
 
-/* MESSAGE THEME */
-.message-owner.theme{
-    color: white;
-}
-
-.message-content.theme{
-    color: white;
-}
-
-.message-timestamp.theme{
-    color: rgb(156, 163, 175);
-}
-
-/* STATUS THEME */
-.status.theme{
+/* Status */
+.status-container {
     border-color: rgb(55, 65, 81);
     background: rgba(255, 255, 255, 0.1);
 }
 
-.user > .name.theme{
+.status-bloc-1 .name {
     color: rgb(255 255 255);
 }
 
-.user > .user-status.theme{
+.status-bloc-1 .status {
+    color: rgb(156, 163, 175);
+}
+
+/* Chat */
+.chat-container {
+    border-color: rgb(55, 65, 81)
+}
+
+.chat-header {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-color: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.chat-name {
+    color: rgb(255, 255, 255);
+    font-weight: 600;
+}
+
+.chat-input-container {
+    border-color: rgb(55, 65, 81);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.chat-text input {
+    color: rgb(255, 255, 255);
+    background-color: rgb(55, 65, 81);
+}
+
+.chat-text input::placeholder {
+    color: rgb(156, 163, 175)
+}
+
+.chat-text input:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+/* Message */
+.message-owner {
+    color: white;
+}
+
+.message-content {
+    color: white;
+}
+
+.message-timestamp {
     color: rgb(156, 163, 175);
 }

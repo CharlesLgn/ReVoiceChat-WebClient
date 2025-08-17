@@ -14,93 +14,87 @@
     <title>ReVoiceChat - App</title>
 </head>
 
-<body class="theme">
+<body>
     <!-- Main Container -->
     <div class="main">
 
         <!-- Sidebar -->
-        <div class="sidebar theme">
+        <div class="sidebar">
             <!-- Server info -->
-            <div class="header theme">
-                <div class="container theme">
-                    <img src="src/img/favicon.png" alt="Server icone" class="icone ring-2">
+            <div class="sidebar-header">
+                <div class="sidebar-container">
+                    <img src="src/img/favicon.png" alt="Server icone" class="sidebar-icone ring-2">
 
-                    <div class="title">
-                        <h2 class="font-semibold text-white" id="server-name"></h2>
-                        <p class="text-xs text-gray-400">Proof of concept</p>
+                    <div class="sidebar-title">
+                        <h2 id="server-name"></h2>
+                        <p id="server-description">Proof of concept</p>
                     </div>
 
+                    <!--
                     <div class="flex space-x-2">
-                        <!--<button class="p-2 hover:bg-gray-700 rounded-full transition-colors">
+                        <button class="p-2 hover:bg-gray-700 rounded-full transition-colors">
                             <i class="fas fa-ellipsis-v text-gray-400"></i>
-                        </button>-->
+                        </button>
                     </div>
+                    -->
                 </div>
             </div>
 
             <!-- Room List -->
-            <div class="room-container custom-scrollbar" id="room-list">
+            <div class="room-container scrollbar" id="room-container">
                 <!-- JS -->
             </div>
 
             <!-- Status -->
-            <div class="status theme">
-                <div class="container">
-                    <div class="content">
-                        <div class="relative">
-                            <img src="" alt="PFP" class="icone ring-2">
-                            <div
-                                class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-800">
-                            </div>
-                        </div>
-                        <div class="user">
-                            <h2 class="name theme" id="user-name">[USERNAME]</h2>
-                            <p class="user-status theme" id="user-status">[USER STATUS]</p>
+            <div class="status-container">
+                <div class="status-bloc-1">
+                    <div class="relative">
+                        <img src="src/img/default-avatar.webp" alt="PFP" class="icone ring-2">
+                        <div
+                            class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-800">
                         </div>
                     </div>
-                    <div class="flex space-x-2">
-                        <button class="p-2 hover:bg-gray-700 rounded-full transition-colors">
-                                <i class="fas fa-ellipsis-v text-gray-400"></i>
-                                </button>
+                    <div class="user">
+                        <h2 class="name" id="user-name">[USERNAME]</h2>
+                        <p class="status" id="user-status">[USER STATUS]</p>
                     </div>
-
+                </div>
+                <div class="status-bloc-2">
+                    <button class="button">
+                        <i class="icone fa-ellipsis-v"></i>
+                    </button>
                 </div>
             </div>
+
         </div>
 
-        <!-- Chat Area -->
-        <div class="flex-1 flex flex-col perspective-card">
-            <div class="card-3d flex flex-col h-full">
+        <!-- Chat Container -->
+        <div class="chat">
+            <div class="chat-container">
                 <!-- Chat Header -->
-                <div class="p-4 border-b border-gray-700 glass-effect">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div>
-                                <h3 class="font-semibold text-white" id="room-header-name"></h3>
-                            </div>
-                        </div>
-                    </div>
+                <div class="chat-header">
+                    <h3 class="chat-name" id="room-name"></h3>
                 </div>
 
-                <!-- Messages Area -->
-                <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="room-messages">
+                <!-- Chat Area -->
+                <div class="chat-area scrollbar" id="room-messages">
                     <!-- JS -->
                 </div>
 
-                <!-- Message Input -->
-                <div class="p-3 border-t border-gray-700 glass-effect">
-                    <div class="flex items-center space-x-3">
-                        <!--<button class="p-2 hover:bg-gray-700 rounded-full transition-colors">
-                            <i class="fas fa-paperclip text-gray-400 hover:text-white"></i>
-                        </button>-->
-                        <div class="flex-1 relative">
-                            <input type="text" placeholder="Type a message..."
-                                class="w-full bg-gray-700 text-white placeholder-gray-400 pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all"
-                                id="message-input">
-                            <!--<button class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-600 rounded-full transition-colors">
-                                <i class="fas fa-smile text-gray-400 hover:text-yellow-400"></i>
-                            </button>-->
-                        </div>
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <!--
+                    <button class="p-2 hover:bg-gray-700 rounded-full transition-colors">
+                        <i class="fas fa-paperclip text-gray-400 hover:text-white"></i>
+                    </button>
+                    -->
+                    <div class="chat-text">
+                        <input type="text" id="chat-input">
+                        <!--
+                        <button class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-600 rounded-full transition-colors">
+                            <i class="fas fa-smile text-gray-400 hover:text-yellow-400"></i>
+                        </button>
+                        -->
                     </div>
                 </div>
             </div>

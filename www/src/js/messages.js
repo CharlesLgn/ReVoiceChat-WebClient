@@ -1,4 +1,4 @@
-document.getElementById("message-input").addEventListener('keydown', function (e) {
+document.getElementById("chat-input").addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
         sendMessage();
     }
@@ -49,7 +49,7 @@ function createMessage(messageData) {
 }
 
 async function sendMessage() {
-    let textInput = sanitizeString(document.getElementById('message-input').value);
+    let textInput = sanitizeString(document.getElementById('chat-input').value);
 
     if (textInput == "" || textInput == null) {
         return;
@@ -66,7 +66,7 @@ async function sendMessage() {
         });
 
         const result = await response.ok;
-        document.getElementById('message-input').value = "";
+        document.getElementById('chat-input').value = "";
     }
     catch (error) {
         console.error("Error while sending message : ", error);
