@@ -1,5 +1,3 @@
-let host = null;
-
 function userLogin() {
     const FORM = document.getElementById("login-form");
     const LOGIN = {
@@ -7,11 +5,17 @@ function userLogin() {
         'password': FORM.password.value,
     };
 
-    host = FORM.host.value;
-    login(LOGIN);
+    // Validate URL
+    try {
+        inputHost = new URL(FORM.host.value);
+        login(LOGIN, inputHost.origin);
+    }
+    catch(e){
+        console.log(e);
+    }
 }
 
-async function login(loginData) {
+async function login(loginData, host) {
     try {
         const response = await fetch(`${host}/login`, {
             cache: "no-store",
