@@ -1,5 +1,5 @@
-const currentState = {
-    hostUrl: null,
+const current = {
+    host: null,
     global: {
         sse: null,
     },
@@ -13,19 +13,19 @@ const currentState = {
 
 // Ready state
 document.addEventListener('DOMContentLoaded', function () {
-    currentState.hostUrl = getQueryVariable("host");
-
-    if(currentState.hostUrl === false){
+    if (sessionStorage.getItem('host')) {
+        current.host = sessionStorage.getItem('host');
+        getServers();
+        sseConnect();
+    }
+    else {
         document.location.href = `index.html`;
     }
-
-    getServers();
-    sseConnect();
 });
 
 async function getServers() {
     try {
-        const response = await fetch(`${currentState.hostUrl}/server`, {
+        const response = await fetch(`${current.host}/server`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
             credentials: 'include',
@@ -57,35 +57,35 @@ function selectServer(serverData) {
     }
 
     console.log(`Selected server : ${serverData.id}`);
-    currentState.server.id = serverData.id;
+    current.server.id = serverData.id;
     document.getElementById("server-name").innerText = serverData.name;
     getRooms(serverData.id);
 }
 
 function sseConnect() {
-    console.log(`Connecting to "${currentState.hostUrl}/sse"`);
+    console.log(`Connecting to "${current.host}/sse"`);
 
-    if (currentState.global.sse !== null) {
-        currentState.global.sse.close();
-        currentState.global.sse = null;
+    if (current.global.sse !== null) {
+        current.global.sse.close();
+        current.global.sse = null;
     }
 
-    currentState.global.sse = new EventSource(`${currentState.hostUrl}/sse`, { withCredentials: true });
+    current.global.sse = new EventSource(`${current.host}/sse`, { withCredentials: true });
 
-    currentState.global.sse.onmessage = (event) => {
+    current.global.sse.onmessage = (event) => {
         eventData = JSON.parse(event.data);
-        if (eventData.roomId === currentState.room.id) {
+        if (eventData.roomId === current.room.id) {
             const ROOM = document.getElementById("room-messages");
             ROOM.appendChild(createMessage(eventData));
             ROOM.scrollTop = ROOM.scrollHeight;
         }
     };
 
-    currentState.global.sse.onerror = () => {
-        console.error(`An error occurred while attempting to connect to "${currentState.hostUrl}/sse".\nRetry in 10 seconds`);
+    current.global.sse.onerror = () => {
+        console.error(`An error occurred while attempting to connect to "${current.host}/sse".\nRetry in 10 seconds`);
         setTimeout(() => {
             sseConnect();
-            getMessages(currentState.room.id);
+            getMessages(current.room.id);
         }, 10000);
     }
 }

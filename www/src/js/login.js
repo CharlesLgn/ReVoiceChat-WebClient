@@ -25,7 +25,8 @@ async function login(loginData) {
         });
 
         const result = await response.ok;
-        document.location.href = `app.html?host=${host}`;
+        sessionStorage.setItem('host', host);
+        document.location.href = `app.html`;
     }
     catch (error) {
         console.error("Error while login : ", error);

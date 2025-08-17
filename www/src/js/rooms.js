@@ -1,6 +1,6 @@
 async function getRooms(serverId) {
     try {
-        const response = await fetch(`${currentState.hostUrl}/server/${serverId}/room`, {
+        const response = await fetch(`${current.host}/server/${serverId}/room`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
             credentials: 'include',
@@ -45,10 +45,10 @@ function selectRoom(roomData) {
 
     if (roomData.type === "TEXT") {
         console.log(`Selected room : ${roomData.id}`);
-        if (currentState.room.id !== null) {
-            document.getElementById(currentState.room.id).classList.remove("active");
+        if (current.room.id !== null) {
+            document.getElementById(current.room.id).classList.remove("active");
         }
-        currentState.room = roomData;
+        current.room = roomData;
 
         document.getElementById(roomData.id).classList.add("active");
         document.getElementById("room-name").innerText = roomData.name;
