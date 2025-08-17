@@ -31,7 +31,7 @@ function createRoomList(data) {
 function createRoom(roomData, onclick) {
     const DIV = document.createElement('div');
     DIV.id = roomData.id;
-    DIV.className = "room theme";
+    DIV.className = "room";
     DIV.onclick = onclick;
     DIV.innerHTML = `<h3 class="room-title">${roomData.name}</h3>`;
     return DIV;
