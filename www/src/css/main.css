@@ -102,7 +102,6 @@ body {
 
 .chat-input-container {
     padding: 0.5rem;
-    border-top-width: 1px;
     display: flex;
 }
 
@@ -142,7 +141,7 @@ body {
 }
 
 .status-container {
-    padding: 1rem;
+    padding: 0.75rem;
     align-items: center;
     display: flex;
 }
