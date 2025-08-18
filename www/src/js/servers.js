@@ -53,6 +53,13 @@ function sseConnect() {
     current.sse = new EventSource(`${current.host}/sse`, { withCredentials: true });
 
     current.sse.onmessage = (event) => {
+        console.log(event.data);
+
+        if(event.data === "ping"){
+            console.log("Got pinged by server");
+            return;
+        }
+
         eventData = JSON.parse(event.data);
         if (eventData.roomId === current.room.id) {
             const ROOM = document.getElementById("room-messages");
