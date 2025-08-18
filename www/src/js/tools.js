@@ -4,6 +4,11 @@ function sanitizeString(str) {
     return str.trim();
 }
 
+function isToday(date) {
+    const today = new Date();
+    return today.getFullYear() == date.getFullYear() && today.getMonth() == date.getMonth() && today.getDate() == date.getDate();
+}
+
 function timestampToText(timestamp) {
     // By default timestamp is UTC (shouldn't matter for this function)
     timestamp = new Date(`${timestamp}Z`);
@@ -35,9 +40,15 @@ function timestampToText(timestamp) {
     }
     */
 
-    timestamp = timestamp.toLocaleString();
+    formatedTimestamp = timestamp.toLocaleString();
+    formatedTimestamp = formatedTimestamp.substring(0, formatedTimestamp.length - 3);
 
-    return timestamp.substring(0, timestamp.length - 3);
+    // Is today ?
+    if (isToday(timestamp)) {
+        formatedTimestamp =  String(timestamp.getHours()).padStart(2, '0') + ":" + String(timestamp.getMinutes()).padStart(2, '0');
+    }
+
+    return formatedTimestamp;
 }
 
 function getQueryVariable(variable) {
