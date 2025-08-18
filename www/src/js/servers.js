@@ -8,6 +8,10 @@ async function getServers() {
                 'Content-Type': 'application/json'
             },
         });
+        
+        if(!response.ok){
+            throw "Not OK";
+        }
 
         const result = await response.json();
         buildServerList(result);
@@ -15,6 +19,7 @@ async function getServers() {
     }
     catch (error) {
         console.error("Error while retrieving server list : ", error);
+        document.location.href = "index.html";
     }
 }
 
