@@ -1,3 +1,9 @@
+document.getElementById("login-form").addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        userLogin();
+    }
+});
+
 function userLogin() {
     const FORM = document.getElementById("login-form");
     const LOGIN = {
