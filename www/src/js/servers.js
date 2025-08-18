@@ -1,8 +1,6 @@
 const current = {
     host: null,
-    global: {
-        sse: null,
-    },
+    sse: null,
     server: {
         id: null,
     },
@@ -65,14 +63,14 @@ function selectServer(serverData) {
 function sseConnect() {
     console.log(`Connecting to "${current.host}/sse"`);
 
-    if (current.global.sse !== null) {
-        current.global.sse.close();
-        current.global.sse = null;
+    if (current.sse !== null) {
+        current.sse.close();
+        current.sse = null;
     }
 
-    current.global.sse = new EventSource(`${current.host}/sse`, { withCredentials: true });
+    current.sse = new EventSource(`${current.host}/sse`, { withCredentials: true });
 
-    current.global.sse.onmessage = (event) => {
+    current.sse.onmessage = (event) => {
         eventData = JSON.parse(event.data);
         if (eventData.roomId === current.room.id) {
             const ROOM = document.getElementById("room-messages");
@@ -81,7 +79,7 @@ function sseConnect() {
         }
     };
 
-    current.global.sse.onerror = () => {
+    current.sse.onerror = () => {
         console.error(`An error occurred while attempting to connect to "${current.host}/sse".\nRetry in 10 seconds`);
         setTimeout(() => {
             sseConnect();
