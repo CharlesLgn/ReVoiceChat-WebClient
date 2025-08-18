@@ -1,26 +1,3 @@
-const current = {
-    host: null,
-    sse: null,
-    server: {
-        id: null,
-    },
-    room: {
-        id: null,
-    }
-}
-
-// Ready state
-document.addEventListener('DOMContentLoaded', function () {
-    if (sessionStorage.getItem('host')) {
-        current.host = sessionStorage.getItem('host');
-        getServers();
-        sseConnect();
-    }
-    else {
-        document.location.href = `index.html`;
-    }
-});
-
 async function getServers() {
     try {
         const response = await fetch(`${current.host}/server`, {
