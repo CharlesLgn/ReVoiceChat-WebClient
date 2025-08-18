@@ -11,6 +11,7 @@ async function getUsername() {
 
         const result = await response.json();
         document.getElementById("user-name").innerText = result.username;
+        document.getElementById("user-status").innerText = result.status;
     }
     catch (error) {
         console.error("Error while retrieving username : ", error);
