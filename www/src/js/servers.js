@@ -1,7 +1,7 @@
 async function getServers() {
     const result = await getRequestToHost("/server");
 
-    if(result === null){
+    if (result === null) {
         document.location.href = "index.html";
         return;
     }
@@ -40,18 +40,30 @@ function sseConnect() {
     current.sse = new EventSource(`${current.host}/sse`, { withCredentials: true });
 
     current.sse.onmessage = (event) => {
-        console.log(event.data);
+        event = JSON.parse(event.data);
 
-        if(event.data === "ping"){
-            console.log("Got pinged by server");
-            return;
-        }
+        switch (event.type) {
+            case "PING":
+                console.log("Got pinged by server.");
+                return;
 
-        eventData = JSON.parse(event.data);
-        if (eventData.roomId === current.room.id) {
-            const ROOM = document.getElementById("room-messages");
-            ROOM.appendChild(createMessage(eventData));
-            ROOM.scrollTop = ROOM.scrollHeight;
+            case "ROOM_MESSAGE":
+                if (event.data.roomId === current.room.id) {
+                    const ROOM = document.getElementById("room-messages");
+                    ROOM.appendChild(createMessage(event.data));
+                    ROOM.scrollTop = ROOM.scrollHeight;
+                }
+                return;
+
+            case "DIRECT_MESSAGE":
+                return;
+
+            case "USER_STATUS_CHANGE":
+                return;
+
+            default:
+                console.error("SSE type not allowed.");
+                return;
         }
     };
 
