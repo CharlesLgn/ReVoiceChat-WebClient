@@ -15,7 +15,6 @@ function changeTheme() {
             </form>
         `,
         focusConfirm: false,
-        howCloseButton: true,
         showCancelButton: true,
         confirmButtonText: `Select`,
         cancelButtonText: `Cancel`,
