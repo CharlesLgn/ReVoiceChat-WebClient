@@ -67,11 +67,13 @@ body {
     margin-top: 0.5rem;
 }
 
+/* SIDEBAR LEFT */
+
 .sidebar {
     display: flex;
     flex-direction: column;
     border-right-width: 1px;
-    width: 20rem;
+    width: 18rem;
     height: 100%;
 }
 
@@ -92,8 +94,10 @@ body {
 
 .sidebar-title {
     margin-left: 0.75rem;
+    min-height: 2.5rem;
 }
 
+.sidebar-user-title h2,
 .sidebar-title h2 {
     font-weight: 600;
 }
@@ -102,6 +106,31 @@ body {
     font-size: 0.75rem;
     line-height: 1rem;
 }
+
+/* SIDEBAR USERS (right) */
+
+.sidebar-user-list {
+    display: flex;
+    flex-direction: column;
+    border-left-width: 1px;
+    width: 15rem;
+    height: 100%;
+}
+
+.sidebar-user-title{
+    display: flex;
+    align-content: center;
+    padding: 0.5rem;
+}
+
+.sidebar-user-title svg{
+    display: block;
+    height: 1.5rem;
+    width: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+/* ROOM */
 
 .room-container {
     flex: 1 1 0%;

@@ -24,7 +24,7 @@
         border-color: rgb(209, 213, 219);
     }
 
-    /* Sidebar */
+    /* Sidebar left */
     .sidebar {
         background-color: rgb(31, 41, 55);
         border-color: rgb(55, 65, 81);
@@ -41,6 +41,11 @@
 
     .sidebar-title p {
         color: rgb(156 163 175);
+    }
+
+    /* Sidebar right */
+    .sidebar-user-list {
+        border-color: rgb(55, 65, 81);
     }
 
     /* Room */
