@@ -3,7 +3,7 @@ async function getUsername() {
 
     if (result !== null) {
         current.user.id = result.id;
-        document.getElementById("user-name").innerText = result.username;
+        document.getElementById("user-name").innerText = result.displayName;
         document.getElementById("user-status").innerText = result.status;
 
         if (await fileExistOnMedia(`/profiles/${result.id}`)) {
