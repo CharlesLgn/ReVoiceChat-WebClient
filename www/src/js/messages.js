@@ -32,8 +32,14 @@ function createMessage(messageData) {
             <h3 class="message-owner">${messageData.user.username} <span class="message-timestamp">${timestampToText(messageData.createdDate)}</span></h3>
             ${createMessageContextMenu(messageData)}
         </div>
-        <div class="message-content" id="${messageData.id}">${messageData.text}</div>
     `;
+
+    const DIV_CONTENT = document.createElement('div');
+    DIV_CONTENT.className = "message-content";
+    DIV_CONTENT.id = messageData.id;
+    DIV_CONTENT.innerText = messageData.text;
+    DIV.appendChild(DIV_CONTENT);
+
     return DIV;
 }
 
