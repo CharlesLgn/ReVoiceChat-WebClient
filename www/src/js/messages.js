@@ -21,20 +21,21 @@ async function getMessages(roomId) {
 
 function createMessage(messageData) {
     const DIV = document.createElement('div');
-    DIV.id = messageData.id;
+    DIV.id = `container-${messageData.id}`;
     DIV.className = "message-container";
     DIV.innerHTML = `
         <div class="message-header">
             <h3 class="message-owner">${messageData.user.username} <span class="message-timestamp">${timestampToText(messageData.createdDate)}</span></h3>
             ${createMessageContextMenu(messageData)}
         </div>
-        <div class="message-content">${messageData.text}</div>
+        <div class="message-content" id="${messageData.id}">${messageData.text}</div>
     `;
     return DIV;
 }
 
 function createMessageContextMenu(messageData) {
-    const menu = `
+    if (messageData.user.id == current.user.id) {
+        return `
         <div class="message-context-menu">
             <div class="icon" onclick="editMessage('${messageData.id}')"  >
                 <svg data-slot="icon" aria-hidden="true" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
@@ -48,23 +49,31 @@ function createMessageContextMenu(messageData) {
                 </svg>
             </div>
         </div>
-    `;
-
-    if(messageData.user.id == current.user.id){
-        return menu;
+        `;
     }
 
     return "";
 }
 
 async function sendMessage() {
+    let result = null;
     let textInput = sanitizeString(document.getElementById('chat-input').value);
 
     if (textInput == "" || textInput == null) {
         return;
     }
 
-    const result = await putRequestOnCore(`/room/${current.room.id}/message`, { text: textInput })
+    switch (current.chat.mode) {
+        case "send":
+            result = await putRequestOnCore(`/room/${current.room.id}/message`, { text: textInput });
+            break;
+
+        case "edit":
+            result = await patchRequestOnCore(`/message/${current.chat.editId}`, { text: textInput });
+            current.chat.mode = "send";
+            current.chat.editId = null;
+            break;
+    }
 
     if (result) {
         document.getElementById('chat-input').value = "";
@@ -78,6 +87,21 @@ async function deleteMessage(id) {
     const result = await deleteRequestOnCore(`/message/${id}`);
 }
 
-async function editMessage(id){
-    console.error("Edit message : Not implemented");
+async function editMessage(id) {
+    const result = await getRequestOnCore(`/message/${id}`);
+
+    if (result) {
+        document.getElementById('chat-input').value = result.text;
+        current.chat.mode = "edit";
+        current.chat.editId = id;
+        document.getElementById("chat-input").focus();
+    }
+}
+
+function chatMode(input){
+    if(input.value == ""){
+        current.chat.mode = "send";
+        current.chat.editId = null;
+        console.log("Switching to 'send' mode");
+    }
 }

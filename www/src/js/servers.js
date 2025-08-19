@@ -57,8 +57,14 @@ function sseConnect() {
                         case "ADD":
                             ROOM.appendChild(createMessage(event.data));
                             break;
+                        case "MODIFY":
+                            document.getElementById(event.data.id).innerText = event.data.text;
+                            break;
                         case "REMOVE":
-                            document.getElementById(event.data.id).remove();
+                            document.getElementById(`container-${event.data.id}`).remove();
+                            break;
+                        default:
+                            console.error("Unsupported actionType : ", event.data.actionType);
                             break;
                     }
 

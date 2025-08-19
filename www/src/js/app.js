@@ -10,6 +10,10 @@ const current = {
     },
     user:{
         id: null,
+    },
+    chat:{
+        mode: "send",
+        editId: null,
     }
 }
 

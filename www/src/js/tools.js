@@ -106,6 +106,26 @@ async function putRequestOnCore(path, data) {
     }
 }
 
+async function patchRequestOnCore(path, data) {
+    try {
+        const response = await fetch(`${current.coreUrl}${path}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            signal: AbortSignal.timeout(5000),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        return response.ok;
+    }
+    catch (error) {
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.coreUrl}\nPath : ${path}`);
+        return null;
+    }
+}
+
 async function deleteRequestOnCore(path){
     try {
         const response = await fetch(`${current.coreUrl}${path}`, {
