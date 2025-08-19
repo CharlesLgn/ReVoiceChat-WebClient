@@ -29,7 +29,7 @@ function createMessage(messageData) {
     DIV.className = "message-container";
     DIV.innerHTML = `
         <div class="message-header">
-            <h3 class="message-owner">${messageData.user.username} <span class="message-timestamp">${timestampToText(messageData.createdDate)}</span></h3>
+            <h3 class="message-owner">${messageData.user.displayName} <span class="message-timestamp">${timestampToText(messageData.createdDate)}</span></h3>
             ${createMessageContextMenu(messageData)}
         </div>
     `;
