@@ -293,4 +293,10 @@
         background-color: #595959;
         border-radius: 10px;
     }
+
+    /* User profile */
+
+    .user-profile:hover {
+        background-color: #595959;
+    }
 }
