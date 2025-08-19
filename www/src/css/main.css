@@ -117,20 +117,20 @@ body {
     height: 100%;
 }
 
-.sidebar-user-title{
+.sidebar-user-title {
     display: flex;
     align-content: center;
     padding: 0.5rem;
 }
 
-.sidebar-user-title svg{
+.sidebar-user-title svg {
     display: block;
     height: 1.5rem;
     width: 1.5rem;
     margin-right: 0.5rem;
 }
 
-.user-profile{
+.user-profile {
     padding: 0.5rem;
 }
 
@@ -304,7 +304,7 @@ body {
     height: 1.5rem;
 }
 
-.user-dot{
+.user-dot {
     border-color: rgb(31 41 55);
     border-width: 2px;
     border-radius: 9999px;
@@ -315,7 +315,23 @@ body {
     position: absolute;
 }
 
-.user-profile{
+.user-dot-online {
+    background-color: rgb(74, 222, 81);
+}
+
+.user-dot-away {
+    background-color: rgb(251, 136, 60);
+}
+
+.user-dot-dnd {
+    background-color: rgb(220, 38, 38)
+}
+
+.user-dot-offline {
+    background-color: rgb(113, 113, 122)
+}
+
+.user-profile {
     height: 3.5rem;
     display: flex;
     cursor: pointer;

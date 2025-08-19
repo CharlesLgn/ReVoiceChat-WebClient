@@ -86,22 +86,6 @@
         border-radius: 10px;
     }
 
-    .user-dot-online {
-        background-color: rgb(74, 222, 128);
-    }
-
-    .user-dot-away {
-        background-color: rgb(251, 146, 60);
-    }
-
-    .user-dot-dnd {
-        background-color: rgb(220, 38, 38)
-    }
-
-    .user-dot-offline {
-        background-color: rgb(113, 113, 122)
-    }
-
     /* Chat */
     .chat-container {
         border-color: rgb(55, 65, 81);
@@ -254,22 +238,6 @@
     .status-bloc-2 .button:hover {
         background-color: #595959;
         border-radius: 10px;
-    }
-
-    .user-dot-online {
-        background-color: rgb(74, 222, 128);
-    }
-
-    .user-dot-away {
-        background-color: rgb(251, 146, 60);
-    }
-
-    .user-dot-dnd {
-        background-color: rgb(220, 38, 38)
-    }
-
-    .user-dot-offline {
-        background-color: rgb(113, 113, 122)
     }
 
     /* Chat */
