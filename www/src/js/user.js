@@ -17,12 +17,30 @@ async function getUsername() {
 async function getServerUsers(serverId) {
     const result = await getRequestOnCore(`/server/${serverId}/user`);
 
-    if (result !== null) {
+    const sortedName = [...result].sort((a, b) => {
+        return a.displayName.localeCompare(b.displayName);
+    });
+
+    const sortedStatus = [...sortedName].sort((a, b) => {
+        if (a.status === b.status) {
+            return 0;
+        }
+        else {
+            if (a.status === "ONLINE") {
+                return -1;
+            }
+            if (b.status === "ONLINE") {
+                return 1;
+            }
+        }
+    });
+
+    if (sortedStatus !== null) {
         const userList = document.getElementById("user-list");
         userList.innerHTML = "";
 
-        for (const neddle in result) {
-            userList.appendChild(await createUser(result[neddle]));
+        for (const neddle in sortedStatus) {
+            userList.appendChild(await createUser(sortedStatus[neddle]));
         }
     }
 }
