@@ -67,6 +67,21 @@ body {
     margin-top: 0.5rem;
 }
 
+/* ELEMENT */
+.button-with-icon {
+    padding: 0.5rem;
+}
+
+.button-with-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.block-right {
+    margin-left: auto;
+    margin-right: 0px;
+}
+
 /* SIDEBAR LEFT */
 
 .sidebar {
@@ -288,20 +303,6 @@ body {
 .status-bloc-1 .user .status {
     font-size: 0.75rem;
     line-height: 1rem;
-}
-
-.status-bloc-2 {
-    margin-left: auto;
-    margin-right: 0px;
-}
-
-.status-bloc-2 .button {
-    padding: 0.5rem;
-}
-
-.status-bloc-2 .button .icon {
-    width: 1.5rem;
-    height: 1.5rem;
 }
 
 .user-dot {
