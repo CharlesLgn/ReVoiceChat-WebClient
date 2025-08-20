@@ -1,5 +1,6 @@
 * {
     font-family: sans-serif;
+    user-select: none;
 }
 
 body {
@@ -72,7 +73,7 @@ body {
     padding: 0.5rem;
 }
 
-.button-with-icon svg {
+svg {
     width: 1.5rem;
     height: 1.5rem;
 }
@@ -159,7 +160,7 @@ body {
 .room {
     cursor: pointer;
     position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0.5rem;
     border-bottom-width: 1px;
     align-items: center;
@@ -181,6 +182,7 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1 1 0%;
+    user-select: auto;
 }
 
 .chat-container {
@@ -255,12 +257,14 @@ body {
     font-weight: 600;
     text-overflow: ellipsis;
     display: block;
+    user-select: text;
 }
 
 .message-content {
     display: block;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
+    user-select: text;
 }
 
 .message-timestamp {
@@ -360,4 +364,50 @@ body {
 
 .scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(37, 211, 102, 0.7);
+}
+
+/* CONFIG */
+.config-container-left {
+    width: 33%;
+    border-right-width: 1px;
+    border-color: white;
+    padding-top: 5rem;
+    padding-left: 2rem;
+    padding-right: 1rem;
+    padding-bottom: 5rem;
+}
+
+.config-left {
+    width: 13rem;
+    margin-left: auto;
+    margin-right: 0px;
+}
+
+.config-container-right {
+    width: 67%;
+    padding-top: 5rem;
+    padding-left: 1rem;
+    padding-right: 2rem;
+    padding-bottom: 5rem;
+}
+
+.config-right {}
+
+.config .category {
+    font-weight: 800;
+    font-size: 1.25rem;
+    height: 2.5rem;
+}
+
+.config .item {
+    display: flex;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.item svg {
+    margin-right: 0.5rem;
 }
