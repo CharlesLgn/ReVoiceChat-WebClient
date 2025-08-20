@@ -125,10 +125,13 @@ svg {
 
 /* SIDEBAR USERS (right) */
 
+.sidebar-right{
+    border-left-width: 1px;
+}
+
 .sidebar-user-list {
     display: flex;
     flex-direction: column;
-    border-left-width: 1px;
     width: 15rem;
     height: 100%;
 }
