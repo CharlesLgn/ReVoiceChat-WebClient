@@ -406,6 +406,7 @@ svg {
     padding: 0.5rem;
     border-radius: 5px;
     cursor: pointer;
+    margin-bottom: 0.1rem;
 }
 
 .item svg {
