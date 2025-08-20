@@ -2,6 +2,11 @@ document.getElementById("chat-input").addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
         sendMessage();
     }
+
+    if (e.key === 'Escape') {
+        document.getElementById("chat-input").value = "";
+        current.chat.mode = "send";
+    }
 });
 
 async function getMessages(roomId) {
