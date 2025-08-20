@@ -17,11 +17,11 @@ async function getUsername() {
 async function getServerUsers(serverId) {
     const result = await getRequestOnCore(`/server/${serverId}/user`);
 
-    const sortedName = [...result].sort((a, b) => {
+    const sortedByDisplayName = [...result].sort((a, b) => {
         return a.displayName.localeCompare(b.displayName);
     });
 
-    const sortedStatus = [...sortedName].sort((a, b) => {
+    const sortedByStatus = [...sortedByDisplayName].sort((a, b) => {
         if (a.status === b.status) {
             return 0;
         }
@@ -35,12 +35,12 @@ async function getServerUsers(serverId) {
         }
     });
 
-    if (sortedStatus !== null) {
+    if (sortedByStatus !== null) {
         const userList = document.getElementById("user-list");
         userList.innerHTML = "";
 
-        for (const neddle in sortedStatus) {
-            userList.appendChild(await createUser(sortedStatus[neddle]));
+        for (const neddle in sortedByStatus) {
+            userList.appendChild(await createUser(sortedByStatus[neddle]));
         }
     }
 }
