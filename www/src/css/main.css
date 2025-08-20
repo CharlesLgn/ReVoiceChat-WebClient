@@ -314,6 +314,7 @@ svg {
 
 .sidebar-user-list .user .name {
     font-weight: 500;
+    padding-top: 0.25rem;
 }
 
 .sidebar-user-list .user .status,
