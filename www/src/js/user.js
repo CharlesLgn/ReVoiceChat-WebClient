@@ -26,11 +26,11 @@ async function getServerUsers(serverId) {
             return 0;
         }
         else {
-            if (a.status === "ONLINE") {
-                return -1;
-            }
-            if (b.status === "ONLINE") {
+            if (a.status === "OFFLINE") {
                 return 1;
+            }
+            if (b.status === "OFFLINE") {
+                return -1;
             }
         }
     });
