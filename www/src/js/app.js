@@ -26,13 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Login
     if (sessionStorage.getItem('coreUrl')) {
         current.coreUrl = sessionStorage.getItem('coreUrl');
-        getServers();
-        sseOpen();
-        getUsername();
     }
 
     // Last state (app wasn't closed)
-    if(sessionStorage.getItem('lastState')){
+    if (sessionStorage.getItem('lastState')) {
         const lastState = JSON.parse(sessionStorage.getItem('lastState'));
         current.coreUrl = lastState.coreUrl;
         current.mediaUrl = lastState.mediaUrl;
@@ -41,12 +38,24 @@ document.addEventListener('DOMContentLoaded', function () {
         current.user = lastState.user;
     }
 
-    if(current.coreUrl === null){
+    // No data
+    if (current.coreUrl === null) {
         document.location.href = `index.html`;
+    }
+
+    // Current page is the app
+    const currentLocation = window.location.pathname.substring(window.location.pathname.lastIndexOf("/"));
+    if (currentLocation === "/app.html") {
+        getServers();
+        sseOpen();
+        getUsername();
     }
 });
 
 addEventListener("beforeunload", () => {
-    current.sse.close();
+    if (current.sse !== null) {
+        current.sse.close();
+        current.sse = null;
+    }
     sessionStorage.setItem('lastState', JSON.stringify(current));
 })
