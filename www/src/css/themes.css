@@ -347,4 +347,12 @@
         background-color: #2c2c2c;
         color: white;
     }
+
+    .config-item {
+        background-color: #2c2c2c;
+    }
+
+    .config-item:hover {
+        background-color: #595959;
+    }
 }
