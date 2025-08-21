@@ -177,7 +177,6 @@ svg {
 .room {
     cursor: pointer;
     position: relative;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0.5rem;
     border-bottom-width: 1px;
     align-items: center;
