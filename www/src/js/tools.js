@@ -163,7 +163,7 @@ async function fileExistOnMedia(path){
         throw new Error(`Invalid response status: ${response.status}`);
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.coreUrl}\nPath : ${path}`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.mediaUrl}\nPath : ${path}`);
         return null;
     }
 }

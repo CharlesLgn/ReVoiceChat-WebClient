@@ -160,12 +160,25 @@
         background-color: rgba(255, 255, 255, 0.1);
     }
 
-    .config .item:hover {
+    .config .sub-category:hover {
         background-color: rgba(12, 74, 110, 0.7);
     }
 
-    .config .item.active {
+    .config .sub-category.active {
         background-color: rgb(7, 89, 133);
+    }
+
+    .config input {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .config-item {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .config-item:hover {
+        background-color: rgba(12, 74, 110, 0.7);
     }
 }
 
@@ -320,11 +333,11 @@
         border-color: white;
     }
 
-    .config .item:hover {
+    .config .sub-category:hover {
         background-color: #2c2c2c;
     }
 
-    .config .item.active {
+    .config .sub-category.active {
         background-color: #595959;
     }
 }

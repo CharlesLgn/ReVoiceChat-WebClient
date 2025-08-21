@@ -17,25 +17,25 @@ async function getUsername() {
 async function getServerUsers(serverId) {
     const result = await getRequestOnCore(`/server/${serverId}/user`);
 
-    const sortedByDisplayName = [...result].sort((a, b) => {
-        return a.displayName.localeCompare(b.displayName);
-    });
+    if (result !== null) {
+        const sortedByDisplayName = [...result].sort((a, b) => {
+            return a.displayName.localeCompare(b.displayName);
+        });
 
-    const sortedByStatus = [...sortedByDisplayName].sort((a, b) => {
-        if (a.status === b.status) {
-            return 0;
-        }
-        else {
-            if (a.status === "OFFLINE") {
-                return 1;
+        const sortedByStatus = [...sortedByDisplayName].sort((a, b) => {
+            if (a.status === b.status) {
+                return 0;
             }
-            if (b.status === "OFFLINE") {
-                return -1;
+            else {
+                if (a.status === "OFFLINE") {
+                    return 1;
+                }
+                if (b.status === "OFFLINE") {
+                    return -1;
+                }
             }
-        }
-    });
+        });
 
-    if (sortedByStatus !== null) {
         const userList = document.getElementById("user-list");
         userList.innerHTML = "";
 
@@ -61,7 +61,7 @@ async function createUser(data) {
             <div id="dot-${data.id}" class="user-dot ${statusToDotClassName(data.status)}"></div>
         </div>
         <div class="user">
-            <h2 class="name" id="user-name">${data.displayName}</h2>
+            <h2 class="name">${data.displayName}</h2>
         </div>
     `;
 
