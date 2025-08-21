@@ -193,6 +193,11 @@ svg {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: flex;
+}
+
+.room-title svg{
+    margin-right: 0.5rem;
 }
 
 .chat {
