@@ -407,7 +407,9 @@ svg {
     padding-bottom: 5rem;
 }
 
-.config-right {}
+.config-right {
+    max-width: 45rem;
+}
 
 .config .category {
     font-weight: 800;
