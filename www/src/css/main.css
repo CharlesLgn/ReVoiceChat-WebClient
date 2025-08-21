@@ -472,7 +472,8 @@ svg {
     margin-top: 1rem;
 }
 
-.config input {
+.config input,
+.config select {
     outline: 2px solid transparent;
     outline-offset: 2px;
     padding-left: 0.75rem;

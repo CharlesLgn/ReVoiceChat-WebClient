@@ -1,3 +1,7 @@
+document.addEventListener('DOMContentLoaded', function () {
+    document.documentElement.setAttribute("data-theme", localStorage.getItem("Theme") || "default");
+});
+
 document.getElementById("login-form").addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
         userLogin();

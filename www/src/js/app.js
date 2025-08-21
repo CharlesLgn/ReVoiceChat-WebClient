@@ -23,6 +23,7 @@ const current = {
 
 // Ready state
 document.addEventListener('DOMContentLoaded', function () {
+    document.documentElement.setAttribute("data-theme", localStorage.getItem("Theme") || "default");
     document.body.classList.add("loaded");
 
     // Login

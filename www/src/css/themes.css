@@ -168,7 +168,8 @@
         background-color: rgb(7, 89, 133);
     }
 
-    .config input {
+    .config input,
+    .config select {
         background-color: rgba(255, 255, 255, 0.1);
         color: white;
     }
@@ -339,5 +340,11 @@
 
     .config .sub-category.active {
         background-color: #595959;
+    }
+
+    .config input,
+    .config select {
+        background-color: #2c2c2c;
+        color: white;
     }
 }
