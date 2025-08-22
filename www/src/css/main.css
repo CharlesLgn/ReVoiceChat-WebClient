@@ -79,7 +79,7 @@ body.loaded.fadein {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     border-width: 1px;
-    border-radius: 0.25rem;
+    border-radius: 10px;
     width: 100%;
     margin-top: 0.5rem;
 }
@@ -451,7 +451,7 @@ svg {
     font-weight: 600;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0.5rem;
-    border-radius: 5px;
+    border-radius: 0.25rem;
     cursor: pointer;
     margin-bottom: 0.1rem;
 }
@@ -511,12 +511,12 @@ svg {
 .config-item .icon {
     width: 2rem;
     height: 2rem;
-    border-radius: 9999px;
+    border-radius: 10px;
 }
 
 .config-item .context-menu {
     visibility: hidden;
-    padding-right: 1rem;
+    padding-top: 0.25rem;
     margin-left: auto;
     margin-right: 0px;
 }
