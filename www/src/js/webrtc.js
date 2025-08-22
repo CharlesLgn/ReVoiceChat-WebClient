@@ -8,13 +8,35 @@ function initWebRTC() {
 
     const remoteAudio = document.getElementById("remoteAudio");
 
+    const audioTransceiver = current.webrtc.p2p.addTransceiver('audio');
+
+    console.log(RTCRtpSender.getCapabilities('audio').codecs)
+
+    audioTransceiver.setCodecPreferences([
+        {
+            channels: 2,
+            clockRate: 48000,
+            mimeType: 'audio/opus',
+            sdpFmtpLine: 'maxplaybackrate=48000;stereo=1;useinbandfec=1'
+        }
+    ]);
+
     // Handle remote audio from other peer
     current.webrtc.p2p.ontrack = event => {
-        remoteAudio.srcObject = event.streams[0];
+        console.log("OnTrack");
+
+        const audio = document.createElement("audio");
+        audio.autoplay = true;
+        audio.muted = false;
+        audio.controls = true;
+        audio.srcObject = event.streams[0];
+        remoteAudio.appendChild(audio);
     };
 
     // Send ICE candidates to peer
     current.webrtc.p2p.onicecandidate = event => {
+        console.log("OnIceCandidate");
+
         if (event.candidate) {
             current.webrtc.socket.send(JSON.stringify({ candidate: event.candidate }));
         }
@@ -22,7 +44,7 @@ function initWebRTC() {
 
     // Handle signaling messages
     current.webrtc.socket.onmessage = async (msg) => {
-        const data = JSON.parse(msg.data);
+        const data = JSON.parse(msg.data)
 
         if (data.offer) {
             await current.webrtc.p2p.setRemoteDescription(new RTCSessionDescription(data.offer));
@@ -33,12 +55,12 @@ function initWebRTC() {
             stream.getTracks().forEach(track => current.webrtc.p2p.addTrack(track, stream));
 
             // Remote audio
-            const localAudio = document.createElement("audio");
-            localAudio.autoplay = true;
-            localAudio.muted = false; // allow hearing yourself
-            localAudio.srcObject = stream;
-            localAudio.controls = true;
-            document.getElementById("remoteAudio").appendChild(localAudio); // optional
+            /*const audio = document.createElement("audio");
+            audio.autoplay = true;
+            audio.muted = false;
+            audio.srcObject = stream;
+            audio.controls = true;
+            remoteAudio.appendChild(audio); // optional*/
 
             const answer = await current.webrtc.p2p.createAnswer();
             await current.webrtc.p2p.setLocalDescription(answer);
