@@ -24,10 +24,13 @@ function initWebRTC() {
     current.webrtc.socket.onmessage = async (msg) => {
         const data = JSON.parse(msg.data);
 
+        console.log(data);
+
         if (data.offer) {
             await current.webrtc.p2p.setRemoteDescription(new RTCSessionDescription(data.offer));
 
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
             // Add mic to peer connection
             stream.getTracks().forEach(track => current.webrtc.p2p.addTrack(track, stream));
 
@@ -58,7 +61,9 @@ function initWebRTC() {
 }
 
 // Start call (send offer)
-async function startCall() {
+async function startCall(initiator) {
+    initiator.classList.add('active-voice');
+
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach(track => current.webrtc.p2p.addTrack(track, stream));
 

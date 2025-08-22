@@ -52,7 +52,7 @@ function selectRoom(roomData) {
     }
 
     if (roomData.type === "TEXT") {
-        console.log(`Selected room : ${roomData.id}`);
+        console.log(`Selected text room : ${roomData.id}`);
 
         if (current.room.id !== null && document.getElementById(current.room.id) !== undefined) {
             document.getElementById(current.room.id).classList.remove("active");
@@ -66,5 +66,10 @@ function selectRoom(roomData) {
         document.getElementById("chat-input").focus();
 
         getMessages(roomData.id);
+    }
+
+    if (roomData.type === "WEBRTC") {
+        console.log(`Selected webrtc room : ${roomData.id}`);
+        startCall(document.getElementById(roomData.id));
     }
 }

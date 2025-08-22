@@ -537,3 +537,18 @@ svg {
     width: 1.25rem;
     height: 1.25rem;
 }
+
+@keyframes voice-call {
+    from {
+        background-color: green;
+    }
+
+    to {
+        background-color: darkgreen;
+    }
+}
+
+.active-voice {
+    animation: voice-call 1s steps(20, start) infinite;
+    animation-direction: alternate;
+}
