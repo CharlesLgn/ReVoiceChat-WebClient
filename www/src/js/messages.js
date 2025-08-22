@@ -12,8 +12,6 @@ document.getElementById("chat-input").addEventListener('keydown', function (e) {
 async function getMessages(roomId) {
     const result = await getRequestOnCore(`/room/${roomId}/message`);
 
-    console.log(result);
-
     if (result !== null) {
         const ROOM = document.getElementById("room-messages");
 
