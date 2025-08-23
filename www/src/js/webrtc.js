@@ -1,4 +1,4 @@
-function initWebRTC() {
+async function initWebRTC() {
     console.info("Initializing WebRTC ...");
 
     current.webrtc.socket = new WebSocket(current.url.voiceSignal);
@@ -6,10 +6,9 @@ function initWebRTC() {
         iceServers: [{ urls: `stun:${current.url.voiceStun}` }]
     });
 
-    const remoteAudio = document.getElementById("remoteAudio");
-
     // Handle remote audio from other peer
     current.webrtc.p2p.ontrack = event => {
+        const remoteAudio = document.getElementById("remoteAudio");
         const audio = document.createElement("audio");
         audio.autoplay = true;
         audio.muted = false;
@@ -60,25 +59,52 @@ function initWebRTC() {
             }
         }
     };
+
+    // TO DO : A real promise ?
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve("resolved");
+        }, 200);
+    });
 }
 
 // Start call (send offer)
 async function startCall(roomId) {
+    // Now clicking on button stop the call (first so you can clear old objects)
+    document.getElementById(roomId).onclick = () => stopCall(roomId);
+
+    await initWebRTC();
+
+    console.info(`Joining voice chat (webRTC) : ${roomId}`);
+
     document.getElementById(roomId).classList.add('active-voice');
     current.webrtc.activeRoom = roomId;
 
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach(track => current.webrtc.p2p.addTrack(track, stream));
 
-    // --- Self-monitoring audio ---
-    /*const localAudio = document.createElement("audio");
-    localAudio.autoplay = true;
-    localAudio.muted = true; // allow hearing yourself
-    localAudio.srcObject = stream;
-    localAudio.controls = true;
-    document.getElementById("localAudio").appendChild(localAudio); // optional*/
-
     const offer = await current.webrtc.p2p.createOffer();
     await current.webrtc.p2p.setLocalDescription(offer);
     current.webrtc.socket.send(JSON.stringify({ offer: offer, room: roomId }));
 };
+
+async function stopCall(roomId) {
+    console.info(`Leaving voice chat (webRTC) : ${roomId}`);
+
+    document.getElementById(roomId).classList.remove('active-voice');
+
+    // Closing active connection
+    current.webrtc.socket.close();
+    current.webrtc.p2p.close();
+
+    // Clearing variables
+    current.webrtc.socket = null;
+    current.webrtc.p2p = null;
+    current.webrtc.activeRoom = null;
+
+    // Clearing DOM
+    document.getElementById("remoteAudio").innerHTML = "";
+
+    // Now clicking on button start the call
+    document.getElementById(roomId).onclick = () => startCall(roomId);
+}

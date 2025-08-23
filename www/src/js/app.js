@@ -43,8 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Last state (app wasn't closed)
     if (sessionStorage.getItem('lastState')) {
         const lastState = JSON.parse(sessionStorage.getItem('lastState'));
-        current.url.core = lastState.url.core;
-        current.url.media = lastState.url.media;
+        current.url = lastState.url;
         current.server = lastState.server;
         current.room = lastState.room;
         current.user = lastState.user;
@@ -61,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function () {
         getServers();
         sseOpen();
         getUsername();
-        initWebRTC();
     }
 });
 
