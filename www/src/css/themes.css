@@ -2,13 +2,13 @@
 
     /* Body */
     body {
-        color: rgb(255, 255, 255);
+        color: white;
         background-color: rgb(17, 24, 39);
     }
 
     /* Login */
     .login-box {
-        background-color: rgb(255, 255, 255);
+        background-color: white;
     }
 
     .login-form button {
@@ -17,7 +17,7 @@
     }
 
     .login-element label {
-        color: rgb(31, 41, 55);
+        color: #1f2937;
     }
 
     .login-element input {
@@ -33,13 +33,13 @@
 
     /* Sidebar left */
     .sidebar {
-        background-color: rgb(31, 41, 55);
+        background-color: #1f2937;
         border-color: rgb(55, 65, 81);
     }
 
     .sidebar-header {
         border-color: rgb(55, 65, 81);
-        background: rgba(255, 255, 255, 0.1);
+        background: #353e4b;
     }
 
     .sidebar-title h2 {
@@ -58,7 +58,7 @@
     /* Room */
     .room {
         border-color: rgb(55, 65, 81);
-        color: rgb(255, 255, 255);
+        color: white;
     }
 
     .room:hover {
@@ -72,11 +72,11 @@
     /* Status */
     .status-container {
         border-color: rgb(55, 65, 81);
-        background: rgba(255, 255, 255, 0.1);
+        background: #353e4b;
     }
 
     .status-bloc-1 .name {
-        color: rgb(255 255 255);
+        color: white
     }
 
     .status-bloc-1 .status {
@@ -85,15 +85,15 @@
 
     /* Chat */
     .chat-container {
-        border-color: rgb(55, 65, 81);
+        border-color: #111827;
     }
 
     .chat-header {
-        background: rgba(255, 255, 255, 0.1);
+        background: #292f3d;
     }
 
     .chat-name {
-        color: rgb(255, 255, 255);
+        color: white;
         font-weight: 600;
     }
 
@@ -103,7 +103,7 @@
     }
 
     .chat-text input {
-        color: rgb(255, 255, 255);
+        color: white;
         background-color: rgb(55, 65, 81);
     }
 
@@ -170,11 +170,11 @@
 
     .config input,
     .config select {
-        background-color: rgb(55, 65, 81);;
+        background-color: #292f3d;
         color: white;
     }
 
-    .config label{
+    .config label {
         color: white;
         font-weight: 800;
     }
@@ -193,19 +193,19 @@
 
     /* SweetAlert2 */
 
-    .swalPopup{
+    .swalPopup {
         background-color: rgb(17, 24, 39);
     }
 
-    .swalTitle{
+    .swalTitle {
         color: white;
     }
 
-    .swalConfirm{
+    .swalConfirm {
         background-color: rgb(7, 89, 133);
     }
 
-    .swalCancel{
+    .swalCancel {
         background-color: rgb(185, 28, 28)
     }
 }
