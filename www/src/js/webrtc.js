@@ -8,23 +8,8 @@ function initWebRTC() {
 
     const remoteAudio = document.getElementById("remoteAudio");
 
-    const audioTransceiver = current.webrtc.p2p.addTransceiver('audio');
-
-    console.log(RTCRtpSender.getCapabilities('audio').codecs)
-
-    audioTransceiver.setCodecPreferences([
-        {
-            channels: 2,
-            clockRate: 48000,
-            mimeType: 'audio/opus',
-            sdpFmtpLine: 'maxplaybackrate=48000;stereo=1;useinbandfec=1'
-        }
-    ]);
-
     // Handle remote audio from other peer
     current.webrtc.p2p.ontrack = event => {
-        console.log("OnTrack");
-
         const audio = document.createElement("audio");
         audio.autoplay = true;
         audio.muted = false;
@@ -35,8 +20,6 @@ function initWebRTC() {
 
     // Send ICE candidates to peer
     current.webrtc.p2p.onicecandidate = event => {
-        console.log("OnIceCandidate");
-
         if (event.candidate) {
             current.webrtc.socket.send(JSON.stringify({ candidate: event.candidate }));
         }
@@ -44,6 +27,7 @@ function initWebRTC() {
 
     // Handle signaling messages
     current.webrtc.socket.onmessage = async (msg) => {
+        console.log("OnMessage");
         const data = JSON.parse(msg.data)
 
         if (data.offer) {
@@ -53,14 +37,6 @@ function initWebRTC() {
 
             // Add mic to peer connection
             stream.getTracks().forEach(track => current.webrtc.p2p.addTrack(track, stream));
-
-            // Remote audio
-            /*const audio = document.createElement("audio");
-            audio.autoplay = true;
-            audio.muted = false;
-            audio.srcObject = stream;
-            audio.controls = true;
-            remoteAudio.appendChild(audio); // optional*/
 
             const answer = await current.webrtc.p2p.createAnswer();
             await current.webrtc.p2p.setLocalDescription(answer);
