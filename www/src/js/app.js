@@ -3,6 +3,7 @@ const current = {
     webrtc: {
         socket: null,
         p2p: null,
+        activeRoom: null,
     },
     url: {
         core: null,

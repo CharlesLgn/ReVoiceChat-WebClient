@@ -25,7 +25,7 @@ function userLogin() {
         login(LOGIN, inputHost.origin);
     }
     catch(e){
-        console.log(e);
+        console.error(e);
     }
 }
 

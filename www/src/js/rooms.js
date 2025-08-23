@@ -52,7 +52,7 @@ function selectRoom(roomData) {
     }
 
     if (roomData.type === "TEXT") {
-        console.log(`Selected text room : ${roomData.id}`);
+        console.info(`Selected text room : ${roomData.id}`);
 
         if (current.room.id !== null && document.getElementById(current.room.id) !== undefined) {
             document.getElementById(current.room.id).classList.remove("active");
@@ -69,7 +69,7 @@ function selectRoom(roomData) {
     }
 
     if (roomData.type === "WEBRTC") {
-        console.log(`Selected webrtc room : ${roomData.id}`);
-        startCall(document.getElementById(roomData.id));
+        console.info(`Selected webrtc room : ${roomData.id}`);
+        startCall(roomData.id);
     }
 }
