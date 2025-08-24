@@ -69,13 +69,18 @@ async function sendMessage() {
         return;
     }
 
+    const data = {
+        text: textInput,
+        medias: []
+    }
+
     switch (current.chat.mode) {
         case "send":
-            result = await putRequestOnCore(`/room/${current.room.id}/message`, { text: textInput });
+            result = await putRequestOnCore(`/room/${current.room.id}/message`, data);
             break;
 
         case "edit":
-            result = await patchRequestOnCore(`/message/${current.chat.editId}`, { text: textInput });
+            result = await patchRequestOnCore(`/message/${current.chat.editId}`, data);
             current.chat.mode = "send";
             current.chat.editId = null;
             break;
