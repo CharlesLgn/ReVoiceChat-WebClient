@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Clear old session data
     sessionStorage.removeItem('lastState');
+
+    autoHost();
 });
 
 document.getElementById("login-form").addEventListener('keydown', function (e) {
@@ -58,5 +60,19 @@ async function login(loginData, host) {
             allowOutsideClick: false,
             animation: false,
         })
+    }
+}
+
+function autoHost(){
+    const hostInput = document.getElementById('host');
+
+    switch(document.location.origin){
+        case "https://app.dev.revoicechat.fr":
+            hostInput.value = "https://core.dev.revoicechat.fr";
+            break;
+
+        case "https://app.revoicechat.fr":
+            hostInput.value = "https://srv.revoicechat.fr";
+            break;
     }
 }
