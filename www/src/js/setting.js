@@ -30,3 +30,19 @@ function changeTheme(theme) {
     localStorage.setItem("Theme", theme);
     document.documentElement.setAttribute("data-theme", theme);
 }
+
+async function updateDisplayName(input) {
+    const displayName = input.value;
+
+    if (displayName === "" || displayName === null || displayName === undefined) {
+        console.error("Display name is incorrect");
+        return;
+    }
+
+    const result = await patchRequestOnCore(`/user/me`, { displayName: displayName });
+
+    if (result) {
+        document.getElementById('config-user-name').value = result.displayName;
+        current.user.displayName = result.displayName
+    }
+}
