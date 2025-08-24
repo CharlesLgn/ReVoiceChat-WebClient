@@ -1,3 +1,10 @@
+const url = {
+    core: null,
+    media: null,
+    voiceSignal: null,
+    voiceStun: null,
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Set theme
     document.documentElement.setAttribute("data-theme", localStorage.getItem("Theme") || "default");
@@ -24,16 +31,17 @@ function userLogin() {
     // Validate URL
     try {
         inputHost = new URL(FORM.host.value);
-        login(LOGIN, inputHost.origin);
+        url.core = inputHost.origin;
+        login(LOGIN);
     }
-    catch(e){
+    catch (e) {
         console.error(e);
     }
 }
 
-async function login(loginData, host) {
+async function login(loginData) {
     try {
-        const response = await fetch(`${host}/login`, {
+        const response = await fetch(`${url.core}/login`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
             headers: {
@@ -44,11 +52,11 @@ async function login(loginData, host) {
             body: JSON.stringify(loginData),
         });
 
-        if(!response.ok){
+        if (!response.ok) {
             throw "Not OK";
         }
 
-        sessionStorage.setItem('url.core', host);
+        sessionStorage.setItem('url', JSON.stringify(url));
         document.location.href = `app.html`;
     }
     catch (error) {
@@ -63,17 +71,23 @@ async function login(loginData, host) {
     }
 }
 
-function autoHost(){
-    const hostInput = document.getElementById('host');
-
-    switch(document.location.origin){
+function autoHost() {
+    switch (document.location.origin) {
         case "http://localhost":
         case "https://app.dev.revoicechat.fr":
-            hostInput.value = "https://core.dev.revoicechat.fr";
+            url.core = "https://core.dev.revoicechat.fr";
+            url.media = "https://media.dev.revoicechat.fr";
+            url.voiceSignal = `${url.core}/signal`;
+            url.voiceStun = "https://stun.dev.revoicechat.fr";
             break;
 
         case "https://app.revoicechat.fr":
-            hostInput.value = "https://core.revoicechat.fr";
+            url.core = "https://core.revoicechat.fr";
+            url.media = "https://media.revoicechat.fr";
+            url.voiceSignal = `${url.core}/signal`;
+            url.voiceStun = "https://stun.revoicechat.fr";
             break;
     }
+
+    document.getElementById('host').value = url.core;
 }

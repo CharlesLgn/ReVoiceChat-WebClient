@@ -7,9 +7,9 @@ const current = {
     },
     url: {
         core: null,
-        media: "https://media.revoicechat.fr", // DEV ONLY
-        voiceSignal: "https://srv.revoicechat.fr/signal", // DEV ONLY
-        voiceStun: "stun.revoicechat.fr", // Test with : stun.l.google.com:19302
+        media: null,
+        voiceSignal: null,
+        voiceStun: null,
     },
     server: {
         id: null,
@@ -36,8 +36,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.add("loaded");
 
     // Login
-    if (sessionStorage.getItem('url.core')) {
-        current.url.core = sessionStorage.getItem('url.core');
+    if (sessionStorage.getItem('url')) {
+        const URL = JSON.parse(sessionStorage.getItem(('url')));
+        current.url = URL;
     }
 
     // Last state (app wasn't closed)
