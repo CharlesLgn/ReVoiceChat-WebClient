@@ -45,7 +45,7 @@ function timestampToText(timestamp) {
 
     // Is today ?
     if (isToday(timestamp)) {
-        formatedTimestamp =  String(timestamp.getHours()).padStart(2, '0') + ":" + String(timestamp.getMinutes()).padStart(2, '0');
+        formatedTimestamp = String(timestamp.getHours()).padStart(2, '0') + ":" + String(timestamp.getMinutes()).padStart(2, '0');
     }
 
     return formatedTimestamp;
@@ -98,6 +98,12 @@ async function putRequestOnCore(path, data) {
             body: JSON.stringify(data)
         });
 
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        }
+
         return response.ok;
     }
     catch (error) {
@@ -118,6 +124,12 @@ async function patchRequestOnCore(path, data) {
             body: JSON.stringify(data)
         });
 
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        }
+
         return response.ok;
     }
     catch (error) {
@@ -126,7 +138,7 @@ async function patchRequestOnCore(path, data) {
     }
 }
 
-async function deleteRequestOnCore(path){
+async function deleteRequestOnCore(path) {
     try {
         const response = await fetch(`${current.url.core}${path}`, {
             method: 'DELETE',
@@ -145,18 +157,18 @@ async function deleteRequestOnCore(path){
     }
 }
 
-async function fileExistOnMedia(path){
+async function fileExistOnMedia(path) {
     try {
         const response = await fetch(`${current.url.media}${path}`, {
             method: 'OPTIONS',
             signal: AbortSignal.timeout(5000),
         });
 
-        if(response.status === 200){
+        if (response.status === 200) {
             return true;
         }
 
-        if(response.status === 204){
+        if (response.status === 204) {
             return false;
         }
 
