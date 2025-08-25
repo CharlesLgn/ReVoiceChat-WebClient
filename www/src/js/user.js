@@ -1,5 +1,5 @@
 async function getUsername() {
-    const result = await getRequestOnCore(`/user/me`);
+    const result = await getRequestOnCore(`/api/user/me`);
 
     if (result !== null) {
         current.user = result;
@@ -15,7 +15,7 @@ async function getUsername() {
 }
 
 async function getServerUsers(serverId) {
-    const result = await getRequestOnCore(`/server/${serverId}/user`);
+    const result = await getRequestOnCore(`/api/server/${serverId}/user`);
 
     if (result !== null) {
         const sortedByDisplayName = [...result].sort((a, b) => {

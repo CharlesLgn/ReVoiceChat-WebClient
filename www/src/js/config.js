@@ -44,7 +44,7 @@ function createContextMenuButton(className, innerHTML, onclick){
 }
 
 async function loadRooms() {
-    const result = await getRequestOnCore(`/server/${current.server.id}/room`);
+    const result = await getRequestOnCore(`/api/server/${current.server.id}/room`);
 
     if (result !== null) {
         const roomList = document.getElementById("config-rooms-list");
@@ -78,7 +78,7 @@ async function createItemRoom(data) {
 }
 
 async function loadMembers() {
-    const result = await getRequestOnCore(`/server/${current.server.id}/user`);
+    const result = await getRequestOnCore(`/api/server/${current.server.id}/user`);
 
     if (result) {
         const sortedByDisplayName = [...result].sort((a, b) => {
