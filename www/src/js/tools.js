@@ -70,7 +70,8 @@ async function getCoreAPI(path) {
             signal: AbortSignal.timeout(5000),
             credentials: 'include',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization' : `Bearer ${current.jwtToken}`
             },
         });
 
@@ -93,7 +94,8 @@ async function putCoreAPI(path, data) {
             credentials: 'include',
             signal: AbortSignal.timeout(5000),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization' : `Bearer ${current.jwtToken}`
             },
             body: JSON.stringify(data)
         });
@@ -119,7 +121,8 @@ async function patchCoreAPI(path, data) {
             credentials: 'include',
             signal: AbortSignal.timeout(5000),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization' : `Bearer ${current.jwtToken}`
             },
             body: JSON.stringify(data)
         });
@@ -145,7 +148,8 @@ async function deleteCoreAPI(path) {
             credentials: 'include',
             signal: AbortSignal.timeout(5000),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization' : `Bearer ${current.jwtToken}`
             }
         });
 
@@ -178,4 +182,33 @@ async function fileExistMedia(path) {
         console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.media}\nPath : ${path}`);
         return null;
     }
+}
+
+// Save a cookie
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+}
+
+// Read a cookie
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const cookies = document.cookie.split(';');
+    for (let c of cookies) {
+        c = c.trim();
+        if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length));
+        }
+    }
+    return null;
+}
+
+// Delete a cookie
+function eraseCookie(name) {
+    document.cookie = name + "=; Max-Age=-99999999; path=/";
 }

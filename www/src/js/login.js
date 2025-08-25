@@ -33,7 +33,7 @@ function userLogin() {
 
 async function login(loginData, host) {
     try {
-        const response = await fetch(`${host}/login`, {
+        const response = await fetch(`${host}/api/auth/login`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
             headers: {
@@ -49,6 +49,10 @@ async function login(loginData, host) {
         }
 
         sessionStorage.setItem('url.core', host);
+
+        const jwtToken = await response.text();
+        setCookie('jwtToken', jwtToken, 1);
+
         document.location.href = `app.html`;
     }
     catch (error) {

@@ -1,5 +1,5 @@
 const current = {
-    sse: null,
+    jwtToken: null,
     webrtc: {
         socket: null,
         p2p: null,
@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', function () {
         current.url.media = `https://${core.host}/media`;
         current.url.voiceSignal = `https://${core.host}/signal`;
         current.url.voiceStun = `${core.host}/stun`;
+
+        current.jwtToken = getCookie("jwtToken");
     }
 
     // Last state (app wasn't closed)
@@ -70,9 +72,5 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 addEventListener("beforeunload", () => {
-    if (current.sse !== null) {
-        current.sse.close();
-        current.sse = null;
-    }
     sessionStorage.setItem('lastState', JSON.stringify(current));
 })
