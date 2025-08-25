@@ -1,5 +1,5 @@
 async function getUsername() {
-    const result = await getRequestOnCore(`/user/me`);
+    const result = await getCoreAPI(`/user/me`);
 
     if (result !== null) {
         current.user = result;
@@ -8,14 +8,14 @@ async function getUsername() {
         document.getElementById("user-status").innerText = result.status;
         document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
 
-        if (await fileExistOnMedia(`/profiles/${result.id}`)) {
+        if (await fileExistMedia(`/profiles/${result.id}`)) {
             document.getElementById("user-picture").src = `${current.url.media}/profiles/${result.id}`;
         }
     }
 }
 
 async function getServerUsers(serverId) {
-    const result = await getRequestOnCore(`/server/${serverId}/user`);
+    const result = await getCoreAPI(`/server/${serverId}/user`);
 
     if (result !== null) {
         const sortedByDisplayName = [...result].sort((a, b) => {
@@ -51,7 +51,7 @@ async function createUser(data) {
     DIV.className = "user-profile";
 
     let profilePicture = "src/img/default-avatar.webp";
-    if (await fileExistOnMedia(`/profiles/${data.id}`)) {
+    if (await fileExistMedia(`/profiles/${data.id}`)) {
         profilePicture = `${current.url.media}/profiles/${data.id}`;
     }
 

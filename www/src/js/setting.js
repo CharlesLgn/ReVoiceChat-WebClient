@@ -39,7 +39,7 @@ async function updateDisplayName(input) {
         return;
     }
 
-    const result = await patchRequestOnCore(`/user/me`, { displayName: displayName });
+    const result = await patchCoreAPI(`/user/me`, { displayName: displayName });
 
     if (result) {
         document.getElementById('config-user-name').value = result.displayName;

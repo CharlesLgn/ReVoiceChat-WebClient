@@ -63,9 +63,9 @@ function getQueryVariable(variable) {
     return false;
 }
 
-async function getRequestOnCore(path) {
+async function getCoreAPI(path) {
     try {
-        const response = await fetch(`${current.url.core}${path}`, {
+        const response = await fetch(`${current.url.core}/api${path}`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
             credentials: 'include',
@@ -86,9 +86,9 @@ async function getRequestOnCore(path) {
     }
 }
 
-async function putRequestOnCore(path, data) {
+async function putCoreAPI(path, data) {
     try {
-        const response = await fetch(`${current.url.core}${path}`, {
+        const response = await fetch(`${current.url.core}/api${path}`, {
             method: 'PUT',
             credentials: 'include',
             signal: AbortSignal.timeout(5000),
@@ -112,9 +112,9 @@ async function putRequestOnCore(path, data) {
     }
 }
 
-async function patchRequestOnCore(path, data) {
+async function patchCoreAPI(path, data) {
     try {
-        const response = await fetch(`${current.url.core}${path}`, {
+        const response = await fetch(`${current.url.core}/api${path}`, {
             method: 'PATCH',
             credentials: 'include',
             signal: AbortSignal.timeout(5000),
@@ -138,9 +138,9 @@ async function patchRequestOnCore(path, data) {
     }
 }
 
-async function deleteRequestOnCore(path) {
+async function deleteCoreAPI(path) {
     try {
-        const response = await fetch(`${current.url.core}${path}`, {
+        const response = await fetch(`${current.url.core}/api${path}`, {
             method: 'DELETE',
             credentials: 'include',
             signal: AbortSignal.timeout(5000),
@@ -157,7 +157,7 @@ async function deleteRequestOnCore(path) {
     }
 }
 
-async function fileExistOnMedia(path) {
+async function fileExistMedia(path) {
     try {
         const response = await fetch(`${current.url.media}${path}`, {
             method: 'OPTIONS',

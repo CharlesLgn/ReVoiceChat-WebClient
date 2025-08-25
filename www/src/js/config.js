@@ -44,7 +44,7 @@ function createContextMenuButton(className, innerHTML, onclick){
 }
 
 async function loadRooms() {
-    const result = await getRequestOnCore(`/server/${current.server.id}/room`);
+    const result = await getCoreAPI(`/server/${current.server.id}/room`);
 
     if (result !== null) {
         const roomList = document.getElementById("config-rooms-list");
@@ -78,7 +78,7 @@ async function createItemRoom(data) {
 }
 
 async function loadMembers() {
-    const result = await getRequestOnCore(`/server/${current.server.id}/user`);
+    const result = await getCoreAPI(`/server/${current.server.id}/user`);
 
     if (result) {
         const sortedByDisplayName = [...result].sort((a, b) => {
@@ -102,7 +102,7 @@ async function createItemUser(data) {
     DIV.className = "config-item";
 
     let profilePicture = "src/img/default-avatar.webp";
-    if (await fileExistOnMedia(`/profiles/${data.id}`)) {
+    if (await fileExistMedia(`/profiles/${data.id}`)) {
         profilePicture = `${current.url.media}/profiles/${data.id}`;
     }
 
@@ -158,7 +158,7 @@ async function configAddRoom() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            const result = await putRequestOnCore(`/server/${current.server.id}/room`, { name: FORM_DATA.name, type: FORM_DATA.type });
+            const result = await putCoreAPI(`/server/${current.server.id}/room`, { name: FORM_DATA.name, type: FORM_DATA.type });
             loadRooms();
         }
     });
@@ -188,7 +188,7 @@ async function configEditRoom(data) {
         `,
     }).then(async (result) => {
         if (result.value) {
-            const result = await patchRequestOnCore(`/room/${data.id}`, { name: FORM_DATA.name, type: FORM_DATA.type });
+            const result = await patchCoreAPI(`/room/${data.id}`, { name: FORM_DATA.name, type: FORM_DATA.type });
             loadRooms();
         }
     });
@@ -210,7 +210,7 @@ async function configDeleteRoom(data) {
         allowOutsideClick: false,
     }).then(async (result) => {
         if (result.value) {
-            const result = await deleteRequestOnCore(`/room/${data.id}`);
+            const result = await deleteCoreAPI(`/room/${data.id}`);
             loadRooms();
         }
     });

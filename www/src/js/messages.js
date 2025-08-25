@@ -10,7 +10,7 @@ document.getElementById("chat-input").addEventListener('keydown', function (e) {
 });
 
 async function getMessages(roomId) {
-    const result = await getRequestOnCore(`/room/${roomId}/message`);
+    const result = await getCoreAPI(`/room/${roomId}/message`);
 
     if (result !== null) {
         const ROOM = document.getElementById("room-messages");
@@ -76,11 +76,11 @@ async function sendMessage() {
 
     switch (current.chat.mode) {
         case "send":
-            result = await putRequestOnCore(`/room/${current.room.id}/message`, data);
+            result = await putCoreAPI(`/room/${current.room.id}/message`, data);
             break;
 
         case "edit":
-            result = await patchRequestOnCore(`/message/${current.chat.editId}`, data);
+            result = await patchCoreAPI(`/message/${current.chat.editId}`, data);
             current.chat.mode = "send";
             current.chat.editId = null;
             break;
@@ -95,11 +95,11 @@ async function sendMessage() {
 }
 
 async function deleteMessage(id) {
-    const result = await deleteRequestOnCore(`/message/${id}`);
+    const result = await deleteCoreAPI(`/message/${id}`);
 }
 
 async function editMessage(id) {
-    const result = await getRequestOnCore(`/message/${id}`);
+    const result = await getCoreAPI(`/message/${id}`);
 
     if (result) {
         document.getElementById('chat-input').value = result.text;

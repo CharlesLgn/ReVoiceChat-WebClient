@@ -1,5 +1,5 @@
 async function getServers() {
-    const result = await getRequestOnCore("/server");
+    const result = await getCoreAPI("/server");
 
     if (result === null) {
         document.location.href = "index.html";
