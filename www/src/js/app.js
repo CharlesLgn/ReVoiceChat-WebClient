@@ -1,4 +1,5 @@
 const current = {
+    sse: null,
     jwtToken: null,
     webrtc: {
         socket: null,
@@ -73,4 +74,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
 addEventListener("beforeunload", () => {
     sessionStorage.setItem('lastState', JSON.stringify(current));
+    sseClose();
 })
