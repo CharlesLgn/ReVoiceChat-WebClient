@@ -35,7 +35,7 @@ function selectConfigItem(name) {
     }
 }
 
-function createContextMenuButton(className, innerHTML, onclick){
+function createContextMenuButton(className, innerHTML, onclick) {
     const DIV = document.createElement('div');
     DIV.className = className;
     DIV.innerHTML = innerHTML;
@@ -89,20 +89,26 @@ async function loadMembers() {
             const userList = document.getElementById("config-members-list");
             userList.innerHTML = "";
 
+            let tempList = [];
             for (const neddle in sortedByDisplayName) {
-                userList.appendChild(await createItemUser(sortedByDisplayName[neddle]));
+                tempList.push(sortedByDisplayName[neddle].id);
+            }
+            const usersPfpExist = await fileBulkExistMedia("/profiles/bulk", tempList);
+
+            for (const neddle in sortedByDisplayName) {
+                userList.appendChild(await createItemUser(sortedByDisplayName[neddle], usersPfpExist[sortedByDisplayName[neddle].id]));
             }
         }
     }
 }
 
-async function createItemUser(data) {
+async function createItemUser(data, userPfpExist) {
     const DIV = document.createElement('div');
     DIV.id = data.id;
     DIV.className = "config-item";
 
     let profilePicture = "src/img/default-avatar.webp";
-    if (await fileExistMedia(`/profiles/${data.id}`)) {
+    if (userPfpExist) {
         profilePicture = `${current.url.media}/profiles/${data.id}`;
     }
 
