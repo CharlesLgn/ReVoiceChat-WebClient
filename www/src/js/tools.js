@@ -184,11 +184,12 @@ async function fileExistMedia(path) {
     }
 }
 
-async function fileBulkExistMedia(path, files){
+async function fileBulkExistMedia(path, data){
     try {
         const response = await fetch(`${current.url.media}${path}`, {
             method: 'OPTIONS',
             signal: AbortSignal.timeout(5000),
+            body: JSON.stringify(data)
         });
 
         if(!response.ok){
