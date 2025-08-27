@@ -5,10 +5,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Clear old session data
     sessionStorage.removeItem('lastState');
 
-    if(localStorage.getItem("lastHost")){
-        document.getElementById("login-form").host.value = localStorage.getItem("lastHost");
-    }
-
     autoHost();
 });
 
@@ -76,13 +72,17 @@ async function login(loginData, host) {
 
 function autoHost() {
     switch (document.location.origin) {
-        case "http://localhost":
         case "https://app.dev.revoicechat.fr":
             document.getElementById("login-form").host.value = "https://core.dev.revoicechat.fr";
             break;
 
         case "https://app.revoicechat.fr":
             document.getElementById("login-form").host.value = "https://core.revoicechat.fr";
+            break;
+        default:
+            if (localStorage.getItem("lastHost")) {
+                document.getElementById("login-form").host.value = localStorage.getItem("lastHost");
+            }
             break;
     }
 }
