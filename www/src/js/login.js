@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Clear old session data
     sessionStorage.removeItem('lastState');
 
+    if(localStorage.getItem("lastHost")){
+        document.getElementById("login-form").host.value = localStorage.getItem("lastHost");
+    }
+
     autoHost();
 });
 
@@ -40,7 +44,6 @@ async function login(loginData, host) {
                 'Content-Type': 'application/json'
             },
             method: 'POST',
-            credentials: 'include',
             body: JSON.stringify(loginData),
         });
 
@@ -48,7 +51,11 @@ async function login(loginData, host) {
             throw "Not OK";
         }
 
+        // Var session
         sessionStorage.setItem('url.core', host);
+
+        // Local storage
+        localStorage.setItem("lastHost", host);
 
         const jwtToken = await response.text();
         setCookie('jwtToken', jwtToken, 1);
