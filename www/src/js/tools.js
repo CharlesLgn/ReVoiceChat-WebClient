@@ -232,3 +232,10 @@ function getCookie(name) {
 function eraseCookie(name) {
     document.cookie = name + "=; Max-Age=-99999999; path=/";
 }
+
+function sseClose() {
+    if (current.sse !== null) {
+        current.sse.close();
+        current.sse = null;
+    }
+}

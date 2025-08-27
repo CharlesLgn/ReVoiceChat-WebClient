@@ -38,13 +38,6 @@ function selectServer(serverData) {
     getRooms(serverData.id);
 }
 
-function sseClose() {
-    if (current.sse !== null) {
-        current.sse.close();
-        current.sse = null;
-    }
-}
-
 function sseOpen() {
     console.info(`Connecting to "${current.url.core}/api/sse"`);
 
