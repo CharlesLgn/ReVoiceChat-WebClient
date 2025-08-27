@@ -68,7 +68,6 @@ async function getCoreAPI(path) {
         const response = await fetch(`${current.url.core}/api${path}`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization' : `Bearer ${current.jwtToken}`
@@ -91,7 +90,6 @@ async function putCoreAPI(path, data) {
     try {
         const response = await fetch(`${current.url.core}/api${path}`, {
             method: 'PUT',
-            credentials: 'include',
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
@@ -118,7 +116,6 @@ async function patchCoreAPI(path, data) {
     try {
         const response = await fetch(`${current.url.core}/api${path}`, {
             method: 'PATCH',
-            credentials: 'include',
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
@@ -145,7 +142,6 @@ async function deleteCoreAPI(path) {
     try {
         const response = await fetch(`${current.url.core}/api${path}`, {
             method: 'DELETE',
-            credentials: 'include',
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
