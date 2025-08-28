@@ -140,16 +140,20 @@ function injectEmojis(inputText) {
     inputArray = inputText.split(" ");
 
     inputArray.forEach(element => {
+        // Not emoji
         if(element.charAt(0) !== ':' && element.charAt(element.length - 1) !== ':'){
             result.push(element);
             return;
         }
 
-        element = element.substring(1, element.length - 1);
-
-        if(current.chat.emojisGlobal.includes(element)){
+        // Emoji
+        if(current.chat.emojisGlobal.includes(element.substring(1, element.length - 1))){
             result.push(`<img src="${current.url.media}/emojis/global/${element}" alt="${element}" title=":${element}:">`);
+            return;
         }
+
+        // Don't exist
+        return result.push(element);
     });
 
     return result.join(" ");
