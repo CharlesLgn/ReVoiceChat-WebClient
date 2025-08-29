@@ -1,3 +1,6 @@
+let remoteCandidates = [];
+let remoteDescSet = false;
+
 async function initWebRTC() {
     console.info("WEBRTC : Initializing");
 
@@ -41,8 +44,15 @@ async function initWebRTC() {
 
         if (true || data.room === current.webrtc.activeRoom) {
             if (data.offer) {
-
                 await current.webrtc.p2p.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+                remoteDescSet = true;
+                // Add any candidates received early
+                for (const candidate of remoteCandidates) {
+                    await current.webrtc.p2p.addIceCandidate(candidate);
+                }
+                remoteCandidates = [];
+
 
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -61,7 +71,11 @@ async function initWebRTC() {
 
             if (data.candidate) {
                 try {
-                    await current.webrtc.p2p.addIceCandidate(data.candidate);
+                    if (remoteDescSet) {
+                        await current.webrtc.p2p.addIceCandidate(new RTCIceCandidate(message.candidate));
+                    } else {
+                        remoteCandidates.push(message.candidate);
+                    }
                 } catch (e) {
                     console.error("Error adding ICE candidate", e);
                 }
