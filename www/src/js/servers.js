@@ -65,7 +65,7 @@ function sseOpen() {
                             ROOM.appendChild(createMessage(event.data));
                             break;
                         case "MODIFY":
-                            document.getElementById(event.data.id).innerText = event.data.text;
+                            document.getElementById(event.data.id).replaceWith(createMessageContent(event.data));
                             break;
                         case "REMOVE":
                             document.getElementById(`container-${event.data.id}`).remove();

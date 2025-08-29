@@ -39,13 +39,16 @@ function createMessage(messageData) {
         </div>
     `;
 
+    DIV.appendChild(createMessageContent(messageData));
+    return DIV;
+}
+
+function createMessageContent(data){
     const DIV_CONTENT = document.createElement('div');
     DIV_CONTENT.className = "message-content";
-    DIV_CONTENT.id = messageData.id;
-    DIV_CONTENT.innerHTML = injectEmojis(removeTags(messageData.text));
-    DIV.appendChild(DIV_CONTENT);
-
-    return DIV;
+    DIV_CONTENT.id = data.id;
+    DIV_CONTENT.innerHTML = injectEmojis(removeTags(data.text));
+    return DIV_CONTENT;
 }
 
 function createMessageContextMenu(messageData) {
