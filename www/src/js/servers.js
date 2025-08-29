@@ -29,7 +29,7 @@ function selectServer(serverData) {
         return;
     }
 
-    console.info(`Selected server : ${serverData.id}`);
+    console.info(`SERVER : Selected server : ${serverData.id}`);
 
     current.server = serverData;
     document.getElementById("server-name").innerText = serverData.name;
@@ -39,7 +39,7 @@ function selectServer(serverData) {
 }
 
 function sseOpen() {
-    console.info(`Connecting to "${current.url.core}/api/sse"`);
+    console.info(`SERVER : Connecting to "${current.url.core}/api/sse"`);
 
     // Close current if it exist before openning a new connection
     sseClose();
@@ -49,11 +49,11 @@ function sseOpen() {
     current.sse.onmessage = (event) => {
         event = JSON.parse(event.data);
 
-        console.log("New SSE event : ", event);
+        console.debug("SSE : ", event);
 
         switch (event.type) {
             case "PING":
-                console.info("Got pinged by server.");
+                console.info("SSE : Pinged by server.");
                 return;
 
             case "ROOM_MESSAGE":
@@ -65,7 +65,7 @@ function sseOpen() {
                             ROOM.appendChild(createMessage(event.data));
                             break;
                         case "MODIFY":
-                            document.getElementById(event.data.id).innerText = event.data.text;
+                            document.getElementById(event.data.id).replaceWith(createMessageContent(event.data));
                             break;
                         case "REMOVE":
                             document.getElementById(`container-${event.data.id}`).remove();
@@ -95,7 +95,7 @@ function sseOpen() {
     current.sse.onerror = () => {
         console.error(`An error occurred while attempting to connect to "${current.url.core}/api/sse".\nRetry in 10 seconds`);
         setTimeout(() => {
-            sseConnect();
+            sseOpen();
             getMessages(current.room.id);
         }, 10000);
     }

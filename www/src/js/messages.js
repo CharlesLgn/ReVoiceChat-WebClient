@@ -39,13 +39,16 @@ function createMessage(messageData) {
         </div>
     `;
 
+    DIV.appendChild(createMessageContent(messageData));
+    return DIV;
+}
+
+function createMessageContent(data){
     const DIV_CONTENT = document.createElement('div');
     DIV_CONTENT.className = "message-content";
-    DIV_CONTENT.id = messageData.id;
-    DIV_CONTENT.innerText = messageData.text;
-    DIV.appendChild(DIV_CONTENT);
-
-    return DIV;
+    DIV_CONTENT.id = data.id;
+    DIV_CONTENT.innerHTML = injectEmojis(removeTags(data.text));
+    return DIV_CONTENT;
 }
 
 function createMessageContextMenu(messageData) {
@@ -113,6 +116,61 @@ function chatMode(input) {
     if (input.value == "") {
         current.chat.mode = "send";
         current.chat.editId = null;
-        console.info("Switching to 'send' mode");
+        console.info("CHAT : Switching to 'send' mode");
     }
+}
+
+async function getEmojisGlobal() {
+    try {
+        const response = await fetch(`${current.url.media}/emojis/global/all`, {
+            signal: AbortSignal.timeout(5000),
+        });
+
+        if (!response.ok) {
+            throw "Not OK";
+        }
+
+        current.chat.emojisGlobal = await response.json();
+    }
+    catch (error) {
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.media}\n`);
+        return null;
+    }
+}
+
+function injectEmojis(inputText) {
+    let result = [];
+    inputArray = inputText.split(" ");
+
+    inputArray.forEach(element => {
+        // Not emoji
+        if(element.charAt(0) !== ':' && element.charAt(element.length - 1) !== ':'){
+            result.push(element);
+            return;
+        }
+
+        // Emoji
+        const emoji = element.substring(1, element.length - 1);
+        if(current.chat.emojisGlobal.includes(emoji)){
+            result.push(`<img src="${current.url.media}/emojis/global/${emoji}" alt="${emoji}" title=":${emoji}:">`);
+            return;
+        }
+
+        // Don't exist
+        return result.push(element);
+    });
+
+    return result.join(" ");
+}
+
+function removeTags(str) {
+	if ((str === null) || (str === ''))
+		return false;
+	else
+		str = str.toString();
+
+	// Regular expression to identify HTML tags in
+	// the input string. Replacing the identified
+	// HTML tag with a null string.
+	return str.replace(/(<([^>]+)>)/ig, '');
 }
