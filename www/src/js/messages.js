@@ -116,7 +116,7 @@ function chatMode(input) {
     if (input.value == "") {
         current.chat.mode = "send";
         current.chat.editId = null;
-        console.info("Switching to 'send' mode");
+        console.info("CHAT : Switching to 'send' mode");
     }
 }
 

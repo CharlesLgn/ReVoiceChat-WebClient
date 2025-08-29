@@ -29,7 +29,7 @@ function selectServer(serverData) {
         return;
     }
 
-    console.info(`Selected server : ${serverData.id}`);
+    console.info(`SERVER : Selected server : ${serverData.id}`);
 
     current.server = serverData;
     document.getElementById("server-name").innerText = serverData.name;
@@ -39,7 +39,7 @@ function selectServer(serverData) {
 }
 
 function sseOpen() {
-    console.info(`Connecting to "${current.url.core}/api/sse"`);
+    console.info(`SERVER : Connecting to "${current.url.core}/api/sse"`);
 
     // Close current if it exist before openning a new connection
     sseClose();
@@ -53,7 +53,7 @@ function sseOpen() {
 
         switch (event.type) {
             case "PING":
-                console.info("Got pinged by server.");
+                console.info("SSE : Pinged by server.");
                 return;
 
             case "ROOM_MESSAGE":

@@ -1,5 +1,5 @@
 async function initWebRTC() {
-    console.info("Initializing WebRTC ...");
+    console.info("WEBRTC : Initializing");
 
     current.webrtc.socket = new WebSocket(current.url.voiceSignal);
     current.webrtc.p2p = new RTCPeerConnection({
@@ -75,7 +75,7 @@ async function startCall(roomId) {
 
     await initWebRTC();
 
-    console.info(`Joining voice chat (webRTC) : ${roomId}`);
+    console.info(`WEBRTC : Joining voice chat ${roomId}`);
 
     document.getElementById(roomId).classList.add('active-voice');
     current.webrtc.activeRoom = roomId;
@@ -89,7 +89,7 @@ async function startCall(roomId) {
 };
 
 async function stopCall(roomId) {
-    console.info(`Leaving voice chat (webRTC) : ${roomId}`);
+    console.info(`WEBRTC : Leaving voice chat ${roomId}`);
 
     document.getElementById(roomId).classList.remove('active-voice');
 
