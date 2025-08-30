@@ -92,9 +92,9 @@ async function initWebRTC() {
 }
 
 // Start call (send offer)
-async function startCall(roomId) {
+async function startWebRtcCall(roomId) {
     // Now clicking on button stop the call (first so you can clear old objects)
-    document.getElementById(roomId).onclick = () => stopCall(roomId);
+    document.getElementById(roomId).onclick = () => stopWebRtcCall(roomId);
 
     await initWebRTC();
 
@@ -111,7 +111,7 @@ async function startCall(roomId) {
     current.webrtc.socket.send(JSON.stringify({ offer: offer, room: roomId }));
 };
 
-async function stopCall(roomId) {
+async function stopWebRtcCall(roomId) {
     console.info(`WEBRTC : Leaving voice chat ${roomId}`);
 
     document.getElementById(roomId).classList.remove('active-voice');
@@ -129,5 +129,5 @@ async function stopCall(roomId) {
     document.getElementById("remoteAudio").innerHTML = "";
 
     // Now clicking on button start the call
-    document.getElementById(roomId).onclick = () => startCall(roomId);
+    document.getElementById(roomId).onclick = () => startWebRtcCall(roomId);
 }
