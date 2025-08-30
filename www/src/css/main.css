@@ -196,13 +196,8 @@ svg {
     display: flex;
     flex-direction: column;
     flex: 1 1 0%;
-    user-select: auto;
-}
-
-.room-container {
-    display: flex;
+    user-select: auto;    
     height: 100%;
-    flex-direction: column;
 }
 
 .room-header {
