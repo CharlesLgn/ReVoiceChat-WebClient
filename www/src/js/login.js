@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', function () {
     sessionStorage.removeItem('lastState');
 
     autoHost();
+
+    // Get login from URL (testing)
+    document.getElementById('username').value = getQueryVariable('username');
+    document.getElementById('password').value = getQueryVariable('password');
 });
 
 document.getElementById("login-form").addEventListener('keydown', function (e) {
