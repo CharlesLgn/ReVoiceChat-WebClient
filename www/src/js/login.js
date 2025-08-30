@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
     autoHost();
 
     // Get login from URL (testing)
-    document.getElementById('username').value = getQueryVariable('username');
-    document.getElementById('password').value = getQueryVariable('password');
+    document.getElementById('username').value = getQueryVariable('username') ? getQueryVariable('username') : "";
+    document.getElementById('password').value = getQueryVariable('password') ? getQueryVariable('password') : "";
 });
 
 document.getElementById("login-form").addEventListener('keydown', function (e) {
