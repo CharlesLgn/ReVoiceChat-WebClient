@@ -59,7 +59,7 @@ function voiceConnect() {
     });
 
     current.voice.socket.on('disconnect', () => {
-        stopVoiceCall();
+        console.log("VOICE : Socket disconnected");
     });
 
     // Only listen to your active room stream
