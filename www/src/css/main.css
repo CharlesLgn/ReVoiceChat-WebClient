@@ -222,7 +222,7 @@ svg {
     margin-right: 0.5rem;
 }
 
-.room-area{
+.room-container{
     display: flex;
     height: 100%;
     flex-direction: column;
