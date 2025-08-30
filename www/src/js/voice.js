@@ -245,7 +245,7 @@ async function voiceJoinedUsers() {
         const usersPfpExist = await fileBulkExistMedia("/profiles/bulk", tempList);
 
         for (const neddle in sortedByDisplayName) {
-            VOICE_CONTENT.appendChild(await voiceCreateUser(sortedByDisplayName[neddle], usersPfpExist ? [sortedByDisplayName[neddle].id] : false));
+            VOICE_CONTENT.appendChild(await voiceCreateUser(sortedByDisplayName[neddle], usersPfpExist[sortedByDisplayName[neddle].id]));
         }
     }
 }
