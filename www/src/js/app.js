@@ -11,6 +11,7 @@ const current = {
         media: null,
         voiceSignal: null,
         voiceStun: null,
+        voiceServer: null,
     },
     server: {
         id: null,
@@ -29,6 +30,11 @@ const current = {
         mode: "send",
         editId: null,
         emojisGlobal: []
+    },
+    voice:{
+        socket: null,
+        activeRoom: null,
+        delay : 100, // Set how many ms to wait before sending chunk
     }
 }
 
@@ -42,10 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
         current.url.core = sessionStorage.getItem(('url.core'));
 
         const core = new URL(current.url.core);
+        console.info(`CORE : ${core.host}`);
         
         current.url.media = `https://${core.host}/media`;
         current.url.voiceSignal = `https://${core.host}/api/signal`;
         current.url.voiceStun = `stun:stundev.revoicechat.fr:3480`;
+        current.url.voiceServer = `https://${core.host.replace('core.', 'voice.')}/`;
 
         current.jwtToken = getCookie("jwtToken");
     }
