@@ -34,7 +34,7 @@ const current = {
     voice:{
         socket: null,
         activeRoom: null,
-        delay : 100, // Set how many ms to wait before sending chunk
+        delay : 250, // Set how many ms to wait before sending chunk
     }
 }
 
