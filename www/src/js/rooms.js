@@ -61,8 +61,8 @@ function selectTextRoom(roomData) {
     document.getElementById("voice-container").classList.add('hidden');
     document.getElementById("text-container").classList.remove('hidden');
 
-    document.getElementById("chat-input").placeholder = `Send a message in ${roomData.name}`;
-    document.getElementById("chat-input").focus();
+    document.getElementById("text-input").placeholder = `Send a message in ${roomData.name}`;
+    document.getElementById("text-input").focus();
 
     getMessages(roomData.id);
 }

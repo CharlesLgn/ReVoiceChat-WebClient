@@ -1,10 +1,10 @@
-document.getElementById("chat-input").addEventListener('keydown', function (e) {
+document.getElementById("text-input").addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
         sendMessage();
     }
 
     if (e.key === 'Escape') {
-        document.getElementById("chat-input").value = "";
+        document.getElementById("text-input").value = "";
         current.chat.mode = "send";
     }
 });
@@ -105,10 +105,10 @@ async function editMessage(id) {
     const result = await getCoreAPI(`/message/${id}`);
 
     if (result) {
-        document.getElementById('chat-input').value = result.text;
+        document.getElementById('text-input').value = result.text;
         current.chat.mode = "edit";
         current.chat.editId = id;
-        document.getElementById("chat-input").focus();
+        document.getElementById("text-input").focus();
     }
 }
 
