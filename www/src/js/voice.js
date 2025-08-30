@@ -7,6 +7,8 @@ function voiceConnect() {
     });
 
     socket.on('connect', () => {
+
+        // Send Audio
         navigator.mediaDevices.getUserMedia({ audio: true, video: false })
             .then((stream) => {
                 var madiaRecorder = new MediaRecorder(stream);
@@ -42,6 +44,8 @@ function voiceConnect() {
             });
     });
 
+
+    // Receive audio
     socket.on('audioStream', (audioData) => {
         var newData = audioData.split(";");
         newData[0] = "data:audio/ogg;";
