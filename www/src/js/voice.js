@@ -1,57 +1,74 @@
-let socket = null;
+let mediaRecorder = null;
 
 function voiceConnect() {
-    socket = io("https://voice.dev.revoicechat.fr/", {
+    current.voice.socket = io(current.url.voiceServer, {
         transports: ['websocket'],
         upgrade: false
     });
 
-    socket.on('connect', () => {
+    current.voice.socket.on('connect', () => {
+        current.voice.socket.emit("clientConnect", {
+            userId: current.user.id,
+            roomId: current.voice.activeRoom,
+        });
 
         // Send Audio
         navigator.mediaDevices.getUserMedia({ audio: true, video: false })
             .then((stream) => {
-                var madiaRecorder = new MediaRecorder(stream);
-                var audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                let audioChunks = [];
 
-                madiaRecorder.addEventListener("dataavailable", function (event) {
+                // Add audio chunk to buffer
+                mediaRecorder.addEventListener("dataavailable", function (event) {
                     audioChunks.push(event.data);
                 });
 
-                madiaRecorder.addEventListener("stop", function () {
-                    var audioBlob = new Blob(audioChunks);
+                // Send audio chunk when media stopped
+                mediaRecorder.addEventListener("stop", function () {
+                    let audioBlob = new Blob(audioChunks);
                     audioChunks = [];
-                    var fileReader = new FileReader();
+                    let fileReader = new FileReader();
                     fileReader.readAsDataURL(audioBlob);
                     fileReader.onloadend = function () {
-                        var base64String = fileReader.result;
-                        socket.emit("audioStream", base64String);
+                        const roomData = {
+                            audioData: fileReader.result,
+                            roomId: current.voice.activeRoom,
+                            userId: current.user.id
+                        }
+                        current.voice.socket.emit("roomStream", roomData);
                     };
 
-                    madiaRecorder.start();
+                    // Make audio chunk
+                    mediaRecorder.start();
                     setTimeout(function () {
-                        madiaRecorder.stop();
-                    }, 1000);
+                        mediaRecorder.stop();
+                    }, current.voice.delay);
                 });
 
-                madiaRecorder.start();
+                // Start buffering
+                mediaRecorder.start();
+
+                // Stop buffering
                 setTimeout(function () {
-                    madiaRecorder.stop();
-                }, 1000);
+                    mediaRecorder.stop();
+                }, current.voice.delay);
             })
             .catch((error) => {
                 console.error('Error capturing audio.', error);
             });
     });
 
+    current.voice.socket.on('disconnect', () => {
+        stopVoiceCall();
+    });
 
-    // Receive audio
-    socket.on('audioStream', (audioData) => {
-        var newData = audioData.split(";");
+    // Only listen to your active room stream
+    current.voice.socket.on(current.voice.activeRoom, (roomData) => {
+        let newData = roomData.audioData.split(";");
         newData[0] = "data:audio/ogg;";
         newData = newData[0] + newData[1];
 
-        var audio = new Audio(newData);
+        let audio = new Audio(newData);
         if (!audio || document.hidden) {
             return;
         }
@@ -59,3 +76,40 @@ function voiceConnect() {
     });
 }
 
+function voiceDisconnect() {
+    if (current.voice.socket !== null) {
+        current.voice.socket.close();
+        console.log("VOICE : Socket closed");
+    }
+
+    if (mediaRecorder !== null) {
+        mediaRecorder.stop();
+        console.log("VOICE : mediaRecorder stopped");
+    }
+}
+
+async function startVoiceCall(roomId) {
+    console.info(`VOICE : Joining voice chat ${roomId}`);
+
+    // Now clicking on button stop the call (first so you can clear old objects)
+    document.getElementById(roomId).onclick = () => stopVoiceCall();
+
+    document.getElementById(roomId).classList.add('active-voice');
+    current.voice.activeRoom = roomId;
+
+    voiceConnect();
+};
+
+async function stopVoiceCall() {
+    const roomId = current.voice.activeRoom;
+
+    console.info(`VOICE : Leaving voice chat ${roomId}`);
+
+    document.getElementById(roomId).classList.remove('active-voice');
+    current.voice.activeRoom = null;
+
+    voiceDisconnect()
+
+    // Now clicking on button start the call
+    document.getElementById(roomId).onclick = () => startVoiceCall(roomId);
+}
