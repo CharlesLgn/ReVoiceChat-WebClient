@@ -2,7 +2,7 @@ const mediaCodec = 'audio/webm; codecs="opus"';
 let mediaRecorder = null;
 
 function voiceJoin(roomId) {
-    if(current.voice.roomId !== null){
+    if (current.voice.roomId !== null) {
         console.info(`VOICE : Already connected in room ${current.voice.roomId}`);
         voiceLeave();
     }
@@ -20,6 +20,7 @@ function voiceJoin(roomId) {
         console.info("VOICE : WebSocket opened");
         voiceUpdateSelfControls();
         voiceUpdateUsersControls();
+        voiceJoinedUsersSources();
         voiceSendAudio();
     };
 
@@ -125,7 +126,25 @@ function voiceReceiveAudio(data) {
     }
 }
 
+async function voiceJoinedUsersSources() {
+    const result = await getCoreAPI(`/server/${current.server.id}/user`); // TO DO : Replace with actual Endpoint
+
+    if (result === null) {
+        console.info("VOICE : No user in room");
+        return;
+    }
+
+    for (const i in result) {
+        voiceCreateUserSource(result[i].id);
+    }
+}
+
 function voiceCreateUserSource(userId) {
+    // Create user structure
+    if (current.voice.users[userId] === null || current.voice.users[userId] === undefined) {
+        current.voice.users[userId] = { mediaSource: null, buffer: null, queue: [], audio: null };
+    }
+
     // Create Audio
     current.voice.users[userId].audio = new Audio();
 
@@ -261,7 +280,7 @@ function voiceUpdateUser(userId) {
             break;
 
         case WebSocket.OPEN:
-            if(document.getElementById(`voice-controls-${userId}`) !== null){
+            if (document.getElementById(`voice-controls-${userId}`) !== null) {
                 console.info('VOICE : There is already controls in this room');
                 break;
             }
@@ -289,11 +308,6 @@ function voiceUpdateUser(userId) {
             DIV_ACTION.appendChild(BUTTON_MUTE);
 
             userDiv.appendChild(DIV_ACTION);
-
-            // Create user structure
-            if (current.voice.users[userId] === null || current.voice.users[userId] === undefined) {
-                current.voice.users[userId] = { mediaSource: null, buffer: null, queue: [], audio: null };
-            }
             break;
     }
 }
