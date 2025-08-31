@@ -1,11 +1,10 @@
 const mediaCodec = 'audio/webm; codecs="opus"';
 let mediaRecorder = null;
-let userVoice = [];
 
 function voiceJoin(roomId) {
     console.info(`VOICE : Joining voice chat ${roomId}`);
     document.getElementById(roomId).classList.add('active-voice');
-    current.voice.activeRoom = roomId;
+    current.voice.roomId = roomId;
     voiceUpdateControls();
 
     current.voice.socket = new WebSocket(`${current.url.voice}`);
@@ -28,13 +27,13 @@ function voiceJoin(roomId) {
 }
 
 function voiceLeave() {
-    if (current.voice.activeRoom !== null) {
-        const roomId = current.voice.activeRoom;
+    if (current.voice.roomId !== null) {
+        const roomId = current.voice.roomId;
         console.info(`VOICE : Leaving voice chat ${roomId}`);
         document.getElementById(roomId).classList.remove('active-voice');
     }
 
-    current.voice.activeRoom = null;
+    current.voice.roomId = null;
     if (current.voice.socket !== null) {
         current.voice.socket.close();
         console.log("VOICE : Socket closed");
@@ -66,7 +65,7 @@ function voiceSendAudio() {
                     const audioBuffer = await event.data.arrayBuffer();
 
                     // Header (roomId, userId, timestamp)
-                    const header = JSON.stringify({ roomId: current.voice.activeRoom, userId: current.user.id, timestamp: Date.now() });
+                    const header = JSON.stringify({ roomId: current.voice.roomId, userId: current.user.id, timestamp: Date.now() });
                     const headerBytes = new TextEncoder().encode(header);
                     const totalLength = 2 + headerBytes.length + audioBuffer.byteLength;
                     const combined = new Uint8Array(totalLength);
@@ -103,14 +102,14 @@ function voiceReceiveAudio(data) {
     const audioBytes = data.slice(headerEnd);
 
     // Only listen to your active room stream
-    if (header.roomId === current.voice.activeRoom) {
+    if (header.roomId === current.voice.roomId) {
         const audioChunk = new Uint8Array(audioBytes);
 
-        if (userVoice[header.userId].buffer.updating || userVoice[header.userId].queue.length > 0) {
-            userVoice[header.userId].queue.push(audioChunk);
+        if (current.voice.users[header.userId].buffer.updating || current.voice.users[header.userId].queue.length > 0) {
+            current.voice.users[header.userId].queue.push(audioChunk);
         }
         else {
-            userVoice[header.userId].buffer.appendBuffer(audioChunk);
+            current.voice.users[header.userId].buffer.appendBuffer(audioChunk);
         }
     }
 }
@@ -191,26 +190,26 @@ function voiceCreateUser(userData, userPfpExist) {
     DIV.appendChild(DIV_ACTION);
 
     // Reset user
-    userVoice[userData.id] = { mediaSource: null, buffer: null, queue: [], audio: null };
+    current.voice.users[userData.id] = { mediaSource: null, buffer: null, queue: [], audio: null };
 
     // Create audio element for user
-    userVoice[userData.id].audio = new Audio();
-    userVoice[userData.id].audio.id = `audio-${userData.id}`;
+    current.voice.users[userData.id].audio = new Audio();
+    current.voice.users[userData.id].audio.id = `audio-${userData.id}`;
 
     // Create user MediaSource
-    userVoice[userData.id].mediaSource = new MediaSource();
-    userVoice[userData.id].audio.src = URL.createObjectURL(userVoice[userData.id].mediaSource);
+    current.voice.users[userData.id].mediaSource = new MediaSource();
+    current.voice.users[userData.id].audio.src = URL.createObjectURL(current.voice.users[userData.id].mediaSource);
 
-    userVoice[userData.id].mediaSource.onsourceopen = () => {
-        userVoice[userData.id].buffer = userVoice[userData.id].mediaSource.addSourceBuffer(mediaCodec);
+    current.voice.users[userData.id].mediaSource.onsourceopen = () => {
+        current.voice.users[userData.id].buffer = current.voice.users[userData.id].mediaSource.addSourceBuffer(mediaCodec);
 
-        userVoice[userData.id].buffer.addEventListener('update', function () {
-            if (userVoice[userData.id].queue.length > 0 && !userVoice[userData.id].buffer.updating) {
-                userVoice[userData.id].buffer.appendBuffer(userVoice[userData.id].queue.shift());
+        current.voice.users[userData.id].buffer.addEventListener('update', function () {
+            if (current.voice.users[userData.id].queue.length > 0 && !current.voice.users[userData.id].buffer.updating) {
+                current.voice.users[userData.id].buffer.appendBuffer(current.voice.users[userData.id].queue.shift());
             }
         });
 
-        userVoice[userData.id].audio.play();
+        current.voice.users[userData.id].audio.play();
     };
 
     return DIV;
@@ -242,18 +241,18 @@ async function voiceJoinedUsers() {
 }
 
 function voiceControlVolume(userId, volume) {
-    userVoice[userId].audio.volume = volume;
+    current.voice.users[userId].audio.volume = volume;
     document.getElementById(`volume-${userId}`).title = volume * 100 + "%";
 }
 
 function voiceControlMute(userId) {
     const muteButton = document.getElementById(`mute-${userId}`);
-    if (userVoice[userId].audio.muted) {
-        userVoice[userId].audio.muted = false;
+    if (current.voice.users[userId].audio.muted) {
+        current.voice.users[userId].audio.muted = false;
         muteButton.classList.remove('active');
     }
     else {
-        userVoice[userId].audio.muted = true;
+        current.voice.users[userId].audio.muted = true;
         muteButton.classList.add('active');
     }
 }

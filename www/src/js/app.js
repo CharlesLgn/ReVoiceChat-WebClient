@@ -32,8 +32,9 @@ const current = {
         emojisGlobal: []
     },
     voice:{
+        roomId: null,
+        users: [],
         socket: null,
-        activeRoom: null,
         delay: 50, // Set how many ms to wait before sending chunk
         selfMute: false,
     }
