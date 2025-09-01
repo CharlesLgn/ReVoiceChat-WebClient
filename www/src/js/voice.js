@@ -20,7 +20,7 @@ function voiceJoin(roomId) {
         console.info("VOICE : WebSocket opened");
         voiceUpdateSelfControls();
         voiceUpdateUsersControls();
-        voiceJoinedUsersSources();
+        //voiceJoinedUsersSources();
         voiceSendAudio();
     };
 
@@ -32,8 +32,10 @@ function voiceJoin(roomId) {
         console.info("VOICE : WebSocket closed");
         voiceUpdateSelfControls();
         voiceUpdateUsersControls();
-        current.voice.users = [];
+        current.voice.users = {};
     }
+
+    current.voice.onerror = (e) => console.error('VOICE : WebSocket error', e);
 }
 
 function voiceLeave() {
@@ -92,7 +94,7 @@ function voiceSendAudio() {
                 }
             };
 
-            mediaRecorder.start(100);
+            mediaRecorder.start(500);
         })
         .catch((error) => {
             console.error('Error capturing audio.', error);
@@ -110,22 +112,50 @@ function voiceReceiveAudio(data) {
     const headerJSON = new TextDecoder().decode(headerBytes);
     const header = JSON.parse(headerJSON);
 
-    // Read audio
-    const audioBytes = data.slice(headerEnd);
+    console.debug("New header", header);
 
     // Only listen to your active room stream
     if (header.roomId === current.voice.roomId) {
-        const audioChunk = new Uint8Array(audioBytes);
+        // Process audio data
+        const audioChunk = new Uint8Array(data.slice(headerEnd));
 
-        if (current.voice.users[header.userId].buffer.updating || current.voice.users[header.userId].queue.length > 0) {
-            current.voice.users[header.userId].queue.push(audioChunk);
+        // User don't exist yet
+        if (!current.voice.users[header.userId]) {
+            const audio = new Audio();
+            const mediaSource = new MediaSource();
+
+            audio.src = URL.createObjectURL(mediaSource);
+            audio.play();
+
+            current.voice.users[header.userId] = { audio, mediaSource, sourceBuffer: null, queue: [] };
+
+            mediaSource.addEventListener("sourceopen", () => {
+                const sourceBuffer = mediaSource.addSourceBuffer('audio/webm; codecs="opus"');
+                current.voice.users[header.userId].sourceBuffer = sourceBuffer;
+
+                sourceBuffer.addEventListener("updateend", () => {
+                    const user = current.voice.users[header.userId];
+                    if (user.queue.length > 0 && !user.sourceBuffer.updating) {
+                        user.sourceBuffer.appendBuffer(user.queue.shift());
+                    }
+                });
+            });
         }
-        else {
-            current.voice.users[header.userId].buffer.appendBuffer(audioChunk);
+
+        // Push new audio chunk to queue
+        const user = current.voice.users[header.userId];
+
+        user.queue.push(audioChunk);
+
+        if (user.sourceBuffer && !user.sourceBuffer.updating) {
+            user.sourceBuffer.appendBuffer(user.queue.shift());
         }
     }
+
+    console.debug("UserVoiceData :", current.voice.users);
 }
 
+/*
 async function voiceJoinedUsersSources() {
     const result = await getCoreAPI(`/server/${current.server.id}/user`); // TO DO : Replace with actual Endpoint
 
@@ -163,7 +193,7 @@ function voiceCreateUserSource(userId) {
 
         current.voice.users[userId].audio.play();
     };
-}
+}*/
 
 /* Functions for UI */
 async function voiceJoinedUsers() {

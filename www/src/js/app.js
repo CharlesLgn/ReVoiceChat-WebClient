@@ -33,7 +33,7 @@ const current = {
     },
     voice:{
         roomId: null,
-        users: [],
+        users: {},
         socket: null,
         selfMute: false,
     }
