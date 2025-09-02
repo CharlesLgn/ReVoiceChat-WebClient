@@ -3,7 +3,7 @@ const currentSetting = {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('config-user-name').value = current.user.displayName;
+    document.getElementById('config-user-name').value = global.user.displayName;
     document.getElementById("config-user-theme").value = localStorage.getItem("Theme");
     selectSettingItem("overview");
 });
@@ -43,6 +43,6 @@ async function updateDisplayName(input) {
 
     if (result) {
         document.getElementById('config-user-name').value = result.displayName;
-        current.user.displayName = result.displayName
+        global.user.displayName = result.displayName
     }
 }

@@ -65,12 +65,12 @@ function getQueryVariable(variable) {
 
 async function getCoreAPI(path) {
     try {
-        const response = await fetch(`${current.url.core}/api${path}`, {
+        const response = await fetch(`${global.url.core}/api${path}`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${current.jwtToken}`
+                'Authorization' : `Bearer ${global.jwtToken}`
             },
         });
 
@@ -81,19 +81,19 @@ async function getCoreAPI(path) {
         return await response.json();
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.core}\nPath : ${path}`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.core}\nPath : ${path}`);
         return null;
     }
 }
 
 async function putCoreAPI(path, data) {
     try {
-        const response = await fetch(`${current.url.core}/api${path}`, {
+        const response = await fetch(`${global.url.core}/api${path}`, {
             method: 'PUT',
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${current.jwtToken}`
+                'Authorization' : `Bearer ${global.jwtToken}`
             },
             body: JSON.stringify(data)
         });
@@ -107,19 +107,19 @@ async function putCoreAPI(path, data) {
         return response.ok;
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.core}\nPath : ${path}`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.core}\nPath : ${path}`);
         return null;
     }
 }
 
 async function patchCoreAPI(path, data) {
     try {
-        const response = await fetch(`${current.url.core}/api${path}`, {
+        const response = await fetch(`${global.url.core}/api${path}`, {
             method: 'PATCH',
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${current.jwtToken}`
+                'Authorization' : `Bearer ${global.jwtToken}`
             },
             body: JSON.stringify(data)
         });
@@ -133,33 +133,33 @@ async function patchCoreAPI(path, data) {
         return response.ok;
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.core}\nPath : ${path}`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.core}\nPath : ${path}`);
         return null;
     }
 }
 
 async function deleteCoreAPI(path) {
     try {
-        const response = await fetch(`${current.url.core}/api${path}`, {
+        const response = await fetch(`${global.url.core}/api${path}`, {
             method: 'DELETE',
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${current.jwtToken}`
+                'Authorization' : `Bearer ${global.jwtToken}`
             }
         });
 
         return response.ok;
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.core}\nPath : ${path}`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.core}\nPath : ${path}`);
         return null;
     }
 }
 
 async function fileExistMedia(path) {
     try {
-        const response = await fetch(`${current.url.media}${path}`, {
+        const response = await fetch(`${global.url.media}${path}`, {
             method: 'OPTIONS',
             signal: AbortSignal.timeout(5000),
         });
@@ -175,14 +175,14 @@ async function fileExistMedia(path) {
         throw new Error(`Invalid response status: ${response.status}`);
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.media}\nPath : ${path}`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.media}\nPath : ${path}`);
         return null;
     }
 }
 
 async function fileBulkExistMedia(path, data){
     try {
-        const response = await fetch(`${current.url.media}${path}`, {
+        const response = await fetch(`${global.url.media}${path}`, {
             method: 'OPTIONS',
             signal: AbortSignal.timeout(5000),
             body: JSON.stringify(data)
@@ -195,7 +195,7 @@ async function fileBulkExistMedia(path, data){
         return await response.json();
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.media}\nPath : ${path}`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.media}\nPath : ${path}`);
         return null;
     }
 }
@@ -230,8 +230,8 @@ function eraseCookie(name) {
 }
 
 function sseClose() {
-    if (current.sse !== null) {
-        current.sse.close();
-        current.sse = null;
+    if (global.sse !== null) {
+        global.sse.close();
+        global.sse = null;
     }
 }

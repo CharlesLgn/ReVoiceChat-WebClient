@@ -2,14 +2,14 @@ async function getUsername() {
     const result = await getCoreAPI(`/user/me`);
 
     if (result !== null) {
-        current.user = result;
+        global.user = result;
 
         document.getElementById("user-name").innerText = result.displayName;
         document.getElementById("user-status").innerText = result.status;
         document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
 
         if (await fileExistMedia(`/profiles/${result.id}`)) {
-            document.getElementById("user-picture").src = `${current.url.media}/profiles/${result.id}`;
+            document.getElementById("user-picture").src = `${global.url.media}/profiles/${result.id}`;
         }
     }
 }
@@ -60,7 +60,7 @@ async function createUser(data, userPfpExist) {
 
     let profilePicture = "src/img/default-avatar.webp";
     if (userPfpExist === true) {
-        profilePicture = `${current.url.media}/profiles/${data.id}`;
+        profilePicture = `${global.url.media}/profiles/${data.id}`;
     }
 
     DIV.innerHTML = `

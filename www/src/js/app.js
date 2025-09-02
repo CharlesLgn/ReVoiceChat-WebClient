@@ -1,4 +1,4 @@
-const current = {
+const global = {
     sse: null,
     jwtToken: null,
     webrtc: {
@@ -46,28 +46,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Login
     if (sessionStorage.getItem('url.core')) {
-        current.url.core = sessionStorage.getItem(('url.core'));
+        global.url.core = sessionStorage.getItem(('url.core'));
 
-        const core = new URL(current.url.core);
+        const core = new URL(global.url.core);
         console.info(`CORE : ${core.host}`);
         
-        current.url.media = `${core.protocol}//${core.host}/media`;
-        current.url.voice = `${core.protocol}//${core.host}/api/voice`;
+        global.url.media = `${core.protocol}//${core.host}/media`;
+        global.url.voice = `${core.protocol}//${core.host}/api/voice`;
 
-        current.jwtToken = getCookie("jwtToken");
+        global.jwtToken = getCookie("jwtToken");
     }
 
     // Last state (app wasn't closed)
     if (sessionStorage.getItem('lastState')) {
         const lastState = JSON.parse(sessionStorage.getItem('lastState'));
-        current.url = lastState.url;
-        current.server = lastState.server;
-        current.room = lastState.room;
-        current.user = lastState.user;
+        global.url = lastState.url;
+        global.server = lastState.server;
+        global.room = lastState.room;
+        global.user = lastState.user;
     }
 
     // No data
-    if (current.url.core === null) {
+    if (global.url.core === null) {
         document.location.href = `index.html`;
     }
 
@@ -82,6 +82,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 addEventListener("beforeunload", () => {
-    sessionStorage.setItem('lastState', JSON.stringify(current));
+    sessionStorage.setItem('lastState', JSON.stringify(global));
     sseClose();
 })

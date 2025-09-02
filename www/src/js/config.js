@@ -3,8 +3,8 @@ const currentConfig = {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('config-server-uuid').innerText = current.server.id;
-    document.getElementById('config-server-name').value = current.server.name;
+    document.getElementById('config-server-uuid').innerText = global.server.id;
+    document.getElementById('config-server-name').value = global.server.name;
     selectConfigItem("overview");
 });
 
@@ -44,7 +44,7 @@ function createContextMenuButton(className, innerHTML, onclick) {
 }
 
 async function loadRooms() {
-    const result = await getCoreAPI(`/server/${current.server.id}/room`);
+    const result = await getCoreAPI(`/server/${global.server.id}/room`);
 
     if (result !== null) {
         const roomList = document.getElementById("config-rooms-list");
@@ -78,7 +78,7 @@ async function createItemRoom(data) {
 }
 
 async function loadMembers() {
-    const result = await getCoreAPI(`/server/${current.server.id}/user`);
+    const result = await getCoreAPI(`/server/${global.server.id}/user`);
 
     if (result) {
         const sortedByDisplayName = [...result].sort((a, b) => {
@@ -109,7 +109,7 @@ async function createItemUser(data, userPfpExist) {
 
     let profilePicture = "src/img/default-avatar.webp";
     if (userPfpExist) {
-        profilePicture = `${current.url.media}/profiles/${data.id}`;
+        profilePicture = `${global.url.media}/profiles/${data.id}`;
     }
 
     DIV.innerHTML = `
@@ -132,11 +132,11 @@ async function updateServerName(input) {
         return;
     }
 
-    const id = current.server.id;
+    const id = global.server.id;
     const result = await patchCoreAPI(`server/${id}`, { name : serverName})
     if (result) {
         document.getElementById('config-server-name').value = result.name;
-        current.user.displayName = result.name
+        global.user.displayName = result.name
     }
 }
 
@@ -177,7 +177,7 @@ async function configAddRoom() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            const result = await putCoreAPI(`/server/${current.server.id}/room`, { name: FORM_DATA.name, type: FORM_DATA.type });
+            const result = await putCoreAPI(`/server/${global.server.id}/room`, { name: FORM_DATA.name, type: FORM_DATA.type });
             loadRooms();
         }
     });

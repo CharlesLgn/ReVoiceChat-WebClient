@@ -5,7 +5,7 @@ document.getElementById("text-input").addEventListener('keydown', function (e) {
 
     if (e.key === 'Escape') {
         document.getElementById("text-input").value = "";
-        current.chat.mode = "send";
+        global.chat.mode = "send";
     }
 });
 
@@ -52,7 +52,7 @@ function createMessageContent(data){
 }
 
 function createMessageContextMenu(messageData) {
-    if (messageData.user.id == current.user.id) {
+    if (messageData.user.id == global.user.id) {
         return `
         <div class="message-context-menu">
             <div class="icon" onclick="editMessage('${messageData.id}')">${SVG_PENCIL}</div>
@@ -77,15 +77,15 @@ async function sendMessage() {
         medias: []
     }
 
-    switch (current.chat.mode) {
+    switch (global.chat.mode) {
         case "send":
-            result = await putCoreAPI(`/room/${current.room.id}/message`, data);
+            result = await putCoreAPI(`/room/${global.room.id}/message`, data);
             break;
 
         case "edit":
-            result = await patchCoreAPI(`/message/${current.chat.editId}`, data);
-            current.chat.mode = "send";
-            current.chat.editId = null;
+            result = await patchCoreAPI(`/message/${global.chat.editId}`, data);
+            global.chat.mode = "send";
+            global.chat.editId = null;
             break;
     }
 
@@ -106,23 +106,23 @@ async function editMessage(id) {
 
     if (result) {
         document.getElementById('text-input').value = result.text;
-        current.chat.mode = "edit";
-        current.chat.editId = id;
+        global.chat.mode = "edit";
+        global.chat.editId = id;
         document.getElementById("text-input").focus();
     }
 }
 
 function textInputMode(input) {
     if (input.value == "") {
-        current.chat.mode = "send";
-        current.chat.editId = null;
+        global.chat.mode = "send";
+        global.chat.editId = null;
         console.info("CHAT : Switching to 'send' mode");
     }
 }
 
 async function getEmojisGlobal() {
     try {
-        const response = await fetch(`${current.url.media}/emojis/global/all`, {
+        const response = await fetch(`${global.url.media}/emojis/global/all`, {
             signal: AbortSignal.timeout(5000),
         });
 
@@ -130,10 +130,10 @@ async function getEmojisGlobal() {
             throw "Not OK";
         }
 
-        current.chat.emojisGlobal = await response.json();
+        global.chat.emojisGlobal = await response.json();
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${current.url.media}\n`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.media}\n`);
         return null;
     }
 }
@@ -151,8 +151,8 @@ function injectEmojis(inputText) {
 
         // Emoji
         const emoji = element.substring(1, element.length - 1);
-        if(current.chat.emojisGlobal.includes(emoji)){
-            result.push(`<img src="${current.url.media}/emojis/global/${emoji}" alt="${emoji}" title=":${emoji}:">`);
+        if(global.chat.emojisGlobal.includes(emoji)){
+            result.push(`<img src="${global.url.media}/emojis/global/${emoji}" alt="${emoji}" title=":${emoji}:">`);
             return;
         }
 

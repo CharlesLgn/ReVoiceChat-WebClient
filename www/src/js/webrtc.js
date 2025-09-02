@@ -4,8 +4,8 @@ let remoteDescSet = false;
 async function initWebRTC() {
     console.info("WEBRTC : Initializing");
 
-    current.webrtc.socket = new WebSocket(current.url.voiceSignal);
-    current.webrtc.p2p = new RTCPeerConnection({
+    global.webrtc.socket = new WebSocket(global.url.voiceSignal);
+    global.webrtc.p2p = new RTCPeerConnection({
         iceServers: [
             {
                 urls: ["stun:stun4.l.google.com:19302", "stun:stun3.l.google.com:19302"]
@@ -19,7 +19,7 @@ async function initWebRTC() {
     });
 
     // Handle remote audio from other peer
-    current.webrtc.p2p.ontrack = event => {
+    global.webrtc.p2p.ontrack = event => {
         const remoteAudio = document.getElementById("remoteAudio");
         const audio = document.createElement("audio");
         audio.autoplay = true;
@@ -30,26 +30,26 @@ async function initWebRTC() {
     };
 
     // Send ICE candidates to peer
-    current.webrtc.p2p.onicecandidate = event => {
+    global.webrtc.p2p.onicecandidate = event => {
         if (event.candidate) {
-            current.webrtc.socket.send(JSON.stringify({ candidate: event.candidate }));
+            global.webrtc.socket.send(JSON.stringify({ candidate: event.candidate }));
         }
     };
 
     // Handle signaling messages
-    current.webrtc.socket.onmessage = async (msg) => {
+    global.webrtc.socket.onmessage = async (msg) => {
         const data = JSON.parse(msg.data)
 
         console.log(data);
 
-        if (true || data.room === current.webrtc.activeRoom) {
+        if (true || data.room === global.webrtc.activeRoom) {
             if (data.offer) {
-                await current.webrtc.p2p.setRemoteDescription(new RTCSessionDescription(data.offer));
+                await global.webrtc.p2p.setRemoteDescription(new RTCSessionDescription(data.offer));
 
                 remoteDescSet = true;
                 // Add any candidates received early
                 for (const candidate of remoteCandidates) {
-                    await current.webrtc.p2p.addIceCandidate(candidate);
+                    await global.webrtc.p2p.addIceCandidate(candidate);
                 }
                 remoteCandidates = [];
 
@@ -57,22 +57,22 @@ async function initWebRTC() {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
                 // Add mic to peer connection
-                stream.getTracks().forEach(track => current.webrtc.p2p.addTrack(track, stream));
+                stream.getTracks().forEach(track => global.webrtc.p2p.addTrack(track, stream));
 
-                const answer = await current.webrtc.p2p.createAnswer();
-                await current.webrtc.p2p.setLocalDescription(answer);
-                current.webrtc.socket.send(JSON.stringify({ answer: answer }));
+                const answer = await global.webrtc.p2p.createAnswer();
+                await global.webrtc.p2p.setLocalDescription(answer);
+                global.webrtc.socket.send(JSON.stringify({ answer: answer }));
 
             }
 
             if (data.answer) {
-                await current.webrtc.p2p.setRemoteDescription(new RTCSessionDescription(data.answer));
+                await global.webrtc.p2p.setRemoteDescription(new RTCSessionDescription(data.answer));
             }
 
             if (data.candidate) {
                 try {
                     if (remoteDescSet) {
-                        await current.webrtc.p2p.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        await global.webrtc.p2p.addIceCandidate(new RTCIceCandidate(data.candidate));
                     } else {
                         remoteCandidates.push(data.candidate);
                     }
@@ -101,14 +101,14 @@ async function startWebRtcCall(roomId) {
     console.info(`WEBRTC : Joining voice chat ${roomId}`);
 
     document.getElementById(roomId).classList.add('active-voice');
-    current.webrtc.activeRoom = roomId;
+    global.webrtc.activeRoom = roomId;
 
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    stream.getTracks().forEach(track => current.webrtc.p2p.addTrack(track, stream));
+    stream.getTracks().forEach(track => global.webrtc.p2p.addTrack(track, stream));
 
-    const offer = await current.webrtc.p2p.createOffer();
-    await current.webrtc.p2p.setLocalDescription(offer);
-    current.webrtc.socket.send(JSON.stringify({ offer: offer, room: roomId }));
+    const offer = await global.webrtc.p2p.createOffer();
+    await global.webrtc.p2p.setLocalDescription(offer);
+    global.webrtc.socket.send(JSON.stringify({ offer: offer, room: roomId }));
 };
 
 async function stopWebRtcCall(roomId) {
@@ -117,13 +117,13 @@ async function stopWebRtcCall(roomId) {
     document.getElementById(roomId).classList.remove('active-voice');
 
     // Closing active connection
-    current.webrtc.socket.close();
-    current.webrtc.p2p.close();
+    global.webrtc.socket.close();
+    global.webrtc.p2p.close();
 
     // Clearing variables
-    current.webrtc.socket = null;
-    current.webrtc.p2p = null;
-    current.webrtc.activeRoom = null;
+    global.webrtc.socket = null;
+    global.webrtc.p2p = null;
+    global.webrtc.activeRoom = null;
 
     // Clearing DOM
     document.getElementById("remoteAudio").innerHTML = "";

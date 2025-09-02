@@ -8,8 +8,8 @@ async function getServers() {
 
     buildServerList(result);
 
-    if (current.server.id !== null) {
-        selectServer(current.server);
+    if (global.server.id !== null) {
+        selectServer(global.server);
     }
     else {
         selectServer(result[0]);
@@ -31,7 +31,7 @@ function selectServer(serverData) {
 
     console.info(`SERVER : Selected server : ${serverData.id}`);
 
-    current.server = serverData;
+    global.server = serverData;
     document.getElementById("server-name").innerText = serverData.name;
 
     getServerUsers(serverData.id);
@@ -39,14 +39,14 @@ function selectServer(serverData) {
 }
 
 function sseOpen() {
-    console.info(`SERVER : Connecting to "${current.url.core}/api/sse"`);
+    console.info(`SERVER : Connecting to "${global.url.core}/api/sse"`);
 
     // Close current if it exist before openning a new connection
     sseClose();
 
-    current.sse = new EventSource(`${current.url.core}/api/sse?jwt=${current.jwtToken}`);
+    global.sse = new EventSource(`${global.url.core}/api/sse?jwt=${global.jwtToken}`);
 
-    current.sse.onmessage = (event) => {
+    global.sse.onmessage = (event) => {
         event = JSON.parse(event.data);
 
         console.debug("SSE : ", event);
@@ -57,7 +57,7 @@ function sseOpen() {
                 return;
 
             case "ROOM_MESSAGE":
-                if (event.data.roomId === current.room.id) {
+                if (event.data.roomId === global.room.id) {
                     const ROOM = document.getElementById("text-content");
 
                     switch (event.data.actionType) {
@@ -92,11 +92,11 @@ function sseOpen() {
         }
     };
 
-    current.sse.onerror = () => {
-        console.error(`An error occurred while attempting to connect to "${current.url.core}/api/sse".\nRetry in 10 seconds`);
+    global.sse.onerror = () => {
+        console.error(`An error occurred while attempting to connect to "${global.url.core}/api/sse".\nRetry in 10 seconds`);
         setTimeout(() => {
             sseOpen();
-            getMessages(current.room.id);
+            getMessages(global.room.id);
         }, 10000);
     }
 }
