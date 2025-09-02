@@ -1,6 +1,12 @@
 const voice = {
     encoder: null,
     socket: null,
+    buffer: [],
+    bufferMaxLength: 960, // 48,000 samples / sec × 0.020 sec = 960 samples
+    sampleRate: 48000,
+    bitrate: 64000,
+    frameDuration: 20000,
+    audioTimestamp: 0
 }
 
 const opusConfig = {
@@ -8,44 +14,133 @@ const opusConfig = {
     complexity: 9,
     signal: "voice",
     usedtx: true,
-    frameDuration: 20000, //20ms
+    frameDuration: voice.frameDuration, //20ms
     useinbanddec: true,
 };
 
 const codecConfig = {
     codec: "opus",
-    sampleRate: 48000, //48 kHz
-    numberOfChannels: 1, // Mono
-    bitrate: 64000, // 64 kbits
+    sampleRate: voice.sampleRate,
+    numberOfChannels: 1,
+    bitrate: voice.bitrate,
     bitrateMode: "variable",
     opus: opusConfig,
 }
 
+// <user> call this function to start a call in a room
+async function voiceJoin(roomId) {
+    console.info("VOICE : Initiate join");
+    global.voice.roomId = roomId;
+
+    try {
+        // Init Codec
+        await voiceCodecInit();
+
+        // Init WebSocket
+        voice.socket = new WebSocket(`${global.url.voice}?token=${global.jwtToken}/${roomId}`);
+        voice.socket.binaryType = "arraybuffer";
+
+        // Init AudioContext
+        const audioContext = new AudioContext({ sampleRate: voice.sampleRate });
+        await audioContext.audioWorklet.addModule('src/js/voicePcmCollector.js');
+
+        // Init Mic capture
+        const micSource = audioContext.createMediaStreamSource(await navigator.mediaDevices.getUserMedia({ audio: true }));
+
+        // Init AudioWorklet
+        const workletNode = new AudioWorkletNode(audioContext, "PcmCollector");
+        micSource.connect(workletNode);
+
+        workletNode.port.onmessage = (event) => {
+            const samples = event.data;
+
+            // Push samples to buffer
+            voice.buffer.push(...samples);
+
+            // While buffer is full
+            while (voice.buffer.length >= voice.bufferMaxLength) {
+                // Get 1 audio frames
+                const frame = voice.buffer.slice(0, 960);
+
+                // Remove this frame from buffer
+                voice.buffer = voice.buffer.slice(960);
+
+                // Create audioData object to feed encoder
+                const audioData = new AudioData({
+                    format: "f32-planar",
+                    sampleRate: voice.sampleRate,
+                    numberOfFrames: frame.length,
+                    numberOfChannels: 1,
+                    timestamp: voice.audioTimestamp,
+                    data: new Float32Array(frame).buffer
+                });
+
+                // Feed encoder
+                voice.encoder.encode(audioData);
+                audioData.close();
+
+                // Update audioTimestamp (add 20ms / 20000µs)
+                voice.audioTimestamp += 20000;
+            }
+        }
+
+        global.voice.roomId = roomId;
+        console.info("VOICE : Voice room joined");
+
+        // Socket state
+        voice.socket.onopen = () => console.debug('VOICE : WebSocket open');
+        voice.socket.onclose = () => console.debug('VOICE : WebSocket closed');
+        voice.socket.onerror = (e) => console.error('VOICE : WebSocket error:', e);
+    }
+    catch (error) {
+        console.error(error);
+        global.voice.roomId = null;
+    }
+}
+
+// <voiceJoin> call this function to setup codec
 async function voiceCodecInit() {
-    const supported = await AudioEncoder.isConfigSupported(encoderConfig)
+    const supported = await AudioEncoder.isConfigSupported(codecConfig)
     console.log(supported);
     if (supported.supported) {
         // Setup Encoder
         voice.encoder = new AudioEncoder({
-            output: sendAudioChunk,
+            output: voiceSendAudio,
             error: (error) => { throw Error(`Error during codec setup:\n${error}\nCurrent codec :${codecConfig}`) },
         });
 
-        voice.encoder.configure(encoderConfig)
+        voice.encoder.configure(codecConfig)
         return true;
     }
 }
 
+// <encoder> use this function when ready to output
+function voiceSendAudio(audioChunk) {
+    const audioTimestamp = voice.audioTimestamp;
+    const audioChunkCopy = new ArrayBuffer(audioChunk.byteLength);
+    audioChunk.copyTo(audioChunkCopy);
 
-async function voiceJoin(roomId) {
-    try {
-        await voiceCodecInit();
+    // Create Header to send with audioChunk
+    const header = JSON.stringify({
+        timestamp: Date.now(),
+        audioTimestamp: audioTimestamp / 1000, // audioTimestamp is in µs but sending ms is enough
+        user: global.user.id,
+    })
+    const headerBytes = new TextEncoder().encode(header);
 
+    // Calculate length of packet
+    const packetLength = 2 + headerBytes.length + audioChunkCopy.byteLength;
+    const packet = new Uint8Array(packetLength);
 
+    // Create packet
+    const view = new DataView(packet.buffer);
+    view.setUint16(0, headerBytes.length);
+    packet.set(headerBytes, 2);
+    packet.set(new Uint8Array(audioChunkCopy), 2 + headerBytes.length);
 
-    }
-    catch (error) {
-        console.error(error);
+    // Finally send it !
+    if (voice.socket.readyState === WebSocket.OPEN) {
+        voice.socket.send(packet);
     }
 }
 
