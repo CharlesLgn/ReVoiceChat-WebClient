@@ -34,7 +34,7 @@ async function voiceJoin(roomId) {
 
     try {
         // Init WebSocket
-        voice.socket = new WebSocket(`${global.url.voice}?token=${global.jwtToken}/${roomId}`);
+        voice.socket = new WebSocket(`${global.url.voice}/${roomId}?token=${global.jwtToken}`);
         voice.socket.binaryType = "arraybuffer";
 
         // Init send
