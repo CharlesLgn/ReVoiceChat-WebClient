@@ -100,8 +100,7 @@ async function voiceJoin(roomId) {
 
 // <voiceJoin> call this function to setup encoder and send audio
 async function voiceSendInit() {
-    const supported = await AudioEncoder.isConfigSupported(codecConfig)
-    console.log(supported);
+    const supported = await AudioEncoder.isConfigSupported(codecConfig);
     if (supported.supported) {
         // Setup Encoder
         voice.encoder = new AudioEncoder({
