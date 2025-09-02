@@ -29,16 +29,16 @@ const codecConfig = {
 
 // <user> call this function to start a call in a room
 async function voiceJoin(roomId) {
-    console.info("VOICE : Initiate join");
+    console.info(`VOICE : Initiate join on room: ${roomId}`);
     global.voice.roomId = roomId;
 
     try {
-        // Init Codec
-        await voiceCodecInit();
-
         // Init WebSocket
         voice.socket = new WebSocket(`${global.url.voice}?token=${global.jwtToken}/${roomId}`);
         voice.socket.binaryType = "arraybuffer";
+
+        // Init send
+        await voiceSendInit();
 
         // Init AudioContext
         const audioContext = new AudioContext({ sampleRate: voice.sampleRate });
@@ -85,7 +85,7 @@ async function voiceJoin(roomId) {
         }
 
         global.voice.roomId = roomId;
-        console.info("VOICE : Voice room joined");
+        console.info("VOICE : Room joined");
 
         // Socket state
         voice.socket.onopen = () => console.debug('VOICE : WebSocket open');
@@ -98,49 +98,52 @@ async function voiceJoin(roomId) {
     }
 }
 
-// <voiceJoin> call this function to setup codec
-async function voiceCodecInit() {
+// <voiceJoin> call this function to setup encoder and send audio
+async function voiceSendInit() {
     const supported = await AudioEncoder.isConfigSupported(codecConfig)
     console.log(supported);
     if (supported.supported) {
         // Setup Encoder
         voice.encoder = new AudioEncoder({
-            output: voiceSendAudio,
+            output: encoderCallback,
             error: (error) => { throw Error(`Error during codec setup:\n${error}\nCurrent codec :${codecConfig}`) },
         });
 
         voice.encoder.configure(codecConfig)
         return true;
     }
-}
 
-// <encoder> use this function when ready to output
-function voiceSendAudio(audioChunk) {
-    const audioTimestamp = voice.audioTimestamp;
-    const audioChunkCopy = new ArrayBuffer(audioChunk.byteLength);
-    audioChunk.copyTo(audioChunkCopy);
+    // When encoder is done, it call this function to send data through the WebSocket
+    function encoderCallback(audioChunk) {
+        // Get a copy of audioChunk and audioTimestamp
+        const audioTimestamp = voice.audioTimestamp;
+        const audioChunkCopy = new ArrayBuffer(audioChunk.byteLength);
+        audioChunk.copyTo(audioChunkCopy);
 
-    // Create Header to send with audioChunk
-    const header = JSON.stringify({
-        timestamp: Date.now(),
-        audioTimestamp: audioTimestamp / 1000, // audioTimestamp is in µs but sending ms is enough
-        user: global.user.id,
-    })
-    const headerBytes = new TextEncoder().encode(header);
+        // Create Header to send with audioChunk
+        const header = JSON.stringify({
+            timestamp: Date.now(),
+            audioTimestamp: audioTimestamp / 1000, // audioTimestamp is in µs but sending ms is enough
+            user: global.user.id,
+        })
+        const headerBytes = new TextEncoder().encode(header);
 
-    // Calculate length of packet
-    const packetLength = 2 + headerBytes.length + audioChunkCopy.byteLength;
-    const packet = new Uint8Array(packetLength);
+        // Calculate length of packet
+        const packetLength = 2 + headerBytes.length + audioChunkCopy.byteLength;
 
-    // Create packet
-    const view = new DataView(packet.buffer);
-    view.setUint16(0, headerBytes.length);
-    packet.set(headerBytes, 2);
-    packet.set(new Uint8Array(audioChunkCopy), 2 + headerBytes.length);
+        // Create packet of that length
+        const packet = new Uint8Array(packetLength);
 
-    // Finally send it !
-    if (voice.socket.readyState === WebSocket.OPEN) {
-        voice.socket.send(packet);
+        // Fill packet
+        const view = new DataView(packet.buffer);
+        view.setUint16(0, headerBytes.length);
+        packet.set(headerBytes, 2);
+        packet.set(new Uint8Array(audioChunkCopy), 2 + headerBytes.length);
+
+        // Finally send it ! (but socket need to be open)
+        if (voice.socket.readyState === WebSocket.OPEN) {
+            voice.socket.send(packet);
+        }
     }
 }
 
