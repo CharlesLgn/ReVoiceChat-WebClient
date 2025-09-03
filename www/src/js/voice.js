@@ -6,7 +6,9 @@ const voice = {
     sampleRate: 48000,
     bitrate: 64000,
     frameDuration: 20000,
-    audioTimestamp: 0
+    audioTimestamp: 0,
+    users: {},
+    audioContext: null,
 }
 
 const opusConfig = {
@@ -39,16 +41,18 @@ async function voiceJoin(roomId) {
 
         // Init send
         await voiceSendInit();
+        await voiceUpdateUsersControls();
 
         // Init AudioContext
-        const audioContext = new AudioContext({ sampleRate: voice.sampleRate });
-        await audioContext.audioWorklet.addModule('src/js/lib/voicePcmCollector.js');
+        voice.audioContext = new AudioContext({ sampleRate: voice.sampleRate });
+        await voice.audioContext.audioWorklet.addModule('src/js/lib/voicePcmCollector.js');
 
+        /* Starting here is capture stuff */
         // Init Mic capture
-        const micSource = audioContext.createMediaStreamSource(await navigator.mediaDevices.getUserMedia({ audio: true }));
+        const micSource = voice.audioContext.createMediaStreamSource(await navigator.mediaDevices.getUserMedia({ audio: true }));
 
         // Init AudioWorklet
-        const workletNode = new AudioWorkletNode(audioContext, "PcmCollector");
+        const workletNode = new AudioWorkletNode(voice.audioContext, "PcmCollector");
         micSource.connect(workletNode);
 
         workletNode.port.onmessage = (event) => {
@@ -87,6 +91,36 @@ async function voiceJoin(roomId) {
         global.voice.roomId = roomId;
         console.info("VOICE : Room joined");
 
+        /* Starting here is playback stuff */
+        voice.socket.onmessage = (event) => {
+            const data = event.data;
+            const view = new DataView(data);
+
+            // Read and decode 2 bytes header
+            const headerLength = view.getUint16(0);
+            const headerEnd = 2 + headerLength;
+            const headerBytes = new Uint8Array(data.slice(2, headerEnd));
+            const headerJSON = new TextDecoder().decode(headerBytes);
+            const header = JSON.parse(headerJSON);
+
+            // Decode and read audio
+            const audioArrayBuffer = data.slice(headerEnd);
+            const audioChunk = new EncodedAudioChunk({
+                type: "key",
+                timestamp: header.audioTimestamp,
+                data: new Uint8Array(audioArrayBuffer),
+            })
+
+            const currentUser = voice.users[header.user];
+
+            if (currentUser !== null) {
+                voice.users[header.user].decoder.decode(audioChunk);
+            }
+            else {
+                console.error("VOICE : User decoder don't exist");
+            }
+        };
+
         // Socket state
         voice.socket.onopen = () => console.debug('VOICE : WebSocket open');
         voice.socket.onclose = () => console.debug('VOICE : WebSocket closed');
@@ -109,7 +143,7 @@ async function voiceSendInit() {
         // Setup Encoder
         voice.encoder = new AudioEncoder({
             output: encoderCallback,
-            error: (error) => { throw Error(`Error during codec setup:\n${error}\nCurrent codec :${codecConfig}`) },
+            error: (error) => { throw Error(`Error during encoder setup:\n${error}\nCurrent codec :${codecConfig}`) },
         });
 
         voice.encoder.configure(codecConfig)
@@ -147,6 +181,42 @@ async function voiceSendInit() {
         if (voice.socket.readyState === WebSocket.OPEN) {
             voice.socket.send(packet);
         }
+    }
+}
+
+async function voiceCreateUserDecoder(userId) {
+    const isSupported = await AudioDecoder.isConfigSupported(codecConfig);
+    if (isSupported.supported) {
+        voice.users[userId] = {decoder: null, playhead: 0};
+
+        voice.users[userId].decoder = new AudioDecoder({
+            output: decoderCallback,
+            error: (error) => { throw Error(`Error during decoder setup:\n${error}\nCurrent codec :${codecConfig}`) },
+        });
+
+        voice.users[userId].decoder.configure(codecConfig)
+        voice.users[userId].playhead = 0;
+    }
+
+    function decoderCallback(audioData) {
+        const buffer = voice.audioContext.createBuffer(
+            audioData.numberOfChannels,
+            audioData.numberOfFrames,
+            audioData.sampleRate
+        );
+
+        const channelData = new Float32Array(audioData.numberOfFrames);
+        audioData.copyTo(channelData, { planeIndex: 0 });
+        buffer.copyToChannel(channelData, 0);
+
+        // Play the AudioBuffer
+        const source = voice.audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(voice.audioContext.destination);
+
+        voice.users[userId].playhead = Math.max(voice.users[userId].playhead, voice.audioContext.currentTime) + buffer.duration;
+        source.start(voice.users[userId].playhead);
+        audioData.close();
     }
 }
 
@@ -220,12 +290,12 @@ async function voiceUpdateUsersControls() {
     }
 
     for (const i in result) {
-        voiceUpdateUser(result[i].id);
+        await voiceUpdateUser(result[i].id);
     }
-}
 
-function voiceUpdateUser(userId) {
-
+    async function voiceUpdateUser(userId) {
+        await voiceCreateUserDecoder(userId);
+    }
 }
 
 function voiceUpdateSelfControls() {
