@@ -103,8 +103,7 @@ function selectRoom(roomData) {
             selectTextRoom(roomData);
             break;
         case "WEBRTC":
-            //selectWebRtcRoom(roomData);
-            selectVoiceRoom(roomData);
+            selectWebRtcRoom(roomData);
             break;
         case "VOICE":
             selectVoiceRoom(roomData);
