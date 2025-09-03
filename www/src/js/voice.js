@@ -42,7 +42,7 @@ async function voiceJoin(roomId) {
 
         // Init AudioContext
         const audioContext = new AudioContext({ sampleRate: voice.sampleRate });
-        await audioContext.audioWorklet.addModule('src/js/voicePcmCollector.js');
+        await audioContext.audioWorklet.addModule('src/js/lib/voicePcmCollector.js');
 
         // Init Mic capture
         const micSource = audioContext.createMediaStreamSource(await navigator.mediaDevices.getUserMedia({ audio: true }));
@@ -94,7 +94,7 @@ async function voiceJoin(roomId) {
     }
     catch (error) {
         console.error(error);
-        
+
         global.voice.roomId = null;
         if (voice.socket !== null) {
             voice.socket.close();
