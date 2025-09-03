@@ -88,8 +88,10 @@ async function voiceJoin(roomId) {
             }
         }
 
-        global.voice.roomId = roomId;
         console.info("VOICE : Room joined");
+        document.getElementById(roomId).classList.add('active-voice');
+        global.voice.roomId = roomId;
+        voiceUpdateSelfControls();
 
         /* Starting here is playback stuff */
         voice.socket.onmessage = (event) => {
@@ -187,7 +189,7 @@ async function voiceSendInit() {
 async function voiceCreateUserDecoder(userId) {
     const isSupported = await AudioDecoder.isConfigSupported(codecConfig);
     if (isSupported.supported) {
-        voice.users[userId] = {decoder: null, playhead: 0};
+        voice.users[userId] = { decoder: null, playhead: 0 };
 
         voice.users[userId].decoder = new AudioDecoder({
             output: decoderCallback,
@@ -220,8 +222,28 @@ async function voiceCreateUserDecoder(userId) {
     }
 }
 
-function voiceLeave(roomId) {
+function voiceLeave() {
+    if (global.voice.roomId !== null) {
+        const roomId = global.voice.roomId;
+        console.info(`VOICE : Leaving voice chat ${roomId}`);
+        document.getElementById(roomId).classList.remove('active-voice');
+    }
 
+    global.voice.roomId = null;
+
+    if (voice.socket !== null) {
+        voice.socket.close();
+        console.info("VOICE : Socket closed");
+    }
+
+    // Close all decoders
+    voice.users.forEach(async (user) => {
+        await user.decoder.flush();
+        await user.decoder.close();
+    });
+
+    voiceUpdateSelfControls();
+    voice.users = {};
 }
 
 async function voiceShowConnnectedUsers(roomId) {
@@ -300,7 +322,7 @@ async function voiceUpdateUsersControls() {
 
 function voiceUpdateSelfControls() {
     const VOICE_ACTION = document.getElementById("voice-join-action");
-    const readyState = (global.voice.socket !== null && global.voice.roomId === global.room.id) ? global.voice.socket.readyState : WebSocket.CLOSED;
+    const readyState = (voice.socket !== null && global.voice.roomId === global.room.id) ? voice.socket.readyState : WebSocket.CLOSED;
 
     switch (readyState) {
         case WebSocket.CONNECTING:
