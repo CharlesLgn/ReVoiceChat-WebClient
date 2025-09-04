@@ -235,7 +235,7 @@ function voiceLeave() {
     }
 
     // Close all decoders
-    if (voice.users !== Object()) {
+    if (voice.users.length !== 0) {
         voice.users.forEach(async (user) => {
             await user.decoder.flush();
             await user.decoder.close();
