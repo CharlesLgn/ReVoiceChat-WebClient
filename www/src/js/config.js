@@ -171,6 +171,7 @@ async function configAddRoom() {
                 <label>Room type</label>
                 <select oninput='FORM_DATA.type=value'>
                     <option value='TEXT'>Text</option>
+                    <option value='VOICE'>Voice (Built-in)</option>
                     <option value='WEBRTC'>Voice (WebRTC)</option>
                 </select>
             </form>       
