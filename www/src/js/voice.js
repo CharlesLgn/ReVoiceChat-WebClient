@@ -313,6 +313,9 @@ async function voiceUserJoining(userData) {
 
 /* This function is called when a user left the room */
 async function voiceUserLeaving(userId) {
+    // Remove user from UI
+    document.getElementById(`voice-${userId}`).remove();
+
     // User calling this is NOT self
     if (userId !== global.user.id && voice.socket.currentState === WebSocket.OPEN) {
         const user = voice.users[userId];
