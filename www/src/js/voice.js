@@ -303,7 +303,7 @@ async function voiceShowConnnectedUsers() {
 async function voiceUserJoining(userData) {
     const voiceContent = document.getElementById("voice-content");
     const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
-    voiceContent.voiceCreateConnectedUser(userData, userPfpExist);
+    voiceContent.appendChild(voiceCreateConnectedUser(userData, userPfpExist));
 
     // User calling this is NOT self and current user is connected to voice room
     if (userData.id !== global.user.id && voice.socket.currentState === WebSocket.OPEN) {
