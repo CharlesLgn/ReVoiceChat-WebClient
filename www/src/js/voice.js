@@ -229,11 +229,12 @@ async function voiceLeave() {
 
     global.voice.roomId = null;
 
+    // Close WebSocket
     if (voice.socket !== null) {
         voice.socket.close();
     }
 
-    // Close all decoders
+    // Flush and close all decoders
     for (const [key, user] of Object.entries(voice.users)) {
         if (user.decoder !== null) {
             await user.decoder.flush();
@@ -241,6 +242,16 @@ async function voiceLeave() {
         }
     };
     console.debug("VOICE : All users decoder flushed and closed");
+
+    // Close self encoder
+    if(voice.encoder !== null){
+        voice.encoder.close();
+    }
+
+    // Close audioContext
+    if(voice.audioContext !== null){
+        voice.audioContext.close();
+    }
 
     voiceUpdateSelfControls();
     voice.users = {};
