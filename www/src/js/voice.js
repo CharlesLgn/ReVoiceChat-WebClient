@@ -244,13 +244,13 @@ async function voiceLeave() {
     console.debug("VOICE : All users decoder flushed and closed");
 
     // Close self encoder
-    if(voice.encoder !== null){
+    if (voice.encoder !== null) {
         voice.encoder.close();
         console.debug("VOICE : Encoder closed");
     }
 
     // Close audioContext
-    if(voice.audioContext !== null){
+    if (voice.audioContext !== null) {
         voice.audioContext.close();
         console.debug("VOICE : AudioContext closed");
     }
@@ -260,14 +260,16 @@ async function voiceLeave() {
 }
 
 async function voiceShowConnnectedUsers() {
-    const result = await getCoreAPI(`/server/${global.server.id}/user`); // TO DO : Replace with actual Endpoint
+    const result = await getCoreAPI(`/room/${global.room.id}/user`);
 
-    if (result === null) {
+    if (result.connectedUser === null) {
         console.debug("VOICE : No user in room");
         return;
     }
 
-    const sortedByDisplayName = [...result].sort((a, b) => {
+    const connectedUser = result.connectedUser;
+
+    const sortedByDisplayName = [...connectedUser].sort((a, b) => {
         return a.displayName.localeCompare(b.displayName);
     });
 
@@ -300,16 +302,19 @@ async function voiceUserJoining(userData) {
     if (userData.id !== global.user.id) {
         const voiceContent = document.getElementById("voice-content");
         const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
-
         voiceContent.voiceCreateConnectedUser(userData, userPfpExist);
-        await voiceCreateUserDecoder(userData.id);
+
+        // If current user is connected to voice room
+        if (voice.socket.currentState === WebSocket.OPEN) {
+            await voiceCreateUserDecoder(userData.id);
+        }
     }
 }
 
 /* This function is called when a user left the room */
 async function voiceUserLeaving(userId) {
     // User calling this is NOT self
-    if (userId !== global.user.id) {
+    if (userId !== global.user.id && voice.socket.currentState === WebSocket.OPEN) {
         const user = voice.users[userId];
         await user.decoder.flush();
         await user.decoder.close();
@@ -342,15 +347,17 @@ function voiceCreateConnectedUser(userData, userPfpExist) {
 }
 
 async function voiceUpdateUsersControls() {
-    const result = await getCoreAPI(`/server/${global.server.id}/user`); // TO DO : Replace with actual Endpoint
+    const result = await getCoreAPI(`/room/${global.room.id}/user`); // TO DO : Replace with actual Endpoint
 
     if (result === null) {
         console.debug("VOICE : No user in room");
         return;
     }
 
-    for (const i in result) {
-        await voiceUpdateUser(result[i].id);
+    const connectedUser = result.connectedUser;
+
+    for (const i in connectedUser) {
+        await voiceUpdateUser(connectedUser[i].id);
     }
 
     async function voiceUpdateUser(userId) {
