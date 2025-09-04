@@ -29,6 +29,7 @@ function createRoom(roomData, onclick) {
         case "TEXT":
             icon = SVG_CHAT_BUBBLE;
             break;
+        case "VOICE":
         case "WEBRTC":
             icon = SVG_PHONE;
             break;
