@@ -231,7 +231,6 @@ async function voiceLeave() {
 
     if (voice.socket !== null) {
         voice.socket.close();
-        console.info("VOICE : Socket closed");
     }
 
     // Close all decoders
@@ -241,6 +240,7 @@ async function voiceLeave() {
             await user.decoder.close();
         }
     };
+    console.info("VOICE : All users decoder flushed and closed");
 
     voiceUpdateSelfControls();
     voice.users = {};
