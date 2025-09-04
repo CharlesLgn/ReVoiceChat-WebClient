@@ -78,7 +78,7 @@ async function voiceJoin(roomId) {
                 });
 
                 // Feed encoder
-                if (voice.encoder !== null) {
+                if (voice.encoder !== null && voice.encoder.state === "configured") {
                     voice.encoder.encode(audioData);
                 }
 
