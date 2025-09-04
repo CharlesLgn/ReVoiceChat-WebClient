@@ -81,7 +81,7 @@ async function voiceJoin(roomId) {
                 if (voice.encoder !== null) {
                     voice.encoder.encode(audioData);
                 }
-                
+
                 audioData.close();
 
                 // Update audioTimestamp (add 20ms / 20000µs)
@@ -301,16 +301,13 @@ async function voiceShowConnnectedUsers() {
     It add the user in the interface, the users descriptor, and create a decoder
 */
 async function voiceUserJoining(userData) {
-    // User calling this is NOT self
-    if (userData.id !== global.user.id) {
-        const voiceContent = document.getElementById("voice-content");
-        const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
-        voiceContent.voiceCreateConnectedUser(userData, userPfpExist);
+    const voiceContent = document.getElementById("voice-content");
+    const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
+    voiceContent.voiceCreateConnectedUser(userData, userPfpExist);
 
-        // If current user is connected to voice room
-        if (voice.socket.currentState === WebSocket.OPEN) {
-            await voiceCreateUserDecoder(userData.id);
-        }
+    // User calling this is NOT self and current user is connected to voice room
+    if (userData.id !== global.user.id && voice.socket.currentState === WebSocket.OPEN) {
+        await voiceCreateUserDecoder(userData.id);
     }
 }
 
