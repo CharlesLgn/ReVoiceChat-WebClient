@@ -53,7 +53,7 @@ function sseOpen() {
 
         console.debug("SSE : ", event);
 
-        switch (event.type) {
+        switch (type) {
             case "PING":
                 console.info("SSE : Pinged by server.");
                 return;
@@ -61,19 +61,20 @@ function sseOpen() {
             case "ROOM_MESSAGE":
                 if (data.roomId === global.room.id) {
                     const ROOM = document.getElementById("text-content");
+                    const message = data.message;
 
-                    switch (event.data.actionType) {
+                    switch (data.action) {
                         case "ADD":
-                            ROOM.appendChild(createMessage(data));
+                            ROOM.appendChild(createMessage(message));
                             break;
                         case "MODIFY":
-                            document.getElementById(data.id).replaceWith(createMessageContent(data));
+                            document.getElementById(message.id).replaceWith(createMessageContent(message));
                             break;
                         case "REMOVE":
-                            document.getElementById(`container-${data.id}`).remove();
+                            document.getElementById(`container-${message.id}`).remove();
                             break;
                         default:
-                            console.error("Unsupported actionType : ", data.actionType);
+                            console.error("Unsupported action : ", data.action);
                             break;
                     }
 
