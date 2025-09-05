@@ -152,6 +152,74 @@ async function voiceJoin(roomId) {
     }
 }
 
+// <user> call this function to leave a call in a room
+async function voiceLeave() {
+    if (voice.activeRoom !== null) {
+        const roomId = voice.activeRoom;
+        console.info(`VOICE : Leaving voice chat ${roomId}`);
+        document.getElementById(roomId).classList.remove('active-voice');
+    }
+
+    voice.activeRoom = null;
+
+    // Close WebSocket
+    if (voice.socket !== null) {
+        voice.socket.close();
+    }
+
+    // Flush and close all decoders
+    for (const [key, user] of Object.entries(voice.users)) {
+        if (user.decoder !== null) {
+            await user.decoder.flush();
+            await user.decoder.close();
+        }
+    };
+    console.debug("VOICE : All users decoder flushed and closed");
+
+    // Close self encoder
+    if (voice.encoder !== null) {
+        voice.encoder.close();
+        console.debug("VOICE : Encoder closed");
+    }
+
+    // Close audioContext
+    if (voice.audioContext !== null) {
+        voice.audioContext.close();
+        console.debug("VOICE : AudioContext closed");
+    }
+
+    voiceUpdateSelfControls();
+    voiceUpdateJoinedUsers();
+    voice.users = {};
+}
+
+// <server.js> call this when a new user join the room
+async function voiceUserJoining(userData) {
+    const voiceContent = document.getElementById("voice-content");
+    const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
+    voiceContent.appendChild(voiceCreateUserHTML(userData, userPfpExist));
+
+    // User joining this is NOT self and current user is connected to voice room
+    if (userData.id !== global.user.id && voice.socket !== null && voice.socket.readyState === WebSocket.OPEN) {
+        await voiceCreateUserDecoder(userData.id);
+        voiceUpdateUserControls(userData.id);
+    }
+}
+
+// <server.js> call this when a user leave the room
+async function voiceUserLeaving(userId) {
+    // Remove user from UI
+    document.getElementById(`voice-${userId}`).remove();
+
+    // User calling this is NOT self
+    if (userId !== global.user.id && voice.socket.currentState === WebSocket.OPEN) {
+        const user = voice.users[userId];
+        await user.decoder.flush();
+        await user.decoder.close();
+        voice.users[userId] = null;
+    }
+}
+
 // <voiceJoin> call this function to setup encoder and send audio
 async function voiceSendInit() {
     const supported = await AudioEncoder.isConfigSupported(voiceCodecConfig);
@@ -239,47 +307,6 @@ async function voiceCreateUserDecoder(userId) {
     }
 }
 
-// <user> call this function to leave a call in a room
-async function voiceLeave() {
-    if (voice.activeRoom !== null) {
-        const roomId = voice.activeRoom;
-        console.info(`VOICE : Leaving voice chat ${roomId}`);
-        document.getElementById(roomId).classList.remove('active-voice');
-    }
-
-    voice.activeRoom = null;
-
-    // Close WebSocket
-    if (voice.socket !== null) {
-        voice.socket.close();
-    }
-
-    // Flush and close all decoders
-    for (const [key, user] of Object.entries(voice.users)) {
-        if (user.decoder !== null) {
-            await user.decoder.flush();
-            await user.decoder.close();
-        }
-    };
-    console.debug("VOICE : All users decoder flushed and closed");
-
-    // Close self encoder
-    if (voice.encoder !== null) {
-        voice.encoder.close();
-        console.debug("VOICE : Encoder closed");
-    }
-
-    // Close audioContext
-    if (voice.audioContext !== null) {
-        voice.audioContext.close();
-        console.debug("VOICE : AudioContext closed");
-    }
-
-    voiceUpdateSelfControls();
-    voiceUpdateJoinedUsers();
-    voice.users = {};
-}
-
 // Show to user who is connected in a room before joinning the call
 async function voiceShowConnnectedUsers() {
     const result = await getCoreAPI(`/room/${global.room.id}/user`);
@@ -316,33 +343,6 @@ async function voiceShowConnnectedUsers() {
     }
 }
 
-// <server.js> call this when a new user join the room
-async function voiceUserJoining(userData) {
-    const voiceContent = document.getElementById("voice-content");
-    const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
-    voiceContent.appendChild(voiceCreateUserHTML(userData, userPfpExist));
-
-    // User joining this is NOT self and current user is connected to voice room
-    if (userData.id !== global.user.id && voice.socket !== null && voice.socket.readyState === WebSocket.OPEN) {
-        await voiceCreateUserDecoder(userData.id);
-        voiceUpdateUserControls(userData.id);
-    }
-}
-
-// <server.js> call this when a user leave the room
-async function voiceUserLeaving(userId) {
-    // Remove user from UI
-    document.getElementById(`voice-${userId}`).remove();
-
-    // User calling this is NOT self
-    if (userId !== global.user.id && voice.socket.currentState === WebSocket.OPEN) {
-        const user = voice.users[userId];
-        await user.decoder.flush();
-        await user.decoder.close();
-        voice.users[userId] = null;
-    }
-}
-
 // Create DOM Element / HTML for a give user
 function voiceCreateUserHTML(userData, userPfpExist) {
     const DIV = document.createElement('div');
@@ -368,6 +368,7 @@ function voiceCreateUserHTML(userData, userPfpExist) {
     return DIV;
 }
 
+// Add or remove controls on user in room
 async function voiceUpdateJoinedUsers() {
     const result = await getCoreAPI(`/room/${global.room.id}/user`);
 
@@ -437,7 +438,6 @@ async function voiceUpdateUserControls(userId) {
     }
 }
 
-
 function voiceUpdateSelfControls() {
     const voiceAction = document.getElementById("voice-join-action");
     const readyState = (voice.socket !== null && voice.activeRoom === global.room.id) ? voice.socket.readyState : WebSocket.CLOSED;
@@ -471,12 +471,6 @@ function voiceUpdateSelfControls() {
     }
 }
 
-/* Those don't do shit yet, only show it */
-
-function voiceControlVolume(userId, volumeInput) {
-    volumeInput.title = volume * 100 + "%";
-}
-
 function voiceControlMute(userId, muteButton) {
     // Invert mute state
     voice.users[userId].muted = !voice.users[userId].muted;
@@ -503,4 +497,10 @@ function voiceControlSelfMute() {
         console.debug("VOICE : Self unmute");
         muteButton.classList.remove('active');
     }
+}
+
+/* Those don't do shit yet, only show it */
+
+function voiceControlVolume(userId, volumeInput) {
+    volumeInput.title = volume * 100 + "%";
 }
