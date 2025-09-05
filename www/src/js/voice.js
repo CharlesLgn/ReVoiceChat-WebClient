@@ -190,6 +190,8 @@ async function voiceSendInit() {
 
 // Create a user audio decoder
 async function voiceCreateUserDecoder(userId) {
+    console.debug("VOICE : Creating decoder for user:", userId);
+
     const isSupported = await AudioDecoder.isConfigSupported(voiceCodecConfig);
     if (isSupported.supported) {
         voice.users[userId] = { decoder: null, playhead: 0 };
