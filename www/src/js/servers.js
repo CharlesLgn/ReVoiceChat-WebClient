@@ -59,10 +59,9 @@ function sseOpen() {
                 return;
 
             case "ROOM_MESSAGE":
-                if (data.roomId === global.room.id) {
+                const message = data.message;
+                if (message.roomId === global.room.id) {
                     const ROOM = document.getElementById("text-content");
-                    const message = data.message;
-
                     switch (data.action) {
                         case "ADD":
                             ROOM.appendChild(createMessage(message));
