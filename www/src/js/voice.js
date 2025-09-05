@@ -71,8 +71,7 @@ async function voiceJoin(roomId) {
 // <user> call this to leave a call in a room
 async function voiceLeave() {
     if (voice.activeRoom !== null) {
-        const roomId = voice.activeRoom;
-        console.info(`VOICE : Leaving voice chat ${roomId}`);
+        console.info(`VOICE : Leaving voice chat ${voice.activeRoom}`);
     }
 
     voice.activeRoom = null;
