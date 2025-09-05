@@ -102,16 +102,10 @@ async function voiceJoin(roomId) {
         voiceUpdateSelfControls();
 
         /* Starting here is playback stuff */
-        voice.socket.onmessage = (event) => {
-            const data = event.data;
-            const view = new DataView(data);
-
-            // Read and decode 2 bytes header
-            const headerLength = view.getUint16(0);
-            const headerEnd = 2 + headerLength;
-            const headerBytes = new Uint8Array(data.slice(2, headerEnd));
-            const headerJSON = new TextDecoder().decode(headerBytes);
-            const header = JSON.parse(headerJSON);
+        voice.socket.onmessage = (packet) => {
+            const result = packetDecode(packet);
+            const header = result.header;
+            const data = result.data;
 
             // If user sending packet is muted, we stop
             if (voice.users[header.user].muted) {
@@ -119,11 +113,10 @@ async function voiceJoin(roomId) {
             }
 
             // Decode and read audio
-            const audioArrayBuffer = data.slice(headerEnd);
             const audioChunk = new EncodedAudioChunk({
                 type: "key",
-                timestamp: header.audioTimestamp,
-                data: new Uint8Array(audioArrayBuffer),
+                timestamp: header.audioTimestamp * 1000,
+                data: new Uint8Array(data),
             })
 
             if (voice.users[header.user] !== null && voice.users[header.user] !== undefined) {
@@ -247,19 +240,8 @@ async function voiceSendInit() {
             audioTimestamp: audioTimestamp / 1000, // audioTimestamp is in µs but sending ms is enough
             user: global.user.id,
         })
-        const headerBytes = new TextEncoder().encode(header);
 
-        // Calculate length of packet
-        const packetLength = 2 + headerBytes.length + audioChunkCopy.byteLength;
-
-        // Create packet of that length
-        const packet = new Uint8Array(packetLength);
-
-        // Fill packet
-        const view = new DataView(packet.buffer);
-        view.setUint16(0, headerBytes.length);
-        packet.set(headerBytes, 2);
-        packet.set(new Uint8Array(audioChunkCopy), 2 + headerBytes.length);
+        const packet = packetEncode(header, audioChunkCopy);
 
         // Finally send it ! (but socket need to be open)
         if (voice.socket.readyState === WebSocket.OPEN) {
