@@ -1,66 +1,32 @@
-function sanitizeString(str) {
-    str = str.substring(0, 2000);
-    //str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "");
-    return str.trim();
-}
+const sanitizeString = (str) => str.substring(0, 2000).trim();
 
 function isToday(date) {
     const today = new Date();
-    return today.getFullYear() == date.getFullYear() && today.getMonth() == date.getMonth() && today.getDate() == date.getDate();
+    return today.getFullYear() === date.getFullYear() && today.getMonth() === date.getMonth() && today.getDate() === date.getDate();
 }
 
 function timestampToText(timestamp) {
     // By default timestamp is UTC (shouldn't matter for this function)
     timestamp = new Date(`${timestamp}`);
-
-    /*
-    let current = new Date().getTime();
-    let elpase = parseInt((current - timestamp) / 1000); // Elpase time in seconds
-    // Less than a minute
-    if (elpase < 60) {
-        return "Now";
-    }
-
-    // Less than an hour
-    if (elpase < 3600) {
-        let minutes = parseInt(elpase / 60);
-        if (minutes == 1) {
-            return "1 minute ago";
-        }
-        return `${minutes} minutes ago`;
-    }
-
-    // Less than a day
-    if (elpase < 86400) {
-        let hours = parseInt(elpase / 3600);
-        if (hours == 1) {
-            return "1 hour ago";
-        }
-        return `${hours} hours ago`;
-    }
-    */
-
-    formatedTimestamp = timestamp.toLocaleString();
+    let formatedTimestamp = timestamp.toLocaleString();
     formatedTimestamp = formatedTimestamp.substring(0, formatedTimestamp.length - 3);
-
     // Is today ?
     if (isToday(timestamp)) {
         formatedTimestamp = String(timestamp.getHours()).padStart(2, '0') + ":" + String(timestamp.getMinutes()).padStart(2, '0');
     }
-
     return formatedTimestamp;
 }
 
 function getQueryVariable(variable) {
-    var query = window.location.search.substring(1);
-    var vars = query.split("&");
-    for (var i = 0; i < vars.length; i++) {
-        var pair = vars[i].split("=");
-        if (pair[0] == variable) {
+    const query = window.location.search.substring(1);
+    const vars = query.split("&");
+    for (const element of vars) {
+        const pair = element.split("=");
+        if (pair[0] === variable) {
             return pair[1];
         }
     }
-    return false;
+    return null;
 }
 
 async function getCoreAPI(path) {
@@ -100,7 +66,7 @@ async function putCoreAPI(path, data) {
 
         const contentType = response.headers.get("content-type");
 
-        if (contentType && contentType.includes("application/json")) {
+        if (contentType?.includes("application/json")) {
             return await response.json();
         }
 
@@ -126,7 +92,7 @@ async function patchCoreAPI(path, data) {
 
         const contentType = response.headers.get("content-type");
 
-        if (contentType && contentType.includes("application/json")) {
+        if (contentType?.includes("application/json")) {
             return await response.json();
         }
 
@@ -189,7 +155,7 @@ async function fileBulkExistMedia(path, data){
         });
 
         if(!response.ok){
-            throw "Not OK";
+            throw new Error("Not OK");
         }
 
         return await response.json();
@@ -216,8 +182,7 @@ function getCookie(name) {
     const nameEQ = name + "=";
     const cookies = document.cookie.split(';');
     for (let c of cookies) {
-        c = c.trim();
-        if (c.indexOf(nameEQ) === 0) {
+        if (c.trim().startsWith(nameEQ)) {
             return decodeURIComponent(c.substring(nameEQ.length));
         }
     }

@@ -27,7 +27,7 @@ function userLogin() {
 
     // Validate URL
     try {
-        inputHost = new URL(FORM.host.value);
+        const inputHost = new URL(FORM.host.value);
         login(LOGIN, inputHost.origin);
     }
     catch (e) {
@@ -48,7 +48,7 @@ async function login(loginData, host) {
         });
 
         if (!response.ok) {
-            throw "Not OK";
+            throw new Error("Not OK");
         }
 
         // Var session

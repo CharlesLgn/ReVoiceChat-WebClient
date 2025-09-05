@@ -6,3 +6,5 @@ test*
 *.iws
 *.iml
 *.ipr
+
+**/.scannerwork/**
