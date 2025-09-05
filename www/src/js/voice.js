@@ -290,7 +290,7 @@ async function voiceCreateUserDecoder(userId) {
 }
 
 // Show to user who is connected in a room before joinning the call
-async function voiceShowConnnectedUsers() {
+async function voiceShowJoinedUsers() {
     const result = await getCoreAPI(`/room/${global.room.id}/user`);
 
     if (result.connectedUser === null) {
@@ -325,31 +325,6 @@ async function voiceShowConnnectedUsers() {
     }
 }
 
-// Create DOM Element / HTML for a give user
-function voiceCreateUserHTML(userData, userPfpExist) {
-    const DIV = document.createElement('div');
-    DIV.id = `voice-${userData.id}`;
-    DIV.className = "voice-profile";
-
-    let profilePicture = "src/img/default-avatar.webp";
-    if (userPfpExist === true) {
-        profilePicture = `${global.url.media}/profiles/${userData.id}`;
-    }
-
-    DIV.innerHTML = `
-        <div class='block-user'>
-            <div class='relative'>
-                <img src='${profilePicture}' alt='PFP' class='icon ring-2' />
-            </div>
-            <div class='user'>
-                <h2 class='name'>${userData.displayName}</h2>
-            </div>
-        </div>
-    `;
-
-    return DIV;
-}
-
 // Add or remove controls on user in room
 async function voiceUpdateJoinedUsers() {
     const result = await getCoreAPI(`/room/${global.room.id}/user`);
@@ -374,6 +349,31 @@ async function voiceUpdateJoinedUsers() {
             await voiceCreateUserDecoder(userId);
         }
     }
+}
+
+// Create DOM Element / HTML for a give user
+function voiceCreateUserHTML(userData, userPfpExist) {
+    const DIV = document.createElement('div');
+    DIV.id = `voice-${userData.id}`;
+    DIV.className = "voice-profile";
+
+    let profilePicture = "src/img/default-avatar.webp";
+    if (userPfpExist === true) {
+        profilePicture = `${global.url.media}/profiles/${userData.id}`;
+    }
+
+    DIV.innerHTML = `
+        <div class='block-user'>
+            <div class='relative'>
+                <img src='${profilePicture}' alt='PFP' class='icon ring-2' />
+            </div>
+            <div class='user'>
+                <h2 class='name'>${userData.displayName}</h2>
+            </div>
+        </div>
+    `;
+
+    return DIV;
 }
 
 async function voiceUpdateUserControls(userId) {
@@ -401,12 +401,12 @@ async function voiceUpdateUserControls(userId) {
             INPUT_VOLUME.max = "1";
             INPUT_VOLUME.step = "0.05";
             INPUT_VOLUME.title = "100%";
-            INPUT_VOLUME.oninput = () => voiceControlVolume(userId, INPUT_VOLUME);
+            INPUT_VOLUME.oninput = () => voicControlUserVolume(userId, INPUT_VOLUME);
 
             const BUTTON_MUTE = document.createElement('button');
             BUTTON_MUTE.className = "mute";
             BUTTON_MUTE.title = "Mute";
-            BUTTON_MUTE.onclick = () => voiceControlMute(userId, BUTTON_MUTE);
+            BUTTON_MUTE.onclick = () => voiceControlUserMute(userId, BUTTON_MUTE);
             BUTTON_MUTE.innerHTML = SVG_MICROPHONE;
 
             const DIV_ACTION = document.createElement('div');
@@ -453,7 +453,7 @@ function voiceUpdateSelfControls() {
     }
 }
 
-function voiceControlMute(userId, muteButton) {
+function voiceControlUserMute(userId, muteButton) {
     // Invert mute state
     voice.users[userId].muted = !voice.users[userId].muted;
 
@@ -483,6 +483,6 @@ function voiceControlSelfMute() {
 
 /* Those don't do shit yet, only show it */
 
-function voiceControlVolume(userId, volumeInput) {
+function voicControlUserVolume(userId, volumeInput) {
     volumeInput.title = volume * 100 + "%";
 }
