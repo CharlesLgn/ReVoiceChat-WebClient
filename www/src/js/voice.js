@@ -309,8 +309,8 @@ async function voiceUserJoining(userData) {
     const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
     voiceContent.appendChild(voiceCreateUserHTML(userData, userPfpExist));
 
-    // User calling this is NOT self and current user is connected to voice room
-    if (userData.id !== global.user.id && voice.socket !== null && voice.socket.currentState === WebSocket.OPEN) {
+    // User joining this is NOT self and current user is connected to voice room
+    if (userData.id !== global.user.id && voice.socket !== null && voice.socket.readyState === WebSocket.OPEN) {
         await voiceCreateUserDecoder(userData.id);
     }
 }
