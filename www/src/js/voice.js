@@ -229,26 +229,23 @@ function voiceReceiveAndDecode(packet) {
     const header = result.header;
     const data = result.data;
 
-    // If user sending packet is muted, we stop
-    if (voice.users[header.user].muted) {
-        return;
-    }
-
-    // Decode and read audio
-    const audioChunk = new EncodedAudioChunk({
-        type: "key",
-        timestamp: header.audioTimestamp * 1000,
-        data: new Uint8Array(data),
-    })
-
-    if (voice.users[header.user] !== null && voice.users[header.user] !== undefined) {
+    if (voice.users[header.user]) {
         const currentUser = voice.users[header.user];
+        // If user sending packet is muted, we stop
+        if (currentUser.muted) {
+            return;
+        }
+
+        // Decode and read audio
+        const audioChunk = new EncodedAudioChunk({
+            type: "key",
+            timestamp: header.audioTimestamp * 1000,
+            data: new Uint8Array(data),
+        })
+
         if (currentUser.decoder !== null && currentUser.decoder.state === "configured") {
             currentUser.decoder.decode(audioChunk);
         }
-    }
-    else {
-        console.error("VOICE : User decoder don't exist");
     }
 }
 
