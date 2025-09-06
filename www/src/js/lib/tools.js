@@ -52,36 +52,14 @@ async function getCoreAPI(path) {
     }
 }
 
-async function putCoreAPI(path, data) {
+const putCoreAPI = async (path, data) => fetchCoreAPI(path, data , 'PUT');
+
+const patchCoreAPI = async (path, data) => fetchCoreAPI(path, data , 'PATCH');
+
+async function fetchCoreAPI(path, data, method) {
     try {
         const response = await fetch(`${global.url.core}/api${path}`, {
-            method: 'PUT',
-            signal: AbortSignal.timeout(5000),
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${global.jwtToken}`
-            },
-            body: JSON.stringify(data)
-        });
-
-        const contentType = response.headers.get("content-type");
-
-        if (contentType?.includes("application/json")) {
-            return await response.json();
-        }
-
-        return response.ok;
-    }
-    catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.core}\nPath : ${path}`);
-        return null;
-    }
-}
-
-async function patchCoreAPI(path, data) {
-    try {
-        const response = await fetch(`${global.url.core}/api${path}`, {
-            method: 'PATCH',
+            method: method,
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',

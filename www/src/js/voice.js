@@ -85,7 +85,7 @@ async function voiceLeave() {
             await user.decoder.flush();
             await user.decoder.close();
         }
-    };
+    }
     console.debug("VOICE : All users decoder flushed and closed");
 
     // Close self encoder
@@ -381,13 +381,13 @@ function voiceUpdateUserControls(userId) {
     const readyState = voice.socket !== null ? voice.socket.readyState : WebSocket.CLOSED;
 
     switch (readyState) {
-        case WebSocket.CLOSED:
+        case WebSocket.CLOSED: {
             if (document.getElementById(`voice-controls-${userId}`) !== null) {
                 document.getElementById(`voice-controls-${userId}`).remove();
             }
             break;
-
-        case WebSocket.OPEN:
+        }
+        case WebSocket.OPEN: {
             if (document.getElementById(`voice-controls-${userId}`) !== null) {
                 console.info('VOICE : There is already controls in this room');
                 break;
@@ -417,6 +417,7 @@ function voiceUpdateUserControls(userId) {
 
             userDiv.appendChild(DIV_ACTION);
             break;
+        }
     }
 }
 

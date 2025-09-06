@@ -178,7 +178,7 @@ async function configAddRoom() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            const result = await putCoreAPI(`/server/${global.server.id}/room`, { name: FORM_DATA.name, type: FORM_DATA.type });
+            await putCoreAPI(`/server/${global.server.id}/room`, { name: FORM_DATA.name, type: FORM_DATA.type });
             loadRooms();
         }
     });
@@ -208,7 +208,7 @@ async function configEditRoom(data) {
         `,
     }).then(async (result) => {
         if (result.value) {
-            const result = await patchCoreAPI(`/room/${data.id}`, { name: FORM_DATA.name, type: FORM_DATA.type });
+            await patchCoreAPI(`/room/${data.id}`, { name: FORM_DATA.name, type: FORM_DATA.type });
             loadRooms();
         }
     });
@@ -230,7 +230,7 @@ async function configDeleteRoom(data) {
         allowOutsideClick: false,
     }).then(async (result) => {
         if (result.value) {
-            const result = await deleteCoreAPI(`/room/${data.id}`);
+            await deleteCoreAPI(`/room/${data.id}`);
             loadRooms();
         }
     });

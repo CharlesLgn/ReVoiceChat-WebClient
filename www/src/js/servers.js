@@ -57,8 +57,7 @@ function sseOpen() {
             case "PING":
                 console.info("SSE : Pinged by server.");
                 return;
-
-            case "ROOM_MESSAGE":
+            case "ROOM_MESSAGE": {
                 const message = data.message;
                 if (message.roomId === global.room.id) {
                     const ROOM = document.getElementById("text-content");
@@ -81,7 +80,7 @@ function sseOpen() {
                 }
 
                 return;
-
+            }
             case "DIRECT_MESSAGE":
                 return;
 
