@@ -74,7 +74,7 @@ async function voiceLeave() {
         console.info(`VOICE : Leaving voice chat ${voice.activeRoom}`);
     }
 
-    voice.activeRoom = null;
+    
 
     // Close WebSocket
     if (voice.socket !== null) {
@@ -105,6 +105,7 @@ async function voiceLeave() {
     voiceUpdateSelf();
     voiceUpdateJoinedUsers();
     voice.users = {};
+    voice.activeRoom = null;
 }
 
 // <server.js> call this when a new user join the room
