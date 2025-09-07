@@ -78,15 +78,85 @@ function autoHost() {
     switch (document.location.origin) {
         case "https://app.dev.revoicechat.fr":
             document.getElementById("login-form").host.value = "https://core.dev.revoicechat.fr";
+            document.getElementById("register-form").host.value = "https://core.dev.revoicechat.fr";
             break;
 
         case "https://app.revoicechat.fr":
             document.getElementById("login-form").host.value = "https://core.revoicechat.fr";
+            document.getElementById("register-form").host.value = "https://core.revoicechat.fr";
             break;
         default:
             if (localStorage.getItem("lastHost")) {
                 document.getElementById("login-form").host.value = localStorage.getItem("lastHost");
+                document.getElementById("register-form").host.value = localStorage.getItem("lastHost");
             }
             break;
+    }
+}
+
+function switchToRegister(){
+    document.getElementById('login-form').classList.add("hidden");
+    document.getElementById('register-form').classList.remove("hidden");
+}
+
+function switchToLogin(){
+    document.getElementById('login-form').classList.remove("hidden");
+    document.getElementById('register-form').classList.add("hidden");
+}
+
+function userRegister() {
+    const FORM = document.getElementById("register-form");
+    const REGISTER = {
+        'username': FORM.username.value,
+        'password': FORM.password.value,
+        'email': FORM.email.value,
+        'invitationLink': FORM.invitation.value
+    };
+
+    // Validate URL
+    try {
+        const inputHost = new URL(FORM.host.value);
+        register(REGISTER, inputHost.origin);
+    }
+    catch (e) {
+        console.error(e);
+    }
+}
+
+async function register(loginData, host) {
+    try {
+        const response = await fetch(`${host}/api/auth/signup`, {
+            cache: "no-store",
+            signal: AbortSignal.timeout(5000),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify(loginData),
+        });
+
+        if (!response.ok) {
+            throw new Error("Not OK");
+        }
+
+        Swal.fire({
+            icon: "success",
+            title: `You can now login to\n ${host}`,
+            focusConfirm: false,
+            allowOutsideClick: false,
+            animation: false,
+        }).then(() => {
+            document.location.reload();
+        })
+    }
+    catch (error) {
+        console.error("Error while login : ", error);
+        Swal.fire({
+            icon: "error",
+            title: `Unable to register to\n ${host}`,
+            focusConfirm: false,
+            allowOutsideClick: false,
+            animation: false,
+        })
     }
 }

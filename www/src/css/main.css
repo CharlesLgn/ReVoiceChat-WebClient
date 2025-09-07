@@ -67,6 +67,15 @@ button {
     display: block;
 }
 
+.login-form .switch {
+    background: none !important;
+    border: none;
+    padding: 0 !important;
+    font-family: arial, sans-serif;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .login-element {
     margin-bottom: 1.5rem;
 }
@@ -608,7 +617,7 @@ svg {
     animation-direction: alternate;
 }
 
-.swal-input{
+.swal-input {
     outline: 2px solid transparent;
     outline-offset: 2px;
     padding-left: 0.75rem;

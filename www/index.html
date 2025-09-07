@@ -14,24 +14,50 @@
 </head>
 
 <body>
-    <!-- Main Container -->
     <div class="main login">
-        <!-- Login -->
         <div class="login-box">
+            <!-- Login form-->
             <form id="login-form" class="login-form">
                 <div class="login-element">
                     <label for="host">Host</label>
-                    <input type="text" name="host" id="host">
+                    <input type="text" name="host" id="login-host">
                 </div>
                 <div class="login-element">
                     <label for="name">Username</label>
                     <input type="text" name="username" id="username">
                 </div>
                 <div class="login-element">
-                    <label for="email">Password</label>
+                    <label for="password">Password</label>
                     <input type="password" name="password" id="password">
                 </div>
                 <button type="button" onclick="userLogin()">Login</button>
+                <button type="button" class='switch' onclick="switchToRegister()">Register instead ?</button>
+            </form>
+
+            <!-- Register form-->
+            <form id="register-form" class="login-form hidden">
+                <div class="login-element">
+                    <label for="host">Host</label>
+                    <input type="text" name="host" id="register-host">
+                </div>
+                <div class="login-element">
+                    <label for="invitation">Invitation code</label>
+                    <input type="text" name="invitation">
+                </div>
+                <div class="login-element">
+                    <label for="email">Email</label>
+                    <input type="email" name="email">
+                </div>
+                <div class="login-element">
+                    <label for="username">Username</label>
+                    <input type="text" name="username">
+                </div>
+                <div class="login-element">
+                    <label for="password">Password</label>
+                    <input type="password" name="password">
+                </div>
+                <button type="button" onclick="userRegister()">Register</button>
+                <button type="button" class='switch' onclick="switchToLogin()">Login instead ?</button>
             </form>
         </div>
     </div>

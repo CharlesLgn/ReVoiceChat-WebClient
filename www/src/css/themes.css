@@ -25,6 +25,10 @@
         border-color: rgb(209, 213, 219);
     }
 
+    .login-form .switch{
+        color: rgb(99, 102, 241);
+    }
+
     /* Element */
     .button-with-icon:hover {
         background-color: rgb(7, 89, 133);
