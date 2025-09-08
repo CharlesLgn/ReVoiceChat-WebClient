@@ -82,7 +82,7 @@ function settingPassword() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            const result = await patchCoreAPI(`/user/me`, { password: currentSetting.password });
+            await patchCoreAPI(`/user/me`, { password: currentSetting.password });
             
         }
     });

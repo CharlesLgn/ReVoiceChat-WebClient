@@ -164,8 +164,9 @@ function getCookie(name) {
     const nameEQ = name + "=";
     const cookies = document.cookie.split(';');
     for (let c of cookies) {
-        if (c.trim().startsWith(nameEQ)) {
-            return decodeURIComponent(c.substring(nameEQ.length));
+        let cookie = c.trim()
+        if (cookie.startsWith(nameEQ)) {
+            return decodeURIComponent(cookie.substring(nameEQ.length));
         }
     }
     return null;
