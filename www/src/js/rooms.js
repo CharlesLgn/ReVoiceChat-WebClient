@@ -2,26 +2,26 @@ async function getRooms(serverId) {
     const result = await fetchCoreAPI(`/server/${serverId}/room`, 'GET');
 
     if (result !== null) {
-        createRoomList(result);
+        roomCreateList(result);
 
         if (global.room.id !== null) {
-            selectRoom(global.room);
+            roomSelect(global.room);
         }
         else {
-            selectRoom(result[0]);
+            roomSelect(result[0]);
         }
     }
 }
 
-function createRoomList(data) {
+function roomCreateList(data) {
     const roomList = document.getElementById("room-list-container");
     roomList.innerHTML = "";
     for (const neddle in data) {
-        roomList.appendChild(createRoom(data[neddle], () => selectRoom(data[neddle])));
+        roomList.appendChild(roomCreate(data[neddle], () => roomSelect(data[neddle])));
     }
 }
 
-function createRoom(roomData, onclick) {
+function roomCreate(roomData, onclick) {
     const DIV = document.createElement('div');
     let icon = "";
 
@@ -46,7 +46,7 @@ function createRoom(roomData, onclick) {
     return DIV;
 }
 
-function selectTextRoom(roomData) {
+function roomSelectText(roomData) {
     console.info(`ROOM : Selected text room : ${roomData.id}`);
 
     if (global.room.id !== null && document.getElementById(global.room.id) !== undefined) {
@@ -68,12 +68,12 @@ function selectTextRoom(roomData) {
     getMessages(roomData.id);
 }
 
-function selectWebRtcRoom(roomData) {
+function roomSelectWebRtc(roomData) {
     console.info(`ROOM : Selected WebRTC room : ${roomData.id}`);
     startWebRtcCall(roomData.id);
 }
 
-function selectVoiceRoom(roomData) {
+function roomSelectVoice(roomData) {
     console.info(`ROOM : Selected voice room : ${roomData.id}`);
 
     if (global.room.id !== null && document.getElementById(global.room.id) !== undefined) {
@@ -93,7 +93,7 @@ function selectVoiceRoom(roomData) {
     voiceShowJoinedUsers(roomData.id);
 }
 
-function selectRoom(roomData) {
+function roomSelect(roomData) {
     if (roomData === undefined || roomData === null) {
         console.error("roomData is null or undefined");
         return;
@@ -101,13 +101,17 @@ function selectRoom(roomData) {
 
     switch (roomData.type) {
         case "TEXT":
-            selectTextRoom(roomData);
+            roomSelectText(roomData);
             break;
         case "WEBRTC":
-            selectWebRtcRoom(roomData);
+            roomSelectWebRtc(roomData);
             break;
         case "VOICE":
-            selectVoiceRoom(roomData);
+            roomSelectVoice(roomData);
             break;
     }
+}
+
+function roomCreateSeparator(){
+
 }
