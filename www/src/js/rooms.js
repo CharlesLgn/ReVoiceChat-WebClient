@@ -1,9 +1,16 @@
 async function getRooms(serverId) {
-    const result = await fetchCoreAPI(`/server/${serverId}/structure`, 'GET');
-    if (result && result.items) {
+    const roomResult = await fetchCoreAPI(`/server/${serverId}/room`, 'GET');
+    const structResult = await fetchCoreAPI(`/server/${serverId}/structure`, 'GET');
+
+    if (structResult && structResult.items && roomResult) {
+        const rooms = [];
+        for (const room of roomResult) {
+            rooms[room.id] = room;
+        }
+
         const roomList = document.getElementById("room-list-container");
         roomList.innerHTML = "";
-        roomCreate(roomList, result.items);
+        roomCreate(roomList, rooms, structResult.items);
 
         if (global.room.id !== null) {
             roomSelect(global.room);
@@ -11,15 +18,16 @@ async function getRooms(serverId) {
     }
 }
 
-function roomCreate(roomList, data) {
+function roomCreate(roomList, roomData, data) {
     for (const item of data) {
-        if(item.type === 'CATEGORY'){
+        if (item.type === 'CATEGORY') {
             roomList.appendChild(roomCreateSeparator(item));
-            roomCreate(roomList, item.items)
+            roomCreate(roomList, roomData, item.items)
         }
 
-        if(item.type === 'ROOM'){
-            roomList.appendChild(roomCreateElement(item, () => roomSelect(item)));
+        if (item.type === 'ROOM') {
+            const elementData = roomData[item.id];
+            roomList.appendChild(roomCreateElement(elementData, () => roomSelect(elementData)));
         }
     }
 }
@@ -115,7 +123,7 @@ function roomSelect(data) {
     }
 }
 
-function roomCreateSeparator(data){
+function roomCreateSeparator(data) {
     const DIV = document.createElement('div');
     DIV.className = "room-separator";
     DIV.innerHTML = `<h3 class="room-title">${data.name.toUpperCase()}</h3>`;
