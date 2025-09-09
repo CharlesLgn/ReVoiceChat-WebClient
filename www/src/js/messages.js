@@ -10,7 +10,7 @@ document.getElementById("text-input").addEventListener('keydown', function (e) {
 });
 
 async function getMessages(roomId) {
-    const result = await getCoreAPI(`/room/${roomId}/message`);
+    const result = await fetchCoreAPI(`/room/${roomId}/message`, 'GET');
 
     if (result !== null) {
         const ROOM = document.getElementById("text-content");
@@ -79,11 +79,11 @@ async function sendMessage() {
 
     switch (global.chat.mode) {
         case "send":
-            result = await putCoreAPI(`/room/${global.room.id}/message`, data);
+            result = await fetchCoreAPI(`/room/${global.room.id}/message`, 'PUT', data);
             break;
 
         case "edit":
-            result = await patchCoreAPI(`/message/${global.chat.editId}`, data);
+            result = await fetchCoreAPI(`/message/${global.chat.editId}`, 'PATCH', data);
             global.chat.mode = "send";
             global.chat.editId = null;
             break;
@@ -98,11 +98,11 @@ async function sendMessage() {
 }
 
 async function deleteMessage(id) {
-    await deleteCoreAPI(`/message/${id}`);
+    await fetchCoreAPI(`/message/${id}`, 'DELETE');
 }
 
 async function editMessage(id) {
-    const result = await getCoreAPI(`/message/${id}`);
+    const result = await fetchCoreAPI(`/message/${id}`, 'GET');
 
     if (result) {
         document.getElementById('text-input').value = result.text;

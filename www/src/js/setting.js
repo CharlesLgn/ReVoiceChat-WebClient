@@ -44,7 +44,7 @@ async function settingDisplayName(input) {
         return;
     }
 
-    const result = await patchCoreAPI(`/user/me`, { displayName: displayName });
+    const result = await fetchCoreAPI(`/user/me`, 'PATCH', { displayName: displayName });
 
     if (result) {
         document.getElementById('config-user-name').value = result.displayName;
@@ -82,7 +82,7 @@ function settingPassword() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await patchCoreAPI(`/user/me`, { password: currentSetting.password });
+            await fetchCoreAPI(`/user/me`, 'PATCH', { password: currentSetting.password });
             
         }
     });

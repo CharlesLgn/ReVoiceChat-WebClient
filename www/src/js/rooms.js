@@ -1,5 +1,5 @@
 async function getRooms(serverId) {
-    const result = await getCoreAPI(`/server/${serverId}/room`);
+    const result = await fetchCoreAPI(`/server/${serverId}/room`, 'GET');
 
     if (result !== null) {
         createRoomList(result);

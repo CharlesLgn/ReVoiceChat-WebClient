@@ -290,7 +290,7 @@ async function voiceCreateUserDecoder(userId) {
 
 // Show users in a room
 async function voiceShowJoinedUsers() {
-    const result = await getCoreAPI(`/room/${global.room.id}/user`);
+    const result = await fetchCoreAPI(`/room/${global.room.id}/user`, 'GET');
 
     if (result.connectedUser === null) {
         console.debug("VOICE : No user in room");
@@ -326,7 +326,7 @@ async function voiceShowJoinedUsers() {
 
 // Add or remove controls on users in room
 async function voiceUpdateJoinedUsers() {
-    const result = await getCoreAPI(`/room/${global.room.id}/user`);
+    const result = await fetchCoreAPI(`/room/${global.room.id}/user`, 'GET');
 
     if (result === null) {
         console.debug("VOICE : No user in room");

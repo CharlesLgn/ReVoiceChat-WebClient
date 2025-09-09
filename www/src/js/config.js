@@ -44,7 +44,7 @@ function createContextMenuButton(className, innerHTML, onclick) {
 }
 
 async function loadRooms() {
-    const result = await getCoreAPI(`/server/${global.server.id}/room`);
+    const result = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
 
     if (result !== null) {
         const roomList = document.getElementById("config-rooms-list");
@@ -78,7 +78,7 @@ async function createItemRoom(data) {
 }
 
 async function loadMembers() {
-    const result = await getCoreAPI(`/server/${global.server.id}/user`);
+    const result = await fetchCoreAPI(`/server/${global.server.id}/user`, 'GET');
 
     if (result) {
         const sortedByDisplayName = [...result].sort((a, b) => {
@@ -133,7 +133,7 @@ async function updateServerName(input) {
     }
 
     const id = global.server.id;
-    const result = await patchCoreAPI(`server/${id}`, { name: serverName })
+    const result = await fetchCoreAPI(`server/${id}`, 'PATCH', { name: serverName })
     if (result) {
         document.getElementById('config-server-name').value = result.name;
         global.user.displayName = result.name
@@ -178,7 +178,7 @@ async function configAddRoom() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await putCoreAPI(`/server/${global.server.id}/room`, { name: FORM_DATA.name, type: FORM_DATA.type });
+            await fetchCoreAPI(`/server/${global.server.id}/room`, 'PUT', { name: FORM_DATA.name, type: FORM_DATA.type });
             loadRooms();
         }
     });
@@ -208,7 +208,7 @@ async function configEditRoom(data) {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await patchCoreAPI(`/room/${data.id}`, { name: FORM_DATA.name, type: FORM_DATA.type });
+            await fetchCoreAPI(`/room/${data.id}`, 'PATCH', { name: FORM_DATA.name, type: FORM_DATA.type });
             loadRooms();
         }
     });
@@ -230,14 +230,14 @@ async function configDeleteRoom(data) {
         allowOutsideClick: false,
     }).then(async (result) => {
         if (result.value) {
-            await deleteCoreAPI(`/room/${data.id}`);
+            await fetchCoreAPI(`/room/${data.id}`, 'DELETE');
             loadRooms();
         }
     });
 }
 
 async function configAddInvitation() {
-    const result = await fetchCoreAPI('/invitation/application', null, 'POST');
+    const result = await fetchCoreAPI('/invitation/application', 'POST');
     console.log(result);
     if (result.status === "CREATED") {
         Swal.fire({

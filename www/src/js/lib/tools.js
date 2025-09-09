@@ -29,34 +29,7 @@ function getQueryVariable(variable) {
     return null;
 }
 
-async function getCoreAPI(path) {
-    try {
-        const response = await fetch(`${global.url.core}/api${path}`, {
-            cache: "no-store",
-            signal: AbortSignal.timeout(5000),
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${global.jwtToken}`
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-
-        return await response.json();
-    }
-    catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.core}\nPath : ${path}`);
-        return null;
-    }
-}
-
-const putCoreAPI = async (path, data) => fetchCoreAPI(path, data , 'PUT');
-
-const patchCoreAPI = async (path, data) => fetchCoreAPI(path, data , 'PATCH');
-
-async function fetchCoreAPI(path, data, method) {
+async function fetchCoreAPI(path, method, data = null) {
     if(data){
         data = JSON.stringify(data);
     }
@@ -67,40 +40,23 @@ async function fetchCoreAPI(path, data, method) {
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${global.jwtToken}`
+                'Authorization': `Bearer ${global.jwtToken}`
             },
             body: data
         });
 
-        const contentType = response.headers.get("content-type");
+        if (method !== "DELETE") {
+            const contentType = response.headers.get("content-type");
 
-        if (contentType?.includes("application/json")) {
-            return await response.json();
+            if (contentType?.includes("application/json")) {
+                return await response.json();
+            }
         }
 
         return response.ok;
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.core}\nPath : ${path}`);
-        return null;
-    }
-}
-
-async function deleteCoreAPI(path) {
-    try {
-        const response = await fetch(`${global.url.core}/api${path}`, {
-            method: 'DELETE',
-            signal: AbortSignal.timeout(5000),
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${global.jwtToken}`
-            }
-        });
-
-        return response.ok;
-    }
-    catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.core}\nPath : ${path}`);
+        console.error(`An error occurred while processing your request \n${error}\nHost: ${global.url.core}\nPath: ${path}\nMethod: ${method}`);
         return null;
     }
 }
@@ -128,7 +84,7 @@ async function fileExistMedia(path) {
     }
 }
 
-async function fileBulkExistMedia(path, data){
+async function fileBulkExistMedia(path, data) {
     try {
         const response = await fetch(`${global.url.media}${path}`, {
             method: 'POST',
@@ -136,7 +92,7 @@ async function fileBulkExistMedia(path, data){
             body: JSON.stringify(data)
         });
 
-        if(!response.ok){
+        if (!response.ok) {
             throw new Error("Not OK");
         }
 
