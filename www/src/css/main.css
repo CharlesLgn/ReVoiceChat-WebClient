@@ -25,22 +25,22 @@ body.loaded.fadein {
 }
 
 button {
-    font-weight: 700;
-    text-align: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border-radius: 0.25rem;
     padding-top: 0.5rem;
+    padding-right: 1rem;
     padding-bottom: 0.5rem;
     padding-left: 1rem;
-    padding-right: 1rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 700;
+    text-align: center;
 }
 
 .main {
     display: flex;
-    height: 100vh;
     position: relative;
     z-index: 10;
+    height: 100vh;
 }
 
 .login {
@@ -49,12 +49,12 @@ button {
 }
 
 .login-box {
+    margin-top: 2.5rem;
+    border-radius: 0.25rem;
     padding-top: 0.75rem;
+    padding-right: 2.5rem;
     padding-bottom: 0.75rem;
     padding-left: 2.5rem;
-    padding-right: 2.5rem;
-    border-radius: 0.25rem;
-    margin-top: 2.5rem;
 }
 
 .login-form {
@@ -62,18 +62,18 @@ button {
 }
 
 .login-form button {
+    display: block;
     margin-top: 1.5rem;
     width: 100%;
-    display: block;
 }
 
 .login-form .switch {
-    background: none !important;
+    cursor: pointer;
     border: none;
+    background: none !important;
     padding: 0 !important;
     font-family: arial, sans-serif;
     text-decoration: underline;
-    cursor: pointer;
 }
 
 .login-element {
@@ -86,15 +86,15 @@ button {
 }
 
 .login-element input {
+    margin-top: 0.5rem;
     outline: 2px solid transparent;
     outline-offset: 2px;
-    padding-left: 0.75rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
     border-width: 1px;
     border-radius: 10px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0.75rem;
     width: 100%;
-    margin-top: 0.5rem;
 }
 
 /* ELEMENT */
@@ -108,8 +108,8 @@ svg {
 }
 
 .block-right {
-    margin-left: auto;
     margin-right: 0px;
+    margin-left: auto;
 }
 
 
@@ -134,9 +134,9 @@ svg {
 }
 
 .sidebar-icone {
+    border-radius: 9999px;
     width: 2.5rem;
     height: 2.5rem;
-    border-radius: 9999px;
 }
 
 .sidebar-title {
@@ -163,9 +163,9 @@ svg {
 .sidebar-user-list {
     display: flex;
     flex-direction: column;
+    padding-top: 0.5rem;
     width: 15rem;
     height: 100%;
-    padding-top: 0.5rem;
 }
 
 .sidebar-user-title {
@@ -176,9 +176,9 @@ svg {
 
 .sidebar-user-title svg {
     display: block;
-    height: 1.5rem;
-    width: 1.5rem;
     margin-right: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 /* ROOM LIST*/
@@ -189,30 +189,30 @@ svg {
 }
 
 .room-list {
-    cursor: pointer;
-    position: relative;
-    padding: 0.5rem;
-    border-bottom-width: 1px;
     display: flex;
+    position: relative;
     flex: 1 1 0%;
-    min-width: 0px;
     justify-content: space-between;
     align-items: flex-start;
+    cursor: pointer;
+    border-bottom-width: 1px;
+    padding: 0.5rem;
+    min-width: 0px;
 }
 
 /* ROOM */
 .room {
     display: flex;
-    flex-direction: column;
     flex: 1 1 0%;
-    user-select: auto;
+    flex-direction: column;
     height: 100%;
+    user-select: auto;
 }
 
 .room-header {
+    display: flex;
     padding: 1rem;
     height: 3.5rem;
-    display: flex;
 }
 
 .room-header svg {
@@ -220,11 +220,11 @@ svg {
 }
 
 .room-title {
-    font-weight: 600;
+    display: flex;
     overflow: hidden;
+    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: flex;
 }
 
 .room-title svg {
@@ -233,20 +233,20 @@ svg {
 
 .room-container {
     display: flex;
-    flex-direction: column;
     flex: 1 1 0%;
+    flex-direction: column;
     overflow-y: auto;
 }
 
 .room-content {
-    overflow-y: auto;
     flex: 1 1 0%;
     padding-top: 0.5rem;
+    overflow-y: auto;
 }
 
 .room-control-container {
-    padding: 0.5rem;
     display: flex;
+    padding: 0.5rem;
 }
 
 .text-control {
@@ -254,25 +254,25 @@ svg {
 }
 
 .text-control input {
-    padding-left: 1rem;
-    padding-right: 3rem;
     padding-top: 0.75rem;
+    padding-right: 3rem;
     padding-bottom: 0.75rem;
+    padding-left: 1rem;
     width: 100%;
 }
 
 .voice-control {
-    height: 3rem;
     margin-right: 0.5rem;
+    height: 3rem;
 }
 
 .voice-control button {
-    font-weight: 700;
-    border-radius: 0.25rem;
-    cursor: pointer;
     display: block;
-    padding: 0.5rem;
+    cursor: pointer;
     margin-top: 0.25rem;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    font-weight: 700;
 }
 
 /* MESSAGE */
@@ -287,9 +287,9 @@ svg {
 
 .message-context-menu {
     visibility: hidden;
-    padding-right: 1rem;
-    margin-left: auto;
     margin-right: 0px;
+    margin-left: auto;
+    padding-right: 1rem;
 }
 
 .message-context-menu:hover,
@@ -298,8 +298,8 @@ svg {
 }
 
 .message-context-menu .icon {
-    cursor: pointer;
     display: inline;
+    cursor: pointer;
     padding: 0.5rem;
 }
 
@@ -310,23 +310,23 @@ svg {
 }
 
 .message-owner {
+    display: block;
     padding-left: 1rem;
     font-weight: 600;
-    text-overflow: ellipsis;
-    display: block;
     user-select: text;
+    text-overflow: ellipsis;
 }
 
 .message-content {
     display: flex;
-    padding-left: 1.5rem;
     padding-right: 1.5rem;
+    padding-left: 1.5rem;
     user-select: text;
 }
 
 .message-content img {
-    height: 1.5rem;
     width: 1.5rem;
+    height: 1.5rem;
 }
 
 .message-timestamp {
@@ -337,10 +337,10 @@ svg {
 
 /* VOICE */
 .voice-profile {
-    height: 3rem;
     display: flex;
     cursor: pointer;
     padding: 0.5rem;
+    height: 3rem;
 }
 
 .voice-profile .block-user {
@@ -368,27 +368,27 @@ svg {
 /* STATUS */
 
 .status-container {
-    padding: 0.75rem;
-    align-items: center;
     display: flex;
+    align-items: center;
+    padding: 0.75rem;
 }
 
 .status-bloc-1 {
-    height: 2.5rem;
     display: flex;
+    height: 2.5rem;
 }
 
 .status-bloc-1 .icon {
+    border-radius: 9999px;
     width: 2.5rem;
     height: 2.5rem;
-    border-radius: 9999px;
 }
 
 .voice-profile .icon,
 .sidebar-user-list .icon {
+    border-radius: 9999px;
     width: 2rem;
     height: 2rem;
-    border-radius: 9999px;
 }
 
 .voice-profile .user,
@@ -403,8 +403,8 @@ svg {
 
 .voice-profile .user .name,
 .sidebar-user-list .user .name {
-    font-weight: 500;
     padding-top: 0.25rem;
+    font-weight: 500;
 }
 
 .sidebar-user-list .user .status,
@@ -414,14 +414,14 @@ svg {
 }
 
 .user-dot {
-    border-color: rgb(31 41 55);
+    position: absolute;
+    right: -0.25rem;
+    bottom: -0.25rem;
     border-width: 2px;
+    border-color: rgb(31 41 55);
     border-radius: 9999px;
     width: 1rem;
     height: 1rem;
-    right: -0.25rem;
-    bottom: -0.25rem;
-    position: absolute;
 }
 
 .user-dot-online {
@@ -441,10 +441,10 @@ svg {
 }
 
 .user-profile {
-    height: 3rem;
     display: flex;
     cursor: pointer;
     padding: 0.5rem;
+    height: 3rem;
 }
 
 /* Scroll */
@@ -458,13 +458,13 @@ svg {
 }
 
 .scrollbar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(37, 211, 102, 0.5);
     border-radius: 10px;
+    background: rgba(37, 211, 102, 0.5);
 }
 
 .scrollbar::-webkit-scrollbar-thumb:hover {
@@ -473,27 +473,27 @@ svg {
 
 /* CONFIG */
 .config-container-left {
-    width: 33%;
     border-right-width: 1px;
     border-color: white;
     padding-top: 5rem;
-    padding-left: 2rem;
     padding-right: 1rem;
     padding-bottom: 5rem;
+    padding-left: 2rem;
+    width: 33%;
 }
 
 .config-left {
-    width: 13rem;
-    margin-left: auto;
     margin-right: 0px;
+    margin-left: auto;
+    width: 13rem;
 }
 
 .config-container-right {
-    width: 67%;
     padding-top: 5rem;
-    padding-left: 1rem;
     padding-right: 2rem;
     padding-bottom: 5rem;
+    padding-left: 1rem;
+    width: 67%;
 }
 
 .config-right {
@@ -501,9 +501,9 @@ svg {
 }
 
 .config .category {
+    height: 2.5rem;
     font-weight: 800;
     font-size: 1.25rem;
-    height: 2.5rem;
 }
 
 .category~.category {
@@ -512,12 +512,12 @@ svg {
 
 .config .sub-category {
     display: flex;
-    font-weight: 600;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 0.5rem;
-    border-radius: 0.25rem;
     cursor: pointer;
     margin-bottom: 0.1rem;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    font-weight: 600;
 }
 
 .sub-category svg {
@@ -529,60 +529,60 @@ svg {
 }
 
 .config h1 {
-    font-weight: 800;
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
     display: flex;
     align-items: center;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    font-size: 1.25rem;
 }
 
 .config h2 {
+    margin-top: 1rem;
     font-weight: 800;
     font-size: 1rem;
-    margin-top: 1rem;
 }
 
 .config input,
 .config select {
+    margin-top: 0.5rem;
     outline: 2px solid transparent;
     outline-offset: 2px;
-    padding-left: 0.75rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
     border-width: 1px;
     border-radius: 0.25rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0.75rem;
     width: 100%;
-    margin-top: 0.5rem;
 }
 
 .config-item {
-    height: 3rem;
     display: flex;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    padding: 0.5rem;
     margin: 0.3rem;
     border-radius: 0.25rem;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.5rem;
+    height: 3rem;
 }
 
 .config-item .name {
-    padding-left: 0.5rem;
     padding-top: 0.25rem;
+    padding-left: 0.5rem;
     font-weight: 800;
     font-size: 1rem;
 }
 
 .config-item .icon {
+    border-radius: 10px;
     width: 2rem;
     height: 2rem;
-    border-radius: 10px;
 }
 
 .config-item .context-menu {
     visibility: hidden;
-    padding-top: 0.25rem;
-    margin-left: auto;
     margin-right: 0px;
+    margin-left: auto;
+    padding-top: 0.25rem;
 }
 
 .config-item .context-menu:hover,
@@ -591,8 +591,8 @@ svg {
 }
 
 .config-item .context-menu .icon {
-    cursor: pointer;
     display: inline;
+    cursor: pointer;
     padding: 0.5rem;
 }
 
@@ -618,13 +618,13 @@ svg {
 }
 
 .swal-input {
+    margin-top: 0.5rem;
     outline: 2px solid transparent;
     outline-offset: 2px;
-    padding-left: 0.75rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
     border-width: 1px;
     border-radius: 10px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0.75rem;
     width: 100%;
-    margin-top: 0.5rem;
 }
