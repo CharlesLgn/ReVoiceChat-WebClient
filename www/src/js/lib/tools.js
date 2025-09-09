@@ -30,6 +30,11 @@ function getQueryVariable(variable) {
 }
 
 async function fetchCoreAPI(path, method, data = null) {
+    if(method === null || method === undefined){
+        console.error(`fetchCoreAPI: No method specified`);
+        return null;
+    }
+
     if(data){
         data = JSON.stringify(data);
     }
@@ -56,7 +61,7 @@ async function fetchCoreAPI(path, method, data = null) {
         return response.ok;
     }
     catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost: ${global.url.core}\nPath: ${path}\nMethod: ${method}`);
+        console.error(`fetchCoreAPI: An error occurred while processing request \n${error}\nHost: ${global.url.core}\nPath: ${path}\nMethod: ${method}`);
         return null;
     }
 }
