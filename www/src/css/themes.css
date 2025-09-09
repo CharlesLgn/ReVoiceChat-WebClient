@@ -25,7 +25,7 @@
         color: black;
     }
 
-    .login-form .switch{
+    .login-form .switch {
         color: rgb(99, 102, 241);
     }
 
@@ -68,14 +68,15 @@
 
     .room-element:hover {
         background-color: rgba(12, 74, 110, 0.7);
+        font-weight: 600;
     }
 
     .room-element.active {
         background-color: rgb(7, 89, 133);
     }
-    
-    .room-separator:hover{
 
+    .room-separator:hover {
+        font-weight: 600;
     }
 
     /* Status */
@@ -246,7 +247,7 @@
     }
 
     .config-right button:hover {
-        
+
         background-color: rgba(12, 74, 110, 0.7);
     }
 

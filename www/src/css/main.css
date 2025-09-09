@@ -234,7 +234,6 @@ svg {
 .room-title {
     display: flex;
     overflow: hidden;
-    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -650,7 +649,7 @@ svg {
 .message-content code {
     border: #F0F0F0 1px solid;
     border-radius: 3px;
-    padding-left: 5px;
-    padding-right: 5px;
     background-color: #353e4b;
+    padding-right: 5px;
+    padding-left: 5px;
 }
