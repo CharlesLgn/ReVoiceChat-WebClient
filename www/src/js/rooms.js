@@ -1,8 +1,10 @@
 async function getRooms(serverId) {
-    const result = await fetchCoreAPI(`/server/${serverId}/room`, 'GET');
+    const result = await fetchCoreAPI(`/server/${serverId}/structure`, 'GET');
 
-    if (result !== null) {
-        roomCreateList(result);
+    if (result && result.items) {
+        const roomList = document.getElementById("room-list-container");
+        roomList.innerHTML = "";
+        roomCreate(roomList, result.items);
 
         if (global.room.id !== null) {
             roomSelect(global.room);
@@ -13,19 +15,26 @@ async function getRooms(serverId) {
     }
 }
 
-function roomCreateList(data) {
-    const roomList = document.getElementById("room-list-container");
-    roomList.innerHTML = "";
-    for (const neddle in data) {
-        roomList.appendChild(roomCreate(data[neddle], () => roomSelect(data[neddle])));
+function roomCreate(roomList, data) {
+    console.log(data);
+    for (const item of data) {
+        console.log(item)
+        if(item.type === 'CATEGORY'){
+            roomList.appendChild(roomCreateSeparator(item));
+            roomCreate(roomList, item.items)
+        }
+
+        if(item.type === 'ROOM'){
+            roomList.appendChild(roomCreateElement(item, () => roomSelect(item)));
+        }
     }
 }
 
-function roomCreate(roomData, onclick) {
+function roomCreateElement(data, onclick) {
     const DIV = document.createElement('div');
     let icon = "";
 
-    switch (roomData.type) {
+    switch (data.type) {
         case "TEXT":
             icon = SVG_CHAT_BUBBLE;
             break;
@@ -35,83 +44,86 @@ function roomCreate(roomData, onclick) {
             break;
     }
 
-    DIV.id = roomData.id;
-    DIV.className = "room-list";
+    DIV.id = data.id;
+    DIV.className = "room-element";
     DIV.onclick = onclick;
     DIV.innerHTML = `
         <h3 class="room-title">
         ${icon}
-        ${roomData.name}
+        ${data.name}
         </h3>`;
     return DIV;
 }
 
-function roomSelectText(roomData) {
-    console.info(`ROOM : Selected text room : ${roomData.id}`);
+function roomSelectText(data) {
+    console.info(`ROOM : Selected text room : ${data.id}`);
 
     if (global.room.id !== null && document.getElementById(global.room.id) !== undefined) {
         document.getElementById(global.room.id).classList.remove("active");
     }
 
-    global.room = roomData;
+    global.room = data;
 
-    document.getElementById(roomData.id).classList.add("active");
+    document.getElementById(data.id).classList.add("active");
     document.getElementById("room-icon").innerHTML = SVG_CHAT_BUBBLE;
-    document.getElementById("room-name").innerText = roomData.name;
+    document.getElementById("room-name").innerText = data.name;
 
     document.getElementById("voice-container").classList.add('hidden');
     document.getElementById("text-container").classList.remove('hidden');
 
-    document.getElementById("text-input").placeholder = `Send a message in ${roomData.name}`;
+    document.getElementById("text-input").placeholder = `Send a message in ${data.name}`;
     document.getElementById("text-input").focus();
 
-    getMessages(roomData.id);
+    getMessages(data.id);
 }
 
-function roomSelectWebRtc(roomData) {
-    console.info(`ROOM : Selected WebRTC room : ${roomData.id}`);
-    startWebRtcCall(roomData.id);
+function roomSelectWebRtc(data) {
+    console.info(`ROOM : Selected WebRTC room : ${data.id}`);
+    startWebRtcCall(data.id);
 }
 
-function roomSelectVoice(roomData) {
-    console.info(`ROOM : Selected voice room : ${roomData.id}`);
+function roomSelectVoice(data) {
+    console.info(`ROOM : Selected voice room : ${data.id}`);
 
     if (global.room.id !== null && document.getElementById(global.room.id) !== undefined) {
         document.getElementById(global.room.id).classList.remove("active");
     }
 
-    global.room = roomData;
+    global.room = data;
 
-    document.getElementById(roomData.id).classList.add("active");
+    document.getElementById(data.id).classList.add("active");
     document.getElementById("room-icon").innerHTML = SVG_PHONE;
-    document.getElementById("room-name").innerText = roomData.name;
+    document.getElementById("room-name").innerText = data.name;
 
     document.getElementById("text-container").classList.add('hidden');
     document.getElementById("voice-container").classList.remove('hidden');
 
     voiceUpdateSelf();
-    voiceShowJoinedUsers(roomData.id);
+    voiceShowJoinedUsers(data.id);
 }
 
-function roomSelect(roomData) {
-    if (roomData === undefined || roomData === null) {
-        console.error("roomData is null or undefined");
+function roomSelect(data) {
+    if (data === undefined || data === null) {
+        console.error("ROOM : Can't select a room because data is null or undefined");
         return;
     }
 
-    switch (roomData.type) {
+    switch (data.type) {
         case "TEXT":
-            roomSelectText(roomData);
+            roomSelectText(data);
             break;
         case "WEBRTC":
-            roomSelectWebRtc(roomData);
+            roomSelectWebRtc(data);
             break;
         case "VOICE":
-            roomSelectVoice(roomData);
+            roomSelectVoice(data);
             break;
     }
 }
 
-function roomCreateSeparator(){
-
+function roomCreateSeparator(data){
+    const DIV = document.createElement('div');
+    DIV.className = "room-separator";
+    DIV.innerHTML = `<h3 class="room-title">${data.name.toUpperCase()}</h3>`;
+    return DIV;
 }

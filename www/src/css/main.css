@@ -188,7 +188,19 @@ svg {
     overflow-y: auto;
 }
 
-.room-list {
+.room-element {
+    display: flex;
+    position: relative;
+    flex: 1 1 0%;
+    justify-content: space-between;
+    align-items: flex-start;
+    cursor: pointer;
+    border-bottom-width: 1px;
+    padding: 0.5rem;
+    min-width: 0px;
+}
+
+.room-separator {
     display: flex;
     position: relative;
     flex: 1 1 0%;
