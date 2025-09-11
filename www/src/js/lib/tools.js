@@ -177,3 +177,25 @@ function packetDecode(packet) {
 
     return result;
 }
+
+async function copyToClipboard(data){
+    try {
+        if (navigator.clipboard) {
+            await navigator.clipboard.writeText(data);
+            console.log('Content copied to clipboard');
+        }
+        else {
+            // Fallback
+            const input = document.createElement('input');
+            input.id = 'input-copy'
+            input.value = data;
+            document.body.appendChild(input);
+            document.getElementById('input-copy').select();
+            document.execCommand("copy");
+            input.remove();
+            console.log('Content copied to clipboard (fallback)');
+        }
+    } catch (err) {
+        console.error('copyToClipboard: Failed to copy:', err);
+    }
+}

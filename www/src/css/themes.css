@@ -248,8 +248,16 @@
     }
 
     .config-right button:hover {
-
         background-color: rgba(12, 74, 110, 0.7);
+    }
+
+    .config-rooms-struct {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    textarea.config-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
     }
 
     /* SweetAlert2 */

@@ -29,6 +29,10 @@ function selectConfigItem(name) {
             loadRooms();
             break;
 
+        case 'room-structure':
+            loadRoomStructure();
+            break;
+
         case 'members':
             loadMembers();
             break;
@@ -39,23 +43,31 @@ function selectConfigItem(name) {
     }
 }
 
-function createContextMenuButton(className, innerHTML, onclick) {
+function createContextMenuButton(className, innerHTML, onclick, title = "") {
     const DIV = document.createElement('div');
     DIV.className = className;
     DIV.innerHTML = innerHTML;
     DIV.onclick = onclick;
+    DIV.title = title;
     return DIV;
 }
 
 async function loadRooms() {
+    // Rooms list
     const result = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
 
-    if (result !== null) {
+    if (result) {
         const roomList = document.getElementById("config-rooms-list");
         roomList.innerHTML = "";
 
-        for (const room of result) {
-            roomList.appendChild(await createItemRoom(room));
+        const sortedByName = [...result].sort((a, b) => {
+            return a.name.localeCompare(b.name);
+        });
+
+        if (sortedByName) {
+            for (const room of sortedByName) {
+                roomList.appendChild(await createItemRoom(room));
+            }
         }
     }
 }
@@ -74,8 +86,9 @@ async function createItemRoom(data) {
     // Context menu
     const DIV_CM = document.createElement('div');
     DIV_CM.className = "context-menu";
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_PENCIL, () => configEditRoom(data)));
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_TRASH, () => configDeleteRoom(data)));
+    DIV_CM.appendChild(createContextMenuButton("icon", SVG_CLIPBOARD_COPY, () => copyToClipboard(data.id), "Copy ID"));
+    DIV_CM.appendChild(createContextMenuButton("icon", SVG_PENCIL, () => configEditRoom(data), "Edit room"));
+    DIV_CM.appendChild(createContextMenuButton("icon", SVG_TRASH, () => configDeleteRoom(data), "Delete room"));
     DIV.appendChild(DIV_CM);
 
     return DIV;
@@ -137,7 +150,7 @@ async function updateServerName(input) {
     }
 
     const id = global.server.id;
-    const result = await fetchCoreAPI(`server/${id}`, 'PATCH', { name: serverName })
+    const result = await fetchCoreAPI(`/server/${id}`, 'PATCH', { name: serverName })
     if (result) {
         document.getElementById('config-server-name').value = result.name;
         global.user.displayName = result.name
@@ -320,23 +333,26 @@ async function deleteInvitation(data) {
 
 async function copyInvitation(link) {
     const url = document.location.href.slice(0, -11) + `index.html?register=&invitation=${link}&host=${global.url.core}`;
+    copyToClipboard(url);
+}
+
+/* ROOM STRUCTURE */
+async function loadRoomStructure() {
+    const struct = await fetchCoreAPI(`/server/${global.server.id}/structure`, 'GET');
+    if (struct) {
+        const textarea = document.getElementById('room-structure-editor');
+        textarea.innerHTML = JSON.stringify(struct, undefined, 4);
+        textarea.style.height = textarea.scrollHeight + "px";
+    }
+}
+
+async function configUpdateStructure() {
+    const data = document.getElementById('room-structure-editor').value;
     try {
-        if(navigator.clipboard){
-            await navigator.clipboard.writeText(url);
-            console.log('Content copied to clipboard');
-        }
-        else{
-            // Fallback
-            const input = document.createElement('input');
-            input.id = 'input-copy'
-            input.value = url;
-            document.body.appendChild(input);
-            document.getElementById('input-copy').select();
-            document.execCommand("copy");
-            input.remove();
-            console.log('Content copied to clipboard (fallback)');
-        }
-    } catch (err) {
-        console.error('Failed to copy: ', err);
+        const json = JSON.parse(data);
+        await fetchCoreAPI(`/server/${global.server.id}/structure`, 'PATCH', json);
+    }
+    catch (error) {
+        console.error("CONFIG : Updating structure:", error)
     }
 }

@@ -570,10 +570,18 @@ svg {
     display: flex;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    margin: 0.3rem;
+    margin-bottom: 0.3rem;
     border-radius: 0.25rem;
     padding: 0.5rem;
     height: 3rem;
+}
+
+textarea.config-item{
+    transition: none;
+    width: 100%;
+    cursor: text;
+    min-height: 10rem;
+    overflow: auto;
 }
 
 .config-item .name {
@@ -617,6 +625,8 @@ svg {
     user-select: text;
     cursor: default;
 }
+
+
 
 @keyframes voice-call {
     from {
