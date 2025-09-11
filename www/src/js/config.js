@@ -213,26 +213,6 @@ let detailedRoomData = [];
 let currentEditingItem = null;
 let draggedElement = null;
 
-async function loadRooms() {
-    // Rooms list
-    const result = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
-
-    if (result) {
-        const roomList = document.getElementById("config-rooms-list");
-        roomList.innerHTML = "";
-
-        const sortedByName = [...result].sort((a, b) => {
-            return a.name.localeCompare(b.name);
-        });
-
-        if (sortedByName) {
-            for (const room of sortedByName) {
-                roomList.appendChild(await createItemRoom(room));
-            }
-        }
-    }
-}
-
 async function createItemRoom(data) {
     const DIV = document.createElement('div');
     DIV.id = data.id;
