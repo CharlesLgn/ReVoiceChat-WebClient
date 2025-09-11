@@ -195,8 +195,14 @@ async function configAddRoom() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await fetchCoreAPI(`/server/${global.server.id}/room`, 'PUT', { name: FORM_DATA.name, type: FORM_DATA.type });
+            const newRoom = await fetchCoreAPI(`/server/${global.server.id}/room`, 'PUT', { name: FORM_DATA.name, type: FORM_DATA.type });
             loadRooms();
+            structureData.items.push({
+                type: "ROOM",
+                id: newRoom.id
+            });
+            detailedRoomData[newRoom.id] = newRoom
+            render();
         }
     });
 }
@@ -336,21 +342,338 @@ async function copyInvitation(link) {
     copyToClipboard(url);
 }
 
+let structureData = {items: []};
+let detailedRoomData = [];
+
+let currentEditingItem = null;
+let draggedElement = null;
+
 /* ROOM STRUCTURE */
 async function loadRoomStructure() {
+    const roomResult = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
     const struct = await fetchCoreAPI(`/server/${global.server.id}/structure`, 'GET');
-    if (struct) {
+    if (struct && roomResult) {
         const textarea = document.getElementById('room-structure-editor');
         textarea.innerHTML = JSON.stringify(struct, undefined, 4);
         textarea.style.height = textarea.scrollHeight + "px";
+        detailedRoomData = [];
+        for (const room of roomResult) {
+            detailedRoomData[room.id] = room;
+        }
+        structureData = struct;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeModal();
+            }
+        });
+
+        render();
     }
 }
 
+function addCategory(parentItems = null) {
+    const newCategory = {
+        type: "CATEGORY",
+        name: "New category",
+        items: []
+    };
+
+    if (parentItems) {
+        parentItems.push(newCategory);
+    } else {
+        structureData.items.push(newCategory);
+    }
+
+    render();
+}
+
+function showStructureAsJSON() {
+    const modal = document.getElementById('jsonModal');
+    modal.classList.add('show');
+}
+
+function editItem(item) {
+    currentEditingItem = item;
+    const modal = document.getElementById('editModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const itemName = document.getElementById('itemName');
+    const itemId = document.getElementById('itemId');
+    const idGroup = document.getElementById('idGroup');
+
+    if (item.type === 'ROOM') {
+        modalTitle.textContent = 'Éditer Room';
+        itemName.value = item.name || '';
+        itemId.value = item.id || '';
+        idGroup.style.display = 'block';
+        itemName.placeholder = 'Nom de la room (optionnel)';
+    } else {
+        modalTitle.textContent = 'Éditer Catégorie';
+        itemName.value = item.name || '';
+        idGroup.style.display = 'none';
+        itemName.placeholder = 'Nom de la catégorie';
+    }
+
+    modal.classList.add('show');
+}
+
+function deleteItem(item, parentItems) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
+        const index = parentItems.indexOf(item);
+        if (index > -1) {
+            parentItems.splice(index, 1);
+        }
+        render();
+    }
+}
+
+function saveItem() {
+    const itemName = document.getElementById('itemName').value.trim();
+    const itemId = document.getElementById('itemId').value.trim();
+
+    if (currentEditingItem.type === 'ROOM') {
+        if (itemName) currentEditingItem.name = itemName;
+        if (itemId) currentEditingItem.id = itemId;
+    } else {
+        if (itemName) currentEditingItem.name = itemName;
+    }
+
+    closeModal();
+    render();
+}
+
+function closeModal() {
+    document.getElementById('editModal').classList.remove('show');
+    document.getElementById('jsonModal').classList.remove('show');
+    currentEditingItem = null;
+}
+
+function handleDragStart(e, item) {
+    draggedElement = {
+        item: item,
+        sourceParent: findParent(item)
+    };
+    e.target.classList.add('dragging');
+}
+
+function handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+    draggedElement = null;
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(e, targetParentItems) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+
+    if (!draggedElement) return;
+
+    const { item, sourceParent } = draggedElement;
+
+    // Supprimer de la source
+    if (sourceParent) {
+        const sourceIndex = sourceParent.indexOf(item);
+        if (sourceIndex > -1) {
+            sourceParent.splice(sourceIndex, 1);
+        }
+    }
+
+    // Ajouter à la destination
+    targetParentItems.push(item);
+
+    render();
+}
+
+function findParent(targetItem, items = structureData.items) {
+    for (let item of items) {
+        if (item === targetItem) {
+            return structureData.items;
+        }
+        if (item.type === 'CATEGORY' && item.items) {
+            if (item.items.includes(targetItem)) {
+                return item.items;
+            }
+            const found = findParent(targetItem, item.items);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+function renderItem(item, parentItems, level = 0) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = `server-structure-tree-item ${item.type.toLowerCase()}`;
+    itemDiv.draggable = true;
+
+    itemDiv.addEventListener('dragstart', (e) => handleDragStart(e, item));
+    itemDiv.addEventListener('dragend', handleDragEnd);
+
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'server-structure-item-header';
+
+    if (item.type === 'ROOM') {
+        const room = detailedRoomData[item.id]
+        const icon = room.type === 'TEXT' ? '💬' : '🔊';
+        headerDiv.innerHTML = `
+                <span class="server-structure-item-icon">${icon}</span>
+                <div class="server-structure-item-content">
+                    <span class="server-structure-item-name">${room.name}</span>
+                    <span class="server-structure-item-id">${room.id}</span>
+                </div>
+                <div class="server-structure-item-actions">
+                    <button class="server-structure-btn btn-edit" onclick="event.stopPropagation(); editItem(arguments[0])" 
+                            data-item='${JSON.stringify(item)}'>✏️</button>
+                    <button class="server-structure-btn btn-delete" onclick="event.stopPropagation(); deleteItem(arguments[0], arguments[1])"
+                            data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'>🗑️</button>
+                </div>`;
+    } else if (item.type === 'CATEGORY') {
+        headerDiv.innerHTML = `
+                <span class="server-structure-item-icon">📁</span>
+                <div class="server-structure-item-content">
+                    <span class="server-structure-item-name">${item.name}</span>
+                </div>
+                <div class="server-structure-item-actions">
+                    <button class="server-structure-btn btn-edit" onclick="event.stopPropagation(); editItem(arguments[0])" 
+                            data-item='${JSON.stringify(item)}'>✏️</button>
+                    <button class="server-structure-btn btn-delete" onclick="event.stopPropagation(); deleteItem(arguments[0], arguments[1])"
+                            data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'>🗑️</button>
+                    <button class="server-structure-btn btn-add" onclick="event.stopPropagation(); addCategory(arguments[0].items)">+📁</button>
+                </div>`;
+    }
+
+    // Corriger les event listeners pour les boutons
+    const editBtn = headerDiv.querySelector('.btn-edit');
+    const deleteBtn = headerDiv.querySelector('.btn-delete');
+
+    editBtn.onclick = (e) => {
+        e.stopPropagation();
+        editItem(item);
+    };
+
+    deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteItem(item, parentItems);
+    };
+
+    if (item.type === 'CATEGORY') {
+        const addCategoryBtn = headerDiv.querySelector('.btn-add');
+        addCategoryBtn.onclick = (e) => {
+            e.stopPropagation();
+            addCategory(item.items);
+        };
+    }
+
+    itemDiv.appendChild(headerDiv);
+
+    if (item.type === 'CATEGORY' && item.items && item.items.length > 0) {
+        const childrenDiv = document.createElement('div');
+        childrenDiv.className = 'server-structure-item-children';
+
+        // Zone de drop pour cette catégorie
+        const dropZone = document.createElement('div');
+        dropZone.className = 'server-structure-drop-zone';
+        dropZone.textContent = '';
+        dropZone.addEventListener('dragover', handleDragOver);
+        dropZone.addEventListener('dragleave', handleDragLeave);
+        dropZone.addEventListener('drop', (e) => handleDrop(e, item.items));
+
+        childrenDiv.appendChild(dropZone);
+
+        item.items.forEach(childItem => {
+            childrenDiv.appendChild(renderItem(childItem, item.items, level + 1));
+        });
+
+        itemDiv.appendChild(childrenDiv);
+    } else if (item.type === 'CATEGORY') {
+        // Catégorie vide
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'server-structure-item-children';
+        const dropZone = document.createElement('div');
+        dropZone.className = 'server-structure-drop-zone';
+        dropZone.textContent = '';
+        dropZone.addEventListener('dragover', handleDragOver);
+        dropZone.addEventListener('dragleave', handleDragLeave);
+        dropZone.addEventListener('drop', (e) => handleDrop(e, item.items));
+        emptyDiv.appendChild(dropZone);
+        itemDiv.appendChild(emptyDiv);
+    }
+
+    return itemDiv;
+}
+
+function render() {
+    const container = document.getElementById('treeContainer');
+    const rootDropZone = document.getElementById('rootDropZone');
+
+    // Clear existing items but keep root drop zone
+    const existingItems = container.querySelectorAll('.server-structure-tree-item');
+    existingItems.forEach(item => item.remove());
+
+    // Setup root drop zone
+    rootDropZone.addEventListener('dragover', handleDragOver);
+    rootDropZone.addEventListener('dragleave', handleDragLeave);
+    rootDropZone.addEventListener('drop', (e) => handleDrop(e, structureData.items));
+
+    // Render all items
+    structureData.items.forEach(item => {
+        container.appendChild(renderItem(item, structureData.items));
+    });
+
+    // Update JSON display
+    document.getElementById('jsonOutput').textContent = JSON.stringify(structureData, null, 2);
+}
+
+function exportJSON() {
+    const dataStr = JSON.stringify(structureData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = 'room-structure.json';
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
+
+function importJSON() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    structureData = JSON.parse(e.target.result);
+                    render();
+                } catch (error) {
+                    alert('Erreur lors de l\'import du fichier JSON: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+    input.click();
+}
+
 async function configUpdateStructure() {
-    const data = document.getElementById('room-structure-editor').value;
     try {
-        const json = JSON.parse(data);
-        await fetchCoreAPI(`/server/${global.server.id}/structure`, 'PATCH', json);
+        await fetchCoreAPI(`/server/${global.server.id}/structure`, 'PATCH', structureData);
     }
     catch (error) {
         console.error("CONFIG : Updating structure:", error)

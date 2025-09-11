@@ -117,8 +117,56 @@
                 <!-- Room structure -->
                 <div class="hidden" id="room-structure-config">
                     <h1>Room structure</h1>
-                    <textarea id="room-structure-editor" class="config-item"></textarea>
-                    <button onclick="configUpdateStructure()">Save</button>
+                    <textarea id="room-structure-editor" class="config-item" style="display: none"></textarea>
+                  <div class="server-structure-add-buttons">
+                    <button class="config-right" onclick="configAddRoom()">➕ Add a new Room</button>
+                    <button class="config-right" onclick="addCategory()">📁 Add a new Category</button>
+                    <button class="config-right" onclick="showStructureAsJSON()">📃 See as JSON</button>
+                  </div>
+                  <div class="server-structure-container">
+                    <div class="server-structure-panel">
+                      <div class="server-structure-tree-container" id="treeContainer">
+                        <div class="server-structure-drop-zone" id="rootDropZone"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="server-structure-modal" id="jsonModal">
+                    <div class="server-structure-modal-large server-structure-modal-content">
+                      <h3>📋 Structure JSON</h3>
+                      <div class="server-structure-form-group">
+                        <pre class="server-structure-json-output" id="jsonOutput"></pre>
+                      </div>
+                      <div style="margin-top: 15px; display: flex; justify-content: space-between;">
+                        <div>
+                          <button class="config-right" onclick="exportJSON()">💾 Export as JSON</button>
+                          <button class="config-right" onclick="importJSON()">📥 Import structure</button>
+                        </div>
+                        <div>
+                          <button class="config-right" onclick="closeModal()">Exit</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Modal pour édition -->
+                  <div class="server-structure-modal" id="editModal">
+                    <div class="server-structure-modal-content">
+                      <h3 id="modalTitle">Éditer</h3>
+                      <div class="server-structure-form-group">
+                        <label for="itemName">Nom:</label>
+                        <input type="text" id="itemName" placeholder="Nom de l'élément">
+                      </div>
+                      <div class="server-structure-form-group" id="idGroup" style="display: none;">
+                        <label for="itemId">ID:</label>
+                        <input type="text" id="itemId" placeholder="ID unique">
+                      </div>
+                      <div class="server-structure-modal-actions">
+                        <button class="server-structure-modal-btn secondary" onclick="closeModal()">Annuler</button>
+                        <button class="server-structure-modal-btn primary" onclick="saveItem()">Sauvegarder</button>
+                      </div>
+                    </div>
+                  </div>
+                  <button onclick="configUpdateStructure()">Save</button>
                </div>
 
                 <!-- Members -->
