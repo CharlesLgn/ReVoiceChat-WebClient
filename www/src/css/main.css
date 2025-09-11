@@ -500,6 +500,7 @@ svg {
 }
 
 .config-container-right {
+    overflow: auto;
     padding-top: 5rem;
     padding-right: 2rem;
     padding-bottom: 5rem;
@@ -938,9 +939,14 @@ textarea.config-item{
     color: rgb(156, 163, 175);
 }
 
-.server-structure-drop-zone {
+.server-structure-drop-zone.active {
     min-height: 20px;
     border: 2px dashed rgb(55, 65, 81);
+}
+
+.server-structure-drop-zone {
+    min-height: 0;
+    border: 0 dashed rgb(55, 65, 81);
     border-radius: 0.25rem;
     display: flex;
     align-items: center;

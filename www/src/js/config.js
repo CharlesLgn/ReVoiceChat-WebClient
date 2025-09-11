@@ -441,11 +441,15 @@ function handleDragStart(e, item) {
         sourceParent: findParent(item)
     };
     e.target.classList.add('dragging');
+    const dropZones = document.querySelectorAll('.server-structure-drop-zone');
+    dropZones.forEach(dropZone => dropZone.classList.add('active'));
 }
 
 function handleDragEnd(e) {
     e.target.classList.remove('dragging');
     draggedElement = null;
+    const dropZones = document.querySelectorAll('.server-structure-drop-zone');
+    dropZones.forEach(dropZone => dropZone.classList.remove('active'));
 }
 
 function handleDragOver(e) {
@@ -563,19 +567,10 @@ function renderItem(item, parentItems, level = 0) {
     if (item.type === 'CATEGORY' && item.items && item.items.length > 0) {
         const childrenDiv = document.createElement('div');
         childrenDiv.className = 'server-structure-item-children';
-
-        // Zone de drop pour cette catégorie
-        const dropZone = document.createElement('div');
-        dropZone.className = 'server-structure-drop-zone';
-        dropZone.textContent = '';
-        dropZone.addEventListener('dragover', handleDragOver);
-        dropZone.addEventListener('dragleave', handleDragLeave);
-        dropZone.addEventListener('drop', (e) => handleDrop(e, item.items));
-
-        childrenDiv.appendChild(dropZone);
-
+        childrenDiv.appendChild(renderDropZone());
         item.items.forEach(childItem => {
             childrenDiv.appendChild(renderItem(childItem, item.items, level + 1));
+            childrenDiv.appendChild(renderDropZone());
         });
 
         itemDiv.appendChild(childrenDiv);
@@ -583,17 +578,21 @@ function renderItem(item, parentItems, level = 0) {
         // Catégorie vide
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'server-structure-item-children';
-        const dropZone = document.createElement('div');
-        dropZone.className = 'server-structure-drop-zone';
-        dropZone.textContent = '';
-        dropZone.addEventListener('dragover', handleDragOver);
-        dropZone.addEventListener('dragleave', handleDragLeave);
-        dropZone.addEventListener('drop', (e) => handleDrop(e, item.items));
-        emptyDiv.appendChild(dropZone);
+        emptyDiv.appendChild(renderDropZone());
         itemDiv.appendChild(emptyDiv);
     }
 
     return itemDiv;
+}
+
+function renderDropZone(classNames = "") {
+    const dropZone = document.createElement('div');
+    dropZone.className = 'server-structure-drop-zone ' + classNames;
+    dropZone.textContent = '';
+    dropZone.addEventListener('dragover', handleDragOver);
+    dropZone.addEventListener('dragleave', handleDragLeave);
+    dropZone.addEventListener('drop', (e) => handleDrop(e, item.items));
+    return dropZone;
 }
 
 function render() {
@@ -601,7 +600,7 @@ function render() {
     const rootDropZone = document.getElementById('rootDropZone');
 
     // Clear existing items but keep root drop zone
-    const existingItems = container.querySelectorAll('.server-structure-tree-item');
+    const existingItems = container.querySelectorAll('.server-structure-tree-item, .server-root-zone');
     existingItems.forEach(item => item.remove());
 
     // Setup root drop zone
@@ -612,6 +611,7 @@ function render() {
     // Render all items
     structureData.items.forEach(item => {
         container.appendChild(renderItem(item, structureData.items));
+        container.appendChild(renderDropZone("server-root-zone"));
     });
 
     // Update JSON display
