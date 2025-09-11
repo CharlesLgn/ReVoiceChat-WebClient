@@ -52,48 +52,6 @@ function createContextMenuButton(className, innerHTML, onclick, title = "") {
     return DIV;
 }
 
-async function loadRooms() {
-    // Rooms list
-    const result = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
-
-    if (result) {
-        const roomList = document.getElementById("config-rooms-list");
-        roomList.innerHTML = "";
-
-        const sortedByName = [...result].sort((a, b) => {
-            return a.name.localeCompare(b.name);
-        });
-
-        if (sortedByName) {
-            for (const room of sortedByName) {
-                roomList.appendChild(await createItemRoom(room));
-            }
-        }
-    }
-}
-
-async function createItemRoom(data) {
-    const DIV = document.createElement('div');
-    DIV.id = data.id;
-    DIV.className = "config-item";
-
-    // Name
-    const DIV_NAME = document.createElement('div');
-    DIV_NAME.className = "name";
-    DIV_NAME.innerText = data.name;
-    DIV.appendChild(DIV_NAME);
-
-    // Context menu
-    const DIV_CM = document.createElement('div');
-    DIV_CM.className = "context-menu";
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_CLIPBOARD_COPY, () => copyToClipboard(data.id), "Copy ID"));
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_PENCIL, () => configEditRoom(data), "Edit room"));
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_TRASH, () => configDeleteRoom(data), "Delete room"));
-    DIV.appendChild(DIV_CM);
-
-    return DIV;
-}
-
 async function loadMembers() {
     const result = await fetchCoreAPI(`/server/${global.server.id}/user`, 'GET');
 
@@ -161,6 +119,168 @@ const FORM_DATA = {
     name: null,
     type: null
 };
+
+
+/* INVITATIONS */
+async function configAddInvitation() {
+    const serverId = global.server.id;
+    const result = await fetchCoreAPI(`/invitation/server/${serverId}`, 'POST');
+    console.log(result);
+    if (result.status === "CREATED") {
+        Swal.fire({
+            title: `New invitation`,
+            html: `<input class='swal-input' type='text' value='${result.id}' readonly>`,
+            animation: false,
+            customClass: {
+                title: "swalTitle",
+                popup: "swalPopup",
+                confirmButton: "swalConfirm",
+            },
+            showCancelButton: false,
+            confirmButtonText: "OK",
+            allowOutsideClick: false,
+        })
+    }
+}
+
+async function createItemInvitation(data) {
+    const DIV = document.createElement('div');
+    DIV.id = data.id;
+    DIV.className = "config-item";
+
+    // Name
+    const DIV_NAME = document.createElement('div');
+    DIV_NAME.className = "name invitation";
+    DIV_NAME.innerText = `${data.id} (${data.status})`;
+    DIV.appendChild(DIV_NAME);
+
+    // Context menu
+    const DIV_CM = document.createElement('div');
+    DIV_CM.className = "context-menu";
+    DIV_CM.appendChild(createContextMenuButton("icon", SVG_CLIPBOARD_COPY, () => copyInvitation(data.id)));
+    DIV_CM.appendChild(createContextMenuButton("icon", SVG_TRASH, () => deleteInvitation(data)));
+    DIV.appendChild(DIV_CM);
+
+    return DIV;
+}
+
+async function loadInvitations() {
+    const serverId = global.server.id;
+    const result = await fetchCoreAPI(`/invitation/server/${serverId}`, 'GET');
+
+    if (result) {
+        const list = document.getElementById("config-invitations-list");
+        list.innerHTML = "";
+
+        for (const invitation of result) {
+            list.appendChild(await createItemInvitation(invitation));
+        }
+    }
+}
+
+async function deleteInvitation(data) {
+    Swal.fire({
+        title: `Delete invitation '${data.id}'`,
+        animation: false,
+        customClass: {
+            title: "swalTitle",
+            popup: "swalPopup",
+            cancelButton: "swalConfirm",
+            confirmButton: "swalCancel", // Swapped on purpose !
+        },
+        showCancelButton: true,
+        focusCancel: true,
+        confirmButtonText: "Delete",
+        allowOutsideClick: false,
+    }).then(async (result) => {
+        if (result.value) {
+            await fetchCoreAPI(`/invitation/${data.id}`, 'DELETE');
+            loadInvitations();
+        }
+    });
+}
+
+async function copyInvitation(link) {
+    const url = document.location.href.slice(0, -11) + `index.html?register=&invitation=${link}&host=${global.url.core}`;
+    copyToClipboard(url);
+}
+
+
+/* ROOMS */
+let structureData = {items: []};
+let detailedRoomData = [];
+
+let currentEditingItem = null;
+let draggedElement = null;
+
+async function loadRooms() {
+    // Rooms list
+    const result = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
+
+    if (result) {
+        const roomList = document.getElementById("config-rooms-list");
+        roomList.innerHTML = "";
+
+        const sortedByName = [...result].sort((a, b) => {
+            return a.name.localeCompare(b.name);
+        });
+
+        if (sortedByName) {
+            for (const room of sortedByName) {
+                roomList.appendChild(await createItemRoom(room));
+            }
+        }
+    }
+}
+
+async function createItemRoom(data) {
+    const DIV = document.createElement('div');
+    DIV.id = data.id;
+    DIV.className = "config-item";
+
+    // Name
+    const DIV_NAME = document.createElement('div');
+    DIV_NAME.className = "name";
+    DIV_NAME.innerText = data.name;
+    DIV.appendChild(DIV_NAME);
+
+    // Context menu
+    const DIV_CM = document.createElement('div');
+    DIV_CM.className = "context-menu";
+    DIV_CM.appendChild(createContextMenuButton("icon", SVG_CLIPBOARD_COPY, () => copyToClipboard(data.id), "Copy ID"));
+    DIV_CM.appendChild(createContextMenuButton("icon", SVG_PENCIL, () => configEditRoom(data), "Edit room"));
+    DIV_CM.appendChild(createContextMenuButton("icon", SVG_TRASH, () => configDeleteRoom(data), "Delete room"));
+    DIV.appendChild(DIV_CM);
+
+    return DIV;
+}
+
+async function loadRooms() {
+    const roomResult = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
+    const struct = await fetchCoreAPI(`/server/${global.server.id}/structure`, 'GET');
+    if (struct && roomResult) {
+
+        detailedRoomData = [];
+        for (const room of roomResult) {
+            detailedRoomData[room.id] = room;
+        }
+        structureData = struct;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeModal();
+            }
+        });
+
+        render();
+    }
+}
 
 async function configAddRoom() {
     FORM_DATA.name = 'New room';
@@ -257,125 +377,6 @@ async function configDeleteRoom(data) {
             loadRooms();
         }
     });
-}
-
-async function configAddInvitation() {
-    const serverId = global.server.id;
-    const result = await fetchCoreAPI(`/invitation/server/${serverId}`, 'POST');
-    console.log(result);
-    if (result.status === "CREATED") {
-        Swal.fire({
-            title: `New invitation`,
-            html: `<input class='swal-input' type='text' value='${result.id}' readonly>`,
-            animation: false,
-            customClass: {
-                title: "swalTitle",
-                popup: "swalPopup",
-                confirmButton: "swalConfirm",
-            },
-            showCancelButton: false,
-            confirmButtonText: "OK",
-            allowOutsideClick: false,
-        })
-    }
-}
-
-async function createItemInvitation(data) {
-    const DIV = document.createElement('div');
-    DIV.id = data.id;
-    DIV.className = "config-item";
-
-    // Name
-    const DIV_NAME = document.createElement('div');
-    DIV_NAME.className = "name invitation";
-    DIV_NAME.innerText = `${data.id} (${data.status})`;
-    DIV.appendChild(DIV_NAME);
-
-    // Context menu
-    const DIV_CM = document.createElement('div');
-    DIV_CM.className = "context-menu";
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_CLIPBOARD_COPY, () => copyInvitation(data.id)));
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_TRASH, () => deleteInvitation(data)));
-    DIV.appendChild(DIV_CM);
-
-    return DIV;
-}
-
-async function loadInvitations() {
-    const serverId = global.server.id;
-    const result = await fetchCoreAPI(`/invitation/server/${serverId}`, 'GET');
-
-    if (result) {
-        const list = document.getElementById("config-invitations-list");
-        list.innerHTML = "";
-
-        for (const invitation of result) {
-            list.appendChild(await createItemInvitation(invitation));
-        }
-    }
-}
-
-async function deleteInvitation(data) {
-    Swal.fire({
-        title: `Delete invitation '${data.id}'`,
-        animation: false,
-        customClass: {
-            title: "swalTitle",
-            popup: "swalPopup",
-            cancelButton: "swalConfirm",
-            confirmButton: "swalCancel", // Swapped on purpose !
-        },
-        showCancelButton: true,
-        focusCancel: true,
-        confirmButtonText: "Delete",
-        allowOutsideClick: false,
-    }).then(async (result) => {
-        if (result.value) {
-            await fetchCoreAPI(`/invitation/${data.id}`, 'DELETE');
-            loadInvitations();
-        }
-    });
-}
-
-async function copyInvitation(link) {
-    const url = document.location.href.slice(0, -11) + `index.html?register=&invitation=${link}&host=${global.url.core}`;
-    copyToClipboard(url);
-}
-
-let structureData = {items: []};
-let detailedRoomData = [];
-
-let currentEditingItem = null;
-let draggedElement = null;
-
-/* ROOM STRUCTURE */
-async function loadRoomStructure() {
-    const roomResult = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
-    const struct = await fetchCoreAPI(`/server/${global.server.id}/structure`, 'GET');
-    if (struct && roomResult) {
-        const textarea = document.getElementById('room-structure-editor');
-        textarea.innerHTML = JSON.stringify(struct, undefined, 4);
-        textarea.style.height = textarea.scrollHeight + "px";
-        detailedRoomData = [];
-        for (const room of roomResult) {
-            detailedRoomData[room.id] = room;
-        }
-        structureData = struct;
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-        document.getElementById('editModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                closeModal();
-            }
-        });
-
-        render();
-    }
 }
 
 function addCategory(parentItems = null) {
