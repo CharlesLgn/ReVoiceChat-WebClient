@@ -561,7 +561,7 @@ function voiceControlSelfCompressor() {
     } else {
         document.getElementById('voice-self-compressor').classList.remove('active');
         if (voice.gainNode && voice.compressorNode) {
-            voice.gainNode.disonnect(voice.compressorNode);
+            voice.gainNode.disconnect(voice.compressorNode);
             voice.compressorNode.disconnect(voice.audioCollector);
             voice.gainNode.connect(voice.audioCollector);
         }
