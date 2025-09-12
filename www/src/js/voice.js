@@ -263,7 +263,7 @@ async function voiceCreateUserDecoder(userId) {
 
     const isSupported = await AudioDecoder.isConfigSupported(voiceCodecConfig);
     if (isSupported.supported) {
-        voice.users[userId] = { decoder: null, playhead: 0, muted: false };
+        voice.users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null };
 
         voice.users[userId].decoder = new AudioDecoder({
             output: decoderCallback,
@@ -272,6 +272,7 @@ async function voiceCreateUserDecoder(userId) {
 
         voice.users[userId].decoder.configure(voiceCodecConfig)
         voice.users[userId].playhead = 0;
+        voice.users[userId].gainNode = voice.audioContext.createGain();
     }
 
     function decoderCallback(audioData) {
@@ -288,7 +289,9 @@ async function voiceCreateUserDecoder(userId) {
         // Play the AudioBuffer
         const source = voice.audioContext.createBufferSource();
         source.buffer = buffer;
-        source.connect(voice.audioContext.destination);
+
+        source.connect(voice.users[userId].gainNode); // connect audio source to gain
+        voice.users[userId].gainNode.connect(voice.audioContext.destination); // connect gain to output
 
         voice.users[userId].playhead = Math.max(voice.users[userId].playhead, voice.audioContext.currentTime) + buffer.duration;
         source.start(voice.users[userId].playhead);
@@ -406,8 +409,9 @@ function voiceUpdateUserControls(userId) {
             INPUT_VOLUME.type = "range";
             INPUT_VOLUME.className = "volume";
             INPUT_VOLUME.min = "0";
-            INPUT_VOLUME.max = "1";
-            INPUT_VOLUME.step = "0.05";
+            INPUT_VOLUME.max = "2";
+            INPUT_VOLUME.value = "1";
+            INPUT_VOLUME.step = "0.01";
             INPUT_VOLUME.title = "100%";
             INPUT_VOLUME.oninput = () => voiceControlUserVolume(userId, INPUT_VOLUME);
 
@@ -478,6 +482,17 @@ function voiceControlUserMute(userId, muteButton) {
     }
 }
 
+// <user> call this to change volume of other user
+function voiceControlUserVolume(userId, volumeInput) {
+    const volume = volumeInput.value;
+    volumeInput.title = volume * 100 + "%";
+
+    const userGainNode = voice.users[userId].gainNode;
+    if (userGainNode) {
+        userGainNode.gain.setValueAtTime(volume, voice.audioContext.currentTime);
+    }
+}
+
 // <user> call this to mute himself
 function voiceControlSelfMute() {
     const muteButton = document.getElementById("voice-self-mute");
@@ -501,9 +516,4 @@ function voiceControlSelfVolume(volume) {
     if (voice.gainNode) {
         voice.gainNode.gain.setValueAtTime(volume, voice.audioContext.currentTime);
     }
-}
-
-// <user> call this to change volume of other user
-function voiceControlUserVolume(userId, volumeInput) {
-    volumeInput.title = volume * 100 + "%";
 }
