@@ -26,7 +26,8 @@ function selectConfigItem(name) {
 
     switch (name) {
         case 'rooms':
-            loadRooms();
+            loadRoomData();
+            loadRoomStructure();
             break;
 
         case 'members':
@@ -226,11 +227,6 @@ async function createItemRoom(data) {
     DIV.appendChild(DIV_CM);
 
     return DIV;
-}
-
-async function loadRooms() {
-    await loadRoomData();
-    await loadRoomStructure();
 }
 
 async function loadRoomData() {
