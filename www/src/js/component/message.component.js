@@ -183,7 +183,6 @@ class MessageComponent extends HTMLElement {
     }
     try {
       this.#hideSlots();
-      console.log(this.#injectEmojis(marked.parse(this.#removeTags(this.markdown))))
       contentDiv.innerHTML = this.#injectEmojis(marked.parse(this.#removeTags(this.markdown)));
       this.#renderCodeTemplate(contentDiv);
     } catch (error) {
