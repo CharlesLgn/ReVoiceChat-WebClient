@@ -1,5 +1,8 @@
 document.getElementById("text-input").addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
+        if (e.shiftKey) {
+            return;
+        }
         sendMessage();
     }
 
@@ -92,7 +95,9 @@ async function sendMessage() {
     }
 
     if (result) {
-        document.getElementById('text-input').value = "";
+        const textarea = document.getElementById("text-input");
+        textarea.value = "";
+        textarea.style.height = "auto";
         return;
     }
 
@@ -115,6 +120,9 @@ async function editMessage(id) {
 }
 
 function textInputMode(input) {
+    const textarea = document.getElementById("text-input");
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
     if (input.value == "") {
         global.chat.mode = "send";
         global.chat.editId = null;

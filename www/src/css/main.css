@@ -266,12 +266,15 @@ svg {
     flex: 1 1 0%;
 }
 
-.text-control input {
+.text-control input, .text-control textarea {
     padding-top: 0.75rem;
     padding-right: 3rem;
     padding-bottom: 0.75rem;
     padding-left: 1rem;
     width: 100%;
+    min-height: 1.5em;
+    resize: none;
+    overflow-y: hidden;
 }
 
 .voice-control {
