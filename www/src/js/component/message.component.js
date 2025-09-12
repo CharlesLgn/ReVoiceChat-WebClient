@@ -1,81 +1,254 @@
 class MessageComponent extends HTMLElement {
-    constructor() {
-        super()
-        this.shadow = this.attachShadow({ mode: 'open' })
-        this.shadow.innerHTML = `
-                <script type="javascript" src="/src/js/lib/marked.min.js"></script>
-                <style>
-                    #content {
-                        padding-left: 10px;
-                    }
-                    * {
-                        margin: 0;
-                    }
-                    a {
-                        color: darkturquoise;
-                    }
-                    blockquote {
-                        border-left: #C0C0C0 3px solid;
-                        padding-left: 5px;
-                        color: #C0C0C0;
-                    }
-                    code {
-                        border: #F0F0F0 1px solid;
-                        border-radius: 3px;
-                        padding-left: 5px;
-                        padding-right: 5px;
-                        background-color: #353e4b;
-                    }
-                </style>
-                <slot hidden></slot>
-                <div id="content"></div>`
-        this._contentEl = this.shadowRoot.querySelector("#content");
-        this._slot = this.shadowRoot.querySelector("slot");
+  constructor() {
+    super();
+    this.attachShadow({mode: 'open'});
+    this.markdown = '';
+  }
+
+  static get observedAttributes() {
+    return ['markdown', 'theme'];
+  }
+
+  connectedCallback() {
+    this.setupShadowDOM();
+    this.setupMarked();
+    this.render();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'markdown' && oldValue !== newValue) {
+      this.markdown = newValue || '';
+      this.render();
+    } else if (name === 'theme' && oldValue !== newValue) {
+      this.updateTheme(newValue);
     }
+  }
 
-    connectedCallback() {
-        this.renderMarkdown();
-        this._slot.addEventListener("slotchange", () => this.renderMarkdown());
-    }
+  setupShadowDOM() {
+    // Create the shadow DOM structure
+    this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            padding: 0 10px;
+                            overflow-y: auto;
+                            box-sizing: border-box;
+                        }
+                        
+                        /* Markdown content styling */
+                        .markdown-content h1,
+                        .markdown-content h2,
+                        .markdown-content h3,
+                        .markdown-content h4,
+                        .markdown-content h5,
+                        .markdown-content h6 {
+                            color: #58a6ff;
+                            border-bottom: 1px solid #30363d;
+                            padding-bottom: 5px;
+                            margin: 10px 0 5px 0;
+                        }
+                        
+                        .markdown-content p {
+                            color: #e6edf3;
+                            margin: 0;
+                        }
+                        
+                        .markdown-content ul, 
+                        .markdown-content ol {
+                            padding-left: 20px;
+                            color: #e6edf3;
+                        }
+                        
+                        .markdown-content li {
+                            margin: 8px 0;
+                        }
+                        
+                        .markdown-content blockquote {
+                            border-left: 4px solid #58a6ff;
+                            margin: 16px 0;
+                            padding-left: 16px;
+                            color: #8b949e;
+                            background: rgba(88, 166, 255, 0.1);
+                            border-radius: 0 6px 6px 0;
+                            padding: 16px;
+                        }
+                        
+                        .markdown-content code:not(.hljs) {
+                            background: #21262d;
+                            color: #e6edf3;
+                            padding: 2px 6px;
+                            border-radius: 3px;
+                            font-family: 'Fira Code', Consolas, monospace;
+                            font-size: 0.9em;
+                        }
+                        
+                        .markdown-content pre {
+                            background: #21262d;
+                            border-radius: 6px;
+                            padding: 8px;
+                            overflow-x: auto;
+                            margin: 8px 0;
+                            border: 1px solid #30363d;
+                        }
+                        
+                        .markdown-content a {
+                            color: #58a6ff;
+                            text-decoration: none;
+                        }
+                        
+                        .markdown-content a:hover {
+                            text-decoration: underline;
+                        }
+                        
+                        .markdown-content hr {
+                            border: none;
+                            border-top: 1px solid #30363d;
+                            margin: 24px 0;
+                        }
+                        
+                        .markdown-content table {
+                            border-collapse: collapse;
+                            width: 100%;
+                            margin: 16px 0;
+                        }
+                        
+                        .markdown-content th,
+                        .markdown-content td {
+                            border: 1px solid #30363d;
+                            padding: 8px 12px;
+                            text-align: left;
+                        }
+                        
+                        .markdown-content th {
+                            background: #21262d;
+                            color: #58a6ff;
+                            font-weight: bold;
+                        }
+                    </style>
+                    
+                    <div class="container">
+                        <div class="markdown-content" id="content"></div>
+                        <slot name="content" style="display: none;"></slot>
+                    </div>
+                `;
 
-    renderMarkdown() {
-        const assignedNodes = this._slot.assignedNodes({ flatten: true });
-        const text = assignedNodes.map(n => n.textContent).join("");
-        this._contentEl.innerHTML = marked.parse(this.injectEmojis(this.removeTags(text)));
-    }
+    // Listen for slotchange events
+    this.shadowRoot.addEventListener('slotchange', (e) => {
+      if (e.target.name === 'content') {
+        this.handleSlottedContent();
+      }
+    });
+  }
 
-    /** Identify HTML tags in the input string. Replacing the identified HTML tag with a null string.*/
-    removeTags(str) {
-        if (!str) return "";
-        const div = document.createElement("div");
-        div.innerHTML = String(str);
-        return div.textContent || "";
-    }
-
-    injectEmojis(inputText) {
-        let result = [];
-        let inputArray = inputText.split(" ");
-
-        inputArray.forEach(element => {
-            // Not emoji
-            if (element.charAt(0) !== ':' && element.charAt(element.length - 1) !== ':') {
-                result.push(element);
-                return;
+  setupMarked() {
+    // Configure marked with highlight.js integration
+    if (typeof marked !== 'undefined') {
+      marked.setOptions({
+        highlight(code, lang, info) {
+          if (lang && hljs.getLanguage(lang)) {
+            try {
+              return hljs.highlight(code, {language: lang}).value;
+            } catch (err) {
+              console.warn('Highlight.js error:', err);
             }
-
-            // Emoji
-            const emoji = element.substring(1, element.length - 1);
-            if (global.chat.emojisGlobal.includes(emoji)) {
-                result.push(`<img class="emoji" src="${global.url.media}/emojis/global/${emoji}" alt="${emoji}" title=":${emoji}:">`);
-                return;
-            }
-
-            // Don't exist
-            return result.push(element);
-        });
-
-        return result.join(" ");
+          }
+          return hljs.highlightAuto(code).value;
+        },
+        breaks: true,
+        gfm: true
+      });
     }
+  }
+
+  handleSlottedContent() {
+    const contentSlot = this.shadowRoot.querySelector('slot[name="content"]');
+    const slottedElements = contentSlot.assignedElements();
+
+    for (const element of slottedElements) {
+      if (element.tagName === 'SCRIPT' && element.type === 'text/markdown') {
+        this.markdown = this.removeTags(this.injectEmojis(element.textContent.trim()));
+        this.render();
+        break;
+      }
+    }
+  }
+
+  setMarkdown(markdown) {
+    this.markdown = markdown;
+    this.render();
+  }
+
+  getMarkdown() {
+    return this.markdown;
+  }
+
+  hideSlots() {
+    this.shadowRoot.querySelector('.container').className = 'container';
+  }
+
+  updateTheme(theme) {
+    // Could be extended to support different themes
+    console.log('Theme updated to:', theme);
+  }
+
+  render() {
+    const contentDiv = this.shadowRoot.getElementById('content');
+
+    if (!this.markdown) {
+      // Check if there's slotted content
+      this.handleSlottedContent();
+      if (!this.markdown) {
+        contentDiv.innerHTML = '<p style="color: #8b949e; font-style: italic;">No markdown content provided</p>';
+        return;
+      }
+    }
+
+    if (typeof marked === 'undefined') {
+      contentDiv.innerHTML = '<p style="color: #ff6b6b;">marked.js library not loaded</p>';
+      return;
+    }
+    try {
+      this.hideSlots();
+      contentDiv.innerHTML = marked.parse(this.markdown);
+    } catch (error) {
+      console.error('Markdown parsing error:', error);
+      contentDiv.innerHTML = `<p style="color: #ff6b6b;">Error parsing markdown: ${error.message}</p>`;
+    }
+
+  }
+
+  /** Identify HTML tags in the input string. Replacing the identified HTML tag with a null string.*/
+  removeTags(str) {
+    if (!str) return "";
+    const div = document.createElement("div");
+    div.innerHTML = String(str);
+    return div.textContent || "";
+  }
+
+  injectEmojis(inputText) {
+    let result = [];
+    let inputArray = inputText.split(" ");
+
+    inputArray.forEach(element => {
+      // Not emoji
+      if (element.charAt(0) !== ':' && element.charAt(element.length - 1) !== ':') {
+        result.push(element);
+        return;
+      }
+
+      // Emoji
+      const emoji = element.substring(1, element.length - 1);
+      if (global.chat.emojisGlobal.includes(emoji)) {
+        result.push(`<img class="emoji" src="${global.url.media}/emojis/global/${emoji}" alt="${emoji}" title=":${emoji}:">`);
+        return;
+      }
+
+      // Don't exist
+      return result.push(element);
+    });
+
+    return result.join(" ");
+  }
 }
 
 customElements.define('revoice-message', MessageComponent);

@@ -37,7 +37,11 @@ function createMessage(messageData) {
             <h3 class="message-owner">${messageData.user.displayName} <span class="message-timestamp">${timestampToText(messageData.createdDate)}</span></h3>
             ${createMessageContextMenu(messageData)}
         </div>
-        <revoice-message id="${messageData.id}">${messageData.text}</revoice-message>
+        <revoice-message id="${messageData.id}">
+          <script type="text/markdown" slot="content">
+            ${messageData.text}
+          </script>
+        </revoice-message>
     `;
     return DIV;
 }
