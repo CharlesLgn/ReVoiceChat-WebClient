@@ -432,7 +432,7 @@ function voiceUpdateSelf() {
             voiceAction.className = "join";
             voiceAction.classList.add('waiting');
             voiceAction.title = "Waiting to join the room";
-            voiceAction.innerHTML = `<<revoice-icon-phone-x></revoice-icon-phone-x>`;
+            voiceAction.innerHTML = `<revoice-icon-phone-x></revoice-icon-phone-x>`;
             voiceAction.onclick = () => voiceLeave();
             break;
 
@@ -451,7 +451,7 @@ function voiceUpdateSelf() {
             voiceAction.className = "join";
             voiceAction.classList.add('connected');
             voiceAction.title = "Leave the room";
-            voiceAction.innerHTML = `<<revoice-icon-phone-x></revoice-icon-phone-x>`;
+            voiceAction.innerHTML = `<revoice-icon-phone-x></revoice-icon-phone-x>`;
             voiceAction.onclick = () => voiceLeave();
             break;
     }
