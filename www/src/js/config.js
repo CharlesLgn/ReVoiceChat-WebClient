@@ -685,10 +685,32 @@ function importJSON() {
 }
 
 async function structureSave() {
+    structureClean(structureData.items);
+    
     try {
         await fetchCoreAPI(`/server/${global.server.id}/structure`, 'PATCH', structureData);
     }
     catch (error) {
         console.error("CONFIG : Updating structure:", error)
     }
+}
+
+function structureClean(parent) {
+    if(parent === null || parent === undefined){
+        return;
+    }
+
+    parent.forEach(item =>{
+        if (item.type === 'CATEGORY') {
+            structureClean(item.items);
+        }
+        if (item.type === 'ROOM') {
+            if (roomsData[item.id] === undefined) {
+                const index = parent.indexOf(item);
+                if (index > -1) {
+                    parent.splice(index, 1);
+                }
+            }
+        }
+    })
 }
