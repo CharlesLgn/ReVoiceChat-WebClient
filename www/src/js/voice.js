@@ -11,6 +11,7 @@ const voice = {
     users: {},
     audioContext: null,
     selfMute: false,
+    gainNode: null,
 }
 
 const voiceCodecConfig = {
@@ -150,16 +151,23 @@ async function voiceEncodeAndTransmit() {
 
     // Init AudioContext
     voice.audioContext = new AudioContext({ sampleRate: voice.sampleRate });
-    await voice.audioContext.audioWorklet.addModule('src/js/lib/voicePcmCollector.js');
+    await voice.audioContext.audioWorklet.addModule('src/js/lib/voiceProcessor.js');
 
     // Init Mic capture
     const micSource = voice.audioContext.createMediaStreamSource(await navigator.mediaDevices.getUserMedia({ audio: true }));
 
-    // Init AudioWorklet
-    const workletNode = new AudioWorkletNode(voice.audioContext, "PcmCollector");
-    micSource.connect(workletNode);
+    // Create Gain node
+    voice.gainNode = voice.audioContext.createGain();
+    
+    // Set initial volume base on range
+    voice.gainNode.gain.setValueAtTime(document.getElementById('voice-self-volume').value, voice.audioContext.currentTime)
 
-    workletNode.port.onmessage = (event) => {
+    // Init AudioWorklet
+    const audioCollector = new AudioWorkletNode(voice.audioContext, "AudioCollector");
+    micSource.connect(voice.gainNode); // connect mic to gain
+    voice.gainNode.connect(audioCollector); // connect gain to audioCollector
+
+    audioCollector.port.onmessage = (event) => {
         // We don't do anything if we are self muted
         if (voice.selfMute) {
             return;
@@ -484,6 +492,14 @@ function voiceControlSelfMute() {
         // Unmuted
         console.debug("VOICE : Self unmute");
         muteButton.classList.remove('active');
+    }
+}
+
+// <user> call this to change his volume
+function voiceControlSelfVolume(volume) {
+    document.getElementById('voice-self-volume').title = parseInt(volume * 100) + "%";
+    if (voice.gainNode) {
+        voice.gainNode.gain.setValueAtTime(volume, voice.audioContext.currentTime);
     }
 }
 

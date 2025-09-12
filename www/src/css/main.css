@@ -279,7 +279,7 @@ svg {
     height: 3rem;
 }
 
-.voice-control button {
+.voice-control button, .voice-control input {
     display: block;
     cursor: pointer;
     margin-top: 0.25rem;

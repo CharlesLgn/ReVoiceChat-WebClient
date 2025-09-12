@@ -1,4 +1,4 @@
-class PCMCollector extends AudioWorkletProcessor {
+class AudioCollector extends AudioWorkletProcessor {
     process(inputs) {
         const input = inputs[0][0]; // mono
         if (input) {
@@ -8,4 +8,4 @@ class PCMCollector extends AudioWorkletProcessor {
         return true;
     }
 }
-registerProcessor("PcmCollector", PCMCollector);
+registerProcessor("AudioCollector", AudioCollector);

@@ -96,11 +96,14 @@
                     <div class="voice-control">
                         <button id="voice-join-action" class="connect join">[JOIN]</button>
                     </div>
-
                     <div class="voice-control">
                         <button id="voice-self-mute" onclick="voiceControlSelfMute()" class="mute">
                             <revoice-icon-microphone></revoice-icon-microphone>
                         </button>
+                    </div>
+                    <div class="voice-control">
+                        <input id="voice-self-volume" type="range" min="0" max="2" value="1" step="0.1"
+                            oninput="voiceControlSelfVolume(this.value)" title="100%"/>
                     </div>
                 </div>
             </div>
@@ -127,7 +130,7 @@
 
     <script src="src/js/lib/sweetalert2.min.js"></script>
     <script src="src/js/lib/marked.min.js"></script>
-    <script src="src/js/lib/highlight.min.js"></script>
+    <script src="src/js/lib/highlight.min.js"></script>²
     <script src="src/js/lib/tools.js"></script>
 
     <script src="src/js/component/message.component.js"></script>
