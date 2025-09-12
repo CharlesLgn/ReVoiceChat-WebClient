@@ -306,7 +306,8 @@ async function roomAdd() {
     });
 }
 
-async function roomEdit(data) {
+async function roomEdit(item) {
+    const data = detailedRoomData[item.id];
     FORM_DATA.name = data.name;
 
     Swal.fire({
@@ -336,7 +337,8 @@ async function roomEdit(data) {
     });
 }
 
-async function roomDelete(data) {
+async function roomDelete(item) {
+    const data = detailedRoomData[item.id];
     Swal.fire({
         title: `Delete room '${data.name}'`,
         animation: false,
@@ -374,6 +376,21 @@ function categoryAdd(parentItems = null) {
     render();
 }
 
+function categoryEdit(item) {
+    currentEditingItem = item
+    const modal = document.getElementById('editModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const itemName = document.getElementById('itemName');
+    const itemId = document.getElementById('itemId');
+    const idGroup = document.getElementById('idGroup');
+
+    modalTitle.textContent = 'Éditer Catégorie';
+    itemName.value = item.name || '';
+    idGroup.style.display = 'none';
+    itemName.placeholder = 'Nom de la catégorie';
+    modal.classList.add('show');
+}
+
 function categoryDelete(item, parentItems) {
     Swal.fire({
         title: `Delete category '${item.name}'`,
@@ -402,33 +419,6 @@ function categoryDelete(item, parentItems) {
 function showStructureAsJSON() {
     const modal = document.getElementById('jsonModal');
     modal.classList.add('show');
-}
-
-function editItem(item) {
-    currentEditingItem = item
-    const modal = document.getElementById('editModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const itemName = document.getElementById('itemName');
-    const itemId = document.getElementById('itemId');
-    const idGroup = document.getElementById('idGroup');
-
-    if (item.type === 'ROOM') {
-        roomEdit(detailedRoomData[item.id]);
-    } else {
-        modalTitle.textContent = 'Éditer Catégorie';
-        itemName.value = item.name || '';
-        idGroup.style.display = 'none';
-        itemName.placeholder = 'Nom de la catégorie';
-        modal.classList.add('show');
-    }
-}
-
-function deleteItem(item, parentItems) {
-    if (item.type === 'ROOM') {
-        roomDelete(detailedRoomData[item.id]);
-    } else {
-        categoryDelete(item, parentItems);
-    }
 }
 
 function saveItem() {
@@ -530,19 +520,20 @@ function renderItem(item, parentItems, level = 0) {
     const headerDiv = document.createElement('div');
     headerDiv.className = 'server-structure-item-header';
 
-    if (item.type === 'ROOM') {
-        // Remove room being rendered from list of not render
-        roomsNotRendered = roomsNotRendered.filter((id) => id !== item.id);
+    switch (item.type) {
+        case 'ROOM':
+            // Remove room being rendered from list of not render
+            roomsNotRendered = roomsNotRendered.filter((id) => id !== item.id);
 
-        const room = detailedRoomData[item.id];
-        if (room === null || room === undefined) {
-            return null;
-        }
+            const room = detailedRoomData[item.id];
+            if (room === null || room === undefined) {
+                return null;
+            }
 
-        const icon = room.type === 'TEXT'
-            ? '<revoice-icon-chat-bubble class="size-small" ></revoice-icon-chat-bubble>'
-            : '<revoice-icon-phone class="size-small"></revoice-icon-phone>';
-        headerDiv.innerHTML = `
+            const icon = room.type === 'TEXT'
+                ? '<revoice-icon-chat-bubble class="size-small" ></revoice-icon-chat-bubble>'
+                : '<revoice-icon-phone class="size-small"></revoice-icon-phone>';
+            headerDiv.innerHTML = `
                 <span class="server-structure-item-icon">${icon}</span>
                 <div class="server-structure-item-content">
                     <span class="server-structure-item-name">${room.name}</span>
@@ -551,11 +542,12 @@ function renderItem(item, parentItems, level = 0) {
                 <div class="server-structure-item-actions">
                     <button class="server-structure-btn btn-edit" onclick="event.stopPropagation(); editItem(arguments[0])" 
                             data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
-                    <button class="server-structure-btn btn-delete" onclick="event.stopPropagation(); deleteItem(arguments[0], arguments[1])"
-                            data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
+                    <button class="server-structure-btn btn-delete" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
                 </div>`;
-    } else if (item.type === 'CATEGORY') {
-        headerDiv.innerHTML = `
+            break;
+
+        case 'CATEGORY':
+            headerDiv.innerHTML = `
                 <span class="server-structure-item-icon"><revoice-icon-folder class="size-small"></revoice-icon-folder></span>
                 <div class="server-structure-item-content">
                     <span class="server-structure-item-name">${item.name}</span>
@@ -563,24 +555,38 @@ function renderItem(item, parentItems, level = 0) {
                 <div class="server-structure-item-actions">
                     <button class="server-structure-btn btn-edit" onclick="event.stopPropagation(); editItem(arguments[0])" 
                             data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
-                    <button class="server-structure-btn btn-delete" onclick="event.stopPropagation(); deleteItem(arguments[0], arguments[1])"
-                            data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
+                    <button class="server-structure-btn btn-delete" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
                     <button class="server-structure-btn btn-add" onclick="event.stopPropagation(); categoryAdd(arguments[0].items)"><revoice-icon-folder-plus class="size-smaller"></revoice-icon-folder-plus></button>
                 </div>`;
+            break;
+        default:
+            console.error("renderItem : Unsupported item type");
+            return;
     }
 
-    // Corriger les event listeners pour les boutons
     const editBtn = headerDiv.querySelector('.btn-edit');
     const deleteBtn = headerDiv.querySelector('.btn-delete');
 
     editBtn.onclick = (e) => {
         e.stopPropagation();
-        editItem(item);
+        switch (item.type) {
+            case 'ROOM':
+                roomEdit(item)
+            case 'CATEGORY':
+                categoryEdit(item);
+                break;
+        }
     };
 
     deleteBtn.onclick = (e) => {
         e.stopPropagation();
-        deleteItem(item, parentItems);
+        switch (item.type) {
+            case 'ROOM':
+                roomDelete(item)
+            case 'CATEGORY':
+                categoryDelete(item, parentItems);
+                break;
+        }
     };
 
     if (item.type === 'CATEGORY') {
@@ -599,7 +605,10 @@ function renderItem(item, parentItems, level = 0) {
         childrenDiv.appendChild(renderDropZone(item, 0));
         let posSubCategory = 1
         item.items.forEach(childItem => {
-            childrenDiv.appendChild(renderItem(childItem, item.items, level + 1));
+            const renderedItem = renderItem(childItem, item.items, level + 1)
+            if (renderedItem) {
+                childrenDiv.appendChild(renderedItem);
+            }
             childrenDiv.appendChild(renderDropZone(item, posSubCategory++));
         });
 
