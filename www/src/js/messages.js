@@ -53,8 +53,8 @@ function createMessageContextMenu(messageData) {
     if (messageData.user.id == global.user.id) {
         return `
         <div class="message-context-menu">
-            <div class="icon" onclick="editMessage('${messageData.id}')">${SVG_PENCIL}</div>
-            <div class="icon" onclick="deleteMessage('${messageData.id}')">${SVG_TRASH}</div>
+            <div class="icon" onclick="editMessage('${messageData.id}')"><revoice-icon-pencil></revoice-icon-pencil></div>
+            <div class="icon" onclick="deleteMessage('${messageData.id}')"><revoice-icon-trash></revoice-icon-trash></div>
         </div>
         `;
     }

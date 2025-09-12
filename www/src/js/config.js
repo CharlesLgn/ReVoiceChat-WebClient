@@ -157,8 +157,8 @@ async function createItemInvitation(data) {
     // Context menu
     const DIV_CM = document.createElement('div');
     DIV_CM.className = "context-menu";
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_CLIPBOARD_COPY, () => copyInvitation(data.id)));
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_TRASH, () => deleteInvitation(data)));
+    DIV_CM.appendChild(createContextMenuButton("icon", "<revoice-icon-clipboard></revoice-icon-clipboard>", () => copyInvitation(data.id)));
+    DIV_CM.appendChild(createContextMenuButton("icon", "<revoice-icon-trash></revoice-icon-trash>", () => deleteInvitation(data)));
     DIV.appendChild(DIV_CM);
 
     return DIV;
@@ -227,9 +227,9 @@ async function createItemRoom(data) {
     // Context menu
     const DIV_CM = document.createElement('div');
     DIV_CM.className = "context-menu";
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_CLIPBOARD_COPY, () => copyToClipboard(data.id), "Copy ID"));
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_PENCIL, () => configEditRoom(data), "Edit room"));
-    DIV_CM.appendChild(createContextMenuButton("icon", SVG_TRASH, () => configDeleteRoom(data), "Delete room"));
+    DIV_CM.appendChild(createContextMenuButton("icon", "<revoice-icon-clipboard></revoice-icon-clipboard>", () => copyToClipboard(data.id), "Copy ID"));
+    DIV_CM.appendChild(createContextMenuButton("icon", "<revoice-icon-pencil></revoice-icon-pencil>", () => configEditRoom(data), "Edit room"));
+    DIV_CM.appendChild(createContextMenuButton("icon", "<revoice-icon-trash></revoice-icon-trash>", () => configDeleteRoom(data), "Delete room"));
     DIV.appendChild(DIV_CM);
 
     return DIV;

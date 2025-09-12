@@ -38,11 +38,11 @@ function roomCreateElement(data, onclick) {
 
     switch (data.type) {
         case "TEXT":
-            icon = SVG_CHAT_BUBBLE;
+            icon = `<revoice-icon-chat-bubble></revoice-icon-chat-bubble>`;
             break;
         case "VOICE":
         case "WEBRTC":
-            icon = SVG_PHONE;
+            icon =  `<revoice-icon-phone></revoice-icon-phone>`;
             break;
     }
 
@@ -67,7 +67,7 @@ function roomSelectText(data) {
     global.room = data;
 
     document.getElementById(data.id).classList.add("active");
-    document.getElementById("room-icon").innerHTML = SVG_CHAT_BUBBLE;
+    document.getElementById("room-icon").innerHTML = `<revoice-icon-chat-bubble></revoice-icon-chat-bubble>`;
     document.getElementById("room-name").innerText = data.name;
 
     document.getElementById("voice-container").classList.add('hidden');
@@ -94,7 +94,7 @@ function roomSelectVoice(data) {
     global.room = data;
 
     document.getElementById(data.id).classList.add("active");
-    document.getElementById("room-icon").innerHTML = SVG_PHONE;
+    document.getElementById("room-icon").innerHTML = `<revoice-icon-phone></revoice-icon-phone>`;
     document.getElementById("room-name").innerText = data.name;
 
     document.getElementById("text-container").classList.add('hidden');

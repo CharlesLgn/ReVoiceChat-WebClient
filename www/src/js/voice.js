@@ -407,7 +407,7 @@ function voiceUpdateUserControls(userId) {
             BUTTON_MUTE.className = "mute";
             BUTTON_MUTE.title = "Mute";
             BUTTON_MUTE.onclick = () => voiceControlUserMute(userId, BUTTON_MUTE);
-            BUTTON_MUTE.innerHTML = SVG_MICROPHONE;
+            BUTTON_MUTE.innerHTML = `<revoice-icon-microphone></revoice-icon-microphone>`;
 
             const DIV_ACTION = document.createElement('div');
             DIV_ACTION.id = `voice-controls-${userId}`;
@@ -432,7 +432,7 @@ function voiceUpdateSelf() {
             voiceAction.className = "join";
             voiceAction.classList.add('waiting');
             voiceAction.title = "Waiting to join the room";
-            voiceAction.innerHTML = SVG_PHONE_X;
+            voiceAction.innerHTML = `<<revoice-icon-phone-x></revoice-icon-phone-x>`;
             voiceAction.onclick = () => voiceLeave();
             break;
 
@@ -442,7 +442,7 @@ function voiceUpdateSelf() {
             voiceAction.className = "join";
             voiceAction.classList.add('disconnected');
             voiceAction.title = "Join the room";
-            voiceAction.innerHTML = SVG_PHONE;
+            voiceAction.innerHTML = `<revoice-icon-phone></revoice-icon-phone>`;
             voiceAction.onclick = () => voiceJoin(global.room.id);
             break;
 
@@ -451,7 +451,7 @@ function voiceUpdateSelf() {
             voiceAction.className = "join";
             voiceAction.classList.add('connected');
             voiceAction.title = "Leave the room";
-            voiceAction.innerHTML = SVG_PHONE_X;
+            voiceAction.innerHTML = `<<revoice-icon-phone-x></revoice-icon-phone-x>`;
             voiceAction.onclick = () => voiceLeave();
             break;
     }
