@@ -113,16 +113,16 @@
         background: rgba(255, 255, 255, 0.1);
     }
 
-    .text-control input {
+    .text-control input, .text-control textarea {
         background-color: rgb(55, 65, 81);
         color: white;
     }
 
-    .text-control input::placeholder {
+    .text-control input::placeholder, .text-control textarea::placeholder {
         color: rgb(156, 163, 175);
     }
 
-    .text-control input:focus {
+    .text-control input:focus, .text-control textarea:focus {
         outline: 2px solid transparent;
         outline-offset: 2px;
     }
@@ -384,16 +384,16 @@
         background: black;
     }
 
-    .text-control input {
+    .text-control input, .text-control textarea {
         background-color: #2c2c2c;
         color: white;
     }
 
-    .text-control input::placeholder {
+    .text-control input::placeholder, .text-control textarea::placeholder {
         color: rgb(156, 163, 175);
     }
 
-    .text-control input:focus {
+    .text-control input:focus, .text-control textarea:focus {
         outline: 2px solid transparent;
         outline-offset: 2px;
     }
