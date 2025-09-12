@@ -171,7 +171,7 @@
     }
 
     .voice-control .compressor.active{
-        color: greenyellow;
+        color: rgb(34 197 94);
     }
 
     /* Message */
