@@ -450,7 +450,7 @@ function voiceUpdateUserControls(userId) {
             BUTTON_MUTE.className = "mute";
             BUTTON_MUTE.title = "Mute";
             BUTTON_MUTE.onclick = () => voiceControlUserMute(userId, BUTTON_MUTE);
-            BUTTON_MUTE.innerHTML = `<revoice-icon-microphone></revoice-icon-microphone>`;
+            BUTTON_MUTE.innerHTML = `<revoice-icon-speaker></revoice-icon-speaker>`;
 
             const DIV_ACTION = document.createElement('div');
             DIV_ACTION.id = `voice-controls-${userId}`;
@@ -507,9 +507,11 @@ function voiceControlUserMute(userId, muteButton) {
 
     if (voice.users[userId].muted) {
         muteButton.classList.add('active');
+        muteButton.innerHTML = "<revoice-icon-speaker-x></revoice-icon-speaker-x>";
     }
     else {
         muteButton.classList.remove('active');
+        muteButton.innerHTML = "<revoice-icon-speaker></revoice-icon-speaker>";
     }
 }
 
