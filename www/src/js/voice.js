@@ -137,7 +137,6 @@ async function voiceUserJoining(userData) {
 
 // <server.js> call this when a user leave the room
 async function voiceUserLeaving(userId) {
-    console.log(userId)
     // Remove user from UI
     document.getElementById(`voice-${userId}`).remove();
 
@@ -151,7 +150,6 @@ async function voiceUserLeaving(userId) {
         let audio = new Audio('src/audio/userLeftMale.mp3');
         audio.volume = 0.25;
         audio.play();
-        console.log('userleft')
     }
 }
 
