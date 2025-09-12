@@ -197,7 +197,7 @@ async function copyInvitation(link) {
 
 /* ROOMS */
 let structureData = { items: [] };
-let detailedRoomData = [];
+let roomsData = [];
 let roomsNotRendered = [];
 let draggedElement = null;
 
@@ -236,9 +236,9 @@ async function loadRooms() {
 async function loadRoomData() {
     const roomResult = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
     if (roomResult) {
-        detailedRoomData = {};
+        roomsData = {};
         for (const room of roomResult) {
-            detailedRoomData[room.id] = room;
+            roomsData[room.id] = room;
         }
         render();
     }
@@ -292,7 +292,7 @@ async function roomAdd() {
 }
 
 async function roomEdit(item) {
-    const data = detailedRoomData[item.id];
+    const data = roomsData[item.id];
     popupData.name = data.name;
 
     Swal.fire({
@@ -323,7 +323,7 @@ async function roomEdit(item) {
 }
 
 async function roomDelete(item) {
-    const data = detailedRoomData[item.id];
+    const data = roomsData[item.id];
     Swal.fire({
         title: `Delete room '${data.name}'`,
         animation: false,
@@ -510,7 +510,7 @@ function renderItem(item, parentItems, level = 0) {
             // Remove room being rendered from list of not render
             roomsNotRendered = roomsNotRendered.filter((id) => id !== item.id);
 
-            const room = detailedRoomData[item.id];
+            const room = roomsData[item.id];
             if (room === null || room === undefined) {
                 return null;
             }
@@ -630,8 +630,8 @@ function render() {
     rootDropZone.addEventListener('dragleave', handleDragLeave);
     rootDropZone.addEventListener('drop', (e) => handleDrop(e, structureData.items, 0));
 
-    // Build items list from detailedRoomData 
-    for (const key in detailedRoomData) {
+    // Build items list from roomsData 
+    for (const key in roomsData) {
         roomsNotRendered.push(key);
     }
 
