@@ -522,10 +522,15 @@ svg {
     margin-right: 0.5rem;
 }
 
-.config .category {
+.config .category h2 {
     min-height: 2.5rem;
     font-weight: 800;
     font-size: 1.25rem;
+}
+
+.config .category button {
+    margin-left: 15px;
+    width: -webkit-fill-available;
 }
 
 .category~.category {
