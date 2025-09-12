@@ -199,8 +199,6 @@ async function copyInvitation(link) {
 let structureData = { items: [] };
 let detailedRoomData = [];
 let roomsNotRendered = [];
-
-let currentEditingItem = null;
 let draggedElement = null;
 
 const FORM_DATA = {
@@ -250,19 +248,6 @@ async function loadRoomStructure() {
     const struct = await fetchCoreAPI(`/server/${global.server.id}/structure`, 'GET');
     if (struct) {
         structureData = struct;
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-        document.getElementById('editModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                closeModal();
-            }
-        });
-
         render();
     }
 }
@@ -377,18 +362,33 @@ function categoryAdd(parentItems = null) {
 }
 
 function categoryEdit(item) {
-    currentEditingItem = item
-    const modal = document.getElementById('editModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const itemName = document.getElementById('itemName');
-    const itemId = document.getElementById('itemId');
-    const idGroup = document.getElementById('idGroup');
+    FORM_DATA.name = item.name;
 
-    modalTitle.textContent = 'Éditer Catégorie';
-    itemName.value = item.name || '';
-    idGroup.style.display = 'none';
-    itemName.placeholder = 'Nom de la catégorie';
-    modal.classList.add('show');
+    Swal.fire({
+        title: `Edit category '${item.name}'`,
+        animation: false,
+        customClass: {
+            title: "swalTitle",
+            popup: "swalPopup",
+            cancelButton: "swalCancel",
+            confirmButton: "swalConfirm",
+        },
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: "Edit",
+        allowOutsideClick: false,
+        html: `
+            <form class='popup'>
+                <label>Category name</label>
+                <input type='text' oninput='FORM_DATA.name=value' value='${item.name}'>
+            </form>       
+        `,
+    }).then(async (result) => {
+        if (result.value) {
+            item.name = FORM_DATA.name;
+            render();
+        }
+    });
 }
 
 function categoryDelete(item, parentItems) {
@@ -421,23 +421,8 @@ function showStructureAsJSON() {
     modal.classList.add('show');
 }
 
-function saveItem() {
-    const itemName = document.getElementById('itemName').value.trim();
-    const itemId = document.getElementById('itemId').value.trim();
-
-    if (currentEditingItem.type === 'ROOM') {
-        if (itemName) currentEditingItem.name = itemName;
-        if (itemId) currentEditingItem.id = itemId;
-    } else if (itemName) currentEditingItem.name = itemName;
-
-    closeModal();
-    render();
-}
-
 function closeModal() {
-    document.getElementById('editModal').classList.remove('show');
     document.getElementById('jsonModal').classList.remove('show');
-    currentEditingItem = null;
 }
 
 function handleDragStart(e, item) {
@@ -540,8 +525,7 @@ function renderItem(item, parentItems, level = 0) {
                     <span class="server-structure-item-id">${room.id}</span>
                 </div>
                 <div class="server-structure-item-actions">
-                    <button class="server-structure-btn btn-edit" onclick="event.stopPropagation(); editItem(arguments[0])" 
-                            data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
+                    <button class="server-structure-btn btn-edit" data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
                     <button class="server-structure-btn btn-delete" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
                 </div>`;
             break;
@@ -553,8 +537,7 @@ function renderItem(item, parentItems, level = 0) {
                     <span class="server-structure-item-name">${item.name}</span>
                 </div>
                 <div class="server-structure-item-actions">
-                    <button class="server-structure-btn btn-edit" onclick="event.stopPropagation(); editItem(arguments[0])" 
-                            data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
+                    <button class="server-structure-btn btn-edit" data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
                     <button class="server-structure-btn btn-delete" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
                     <button class="server-structure-btn btn-add" onclick="event.stopPropagation(); categoryAdd(arguments[0].items)"><revoice-icon-folder-plus class="size-smaller"></revoice-icon-folder-plus></button>
                 </div>`;
@@ -571,7 +554,8 @@ function renderItem(item, parentItems, level = 0) {
         e.stopPropagation();
         switch (item.type) {
             case 'ROOM':
-                roomEdit(item)
+                roomEdit(item);
+                break;
             case 'CATEGORY':
                 categoryEdit(item);
                 break;
@@ -582,7 +566,8 @@ function renderItem(item, parentItems, level = 0) {
         e.stopPropagation();
         switch (item.type) {
             case 'ROOM':
-                roomDelete(item)
+                roomDelete(item);
+                break;
             case 'CATEGORY':
                 categoryDelete(item, parentItems);
                 break;
