@@ -67,7 +67,7 @@ function settingPassword() {
         confirmButtonText: "Change",
         allowOutsideClick: false,
         html: `
-            <form class='config'>
+            <form class='popup'>
                 <label>Current password</label>
                 <input type='password' oninput='currentSetting.password.password=this.value'>
                 <br/>
