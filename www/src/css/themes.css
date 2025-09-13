@@ -97,7 +97,7 @@ body {
 
 /* Element */
 .app button:hover {
-    background-color: var(--pri-button-hover-color);
+    background-color: var(--sec-button-hover-color);
 }
 
 /* Sidebar left */
