@@ -1,490 +1,306 @@
 [data-theme="dark"] {
     body {
-        /* Background color */
+        /* Background */
         --pri-bg-color: #121214;
         --sec-bg-color: #1a1a1e;
         --ter-bg-color: #202024;
+        --qua-bg-color: #43434d;
 
-        /* Border color */
+        /* Border */
         --pri-bd-color: #43434d;
+        --sec-bd-color: #ffffff;
 
-        background-color: var(--pri-bd-color);
-        color: white;
-    }
+        /* Text */
+        --pri-text-color: #ffffff;
+        --pri-placeholder-color: #9ca3af;
 
-    /* Login */
-    .login-box {
-        background-color: white;
-    }
+        /* Active */
+        --pri-active-color: #2c2c30;
 
-    .login-form button {
-        background-color: rgb(99, 102, 241);
-        color: white;
-    }
+        /* Hover */
+        --pri-hover-color: #242427;
+        --sec-hover-color: #43434d;
 
-    .login-element label {
-        color: #1f2937;
-    }
-
-    .login-element input {
-        border-color: rgb(209, 213, 219);
-        color: black;
-    }
-
-    .login-form .switch {
-        color: rgb(99, 102, 241);
-    }
-
-    /* Element */
-    .app button:hover {
-        background-color: rgb(7, 89, 133);
-    }
-
-    /* Sidebar left */
-    .sidebar {
-        border-color: var(--pri-bd-color);
-        background-color: var(--pri-bg-color);
-    }
-
-    .sidebar-header {
-        border-color: var(--pri-bd-color);
-    }
-
-    .sidebar-title h2 {
-        color: white;
-    }
-
-    .sidebar-title p {
-        color: rgb(156 163 175);
-    }
-
-    /* Sidebar right */
-    .sidebar-right {
-        border-color: var(--pri-bd-color);
-        background-color: var(--sec-bg-color);
-    }
-
-    /* Room */
-    .room-separator,
-    .room-element {
-        border-color: var(--pri-bd-color);
-        color: white;
-    }
-
-    .room-separator {
-        font-weight: 600;
-    }
-
-    .room-element:hover {
-        background-color: rgba(12, 74, 110, 0.7);
-        font-weight: 600;
-    }
-
-    .room-element.active {
-        background-color: rgb(7, 89, 133);
-        font-weight: 600;
-    }
-
-    .room {
-        border-color: #111827;
-    }
-
-    .room-header {
-        background-color: var(--sec-bg-color);
-        border-color: var(--pri-bd-color);
-    }
-
-    .room-name {
-        color: white;
-        font-weight: 600;
-    }
-
-    .room-container{
-        background-color: var(--sec-bg-color);
-    }
-
-    /* Status */
-    .status-container {
-        border-color: var(--pri-bd-color);
-        background: #353e4b;
-    }
-
-    .status-bloc-1 .name {
-        color: white
-    }
-
-    .status-bloc-1 .status {
-        color: rgb(156, 163, 175);
-    }
-
-    /* Chat */
-    .room-control-container {
-        border-color: var(--pri-bd-color);
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    .text-control input,
-    .text-control textarea {
-        background-color: rgb(55, 65, 81);
-        color: white;
-    }
-
-    .text-control input::placeholder,
-    .text-control textarea::placeholder {
-        color: rgb(156, 163, 175);
-    }
-
-    .text-control input:focus,
-    .text-control textarea:focus {
-        outline: 2px solid transparent;
-        outline-offset: 2px;
-    }
-
-    .voice-control .disconnected {
-        background-color: rgb(34 197 94);
-        color: white;
-    }
-
-    .voice-control .disconnected:hover {
-        background-color: rgb(24, 147, 69);
-        color: white;
-    }
-
-    .voice-control .waiting {
-        background-color: orange;
-        color: white;
-    }
-
-    .voice-control .connected {
-        background-color: rgb(238, 52, 52);
-        color: white;
-    }
-
-    .voice-control .connected:hover {
-        background-color: rgb(182, 39, 39);
-        color: white;
-    }
-
-    .voice-profile:hover {
-        background-color: rgb(55, 65, 81);
-    }
-
-    .voice-control .mute:hover,
-    .voice-profile .mute:hover {
-        background-color: rgb(7, 89, 133);
-    }
-
-    .voice-control .mute.active,
-    .voice-profile .mute.active {
-        color: red;
-    }
-
-    .voice-control .compressor:hover {
-        background-color: rgb(7, 89, 133);
-    }
-
-    .voice-control .compressor.active {
-        color: rgb(34 197 94);
-    }
-
-    /* Message */
-    .message-container:hover {
-        background-color: rgb(55, 65, 81);
-    }
-
-    .message-owner {
-        color: white;
-    }
-
-    .message-text {
-        color: white;
-    }
-
-    .message-timestamp {
-        color: rgb(156, 163, 175);
-    }
-
-    .message-context-menu:hover {
-        border: 1px;
-        border-color: white;
-        border-radius: 10px;
-        background-color: rgb(55, 65, 81);
-    }
-
-    .message-context-menu .icon:hover {
-        border-radius: 10px;
-        background-color: rgb(7, 89, 133);
-    }
-
-    /* User profile */
-
-    .user-profile:hover {
-        background-color: rgb(55, 65, 81);
-    }
-
-    /* Server config */
-    .config-container-left {
-        border-color: var(--pri-bd-color);
-    }
-
-    .config-container-right {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .config .sub-category:hover {
-        background-color: rgba(12, 74, 110, 0.7);
-    }
-
-    .config .sub-category.active {
-        background-color: rgb(7, 89, 133);
-    }
-
-    .config input,
-    .config select,
-    form.popup input,
-    form.popup select {
-        background-color: #292f3d;
-        color: white;
-    }
-
-    .config label {
-        color: white;
-        font-weight: 800;
-    }
-
-    .config-item {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .config-item:hover {
-        background-color: rgba(12, 74, 110, 0.7);
-    }
-
-    .config-item .context-menu .icon:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .config-right button {
-        background-color: rgb(99, 102, 241);
-        color: white;
-    }
-
-    .config-right button:hover {
-        background-color: rgba(12, 74, 110, 0.7);
-    }
-
-    .config-rooms-struct {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-
-    textarea.config-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    /* SweetAlert2 */
-
-    .swalPopup {
-        background-color: rgb(17, 24, 39);
-        border: 1px solid rgb(55, 65, 81);
-    }
-
-    .swalTitle {
-        color: white;
-    }
-
-    .swalConfirm {
-        background-color: rgb(7, 89, 133);
-    }
-
-    .swalCancel {
-        background-color: rgb(185, 28, 28)
+        /* Button */
+        --pri-button-bg-color: #6366f1;
+        --sec-button-bg-color: #b91c1c;
+        --pri-button-hover-color: #4042a1;
+        --sec-button-hover-color: #2c2c30;
     }
 }
 
 [data-theme="darker"] {
-
-    /* Body */
     body {
-        background-color: black;
-        color: white;
-    }
+        /* Background color */
+        --pri-bg-color: #000000;
+        --sec-bg-color: #000000;
+        --ter-bg-color: #000000;
 
-    /* Login */
-    .login-box {
-        background-color: #2c2c2c;
-    }
+        /* Border color */
+        --pri-bd-color: #f5f5dc;
 
-    .login-form button {
-        background-color: #595959;
-        color: white;
-    }
+        /* Text */
+        --pri-text-color: #ffffff;
+        --pri-placeholder-color: #9ca3af;
 
-    .login-element label {
-        color: white;
-    }
+        /* Active */
+        --pri-active-color: #2c2c30;
 
-    .login-element input {
-        border-color: rgb(209, 213, 219);
-        color: black;
-    }
+        /* Hover */
+        --pri-hover-color: #242427;
+        --sec-hover-color: #43434d;
 
-    /* Element */
-    .app button:hover {
-        border-radius: 10px;
-        background-color: #595959;
+        /* Button */
+        --pri-button-bg-color: #242427;
+        --sec-button-bg-color: #b91c1c;
+        --pri-button-hover-color: #43434d;
+        --sec-button-hover-color: #2c2c30;
     }
+}
 
-    /* Sidebar */
-    .sidebar {
-        border-color: beige;
-        background-color: black;
-    }
+body {
+    background-color: var(--pri-bg-color);
+    color: var(--pri-text-color);
+}
 
-    .sidebar-header {
-        border-bottom-width: 1px;
-        border-color: beige;
-        background: black;
-    }
+/* Login */
+.login-box {
+    background-color: var(--qua-bg-color);
+}
 
-    .sidebar-title h2 {
-        color: white;
-    }
+.login-form button {
+    background-color: var(--pri-button-bg-color);
+    color: var(--pri-text-color);
+}
 
-    .sidebar-title p {
-        color: gray;
-    }
+.login-form button:hover {
+    background-color: var(--pri-button-hover-color);
+}
 
-    /* Room */
-    .room-element {
-        border-color: darkgrey;
-        color: white;
-    }
+.login-element label {
+    color: var(--pri-text-color);
+}
 
-    .room-element:hover {
-        background-color: #595959;
-    }
+.login-element input {
+    border-color: var(--sec-bd-color);
+    background-color: var(--qua-bg-color);
+    color: var(--pri-text-color);
+}
 
-    .room-element.active {
-        background-color: #2c2c2c;
-    }
+.login-form .switch {
+    color: var(--pri-button-bg-color);
+}
 
-    .room-element.active:hover {
-        background-color: #595959;
-    }
+.login-form .switch:hover {
+    color: var(--pri-button-hover-color);
+}
 
-    /* Status */
-    .status-container {
-        border-top-width: 1px;
-        border-color: beige;
-        background: black;
-    }
+/* Element */
+.app button:hover {
+    background-color: var(--pri-button-hover-color);
+}
 
-    .status-bloc-1 .name {
-        color: white;
-    }
+/* Sidebar left */
+.sidebar {
+    border-color: var(--pri-bd-color);
+    background-color: var(--pri-bg-color);
+}
 
-    .status-bloc-1 .status {
-        color: grey;
-    }
+.sidebar-header {
+    border-color: var(--pri-bd-color);
+}
 
-    /* Chat */
-    .room-header {
-        border-bottom-width: 1px;
-        border-color: beige;
-        background: black;
-    }
+/* Sidebar right */
+.sidebar-right {
+    border-color: var(--pri-bd-color);
+    background-color: var(--sec-bg-color);
+}
 
-    .room-name {
-        color: white;
-        font-weight: 600;
-    }
+/* Room */
+.room-separator,
+.room-element {
+    border-color: var(--pri-bd-color);
+}
 
-    .room-control-container {
-        border-top-width: 1px;
-        border-color: beige;
-        background: black;
-    }
+.room-separator {
+    font-weight: 600;
+}
 
-    .text-control input,
-    .text-control textarea {
-        background-color: #2c2c2c;
-        color: white;
-    }
+.room-element:hover {
+    background-color: var(--pri-hover-color);
+}
 
-    .text-control input::placeholder,
-    .text-control textarea::placeholder {
-        color: rgb(156, 163, 175);
-    }
+.room-element.active {
+    background-color: var(--pri-active-color);
+    font-weight: 600;
+}
 
-    .text-control input:focus,
-    .text-control textarea:focus {
-        outline: 2px solid transparent;
-        outline-offset: 2px;
-    }
+.room {
+    border-color: var(--pri-bd-color);
+}
 
-    .voice-control .connect {
-        background-color: rgb(34 197 94);
-        color: white;
-    }
+.room-header {
+    background-color: var(--sec-bg-color);
+    border-color: var(--pri-bd-color);
+}
 
-    .voice-control .disconnect {
-        background-color: rgb(239 68 68);
-        color: white;
-    }
+.room-name {
+    font-weight: 600;
+}
 
-    /* Message */
-    .message-container:hover {
-        background-color: #2c2c2c;
-    }
+.room-container {
+    background-color: var(--sec-bg-color);
+}
 
-    .message-owner {
-        color: white;
-    }
+/* Status */
+.status-container {
+    border-color: var(--pri-bd-color);
+    background-color: var(--ter-bg-color);
+}
 
-    .message-text {
-        color: white;
-    }
+.status-bloc-1 .status {
+    color: var(--pri-placeholder-color);
+}
 
-    .message-timestamp {
-        color: rgb(156, 163, 175);
-    }
+/* Chat */
+.room-control-container {
+    border-color: var(--pri-bd-color);
+    background-color: var(--sec-bg-color);
+}
 
-    .message-context-menu .icon:hover {
-        border-radius: 10px;
-        background-color: #595959;
-    }
+.text-control input,
+.text-control textarea {
+    background-color: var(--ter-bg-color);
+}
 
-    /* User profile */
+.text-control input::placeholder,
+.text-control textarea::placeholder {
+    color: var(--pri-placeholder-color);
+}
 
-    .user-profile:hover {
-        background-color: #595959;
-    }
+.voice-control .disconnected {
+    background-color: #22c55e;
+}
 
-    /* Server config */
-    .config-container-left {
-        border-color: white;
-    }
+.voice-control .disconnected:hover {
+    background-color: #189345;
+}
 
-    .config .sub-category:hover {
-        background-color: #2c2c2c;
-    }
+.voice-control .waiting {
+    background-color: #ffa500;
+}
 
-    .config .sub-category.active {
-        background-color: #595959;
-    }
+.voice-control .connected {
+    background-color: #ee3434;
+}
 
-    .config input,
-    .config select {
-        background-color: #2c2c2c;
-        color: white;
-    }
+.voice-control .connected:hover {
+    background-color: #b62727;
+}
 
-    .config-item {
-        background-color: #2c2c2c;
-    }
+.voice-profile:hover {
+    background-color: var(--sec-bg-color);
+}
 
-    .config-item:hover {
-        background-color: #595959;
-    }
+.voice-control .mute:hover,
+.voice-profile .mute:hover {
+    background-color: var(--sec-button-hover-color);
+}
+
+.voice-control .mute.active,
+.voice-profile .mute.active {
+    color: #ff0000;
+}
+
+.voice-control .compressor:hover {
+    background-color: var(--sec-button-hover-color);
+}
+
+.voice-control .compressor.active {
+    color: #22c55e;
+}
+
+/* Message */
+.message-container:hover {
+    background-color: var(--pri-hover-color);
+}
+
+.message-timestamp {
+    color: var(--pri-placeholder-color);
+}
+
+.message-context-menu .icon:hover {
+    background-color: var(--sec-hover-color);
+}
+
+/* User profile */
+.user-profile:hover {
+    background-color: var(--sec-hover-color);
+}
+
+/* Server config */
+.config-container-left {
+    border-color: var(--pri-bd-color);
+    background-color: var(--pri-bg-color);
+}
+
+.config-container-right {
+    background-color: var(--sec-bg-color);
+}
+
+.config .sub-category:hover {
+    background-color: var(--pri-hover-color);
+}
+
+.config .sub-category.active {
+    background-color: var(--pri-active-color);
+}
+
+.config input,
+.config select,
+form.popup input,
+form.popup select {
+    background-color: var(--sec-bg-color);
+}
+
+.config label {
+    font-weight: 800;
+}
+
+.config-item {
+    background-color: var(--ter-bg-color);
+}
+
+.config-item:hover {
+    background-color: var(--pri-hover-color);
+}
+
+.config-right button {
+    background-color: var(--pri-button-bg-color);
+}
+
+.config-right button:hover {
+    background-color: var(--pri-button-hover-color);
+}
+
+textarea.config-item:hover {
+    background-color: var(--sec-hover-color);
+}
+
+/* SweetAlert2 */
+.swalPopup {
+    background-color: var(--pri-bg-color);
+    border: 1px solid var(--pri-bd-color);
+}
+
+.swalTitle {
+    color: var(--pri-text-color);
+}
+
+.swalConfirm {
+    background-color: var(--pri-button-bg-color);
+}
+
+.swalCancel {
+    background-color: var(--sec-button-bg-color);
 }
