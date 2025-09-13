@@ -27,6 +27,11 @@ function roomCreate(roomList, roomData, data) {
 
         if (item.type === 'ROOM') {
             const elementData = roomData[item.id];
+
+            if(global.room.id === null){
+                global.room = elementData;
+            }
+    
             const roomElement = roomCreateElement(elementData, );
             if (roomElement) {
                 roomList.appendChild(roomElement);
