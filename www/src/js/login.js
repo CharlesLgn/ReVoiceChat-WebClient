@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Set theme
-    document.documentElement.setAttribute("data-theme", localStorage.getItem("Theme") || "default");
+    document.documentElement.setAttribute("data-theme", localStorage.getItem("Theme") || "dark");
 
     // Clear old session data
     sessionStorage.removeItem('lastState');
