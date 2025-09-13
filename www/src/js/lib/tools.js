@@ -31,8 +31,7 @@ function getQueryVariable(variable) {
 
 async function fetchCoreAPI(path, method, data = null) {
     if(method === null || method === undefined){
-        console.error(`fetchCoreAPI: No method specified`);
-        return null;
+        method = 'GET';
     }
 
     if(data){
