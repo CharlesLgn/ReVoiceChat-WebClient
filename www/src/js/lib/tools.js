@@ -29,8 +29,8 @@ function getQueryVariable(variable) {
     return null;
 }
 
-async function fetchCoreAPI(path, method, data = null) {
-    if(method === null || method === undefined){
+async function fetchCoreAPI(path, method = null, data = null) {
+    if(method === null){
         method = 'GET';
     }
 
