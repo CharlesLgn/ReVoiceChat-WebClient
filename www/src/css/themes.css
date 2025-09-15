@@ -38,6 +38,7 @@
 
         /* Border color */
         --pri-bd-color: #f5f5dc;
+        --sec-bd-color: #f5f5dc;
 
         /* Text */
         --pri-text-color: #ffffff;
@@ -55,6 +56,37 @@
         --sec-button-bg-color: #b91c1c;
         --pri-button-hover-color: #43434d;
         --sec-button-hover-color: #2c2c30;
+    }
+}
+
+[data-theme="femboy"] {
+    body {
+        /* Background */
+        --pri-bg-color: #c4d0e3;
+        --sec-bg-color: #e6dde9;
+        --ter-bg-color: #facec2;
+        --qua-bg-color: #ff999c;
+
+        /* Border */
+        --pri-bd-color: #c4d0e3;
+        --sec-bd-color: #c4d0e3;
+
+        /* Text */
+        --pri-text-color: black;
+        --pri-placeholder-color: black;
+
+        /* Active */
+        --pri-active-color: #facec2;
+
+        /* Hover */
+        --pri-hover-color: #ff999c;
+        --sec-hover-color: #facec2;
+
+        /* Button */
+        --pri-button-bg-color: #facec2;
+        --sec-button-bg-color: #b91c1c;
+        --pri-button-hover-color: #ff999c;
+        --sec-button-hover-color: #ff999c;
     }
 }
 
@@ -261,6 +293,7 @@ body {
 form.popup input,
 form.popup select {
     background-color: var(--sec-bg-color);
+    border-color: var(--pri-bd-color);
 }
 
 .config label {
