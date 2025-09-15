@@ -1,97 +1,91 @@
-[data-theme="dark"] {
-    body {
-        /* Background */
-        --pri-bg-color: #121214;
-        --sec-bg-color: #1a1a1e;
-        --ter-bg-color: #202024;
-        --qua-bg-color: #43434d;
+html[data-theme="dark"] {
+    /* Background */
+    --pri-bg-color: #121214;
+    --sec-bg-color: #1a1a1e;
+    --ter-bg-color: #202024;
+    --qua-bg-color: #43434d;
 
-        /* Border */
-        --pri-bd-color: #43434d;
-        --sec-bd-color: #ffffff;
+    /* Border */
+    --pri-bd-color: #43434d;
+    --sec-bd-color: #ffffff;
 
-        /* Text */
-        --pri-text-color: #ffffff;
-        --pri-placeholder-color: #9ca3af;
+    /* Text */
+    --pri-text-color: #ffffff;
+    --pri-placeholder-color: #9ca3af;
 
-        /* Active */
-        --pri-active-color: #2c2c30;
+    /* Active */
+    --pri-active-color: #2c2c30;
 
-        /* Hover */
-        --pri-hover-color: #242427;
-        --sec-hover-color: #43434d;
+    /* Hover */
+    --pri-hover-color: #242427;
+    --sec-hover-color: #43434d;
 
-        /* Button */
-        --pri-button-bg-color: #6366f1;
-        --sec-button-bg-color: #b91c1c;
-        --pri-button-hover-color: #4042a1;
-        --sec-button-hover-color: #2c2c30;
-    }
+    /* Button */
+    --pri-button-bg-color: #6366f1;
+    --sec-button-bg-color: #b91c1c;
+    --pri-button-hover-color: #4042a1;
+    --sec-button-hover-color: #2c2c30;
 }
 
-[data-theme="darker"] {
-    body {
-        /* Background color */
-        --pri-bg-color: #000000;
-        --sec-bg-color: #000000;
-        --ter-bg-color: #000000;
+html[data-theme="darker"] {
+    /* Background color */
+    --pri-bg-color: #000000;
+    --sec-bg-color: #000000;
+    --ter-bg-color: #000000;
 
-        /* Border color */
-        --pri-bd-color: #f5f5dc;
-        --sec-bd-color: #f5f5dc;
+    /* Border color */
+    --pri-bd-color: #f5f5dc;
+    --sec-bd-color: #f5f5dc;
 
-        /* Text */
-        --pri-text-color: #ffffff;
-        --pri-placeholder-color: #9ca3af;
+    /* Text */
+    --pri-text-color: #ffffff;
+    --pri-placeholder-color: #9ca3af;
 
-        /* Active */
-        --pri-active-color: #2c2c30;
+    /* Active */
+    --pri-active-color: #2c2c30;
 
-        /* Hover */
-        --pri-hover-color: #242427;
-        --sec-hover-color: #43434d;
+    /* Hover */
+    --pri-hover-color: #242427;
+    --sec-hover-color: #43434d;
 
-        /* Button */
-        --pri-button-bg-color: #242427;
-        --sec-button-bg-color: #b91c1c;
-        --pri-button-hover-color: #43434d;
-        --sec-button-hover-color: #2c2c30;
-    }
+    /* Button */
+    --pri-button-bg-color: #242427;
+    --sec-button-bg-color: #b91c1c;
+    --pri-button-hover-color: #43434d;
+    --sec-button-hover-color: #2c2c30;
+
 }
 
-[data-theme="femboy"] {
-    body {
-        /* Background */
-        --pri-bg-color: #c4d0e3;
-        --sec-bg-color: #e6dde9;
-        --ter-bg-color: #facec2;
-        --qua-bg-color: #ff999c;
+html[data-theme="femboy"] {
+    /* Background */
+    --pri-bg-color: #c4d0e3;
+    --sec-bg-color: #e6dde9;
+    --ter-bg-color: #facec2;
+    --qua-bg-color: #ff999c;
 
-        /* Border */
-        --pri-bd-color: #c4d0e3;
-        --sec-bd-color: #c4d0e3;
+    /* Border */
+    --pri-bd-color: #c4d0e3;
+    --sec-bd-color: #c4d0e3;
 
-        /* Text */
-        --pri-text-color: black;
-        --pri-placeholder-color: black;
+    /* Text */
+    --pri-text-color: black;
+    --pri-placeholder-color: black;
 
-        /* Active */
-        --pri-active-color: #facec2;
+    /* Active */
+    --pri-active-color: #facec2;
 
-        /* Hover */
-        --pri-hover-color: #ff999c;
-        --sec-hover-color: #facec2;
+    /* Hover */
+    --pri-hover-color: #ff999c;
+    --sec-hover-color: #facec2;
 
-        /* Button */
-        --pri-button-bg-color: #facec2;
-        --sec-button-bg-color: #b91c1c;
-        --pri-button-hover-color: #ff999c;
-        --sec-button-hover-color: #ff999c;
-    }
+    /* Button */
+    --pri-button-bg-color: #facec2;
+    --sec-button-bg-color: #b91c1c;
+    --pri-button-hover-color: #ff999c;
+    --sec-button-hover-color: #ff999c;
 }
 
-body {
-    background-color: var(--pri-bg-color);
+body{
     color: var(--pri-text-color);
 }
 
