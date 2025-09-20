@@ -9,10 +9,12 @@ const voice = {
     frameDuration: 20000,
     audioTimestamp: 0,
     users: {},
+    usersSettings: {},
     audioContext: null,
     audioCollector: null,
     selfMute: false,
     selfCompressor: false,
+    selfVolume: 1,
     gainNode: null,
     compressorNode: null,
 }
@@ -35,7 +37,7 @@ const voiceCodecConfig = {
 
 // <user> call this to join a call in a room
 async function voiceJoin(roomId) {
-    if(voice.activeRoom){
+    if (voice.activeRoom) {
         return;
     }
 
@@ -295,6 +297,7 @@ async function voiceCreateUserDecoder(userId) {
     const isSupported = await AudioDecoder.isConfigSupported(voiceCodecConfig);
     if (isSupported.supported) {
         voice.users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null };
+        voice.usersSettings[userId] = { muted: false, volume: 1 };
 
         voice.users[userId].decoder = new AudioDecoder({
             output: decoderCallback,
@@ -469,6 +472,11 @@ function voiceUpdateSelf() {
     const voiceAction = document.getElementById("voice-join-action");
     const readyState = (voice.socket !== null && voice.activeRoom === global.room.id) ? voice.socket.readyState : WebSocket.CLOSED;
 
+    // Update UI element
+    voiceControlSelfCompressor(false);
+    voiceControlSelfMute(false);
+    voiceControlSelfVolume(null, false);
+
     switch (readyState) {
         case WebSocket.CONNECTING:
             // Set disconnect actions
@@ -504,6 +512,7 @@ function voiceUpdateSelf() {
 function voiceControlUserMute(userId, muteButton) {
     // Invert mute state
     voice.users[userId].muted = !voice.users[userId].muted;
+    voice.usersSettings[userId].muted = voice.users[userId].muted;
 
     if (voice.users[userId].muted) {
         muteButton.classList.add('active');
@@ -513,24 +522,31 @@ function voiceControlUserMute(userId, muteButton) {
         muteButton.classList.remove('active');
         muteButton.innerHTML = "<revoice-icon-speaker></revoice-icon-speaker>";
     }
+    saveUserSetting();
 }
 
 // <user> call this to change volume of other user
 function voiceControlUserVolume(userId, volumeInput) {
     const volume = volumeInput.value;
+
     volumeInput.title = volume * 100 + "%";
+    voice.usersSettings[userId].volume = volume;
 
     const userGainNode = voice.users[userId].gainNode;
     if (userGainNode) {
         userGainNode.gain.setValueAtTime(volume, voice.audioContext.currentTime);
     }
+    saveUserSetting();
 }
 
 // <user> call this to mute himself
-function voiceControlSelfMute() {
-    const muteButton = document.getElementById("voice-self-mute");
-    voice.selfMute = !voice.selfMute;
+function voiceControlSelfMute(updateValue = true) {
+    if (updateValue) {
+        voice.selfMute = !voice.selfMute;
+        saveUserSetting();
+    }
 
+    const muteButton = document.getElementById("voice-self-mute");
     if (voice.selfMute) {
         // Muted
         console.debug("VOICE : Self mute");
@@ -544,15 +560,25 @@ function voiceControlSelfMute() {
 }
 
 // <user> call this to change his volume
-function voiceControlSelfVolume(volume) {
-    document.getElementById('voice-self-volume').title = parseInt(volume * 100) + "%";
+function voiceControlSelfVolume(volume, updateValue = true) {
+    if (updateValue) {
+        voice.selfVolume = volume;
+    } else {
+        document.getElementById('voice-self-volume').value = voice.selfVolume;
+    }
+
+    document.getElementById('voice-self-volume').title = parseInt(voice.selfVolume * 100) + "%";
     if (voice.gainNode) {
-        voice.gainNode.gain.setValueAtTime(volume, voice.audioContext.currentTime);
+        voice.gainNode.gain.setValueAtTime(voice.selfVolume, voice.audioContext.currentTime);
     }
 }
 
-function voiceControlSelfCompressor() {
-    voice.selfCompressor = !voice.selfCompressor;
+function voiceControlSelfCompressor(updateValue = true) {
+    if (updateValue) {
+        voice.selfCompressor = !voice.selfCompressor;
+        saveUserSetting();
+    }
+
     if (voice.selfCompressor) {
         document.getElementById('voice-self-compressor').classList.add('active');
         if (voice.gainNode && voice.compressorNode) {

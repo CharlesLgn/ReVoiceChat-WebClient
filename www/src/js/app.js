@@ -31,7 +31,6 @@ const global = {
 // Ready state
 document.addEventListener('DOMContentLoaded', function () {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("Theme") || "dark");
-    document.body.classList.add("loaded");
 
     // Login
     if (sessionStorage.getItem('url.core')) {
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const core = new URL(global.url.core);
         console.info(`CORE : ${core.host}`);
-        
+
         global.url.media = `${core.protocol}//${core.host}/media`;
         global.url.voice = `${core.protocol}//${core.host}/api/voice`;
 
@@ -67,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
         sseOpen();
         getUsername();
         getEmojisGlobal();
+        loadUserSetting();
     }
 });
 
@@ -74,3 +74,28 @@ addEventListener("beforeunload", () => {
     sessionStorage.setItem('lastState', JSON.stringify(global));
     sseClose();
 })
+
+function saveUserSetting() {
+    const settings = {
+        voice: {
+            selfVolume: voice.selfVolume,
+            selfCompressor: voice.selfCompressor,
+            selfMute: voice.selfMute,
+            usersSettings : voice.usersSettings,
+        }
+    }
+
+    localStorage.setItem('userSettings', JSON.stringify(settings));
+}
+
+function loadUserSetting() {
+    const rawSettings = localStorage.getItem('userSettings');
+
+    if (rawSettings) {
+        const settings = JSON.parse(rawSettings);
+        voice.selfVolume = settings.voice.selfVolume;
+        voice.selfCompressor = settings.voice.selfCompressor;
+        voice.selfMute = settings.voice.selfMute;
+        voice.usersSettings = settings.usersSettings;
+    }
+}

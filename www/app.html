@@ -105,7 +105,7 @@
                     </div>
                     <div class="voice-control">
                         <input id="voice-self-volume" type="range" min="0" max="2" value="1" step="0.01"
-                            oninput="voiceControlSelfVolume(this.value)" title="100%" />
+                            oninput="voiceControlSelfVolume(this.value)" onchange="saveUserSetting()" title="100%" />
                     </div>
                 </div>
             </div>
