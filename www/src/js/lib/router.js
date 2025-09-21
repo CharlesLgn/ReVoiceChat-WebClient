@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const route = getQueryVariable('route');
+    const route = getQueryVariable('r');
     if (route) {
         router(route);
     }
@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 })
 
 function router(destination) {
+    console.log(destination);
     document.querySelectorAll('.main').forEach(element => {element.classList.add('hidden')});
 
     switch (destination) {
