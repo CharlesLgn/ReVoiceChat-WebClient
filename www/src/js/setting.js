@@ -8,6 +8,7 @@ const currentSetting = {
 }
 
 function settingLoad() {
+    document.getElementById("setting-user-uuid").innerText = global.user.id;
     document.getElementById("setting-user-name").value = global.user.displayName;
     document.getElementById("setting-user-theme").value = localStorage.getItem("Theme");
     selectSettingItem("overview");
