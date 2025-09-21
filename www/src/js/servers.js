@@ -38,6 +38,17 @@ function selectServer(serverData) {
     getRooms(serverData.id);
 }
 
+function serverUpdate(data) {
+    switch (data.action) {
+        case "MODIFY":
+            getRooms(global.server.id);
+            return;
+        
+        default:
+            return;
+    }
+}
+
 function sseOpen() {
     console.info(`SERVER : Connecting to "${global.url.core}/api/sse"`);
 
@@ -56,6 +67,10 @@ function sseOpen() {
         switch (type) {
             case "PING":
                 console.info("SSE : Pinged by server.");
+                return;
+
+            case "SERVER_UPDATE":
+                serverUpdate(data);
                 return;
 
             case "ROOM_UPDATE":
