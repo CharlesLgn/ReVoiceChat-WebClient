@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
         getUsername();
         getEmojisGlobal();
         loadUserSetting();
+        router(getQueryVariable('r'));
     }
 });
 

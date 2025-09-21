@@ -1,13 +1,3 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const route = getQueryVariable('r');
-    if (route) {
-        router(route);
-    }
-    else {
-        router('app');
-    }
-})
-
 function router(destination) {
     document.querySelectorAll('.main').forEach(element => {element.classList.add('hidden')});
 
