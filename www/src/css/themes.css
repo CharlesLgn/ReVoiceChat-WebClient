@@ -206,12 +206,20 @@ body{
     color: #ff0000;
 }
 
-.voice-control .compressor:hover {
-    background-color: var(--sec-button-hover-color);
+.config-button.disabled {
+    background-color: #ff0000;
 }
 
-.voice-control .compressor.active {
-    color: #22c55e;
+.config-button.enabled {
+    background-color: #22c55e;
+}
+
+.config-button.disabled:hover {
+    background-color: #9e0505;
+}
+
+.config-button.enabled:hover  {
+    background-color: #1b8b44;
 }
 
 /* Message */
