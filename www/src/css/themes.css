@@ -85,7 +85,7 @@ html[data-theme="femboy"] {
     --sec-button-hover-color: #ff999c;
 }
 
-body{
+body {
     color: var(--pri-text-color);
 }
 
@@ -218,7 +218,7 @@ body{
     background-color: #9e0505;
 }
 
-.config-button.enabled:hover  {
+.config-button.enabled:hover {
     background-color: #1b8b44;
 }
 
@@ -264,14 +264,18 @@ form.popup input,
 form.popup select {
     background-color: var(--sec-bg-color);
     border-color: var(--pri-bd-color);
-    color : var(--pri-text-color);
+    color: var(--pri-text-color);
 }
-
 
 .config label,
 form.popup label {
     font-weight: 800;
-    color : var(--pri-text-color);
+    color: var(--pri-text-color);
+}
+
+.compressor-settings label {
+    font-weight: 400;
+    color: var(--pri-text-color);
 }
 
 .config-item {
