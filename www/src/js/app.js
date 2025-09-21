@@ -109,6 +109,6 @@ function loadUserSetting() {
         voice.selfCompressor = settings.voice.selfCompressor;
         voice.selfMute = settings.voice.selfMute;
         voice.usersSetting = settings.usersSetting ? settings.usersSetting : {};
-        voice.compressorSetting = settings.compressorSetting ? settings.compressorSetting : defaultCompressorSetting;
+        voice.compressorSetting = settings.voice.compressorSetting ? settings.voice.compressorSetting : defaultCompressorSetting;
     }
 }
