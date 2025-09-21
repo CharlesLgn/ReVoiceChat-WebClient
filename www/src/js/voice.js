@@ -17,6 +17,13 @@ const voice = {
     selfVolume: 1,
     gainNode: null,
     compressorNode: null,
+    compressorSetting: {
+        threshold: -50,
+        knee: 40,
+        ratio: 12,
+        attack: 0,
+        release: 0.25
+    }
 }
 
 const voiceCodecConfig = {
@@ -136,9 +143,10 @@ async function voiceLeave() {
 }
 
 // <server.js> call this when a new user join the room
-async function voiceUserJoining(userData) {
+async function voiceUserJoining(data) {
     if (data.roomId !== global.room.id) { return; }
 
+    const userData = data.user;
     const voiceContent = document.getElementById("voice-content");
     const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
     voiceContent.appendChild(voiceCreateUserHTML(userData, userPfpExist));
@@ -155,8 +163,10 @@ async function voiceUserJoining(userData) {
 }
 
 // <server.js> call this when a user leave the room
-async function voiceUserLeaving(userId) {
+async function voiceUserLeaving(data) {
     if (data.roomId !== global.room.id) { return; }
+
+    const userId = data.userId;
 
     // Remove user from UI
     document.getElementById(`voice-${userId}`).remove();
@@ -201,11 +211,11 @@ async function voiceEncodeAndTransmit() {
 
     // Create voice.compressorNode Node with default value (not connected by default)
     voice.compressorNode = voice.audioContext.createDynamicsCompressor();
-    voice.compressorNode.threshold.setValueAtTime(-50, voice.audioContext.currentTime);
-    voice.compressorNode.knee.setValueAtTime(40, voice.audioContext.currentTime);
-    voice.compressorNode.ratio.setValueAtTime(12, voice.audioContext.currentTime);
-    voice.compressorNode.attack.setValueAtTime(0, voice.audioContext.currentTime);
-    voice.compressorNode.release.setValueAtTime(0.25, voice.audioContext.currentTime);
+    voice.compressorNode.threshold.setValueAtTime(voice.compressorSetting.threshold, voice.audioContext.currentTime);
+    voice.compressorNode.knee.setValueAtTime(voice.compressorSetting.knee, voice.audioContext.currentTime);
+    voice.compressorNode.ratio.setValueAtTime(voice.compressorSetting.ratio, voice.audioContext.currentTime);
+    voice.compressorNode.attack.setValueAtTime(voice.compressorSetting.attack, voice.audioContext.currentTime);
+    voice.compressorNode.release.setValueAtTime(voice.compressorSetting.release, voice.audioContext.currentTime);
 
     // Set initial volume base on range
     voice.gainNode.gain.setValueAtTime(document.getElementById('voice-self-volume').value, voice.audioContext.currentTime)
@@ -213,7 +223,14 @@ async function voiceEncodeAndTransmit() {
     // Init AudioWorklet
     voice.audioCollector = new AudioWorkletNode(voice.audioContext, "AudioCollector");
     micSource.connect(voice.gainNode); // connect mic to gain
-    voice.gainNode.connect(voice.audioCollector); // connect gain to audioCollector
+
+    // Connect compressor node
+    if (voice.selfCompressor) {
+        voice.gainNode.connect(voice.compressorNode); // connect gain to compressor
+        voice.compressorNode.connect(voice.audioCollector); // connect compressor to audioCollector
+    } else {
+        voice.gainNode.connect(voice.audioCollector); // connect gain to audioCollector
+    }
 
     voice.audioCollector.port.onmessage = (event) => {
         // We don't do anything if we are self muted
@@ -595,28 +612,5 @@ function voiceControlSelfVolume(volume, updateState = true) {
     document.getElementById('voice-self-volume').title = parseInt(voice.selfVolume * 100) + "%";
     if (voice.gainNode) {
         voice.gainNode.gain.setValueAtTime(voice.selfVolume, voice.audioContext.currentTime);
-    }
-}
-
-function voiceControlSelfCompressor(updateState = true) {
-    if (updateState) {
-        voice.selfCompressor = !voice.selfCompressor;
-        saveUserSetting();
-    }
-
-    if (voice.selfCompressor) {
-        document.getElementById('voice-self-compressor').classList.add('active');
-        if (voice.socket && voice.gainNode && voice.compressorNode) {
-            voice.gainNode.disconnect(voice.audioCollector);
-            voice.gainNode.connect(voice.compressorNode);
-            voice.compressorNode.connect(voice.audioCollector);
-        }
-    } else {
-        document.getElementById('voice-self-compressor').classList.remove('active');
-        if (voice.socket && voice.gainNode && voice.compressorNode) {
-            voice.gainNode.disconnect(voice.compressorNode);
-            voice.compressorNode.disconnect(voice.audioCollector);
-            voice.gainNode.connect(voice.audioCollector);
-        }
     }
 }
