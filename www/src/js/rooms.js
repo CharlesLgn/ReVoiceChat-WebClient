@@ -40,23 +40,24 @@ function roomCreate(roomList, roomData, data) {
     }
 }
 
+function roomIcon(type){
+    switch (type) {
+        case "TEXT":
+            return `<revoice-icon-chat-bubble></revoice-icon-chat-bubble>`;
+        case "VOICE":
+        case "WEBRTC":
+            return `<revoice-icon-phone></revoice-icon-phone>`;
+    }
+}
+
 function roomCreateElement(data) {
     const DIV = document.createElement('div');
-    let icon = "";
 
     if (data === undefined || data === null) {
         return;
     }
 
-    switch (data.type) {
-        case "TEXT":
-            icon = `<revoice-icon-chat-bubble></revoice-icon-chat-bubble>`;
-            break;
-        case "VOICE":
-        case "WEBRTC":
-            icon = `<revoice-icon-phone></revoice-icon-phone>`;
-            break;
-    }
+    const icon = roomIcon(data.type);
 
     DIV.id = data.id;
     DIV.className = "sidebar-room-element";
@@ -159,7 +160,7 @@ function roomUpdate(data){
             return;
 
         case "MODIFY":
-            document.getElementById(room.id).children[0].innerHTML = `<revoice-icon-chat-bubble></revoice-icon-chat-bubble> ${room.name}`;
+            document.getElementById(room.id).children[0].innerHTML = `${roomIcon(room.type)} ${room.name}`;
             if(room.id === global.room.id){
                 document.getElementById('room-name').innerText = room.name;
             }
