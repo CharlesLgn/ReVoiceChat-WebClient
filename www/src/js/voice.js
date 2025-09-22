@@ -16,7 +16,21 @@ const voice = {
     selfVolume: 1,
     gainNode: null,
     compressorNode: null,
-    compressorSetting: {}
+    compressorSetting: {
+        enabled: true,
+        attack: 0,
+        knee: 40,
+        ratio: 12,
+        reduction: 0,
+        release: 0.25,
+        threshold: -50,
+    },
+    noiseGateNode: null,
+    noiseGateSetting: {
+        threshold: -40,
+        attack: 0.05,
+        release: 0.2
+    },
 }
 
 const voiceCodecConfig = {
@@ -201,13 +215,21 @@ async function voiceEncodeAndTransmit() {
 
     // Create Gain node
     voice.gainNode = voice.audioContext.createGain();
-
-    // Set initial volume base on range
     voice.gainNode.gain.setValueAtTime(document.getElementById('voice-self-volume').value, voice.audioContext.currentTime)
 
-    // Init AudioWorklet
+    // Create AudioCollector
     voice.audioCollector = new AudioWorkletNode(voice.audioContext, "AudioCollector");
     micSource.connect(voice.gainNode); // connect mic to gain
+
+    // Create NoiseGate
+    voice.noiseGateNode = new AudioWorkletNode(voice.audioContext, "NoiseGate", {
+        parameterData: {
+            threshold: voice.noiseGateSetting.threshold,
+            attack: voice.noiseGateSetting.attack,
+            release: voice.noiseGateSetting.release
+        }
+    });
+    voice.gainNode.connect(voice.noiseGateNode) // connect gain to noise gate
 
     // Connect compressor node
     if (voice.compressorSetting.enabled) {
@@ -219,13 +241,13 @@ async function voiceEncodeAndTransmit() {
         voice.compressorNode.release.setValueAtTime(voice.compressorSetting.release, voice.audioContext.currentTime);
         voice.compressorNode.reduction = voice.compressorSetting.reduction;
 
-        // connect gain to compressor
-        voice.gainNode.connect(voice.compressorNode); 
+        // connect noise gate to compressor
+        voice.noiseGateNode.connect(voice.compressorNode);
 
         // connect compressor to audioCollector
-        voice.compressorNode.connect(voice.audioCollector); 
+        voice.compressorNode.connect(voice.audioCollector);
     } else {
-        voice.gainNode.connect(voice.audioCollector); // connect gain to audioCollector
+        voice.noiseGateNode.connect(voice.audioCollector); // connect noise gate to audioCollector
     }
 
     voice.audioCollector.port.onmessage = (event) => {
