@@ -91,12 +91,12 @@ function settingVolumeDirectShow(element) {
 }
 
 function settingVolumeShow() {
-    document.getElementById('volume-label').innerText = `Volume ${parseInt(voice.selfVolume * 100)}%`;
-    document.getElementById('volume-input').value = voice.selfVolume;
+    document.getElementById('volume-label').innerText = `Volume ${parseInt(voice.self.volume * 100)}%`;
+    document.getElementById('volume-input').value = voice.self.volume;
 }
 
 function settingVolumeUpdate(data) {
-    voice.selfVolume = parseFloat(data.value)
+    voice.self.volume = parseFloat(data.value)
     saveUserSetting();
     settingVolumeShow();
     voiceUpdateSelfVolume();

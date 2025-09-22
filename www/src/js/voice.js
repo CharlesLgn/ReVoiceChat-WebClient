@@ -12,8 +12,10 @@ const voice = {
     usersSetting: {},
     audioContext: null,
     audioCollector: null,
-    selfMute: false,
-    selfVolume: 1,
+    self:{
+        mute: false,
+        volume: 1,
+    },
     gainNode: null,
     compressorNode: null,
     compressorSetting: {
@@ -253,7 +255,7 @@ async function voiceEncodeAndTransmit() {
 
     voice.audioCollector.port.onmessage = (event) => {
         // We don't do anything if we are self muted
-        if (voice.selfMute) {
+        if (voice.self.mute) {
             return;
         }
 
@@ -603,12 +605,12 @@ function voiceControlUserVolume(userId, volumeInput) {
 // <user> call this to mute himself
 function voiceControlSelfMute(updateState = true) {
     if (updateState) {
-        voice.selfMute = !voice.selfMute;
+        voice.self.mute = !voice.self.mute;
         saveUserSetting();
     }
 
     const muteButton = document.getElementById("voice-self-mute");
-    if (voice.selfMute) {
+    if (voice.self.mute) {
         // Muted
         console.debug("VOICE : Self mute");
         muteButton.classList.add('active');
@@ -623,6 +625,6 @@ function voiceControlSelfMute(updateState = true) {
 // <user> call this to change his volume
 function voiceUpdateSelfVolume() {
     if (voice.gainNode) {
-        voice.gainNode.gain.setValueAtTime(voice.selfVolume, voice.audioContext.currentTime);
+        voice.gainNode.gain.setValueAtTime(voice.self.volume, voice.audioContext.currentTime);
     }
 }

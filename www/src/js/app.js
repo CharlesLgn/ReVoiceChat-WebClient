@@ -79,9 +79,7 @@ addEventListener("beforeunload", () => {
 function saveUserSetting() {
     const settings = {
         voice: {
-            selfVolume: voice.selfVolume,
-            selfCompressor: voice.selfCompressor,
-            selfMute: voice.selfMute,
+            self: voice.self,
             usersSetting : voice.usersSetting,
             compressorSetting : voice.compressorSetting,
         }
@@ -93,7 +91,7 @@ function saveUserSetting() {
 function loadUserSetting() {
     const rawSettings = localStorage.getItem('userSettings');
 
-    const defaultCompressorSetting = {
+    const defaultCompressor = {
         enabled: true,
         attack: 0,
         knee: 40,
@@ -103,12 +101,16 @@ function loadUserSetting() {
         threshold: -50,
     }
 
+    const defaultSelf = {
+        mute: false,
+        volume: 1,
+    }
+
     if (rawSettings) {
         const settings = JSON.parse(rawSettings);
-        voice.selfVolume = settings.voice.selfVolume;
-        voice.selfCompressor = settings.voice.selfCompressor;
-        voice.selfMute = settings.voice.selfMute;
+
+        voice.self = settings.voice.self ? settings.voice.compressorSetting : defaultSelf;
         voice.usersSetting = settings.usersSetting ? settings.usersSetting : {};
-        voice.compressorSetting = settings.voice.compressorSetting ? settings.voice.compressorSetting : defaultCompressorSetting;
+        voice.compressorSetting = settings.voice.compressorSetting ? settings.voice.compressorSetting : defaultCompressor;
     }
 }
