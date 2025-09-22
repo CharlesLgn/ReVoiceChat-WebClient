@@ -116,7 +116,7 @@ function loadUserSetting() {
     if (rawSettings) {
         const settings = JSON.parse(rawSettings);
 
-        voice.self = settings.voice.self ? settings.voice.compressorSetting : defaultSelf;
+        voice.self = settings.voice.self ? settings.voice.self : defaultSelf;
         voice.usersSetting = settings.usersSetting ? settings.usersSetting : {};
         voice.compressorSetting = settings.voice.compressorSetting ? settings.voice.compressorSetting : defaultCompressor;
         voice.noiseGateSetting = settings.voice.noiseGateSetting ? settings.voice.noiseGateSetting : defaultNoiseGate;
