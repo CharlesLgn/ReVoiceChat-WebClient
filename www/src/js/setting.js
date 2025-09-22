@@ -262,8 +262,8 @@ function settingNoiseGateUpdate(param, data) {
 function settingNoiseGateDefault() {
     voice.noiseGateSetting = {
         attack: 0.01,
-        release: 0.2,
-        threshold: -40,
+        release: 0.4,
+        threshold: -45,
     }
     saveUserSetting();
     settingNoiseGateShow();
