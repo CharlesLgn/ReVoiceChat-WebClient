@@ -49,29 +49,19 @@ async function loadMembers() {
         if (sortedByDisplayName !== null) {
             const userList = document.getElementById("config-members-list");
             userList.innerHTML = "";
-
-            let tempList = [];
             for (const user of sortedByDisplayName) {
-                tempList.push(user.id);
-            }
-            const usersPfpExist = await fileBulkExistMedia("/profiles/bulk", tempList);
-
-            for (const user of sortedByDisplayName) {
-                userList.appendChild(await createItemUser(user, usersPfpExist[user.id]));
+                userList.appendChild(await createItemUser(user));
             }
         }
     }
 }
 
-async function createItemUser(data, userPfpExist) {
+async function createItemUser(data) {
     const DIV = document.createElement('div');
     DIV.id = data.id;
     DIV.className = "config-item";
 
-    let profilePicture = "src/img/default-avatar.webp";
-    if (userPfpExist) {
-        profilePicture = `${global.url.media}/profiles/${data.id}`;
-    }
+    const profilePicture = `${global.url.media}/profiles/${data.id}`;
 
     DIV.innerHTML = `
         <div class="relative">

@@ -158,8 +158,7 @@ async function voiceUserJoining(data) {
 
     const userData = data.user;
     const voiceContent = document.getElementById("voice-content");
-    const userPfpExist = await fileExistMedia(`/profiles/${userData.id}`);
-    voiceContent.appendChild(voiceCreateUserHTML(userData, userPfpExist));
+    voiceContent.appendChild(voiceCreateUserHTML(userData));
 
     // User joining this is NOT self and current user is connected to voice room
     if (userData.id !== global.user.id && voice.socket !== null && voice.socket.readyState === WebSocket.OPEN) {
@@ -407,16 +406,8 @@ async function voiceShowJoinedUsers() {
     const voiceContent = document.getElementById("voice-content");
     voiceContent.innerHTML = "";
 
-    let tempList = [];
-
     for (const user of sortedByDisplayName) {
-        tempList.push(user.id);
-    }
-
-    const usersPfpExist = await fileBulkExistMedia("/profiles/bulk", tempList);
-
-    for (const user of sortedByDisplayName) {
-        voiceContent.appendChild(voiceCreateUserHTML(user, usersPfpExist ? [user.id] : false));
+        voiceContent.appendChild(voiceCreateUserHTML(user));
     }
 
     // Room is currently active
@@ -452,15 +443,12 @@ async function voiceUpdateJoinedUsers() {
 }
 
 // Create DOM Element / HTML for a given user
-function voiceCreateUserHTML(userData, userPfpExist) {
+function voiceCreateUserHTML(userData) {
     const DIV = document.createElement('div');
     DIV.id = `voice-${userData.id}`;
     DIV.className = "voice-profile";
 
-    let profilePicture = "src/img/default-avatar.webp";
-    if (userPfpExist === true) {
-        profilePicture = `${global.url.media}/profiles/${userData.id}`;
-    }
+    const profilePicture = `${global.url.media}/profiles/${userData.id}`;
 
     DIV.innerHTML = `
         <div class='block-user'>

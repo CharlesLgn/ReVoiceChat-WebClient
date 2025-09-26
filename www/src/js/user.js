@@ -7,10 +7,7 @@ async function getUsername() {
         document.getElementById("user-name").innerText = result.displayName;
         document.getElementById("user-status").innerText = result.status;
         document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
-
-        if (await fileExistMedia(`/profiles/${result.id}`)) {
-            document.getElementById("user-picture").src = `${global.url.media}/profiles/${result.id}`;
-        }
+        document.getElementById("user-picture").src = `${global.url.media}/profiles/${result.id}`;
     }
 }
 
@@ -45,24 +42,17 @@ async function getServerUsers(serverId) {
             tempList.push(user.id);
         }
 
-        const usersPfpExist = await fileBulkExistMedia("/profiles/bulk", tempList);
-
         for (const user of sortedByStatus) {
-            userList.appendChild(await createUser(user, usersPfpExist ? usersPfpExist[user.id] : false));
+            userList.appendChild(await createUser(user));
         }
     }
 }
 
-async function createUser(data, userPfpExist) {
+async function createUser(data) {
     const DIV = document.createElement('div');
     DIV.id = data.id;
     DIV.className = "user-profile";
-
-    let profilePicture = "src/img/default-avatar.webp";
-    if (userPfpExist === true) {
-        profilePicture = `${global.url.media}/profiles/${data.id}`;
-    }
-
+    const profilePicture = `${global.url.media}/profiles/${data.id}`;
     DIV.innerHTML = `
         <div class="relative">
             <img src="${profilePicture}" alt="PFP" class="icon ring-2" />

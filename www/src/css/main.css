@@ -664,6 +664,11 @@ textarea.config-item {
     height: 1.25rem;
 }
 
+.large-icon {
+    height: 5rem;
+    border-radius: 9999px;
+}
+
 .config-item .invitation {
     user-select: text;
     cursor: default;

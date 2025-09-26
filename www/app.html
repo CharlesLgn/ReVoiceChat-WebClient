@@ -286,12 +286,24 @@
                 <div class="hidden" id="setting-content-overview">
                     <h1>Overview</h1>
                     <p>User ID : <span id="setting-user-uuid" class="selectable">[USER UUID]</span></p>
+                    <br />
+                    <div class="sidebar-container">
+                        <input type="file" id="setting-user-picture-new-file" accept="image/webp,image/png,image/jpg,image/jpeg,image/gif" style="display:none;">
+                        <input type="hidden" id="setting-user-picture-new-path" name="imagePath">
+                        <img id="setting-user-picture" src="src/img/default-avatar.webp" alt="Preview PFP" class="icon large-icon ring-2">
+                        <span style="width: 10px"></span>
+                        <button class="button" onclick="uploadNewProfilePicture()">Upload a profile picture</button>
+                    </div>
                     <h2>Display name</h2>
-                    <input type="text" id="setting-user-name" value="[DISPLAYNAME]" onchange="settingDisplayName(this)">
+                    <input type="text" id="setting-user-name" value="[DISPLAYNAME]">
 
                     <br />
                     <br />
-                    <button class="button" onclick="settingPassword()">Change password</button>
+                    <div class="sidebar-container">
+                        <button class="button" onclick="settingPassword()">Change password</button>
+                        <span style="width: 10px"></span>
+                        <button class="button" onclick="saveSetting()">Save Settings</button>
+                    </div>
                 </div>
 
                 <!-- Themes -->

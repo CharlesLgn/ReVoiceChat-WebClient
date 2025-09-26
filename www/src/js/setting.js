@@ -8,14 +8,32 @@ const currentSetting = {
     voiceAdvanced: false,
 }
 
+let newProfilPictureFile = null;
+
 function settingLoad() {
     document.getElementById("setting-user-uuid").innerText = global.user.id;
     document.getElementById("setting-user-name").value = global.user.displayName;
     document.getElementById("setting-user-theme").value = localStorage.getItem("Theme");
+    document.getElementById("setting-user-picture").src = `${global.url.media}/profiles/${global.user.id}`;
     settingVolumeShow();
     settingNoiseGateShow();
     settingCompressorShow();
     selectSettingItem("overview");
+
+    const settingUserPictureNewPath = document.getElementById("setting-user-picture-new-path");
+    const settingUserPictureNewFile = document.getElementById("setting-user-picture-new-file");
+    const settingUserPicture = document.getElementById("setting-user-picture");
+    newProfilPictureFile = null
+    settingUserPictureNewFile.addEventListener("change", () => {
+        const file = settingUserPictureNewFile.files[0];
+        if (file) {
+            newProfilPictureFile = file;
+            settingUserPictureNewPath.value = file.name;
+            settingUserPicture.src = URL.createObjectURL(file);
+            settingUserPicture.style.display = "block";
+        }
+    });
+
 }
 
 function selectSettingItem(name) {
@@ -32,22 +50,6 @@ function selectSettingItem(name) {
 function changeTheme(theme) {
     localStorage.setItem("Theme", theme);
     document.documentElement.setAttribute("data-theme", theme);
-}
-
-async function settingDisplayName(input) {
-    const displayName = input.value;
-
-    if (displayName === "" || displayName === null || displayName === undefined) {
-        console.error("Display name is not valid");
-        return;
-    }
-
-    const result = await fetchCoreAPI(`/user/me`, 'PATCH', { displayName: displayName });
-
-    if (result) {
-        document.getElementById('config-user-name').value = result.displayName;
-        global.user.displayName = result.displayName
-    }
 }
 
 function settingPassword() {
@@ -80,10 +82,52 @@ function settingPassword() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await fetchCoreAPI(`/user/me`, 'PATCH', { password: currentSetting.password });
+            await fetchCoreAPI(`/user/me`, 'PATCH', {password: currentSetting.password});
 
         }
     });
+}
+
+async function saveSetting() {
+    const settingUserName = document.getElementById("setting-user-name");
+    await settingDisplayName(settingUserName.value);
+    await settingProfilePicture();
+
+}
+
+async function settingDisplayName(displayName) {
+    if (displayName === "" || displayName === null || displayName === undefined) {
+        console.error("Display name is not valid");
+        return;
+    }
+    const result = await fetchCoreAPI(`/user/me`, 'PATCH', {displayName: displayName});
+    if (result) {
+        global.user.displayName = result.displayName
+        document.getElementById('setting-user-name').value = result.displayName;
+    }
+}
+
+async function settingProfilePicture() {
+    const settingUserPictureNewPath = document.getElementById("setting-user-picture-new-path");
+    if (settingUserPictureNewPath.value && newProfilPictureFile) {
+        const formData = new FormData();
+        formData.append("file", newProfilPictureFile);
+        await fetch(`${global.url.media}/profiles/${global.user.id}`, {
+            method: "POST",
+            signal: AbortSignal.timeout(5000),
+            headers: {
+                'Authorization': `Bearer ${global.jwtToken}`
+            },
+            body: formData
+        });
+        newProfilPictureFile = null
+        settingUserPictureNewPath.value = null
+    }
+}
+
+function uploadNewProfilePicture() {
+    const fileInput = document.getElementById("setting-user-picture-new-file");
+    fileInput.click();
 }
 
 function settingVolumeDirectShow(element) {
@@ -128,8 +172,7 @@ function settingCompressorShow() {
         buttonEnabled.innerText = "Enabled";
         buttonEnabled.classList.remove("disabled");
         buttonEnabled.classList.add("enabled");
-    }
-    else {
+    } else {
         buttonEnabled.innerText = "Disabled";
         buttonEnabled.classList.add("disabled");
         buttonEnabled.classList.remove("enabled");
@@ -213,8 +256,7 @@ function settingNoiseGateDirectShow(param, element) {
         case 'threshold': {
             if (currentSetting.voiceAdvanced) {
                 document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${element.value}dB`;
-            }
-            else {
+            } else {
                 document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${element.value}dB`;
             }
             break;
@@ -236,8 +278,7 @@ function settingNoiseGateShow() {
 
     if (currentSetting.voiceAdvanced) {
         document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${voice.noiseGateSetting.threshold}dB`;
-    }
-    else {
+    } else {
         document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${voice.noiseGateSetting.threshold}dB`;
     }
 }
@@ -277,8 +318,7 @@ function settingVoiceMode() {
         button.innerText = "Simple";
         document.getElementById('voice-sensitivity').innerText = "Noise gate";
         document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${voice.noiseGateSetting.threshold}dB`;
-    }
-    else {
+    } else {
         button.innerText = "Advanced";
         document.getElementById('voice-sensitivity').innerText = "Voice detection";
         document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${voice.noiseGateSetting.threshold}dB`;
@@ -288,8 +328,7 @@ function settingVoiceMode() {
     for (element of toggleable) {
         if (currentSetting.voiceAdvanced) {
             element.classList.remove('hidden');
-        }
-        else {
+        } else {
             element.classList.add('hidden');
         }
     }
