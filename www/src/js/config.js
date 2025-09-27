@@ -487,7 +487,7 @@ function renderItem(item, parentItems, level = 0) {
     headerDiv.className = 'server-structure-item-header';
 
     switch (item.type) {
-        case 'ROOM':
+        case 'ROOM': {
             // Remove room being rendered from list of not render
             roomsNotRendered = roomsNotRendered.filter((id) => id !== item.id);
 
@@ -510,7 +510,7 @@ function renderItem(item, parentItems, level = 0) {
                     <button class="server-structure-btn btn-delete" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
                 </div>`;
             break;
-
+        }
         case 'CATEGORY':
             headerDiv.innerHTML = `
                 <span class="server-structure-item-icon"><revoice-icon-folder class="size-small"></revoice-icon-folder></span>

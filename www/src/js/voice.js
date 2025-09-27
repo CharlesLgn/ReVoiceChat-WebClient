@@ -110,7 +110,7 @@ async function voiceLeave() {
 
     // Flush and close all decoders
     for (const [, user] of Object.entries(voice.users)) {
-        if (user && user.decoder) {
+        if (user?.decoder) {
             await user.decoder.flush();
             await user.decoder.close();
         }

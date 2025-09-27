@@ -2,7 +2,7 @@ async function getRooms(serverId) {
     const roomResult = await fetchCoreAPI(`/server/${serverId}/room`, 'GET');
     const structResult = await fetchCoreAPI(`/server/${serverId}/structure`, 'GET');
 
-    if (structResult && structResult.items && roomResult) {
+    if (structResult?.items && roomResult) {
         const rooms = [];
         for (const room of roomResult) {
             rooms[room.id] = room;
