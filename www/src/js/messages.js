@@ -169,3 +169,10 @@ function roomMessage(data) {
 
     room.scrollTop = room.scrollHeight;
 }
+
+function userUpdate(data) {
+    console.log(data);
+    const id = data.id;
+    document.querySelectorAll(`.${id} img.icon`).forEach(icon => icon.src = `${global.url.media}/profiles/${id}?t=${new Date().getTime()}`);
+    document.querySelectorAll(`.${id} .name`).forEach(name => name.innerText = data.displayName);
+}

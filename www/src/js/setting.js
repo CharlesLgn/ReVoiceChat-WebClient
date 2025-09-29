@@ -89,10 +89,9 @@ function settingPassword() {
 }
 
 async function saveSetting() {
+    await settingProfilePicture();
     const settingUserName = document.getElementById("setting-user-name");
     await settingDisplayName(settingUserName.value);
-    await settingProfilePicture();
-
 }
 
 async function settingDisplayName(displayName) {

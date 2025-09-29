@@ -59,7 +59,7 @@ async function loadMembers() {
 async function createItemUser(data) {
     const DIV = document.createElement('div');
     DIV.id = data.id;
-    DIV.className = "config-item";
+    DIV.className = `${data.id} config-item`;
 
     const profilePicture = `${global.url.media}/profiles/${data.id}`;
 

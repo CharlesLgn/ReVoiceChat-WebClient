@@ -87,6 +87,10 @@ function sseOpen() {
             case "USER_STATUS_CHANGE":
                 return;
 
+            case "USER_UPDATE":
+                userUpdate(data);
+                return;
+
             case "VOICE_JOINING":
                 voiceUserJoining(data);
                 return;

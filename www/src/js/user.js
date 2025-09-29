@@ -4,6 +4,7 @@ async function getUsername() {
     if (result !== null) {
         global.user = result;
 
+        document.getElementById("status-container").classList.add(result.id);
         document.getElementById("user-name").innerText = result.displayName;
         document.getElementById("user-status").innerText = result.status;
         document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
@@ -45,7 +46,7 @@ async function getServerUsers(serverId) {
 async function createUser(data) {
     const DIV = document.createElement('div');
     DIV.id = data.id;
-    DIV.className = "user-profile";
+    DIV.className = `${data.id} user-profile`
     const profilePicture = `${global.url.media}/profiles/${data.id}`;
     DIV.innerHTML = `
         <div class="relative">
