@@ -1,4 +1,4 @@
-html[data-theme="dark"] {
+*[data-theme="dark"] {
     /* Background */
     --pri-bg-color: #121214;
     --sec-bg-color: #1a1a1e;
@@ -27,11 +27,12 @@ html[data-theme="dark"] {
     --sec-button-hover-color: #2c2c30;
 }
 
-html[data-theme="darker"] {
+*[data-theme="darker"] {
     /* Background color */
     --pri-bg-color: #000000;
     --sec-bg-color: #000000;
     --ter-bg-color: #000000;
+    --qua-bg-color: #000000;
 
     /* Border color */
     --pri-bd-color: #f5f5dc;
@@ -56,7 +57,7 @@ html[data-theme="darker"] {
 
 }
 
-html[data-theme="femboy"] {
+*[data-theme="femboy"] {
     /* Background */
     --pri-bg-color: #c4d0e3;
     --sec-bg-color: #e6dde9;

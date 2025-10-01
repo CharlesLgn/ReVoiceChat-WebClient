@@ -13,7 +13,7 @@ let newProfilPictureFile = null;
 function settingLoad() {
     document.getElementById("setting-user-uuid").innerText = global.user.id;
     document.getElementById("setting-user-name").value = global.user.displayName;
-    document.getElementById("setting-user-theme").value = localStorage.getItem("Theme");
+    document.querySelector(`revoice-theme-preview[theme="${localStorage.getItem("Theme")}"]`).parentElement.disabled = true;
     document.getElementById("setting-user-picture").src = `${global.url.media}/profiles/${global.user.id}`;
     settingVolumeShow();
     settingNoiseGateShow();
@@ -50,6 +50,10 @@ function selectSettingItem(name) {
 function changeTheme(theme) {
     localStorage.setItem("Theme", theme);
     document.documentElement.setAttribute("data-theme", theme);
+    document.querySelectorAll(`revoice-theme-preview`).forEach(elt => {
+        elt.parentElement.disabled = false
+    })
+    document.querySelector(`revoice-theme-preview[theme="${theme}"]`).parentElement.disabled = true;
 }
 
 function settingPassword() {

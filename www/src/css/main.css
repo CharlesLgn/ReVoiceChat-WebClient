@@ -528,10 +528,6 @@ svg {
     width: 67%;
 }
 
-.config-right {
-    max-width: 45rem;
-}
-
 .config button {
     display: flex;
 }
@@ -1027,4 +1023,19 @@ textarea.config-item {
 
 .size-smaller svg {
     height: 16px;
+}
+
+.theme-form {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: max-content;
+}
+
+.theme-form button {
+    margin: 10px;
+}
+
+.config-right button[disabled] {
+    background-color: var(--pri-button-hover-color);
 }
