@@ -1042,3 +1042,59 @@ textarea.config-item {
 .config-right button[disabled] {
     background-color: var(--pri-button-hover-color);
 }
+
+@media screen and (max-width: 80rem) {
+    body {
+        overflow: auto;
+    }
+
+    .main {
+        flex-direction: column;
+    }
+
+    .config-container-left {
+        width: auto;
+        padding: 0;
+    }
+
+    .config-left {
+        margin-left: 1em;
+    }
+
+    .config-container-right {
+        width: auto;
+        height: -webkit-fill-available;
+    }
+
+    .sidebar-right {
+        display: none;
+    }
+
+    .sidebar {
+        width: auto;
+        height: auto;
+    }
+    .room-container {
+        height: -webkit-fill-available;
+        overflow-y: visible;
+    }
+
+    .room-content {
+        overflow-y: clip;
+        background-color: var(--sec-bg-color);
+        padding-top: 275px;
+        padding-bottom: 75px;
+    }
+
+    .sidebar {
+        position: fixed;
+        width: -webkit-fill-available;
+        top: 0;
+    }
+
+    .room-control-container {
+        position: fixed;
+        width: -webkit-fill-available;
+        bottom: 0;
+    }
+}
