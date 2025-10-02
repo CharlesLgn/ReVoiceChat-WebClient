@@ -52,7 +52,11 @@ function createMessage(messageData) {
 function createMessageContent(data) {
     const DIV_CONTENT = document.createElement('div');
     DIV_CONTENT.className = "message-content";
-    DIV_CONTENT.innerHTML = `<revoice-message id="${data.id}">${data.text}</revoice-message>`;
+    DIV_CONTENT.innerHTML = `<revoice-message id="${data.id}">
+                                <script type="text/markdown" slot="content">
+                                    ${data.text}
+                                </script>
+                             </revoice-message>`;
     return DIV_CONTENT;
 }
 
