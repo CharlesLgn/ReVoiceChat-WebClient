@@ -40,7 +40,7 @@ function settingThemeShow() {
     const themeForm = document.getElementById("setting-themes-form");
     let html = "";
     getAllDeclaredDataThemes().forEach(theme => html += `
-        <button type="button" onclick="changeTheme('${theme}')">
+        <button style="padding: 0" type="button" onclick="changeTheme('${theme}')">
             <revoice-theme-preview theme="${theme}"></revoice-theme-preview>
         </button>`);
     themeForm.innerHTML = html;
