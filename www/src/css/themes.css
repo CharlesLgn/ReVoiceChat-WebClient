@@ -30,6 +30,7 @@
 
     /* hljs */
     --hljs-theme: 'src/css/highlightjs/dark.css';
+    --hljs-background: #1c1b1b;
 }
 
 *[data-theme="darker"] {
@@ -64,6 +65,7 @@
 
     /* hljs */
     --hljs-theme: 'src/css/highlightjs/darker.css';
+    --hljs-background: #000000;
 }
 
 *[data-theme="light"] {
@@ -98,6 +100,7 @@
 
     /* hljs */
     --hljs-theme: 'src/css/highlightjs/light.css';
+    --hljs-background: #f6f6f6;
 }
 
 *[data-theme="femboy"] {
@@ -132,6 +135,7 @@
 
     /* hljs */
     --hljs-theme: 'src/css/highlightjs/femboy.css';
+    --hljs-background: #ffffff;
 }
 
 body {

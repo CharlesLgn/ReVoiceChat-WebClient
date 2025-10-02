@@ -13,6 +13,7 @@ class MessageComponent extends HTMLElement {
   connectedCallback() {
     this.#setupShadowDOM();
     this.#render();
+    this.#updateTheme()
   }
 
   /** update the data in slot */
@@ -84,7 +85,7 @@ class MessageComponent extends HTMLElement {
                         }
                         
                         .markdown-content pre {
-                            background: #21262d;
+                            background: var(--hljs-background);
                             border-radius: 6px;
                             overflow-x: auto;
                             margin: 8px 0;
@@ -134,7 +135,6 @@ class MessageComponent extends HTMLElement {
                         <slot name="content" style="display: none;"></slot>
                     </div>
                 `;
-    this.#updateTheme()
 
     // Listen for slotchange events
     this.shadowRoot.addEventListener('slotchange', (e) => {

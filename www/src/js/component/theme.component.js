@@ -200,5 +200,5 @@ function getAllDeclaredDataThemes() {
   return Array.from(new Set([
     ...getDataThemesFromDOM(),
     ...getDataThemesFromStylesheets()
-  ]));
+  ])).sort();
 }
