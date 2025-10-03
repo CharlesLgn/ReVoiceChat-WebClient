@@ -1111,3 +1111,9 @@ textarea.config-item {
         max-height: 150px;
     }
 }
+
+.text-control {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}

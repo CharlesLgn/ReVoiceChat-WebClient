@@ -8,6 +8,7 @@
 
     <link href="src/css/tailwind.css" rel="stylesheet" />
     <link href="src/css/main.css" rel="stylesheet" />
+    <link href="src/css/emoji.css" rel="stylesheet" />
     <link href="src/css/themes.css" rel="stylesheet" />
     <link rel="shortcut icon" type="image/png" href="src/img/favicon.png" />
     <title>ReVoiceChat - App</title>
@@ -74,7 +75,9 @@
 
                 <!-- Chat Control -->
                 <div class="room-control-container">
+                    <div class="emoji-picker" id="emoji-picker"></div>
                     <div class="text-control">
+                        <button class="emoji-btn" id="emoji-picker-button">😊</button>
                         <label for="text-input" hidden="hidden"></label>
                         <textarea rows="1" id="text-input" oninput="textInputMode(this)"></textarea>
                     </div>
@@ -408,8 +411,9 @@
     <script src="src/js/lib/router.js"></script>
 
     <!-- Components -->
-    <script src="src/js/component/message.component.js"></script>
     <script src="src/js/component/icon.component.js"></script>
+    <script src="src/js/component/emoji.component.js"></script>
+    <script src="src/js/component/message.component.js"></script>
     <script src="src/js/component/theme.component.js"></script>
 
     <!-- App -->
