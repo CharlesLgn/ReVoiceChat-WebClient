@@ -1,21 +1,13 @@
 class EmojiPicker {
-  constructor() {
-    this.categories = {
-      smileys: { name: '😊 Smileys', emojis: ['😀','😃','😄','😁','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯','😳','🥵','🥶','😱','😨','😰','😥','😓'] },
-      gestures: { name: '👋 Gestes', emojis: ['👋','🤚','🖐','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏'] },
-      animals: { name: '🐶 Animaux', emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟'] },
-      food: { name: '🍔 Nourriture', emojis: ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶','🫑','🌽','🥕','🥔','🍠','🥐','🥯','🍞','🥖','🧀','🥚','🍳','🥞','🥓','🥩','🍗','🍖','🌭','🍔','🍟','🍕','🥪','🌮','🌯','🥗','🍝','🍜','🍲','🍛','🍣','🍱','🍤','🍙','🍚','🍘','🍥','🍢','🍡','🍧','🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪'] },
-      activities: { name: '⚽ Activités', emojis: ['⚽','🏀','🏈','⚾','🎾','🏐','🏉','🎱','🏓','🏸','🏒','🏑','🥅','⛳','🏹','🎣','🥊','🥋','🎽','🛹','🛼','⛸','🥌','🎿','🏂','🏋️','🤸','🏌️','🏇','🧘','🏄','🏊','🚣','🧗','🚴','🚵','🎪','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🎷','🎺','🎸','🎻','🎲','🎯','🎳','🎮','🎰'] },
-      travel: { name: '✈️ Voyages', emojis: ['🚗','🚕','🚙','🚌','🚎','🏎','🚓','🚑','🚒','🚐','🚚','🚛','🚜','🚲','🛵','🏍','🛺','🚨','🚔','🚍','🚘','🚖','🚡','🚠','🚟','🚃','🚋','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','✈️','🛫','🛬','🛩','🚁','🛶','⛵','🚤','🛥','⛴','🚢','⚓','🏰','🏯','🏟','🎡','🎢','🎠','⛲','🏖','🏝','🏜','🌋','⛰','🏔','🗻','⛺','🏕'] },
-      objects: { name: '💡 Objets', emojis: ['⌚','📱','📲','💻','⌨️','🖥','🖨','🖱','🕹','💾','💿','📀','📷','📸','📹','🎥','📞','☎️','📺','📻','🎙','⏰','⌛','⏳','💡','🔦','🕯','💸','💵','💴','💶','💷','💰','💳','💎','🔧','🔨','⚒','🛠','⛏','🔩','⚙️','🔫','💣','🔪','🗡','⚔️','🛡','📿','🔮','💈','🔭','🔬','💊','💉','🩺','🚪','🛏','🛋','🪑','🚽','🚿','🛁','🧴','🧹','🧺','🧻','🎁','🎈','🎀','🎊','🎉','✉️','📧','📦','📋','📁','📂','📰','📓','📕','📗','📘','📙','📚','📖','✂️','📌','📍','✏️','🔍','🔐','🔒'] },
-      symbols: { name: '❤️ Symboles', emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','💕','💞','💓','💗','💖','💘','💝','✨','⭐','🌟','✔️','✅','❌','❗','❓','⚠️','🔥','💯','💢','💤','🎵','🎶','🔔','🔕','📣','📢','💬','💭','🗨','🗯','♠️','♥️','♦️','♣️','🎴','👁️','💀','☠️','👻','👽','🤖','💩','😺','😸','😹','😻','😼','😽','🙀','😿','😾'] },
-      custom_general: { name: '⭐ General', emojis: [] },
-      custom_server: { name: '🏠 Server', emojis: [] },
-      custom_perso: { name: '👤 User', emojis: [] }
-    };
 
+  async init() {
+    this.categories = await fetch("src/js/component/general.emoji.json").then(res => res.json());
     this.currentCategory = 'smileys';
     this.onEmojiSelect = null;
+  }
+
+  addCustomEmojiCategory(name, category) {
+    this.categories[name] = category
   }
 
   addCustomEmoji(category, emoji) {
@@ -33,7 +25,7 @@ class EmojiPicker {
               ${Object.keys(this.categories).map(key => `
                 <button class="emoji-category-btn ${key === this.currentCategory ? 'active' : ''}"
                         data-category="${key}">
-                  ${this.categories[key].name.split(' ')[0]}
+                  ${this.categories[key].icon}
                 </button>
               `).join('')}
             </div>
@@ -55,20 +47,26 @@ class EmojiPicker {
 
   renderEmojis(filter = '') {
     const grid = this.element.querySelector('.emoji-grid');
-    const category = this.categories[this.currentCategory];
-
-    let emojis = category.emojis;
+    let emojis
     if (filter) {
-      emojis = emojis.filter(e => e.includes(filter));
+      emojis = Object.values(this.categories).flatMap(category => category.emojis);
+      emojis = emojis.filter(e =>
+          e.content === filter
+          || e.names.some(name => name.toLowerCase().includes(filter.toLowerCase()))
+          || e.description.toLowerCase().includes(filter.toLowerCase())
+      );
+    } else {
+      const category = this.categories[this.currentCategory];
+      emojis = category.emojis;
     }
 
     if (emojis.length === 0) {
-      grid.innerHTML = '<div class="emoji-empty">No emojis in this category</div>';
+      grid.innerHTML = '<div class="emoji-empty">No emojis found</div>';
       return;
     }
 
     grid.innerHTML = emojis.map(emoji => `
-          <button class="emoji-item" data-emoji="${emoji}">${emoji}</button>
+          <button class="emoji-item" data-emoji="${emoji.content}">${emoji.content}</button>
         `).join('');
   }
 
@@ -102,19 +100,34 @@ class EmojiPicker {
 }
 
 function initCustomGeneral(picker) {
-  picker.addCustomEmoji('custom_general', '🎮');
-  picker.addCustomEmoji('custom_general', '🎯');
-  picker.addCustomEmoji('custom_general', '🚀');
+  picker.addCustomEmojiCategory('custom_general', {
+    icon: '<img src="src/img/favicon.png" alt="revoice"/>',
+    emojis: [
+      {content: '🎮',description: "game", names:["game"]},
+      {content: '🎯',description: "test", names:["test"]},
+      {content: '🚀',description: "test2", names:["test2"]}
+    ]
+  })
 }
 
 function initCustomServer(picker) {
-  picker.addCustomEmoji('custom_server', '🏰');
-  picker.addCustomEmoji('custom_server', '⚔️');
-  picker.addCustomEmoji('custom_server', '🛡️');
+  picker.addCustomEmojiCategory('custom_server', {
+    icon: '🏠',
+    emojis: [
+      {content: '🏰',description: "castle", names:["castle"]},
+      {content: '⚔️',description: "sword", names:["sword"]},
+      {content: '🛡️',description: "shield", names:["shield"]}
+    ]
+  })
 }
 
 function initCustomUser(picker) {
-  picker.addCustomEmoji('custom_perso', '🦄');
-  picker.addCustomEmoji('custom_perso', '🌟');
-  picker.addCustomEmoji('custom_perso', '🔮');
+  picker.addCustomEmojiCategory('custom_perso', {
+    icon: '👽',
+    emojis: [
+      {content: '🦄', description: "unicorn", names:["unicorn"]},
+      {content: '🌟', description: "star", names:["star"]},
+      {content: '🔮', description: "magic", names:["magic"]}
+    ]
+  })
 }
