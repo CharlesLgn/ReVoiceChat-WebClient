@@ -93,21 +93,10 @@ class EmojiPicker {
 
 async function initCustomGeneral(picker) {
     await getEmojisGlobal();
-    console.log("init emote")
-    const emojisGlobal = {
-        icon: '<img src="src/img/favicon.png" alt="revoice"/>',
-        emojis: []
-    }
-    global.chat.emojisGlobal.forEach(emote => {
-        emojisGlobal.emojis.push({
-            content: `<img class="emoji" src="${global.url.media}/emojis/${emote}" alt="${emote}" title=":${emote}:"/>`,
-            data: `:${emote}:`,
-            description: emote,
-            names: [emote]
-        })
-    })
-    console.log(emojisGlobal)
-    picker.addCustomEmojiCategory('custom_general', emojisGlobal)
+    initCustomEmojiCategory(picker,
+        'custom_general',
+        '<img src="src/img/favicon.png" alt="revoice"/>',
+        global.chat.emojisGlobal)
 }
 
 function initCustomServer(picker) {
@@ -130,4 +119,20 @@ function initCustomUser(picker) {
             {content: '🔮', description: "magic", names: ["magic"]}
         ]
     })
+}
+
+function initCustomEmojiCategory(picker, name, icon, emojis) {
+    const emojiCategory = {
+        icon: icon,
+        emojis: []
+    }
+    emojis.forEach(emote => {
+        emojiCategory.emojis.push({
+            content: `<img class="emoji" src="${global.url.media}/emojis/${emote}" alt="${emote}" title=":${emote}:"/>`,
+            data: `:${emote}:`,
+            description: emote,
+            names: [emote]
+        })
+    })
+    picker.addCustomEmojiCategory(name, emojiCategory)
 }
