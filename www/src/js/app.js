@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function () {
         getServers();
         sseOpen();
         getUsername();
-        getEmojisGlobal();
         loadUserSetting();
         router(getQueryVariable('r'));
     }
