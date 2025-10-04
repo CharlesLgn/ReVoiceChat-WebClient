@@ -1,6 +1,12 @@
 const voice = {
     instance: null,
     activeRoom: null,
+    settings: {
+        compressor: {},
+        gate: {},
+        self: {},
+        users: {},
+    },
 }
 
 // <user> call this to join a call in a room
@@ -13,9 +19,9 @@ async function voiceJoin(roomId) {
     voice.activeRoom = roomId;
 
     try {
-        voice.instance = new VoiceCall();
+        voice.instance = new VoiceCall(voice.settings);
         await voice.instance.open(global.url.voice, roomId, global.jwtToken);
-        
+
         // Update users in room
         await voiceUpdateJoinedUsers();
 
@@ -45,6 +51,8 @@ async function voiceLeave() {
     await voiceUpdateJoinedUsers();
     await voiceUsersCountUpdate(voice.activeRoom);
     voiceUpdateSelf();
+
+    voice.activeRoom = null;
 
     // Play leave audio
     let audio = new Audio('src/audio/userDisconnectedMale.mp3');
@@ -250,10 +258,10 @@ function voiceUpdateSelf() {
 // <user> call this to mute other user
 function voiceControlUserMute(userId, muteButton, updateState = true) {
     if (updateState) {
-        //voice.instance.toggleUserMute(userId);
+        voice.instance.toggleUserMute(userId);
     }
 
-    if (false /*voice.instance.getUserMute(userId)*/) {
+    if (voice.instance.getUserMute(userId)) {
         muteButton.classList.add('active');
         muteButton.innerHTML = "<revoice-icon-speaker-x></revoice-icon-speaker-x>";
     }
@@ -261,7 +269,8 @@ function voiceControlUserMute(userId, muteButton, updateState = true) {
         muteButton.classList.remove('active');
         muteButton.innerHTML = "<revoice-icon-speaker></revoice-icon-speaker>";
     }
-    saveUserSetting();
+
+    voiceSaveSettings();
 }
 
 // <user> call this to change volume of other user
@@ -269,16 +278,21 @@ function voiceControlUserVolume(userId, volumeInput) {
     const volume = volumeInput.value;
 
     volumeInput.title = volume * 100 + "%";
-    //voice.instance.setUserVolume(userId, volume);
 
-    saveUserSetting();
+    if (voice.instance) {
+        voice.instance.setUserVolume(userId, volume);
+    }
+
+    voiceSaveSettings();
 }
 
 // <user> call this to mute himself
 function voiceControlSelfMute(updateState = true) {
     if (updateState) {
-        voice.instance.toggleSelfMute();
-        saveUserSetting();
+        if (voice.instance) {
+            voice.instance.toggleSelfMute();
+        }
+        voiceSaveSettings();
     }
 
     const muteButton = document.getElementById("voice-self-mute");
@@ -294,8 +308,14 @@ function voiceControlSelfMute(updateState = true) {
     }
 }
 
+function voiceUpdateSelfVolume() {
+    if (voice.instance) {
+        voice.instance.setSelfVolume(voice.settings.self.volume);
+    }
+}
+
 // Count user in room
-async function voiceUsersCount(roomId){
+async function voiceUsersCount(roomId) {
     const result = await fetchCoreAPI(`/room/${global.room.id}/user`, 'GET');
 
     if (result.connectedUser === null) {
@@ -305,7 +325,7 @@ async function voiceUsersCount(roomId){
     return result.connectedUser.length;
 }
 
-async function voiceUsersCountUpdate(roomId){
+async function voiceUsersCountUpdate(roomId) {
     const result = await fetchCoreAPI(`/room/${global.room.id}/user`, 'GET');
     const element = document.getElementById(`room-extension-${roomId}`);
 
@@ -315,4 +335,12 @@ async function voiceUsersCountUpdate(roomId){
     }
 
     element.innerHTML = `${count}<revoice-icon-user></revoice-icon-user>`
+}
+
+function voiceSaveSettings() {
+    if (voice.instance) {
+        voice.settings = voice.instance.getSettings();
+    }
+
+    appSaveSettings();
 }

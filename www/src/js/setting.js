@@ -44,7 +44,7 @@ function settingThemeShow() {
             <revoice-theme-preview theme="${theme}"></revoice-theme-preview>
         </button>`);
     themeForm.innerHTML = html;
-    document.querySelector(`revoice-theme-preview[theme="${localStorage.getItem("Theme")}"]`).parentElement.disabled = true;
+    //document.querySelector(`revoice-theme-preview[theme="${localStorage.getItem("Theme")}"]`).parentElement.disabled = true;
 }
 
 function selectSettingItem(name) {
@@ -150,13 +150,13 @@ function settingVolumeDirectShow(element) {
 }
 
 function settingVolumeShow() {
-    document.getElementById('volume-label').innerText = `Volume ${parseInt(voice.self.volume * 100)}%`;
-    document.getElementById('volume-input').value = voice.self.volume;
+    document.getElementById('volume-label').innerText = `Volume ${parseInt(voice.settings.self.volume * 100)}%`;
+    document.getElementById('volume-input').value = voice.settings.self.volume;
 }
 
 function settingVolumeUpdate(data) {
-    voice.self.volume = parseFloat(data.value)
-    saveUserSetting();
+    voice.settings.self.volume = parseFloat(data.value)
+    appSaveSettings();
     settingVolumeShow();
     voiceUpdateSelfVolume();
 }
@@ -183,7 +183,7 @@ function settingCompressorDirectShow(param, element) {
 
 function settingCompressorShow() {
     const buttonEnabled = document.getElementById('compressor-enabled')
-    if (voice.compressorSetting.enabled) {
+    if (voice.settings.compressor.enabled) {
         buttonEnabled.innerText = "Enabled";
         buttonEnabled.classList.remove("disabled");
         buttonEnabled.classList.add("enabled");
@@ -193,56 +193,56 @@ function settingCompressorShow() {
         buttonEnabled.classList.remove("enabled");
     }
 
-    document.getElementById('compressor-attack').value = voice.compressorSetting.attack;
-    document.getElementById('compressor-attack').title = voice.compressorSetting.attack * 1000 + "ms";
-    document.getElementById('compressor-attack-label').innerText = `Attack : ${voice.compressorSetting.attack * 1000}ms`;
+    document.getElementById('compressor-attack').value = voice.settings.compressor.attack;
+    document.getElementById('compressor-attack').title = voice.settings.compressor.attack * 1000 + "ms";
+    document.getElementById('compressor-attack-label').innerText = `Attack : ${voice.settings.compressor.attack * 1000}ms`;
 
-    document.getElementById('compressor-ratio').value = voice.compressorSetting.ratio;
-    document.getElementById('compressor-ratio').title = voice.compressorSetting.ratio;
-    document.getElementById('compressor-ratio-label').innerText = `Ratio : ${voice.compressorSetting.ratio}`;
+    document.getElementById('compressor-ratio').value = voice.settings.compressor.ratio;
+    document.getElementById('compressor-ratio').title = voice.settings.compressor.ratio;
+    document.getElementById('compressor-ratio-label').innerText = `Ratio : ${voice.settings.compressor.ratio}`;
 
-    document.getElementById('compressor-reduction').value = voice.compressorSetting.reduction;
-    document.getElementById('compressor-reduction').title = voice.compressorSetting.reduction + "dB";
-    document.getElementById('compressor-reduction-label').innerText = `Reduction : ${voice.compressorSetting.reduction}dB`;
+    document.getElementById('compressor-reduction').value = voice.settings.compressor.reduction;
+    document.getElementById('compressor-reduction').title = voice.settings.compressor.reduction + "dB";
+    document.getElementById('compressor-reduction-label').innerText = `Reduction : ${voice.settings.compressor.reduction}dB`;
 
-    document.getElementById('compressor-release').value = voice.compressorSetting.release;
-    document.getElementById('compressor-release').title = voice.compressorSetting.release * 1000 + "ms";
-    document.getElementById('compressor-release-label').innerText = `Release : ${voice.compressorSetting.release * 1000}ms`;
+    document.getElementById('compressor-release').value = voice.settings.compressor.release;
+    document.getElementById('compressor-release').title = voice.settings.compressor.release * 1000 + "ms";
+    document.getElementById('compressor-release-label').innerText = `Release : ${voice.settings.compressor.release * 1000}ms`;
 
-    document.getElementById('compressor-threshold').value = voice.compressorSetting.threshold;
-    document.getElementById('compressor-threshold').title = voice.compressorSetting.threshold + "dB";
-    document.getElementById('compressor-threshold-label').innerText = `Threshold : ${voice.compressorSetting.threshold}dB`;
+    document.getElementById('compressor-threshold').value = voice.settings.compressor.threshold;
+    document.getElementById('compressor-threshold').title = voice.settings.compressor.threshold + "dB";
+    document.getElementById('compressor-threshold-label').innerText = `Threshold : ${voice.settings.compressor.threshold}dB`;
 }
 
 function settingCompressorEnabled() {
-    voice.compressorSetting.enabled = !voice.compressorSetting.enabled;
-    saveUserSetting();
+    voice.settings.compressor.enabled = !voice.settings.compressor.enabled;
+    appSaveSettings();
     settingCompressorShow();
 }
 
 function settingCompressorUpdate(param, data) {
     switch (param) {
         case 'enabled':
-            voice.compressorSetting.enabled = data.checked === "checked";
+            voice.settings.compressor.enabled = data.checked === "checked";
             break;
         case 'attack':
-            voice.compressorSetting.attack = parseFloat(data.value);
+            voice.settings.compressor.attack = parseFloat(data.value);
             break;
         case 'ratio':
-            voice.compressorSetting.ratio = parseInt(data.value);
+            voice.settings.compressor.ratio = parseInt(data.value);
             break;
         case 'reduction':
-            voice.compressorSetting.reduction = parseFloat(data.value);
+            voice.settings.compressor.reduction = parseFloat(data.value);
             break;
         case 'release':
-            voice.compressorSetting.release = parseFloat(data.value);
+            voice.settings.compressor.release = parseFloat(data.value);
             break;
         case 'threshold':
-            voice.compressorSetting.threshold = parseInt(data.value);
+            voice.settings.compressor.threshold = parseInt(data.value);
             break;
     }
 
-    saveUserSetting();
+    appSaveSettings();
     settingCompressorShow();
 }
 
@@ -256,7 +256,7 @@ function settingCompressorDefault() {
         release: 0.25,
         threshold: -50,
     }
-    saveUserSetting();
+    appSaveSettings();
     settingCompressorShow();
 }
 
@@ -280,38 +280,38 @@ function settingNoiseGateDirectShow(param, element) {
 }
 
 function settingNoiseGateShow() {
-    document.getElementById('noise-gate-attack').value = voice.noiseGateSetting.attack;
-    document.getElementById('noise-gate-attack').title = voice.noiseGateSetting.attack * 1000 + "ms";
-    document.getElementById('noise-gate-attack-label').innerText = `Attack : ${voice.noiseGateSetting.attack * 1000}ms`;
+    document.getElementById('noise-gate-attack').value = voice.settings.gate.attack;
+    document.getElementById('noise-gate-attack').title = voice.settings.gate.attack * 1000 + "ms";
+    document.getElementById('noise-gate-attack-label').innerText = `Attack : ${voice.settings.gate.attack * 1000}ms`;
 
-    document.getElementById('noise-gate-release').value = voice.noiseGateSetting.release;
-    document.getElementById('noise-gate-release').title = voice.noiseGateSetting.release * 1000 + "ms";
-    document.getElementById('noise-gate-release-label').innerText = `Release : ${voice.noiseGateSetting.release * 1000}ms`;
+    document.getElementById('noise-gate-release').value = voice.settings.gate.release;
+    document.getElementById('noise-gate-release').title = voice.settings.gate.release * 1000 + "ms";
+    document.getElementById('noise-gate-release-label').innerText = `Release : ${voice.settings.gate.release * 1000}ms`;
 
-    document.getElementById('noise-gate-threshold').value = voice.noiseGateSetting.threshold;
-    document.getElementById('noise-gate-threshold').title = voice.noiseGateSetting.threshold + "dB";
+    document.getElementById('noise-gate-threshold').value = voice.settings.gate.threshold;
+    document.getElementById('noise-gate-threshold').title = voice.settings.gate.threshold + "dB";
 
     if (currentSetting.voiceAdvanced) {
-        document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${voice.noiseGateSetting.threshold}dB`;
+        document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${voice.settings.gate.threshold}dB`;
     } else {
-        document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${voice.noiseGateSetting.threshold}dB`;
+        document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${voice.settings.gate.threshold}dB`;
     }
 }
 
 function settingNoiseGateUpdate(param, data) {
     switch (param) {
         case 'attack':
-            voice.noiseGateSetting.attack = parseFloat(data.value);
+            voice.settings.gate.attack = parseFloat(data.value);
             break;
         case 'release':
-            voice.noiseGateSetting.release = parseFloat(data.value);
+            voice.settings.gate.release = parseFloat(data.value);
             break;
         case 'threshold':
-            voice.noiseGateSetting.threshold = parseInt(data.value);
+            voice.settings.gate.threshold = parseInt(data.value);
             break;
     }
 
-    saveUserSetting();
+    appSaveSettings();
     settingNoiseGateShow();
 }
 
@@ -321,7 +321,7 @@ function settingNoiseGateDefault() {
         release: 0.4,
         threshold: -45,
     }
-    saveUserSetting();
+    appSaveSettings();
     settingNoiseGateShow();
 }
 
@@ -332,11 +332,11 @@ function settingVoiceMode() {
     if (currentSetting.voiceAdvanced) {
         button.innerText = "Simple";
         document.getElementById('voice-sensitivity').innerText = "Noise gate";
-        document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${voice.noiseGateSetting.threshold}dB`;
+        document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${voice.settings.gate.threshold}dB`;
     } else {
         button.innerText = "Advanced";
         document.getElementById('voice-sensitivity').innerText = "Voice detection";
-        document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${voice.noiseGateSetting.threshold}dB`;
+        document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${voice.settings.gate.threshold}dB`;
     }
 
     const toggleable = document.getElementsByClassName('voice-toggleable');

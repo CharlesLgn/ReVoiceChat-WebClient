@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Current page is the app
     const currentLocation = window.location.pathname.substring(window.location.pathname.lastIndexOf("/"));
     if (currentLocation === "/app.html") {
+        appLoadSettings();
         getServers();
         sseOpen();
         getUsername();
-        loadUserSetting();
         getEmojisGlobal();
         router(getQueryVariable('r'));
     }
@@ -76,7 +76,7 @@ addEventListener("beforeunload", () => {
     sseClose();
 })
 
-function saveUserSetting() {
+function appSaveSettings() {
     const settings = {
         voice: voice.settings,
     }
@@ -84,29 +84,10 @@ function saveUserSetting() {
     localStorage.setItem('userSettings', JSON.stringify(settings));
 }
 
-function loadUserSetting() {
+function appLoadSettings() {
     const settings = JSON.parse(localStorage.getItem('userSettings'));
 
-    const defaultVoice = {
-        compressor: {
-            enabled: true,
-            attack: 0,
-            knee: 40,
-            ratio: 12,
-            release: 0.25,
-            threshold: -50,
-        },
-        gate: {
-            attack: 0.01,
-            release: 0.4,
-            threshold: -45,
-        },
-        self: {
-            muted: false,
-            volume: 1,
-        },
-        users: {}
-    }
+    const defaultVoice = VoiceCall.DEFAULT_SETTINGS;
 
     // Apply settings
     if (settings) {

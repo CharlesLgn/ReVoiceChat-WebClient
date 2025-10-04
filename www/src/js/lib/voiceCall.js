@@ -2,6 +2,26 @@ class VoiceCall {
     static CLOSE = 0;
     static CONNECTING = 1;
     static OPEN = 2;
+    static DEFAULT_SETTINGS = {
+        compressor: {
+            enabled: true,
+            attack: 0,
+            knee: 40,
+            ratio: 12,
+            release: 0.25,
+            threshold: -50,
+        },
+        gate: {
+            attack: 0.01,
+            release: 0.4,
+            threshold: -45,
+        },
+        self: {
+            muted: false,
+            volume: 1,
+        },
+        users: {}
+    }
 
     #codecSettings = {
         codec: "opus",
@@ -30,9 +50,11 @@ class VoiceCall {
     #gateNode;
     #users = {};
     #state = 0;
-    #muted = false;
+    #settings = {};
 
-    usersSettings = {};
+    constructor(settings) {
+        this.#settings = settings;
+    }
 
     async open(voiceUrl, roomId, token) {
         this.#state = VoiceCall.CONNECTING;
@@ -87,6 +109,10 @@ class VoiceCall {
         return this.#state;
     }
 
+    getSettings() {
+        return this.#settings;
+    }
+
     async addUser(userId) {
         if (userId && this.#users[userId] === undefined && this.#socket !== null && this.#socket.readyState === WebSocket.OPEN) {
             console.debug("Creating decoder for user:", userId);
@@ -95,8 +121,8 @@ class VoiceCall {
             if (isSupported.supported) {
                 this.#users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null, source: null };
 
-                if (!this.usersSettings[userId]) {
-                    this.usersSettings[userId] = { muted: false, volume: 1 };
+                if (!this.#settings.users[userId]) {
+                    this.#settings.users[userId] = { muted: false, volume: 1 };
                 }
 
                 this.#users[userId].decoder = new AudioDecoder({
@@ -148,58 +174,66 @@ class VoiceCall {
 
     toggleUserMute(userId) {
         this.#users[userId].muted = !this.#users[userId].muted;
-        this.usersSettings[userId].muted = this.#users[userId].muted;
+        this.#settings.users[userId].muted = this.#users[userId].muted;
     }
 
     setUserMute(userId, muted) {
-        this.#users[userId].muted = muted;
+        if (this.#settings.users[userId]) {
+            this.#users[userId].muted = muted;
+            this.#settings.users[userId].muted = muted;
+        }
     }
 
     getUserMute(userId) {
-        return this.#users[userId].muted;
+        if (this.#settings.users[userId]) {
+            return this.#settings.users[userId].muted;
+        }
     }
 
     setUserVolume(userId, volume) {
-        
+        if (this.#settings.users[userId]) {
+            this.#settings.users[userId].volume = volume;
 
-        this.usersSettings[userId].volume = volume;
-
-        const userGainNode = this.#users[userId].gainNode;
-        if (userGainNode) {
-            userGainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
+            if (this.#users[userId]) {
+                const userGainNode = this.#users[userId].gainNode;
+                if (userGainNode) {
+                    userGainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
+                }
+            }
         }
     }
 
     getUserVolume(userId) {
-        if (this.usersSettings[userId] === undefined) {
-            return 1;
+        if (this.#settings.users[userId]) {
+            return this.#settings.users[userId].volume;
         }
-
-        return this.usersSettings[userId].volume;
     }
 
     toggleSelfMute() {
-        this.#muted = !this.#muted;
+        this.#settings.self.muted = !this.#settings.self.muted;
     }
 
     setSelfMute(muted) {
-        this.#muted = muted;
+        this.#settings.self.muted = muted;
     }
 
     getSelfMute() {
-        return this.#muted;
+        return this.#settings.self.muted;
     }
 
     setSelfVolume(volume) {
+        this.#settings.self.volume = volume;
+
         if (this.#gainNode) {
             this.#gainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
         }
     }
 
     getSelfVolume() {
-        return this.#gainNode.gain;
+        if (this.#gainNode) {
+            return this.#gainNode.gain;
+        }
     }
-
 
     #packetEncode(header, data) {
         const headerBytes = new TextEncoder().encode(header);
@@ -293,7 +327,7 @@ class VoiceCall {
 
         this.#audioCollector.port.onmessage = (event) => {
             // We don't do anything if we are self muted
-            if (this.#muted) {
+            if (this.#settings.self.muted) {
                 return;
             }
 
