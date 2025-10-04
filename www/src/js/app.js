@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
         getServers();
         sseOpen();
         getUsername();
-        getEmojisGlobal();
         loadUserSetting();
+        getEmojisGlobal();
         router(getQueryVariable('r'));
     }
 });
@@ -78,47 +78,44 @@ addEventListener("beforeunload", () => {
 
 function saveUserSetting() {
     const settings = {
-        voice: {
-            self: voice.self,
-            usersSetting: voice.usersSetting,
-            compressorSetting: voice.compressorSetting,
-            noiseGateSetting: voice.noiseGateSetting,
-        }
+        voice: voice.settings,
     }
 
     localStorage.setItem('userSettings', JSON.stringify(settings));
 }
 
 function loadUserSetting() {
-    const rawSettings = localStorage.getItem('userSettings');
+    const settings = JSON.parse(localStorage.getItem('userSettings'));
 
-    const defaultSelf = {
-        mute: false,
-        volume: 1,
+    const defaultVoice = {
+        compressor: {
+            enabled: true,
+            attack: 0,
+            knee: 40,
+            ratio: 12,
+            release: 0.25,
+            threshold: -50,
+        },
+        gate: {
+            attack: 0.01,
+            release: 0.4,
+            threshold: -45,
+        },
+        self: {
+            muted: false,
+            volume: 1,
+        },
+        users: {}
     }
 
-    const defaultCompressor = {
-        enabled: true,
-        attack: 0,
-        knee: 40,
-        ratio: 12,
-        reduction: 0,
-        release: 0.25,
-        threshold: -50,
+    // Apply settings
+    if (settings) {
+        voice.settings.self = settings.voice.self ? settings.voice.self : defaultVoice.self;
+        voice.settings.users = settings.voice.users ? settings.voice.users : {};
+        voice.settings.compressor = settings.voice.compressor ? settings.voice.compressor : defaultVoice.compressor;
+        voice.settings.gate = settings.voice.gate ? settings.voice.gate : defaultVoice.gate;
     }
-
-    const defaultNoiseGate = {
-        attack: 0.01,
-        release: 0.4,
-        threshold: -45,
-    }
-
-    if (rawSettings) {
-        const settings = JSON.parse(rawSettings);
-
-        voice.self = settings.voice.self ? settings.voice.self : defaultSelf;
-        voice.usersSetting = settings.usersSetting ? settings.usersSetting : {};
-        voice.compressorSetting = settings.voice.compressorSetting ? settings.voice.compressorSetting : defaultCompressor;
-        voice.noiseGateSetting = settings.voice.noiseGateSetting ? settings.voice.noiseGateSetting : defaultNoiseGate;
+    else {
+        voice.settings = defaultVoice;
     }
 }
