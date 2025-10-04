@@ -12,16 +12,15 @@ class AudioCollector extends AudioWorkletProcessor {
 class NoiseGate extends AudioWorkletProcessor {
     static get parameterDescriptors() {
         return [
-            { name: 'threshold', defaultValue: -50 }, // dB
             { name: 'attack', defaultValue: 0.01 },   // seconds
-            { name: 'release', defaultValue: 0.4 }    // seconds
+            { name: 'release', defaultValue: 0.4 },   // seconds
+            { name: 'threshold', defaultValue: -50, minValue: -100, maxValue: 0 }, // dB
         ];
     }
 
     constructor() {
         super();
         this.gain = 0;
-        this.open = false;
         this.sampleRate = sampleRate;
         this.smoothRms = 0;
         this.gateFloor = this.dBToLinear(-100);
@@ -35,9 +34,9 @@ class NoiseGate extends AudioWorkletProcessor {
     process(inputs, outputs, parameters) {
         const input = inputs[0][0]; // mono
         const output = outputs[0][0]; // mono
-        const threshold = this.dBToLinear(parameters.threshold[0]);
-        const attackCoeff = Math.exp(-1 / (parameters.attack[0] * this.sampleRate / 1000));
-        const releaseCoeff = Math.exp(-1 / (parameters.release[0] * this.sampleRate / 1000));
+        const threshold = this.dBToLinear(parameters.threshold);
+        const attackCoeff = Math.exp(-1 / (parameters.attack * this.sampleRate / 1000));
+        const releaseCoeff = Math.exp(-1 / (parameters.release * this.sampleRate / 1000));
 
         if (!input || input.length === 0) {
             return false;

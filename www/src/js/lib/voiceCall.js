@@ -237,6 +237,25 @@ class VoiceCall {
         }
     }
 
+    setGate(gateSettings){
+        this.#settings.gate = gateSettings;
+        this.#gateNode.parameters.get("attack").setValueAtTime(this.#settings.gate.attack, this.#audioContext.currentTime);
+        this.#gateNode.parameters.get("release").setValueAtTime(this.#settings.gate.release, this.#audioContext.currentTime);
+        this.#gateNode.parameters.get("threshold").setValueAtTime(this.#settings.gate.threshold, this.#audioContext.currentTime);
+    }
+
+    setCompressor(compressorSetting){
+        this.#settings.compressor = compressorSetting;
+
+        if(this.#compressorNode){
+            this.#compressorNode.attack.setValueAtTime(this.#settings.compressor.attack, this.#audioContext.currentTime);
+            this.#compressorNode.knee.setValueAtTime(this.#settings.compressor.knee, this.#audioContext.currentTime);
+            this.#compressorNode.ratio.setValueAtTime(this.#settings.compressor.ratio, this.#audioContext.currentTime);
+            this.#compressorNode.release.setValueAtTime(this.#settings.compressor.release, this.#audioContext.currentTime);
+            this.#compressorNode.threshold.setValueAtTime(this.#settings.compressor.threshold, this.#audioContext.currentTime);
+        }
+    }
+
     #packetEncode(header, data) {
         const headerBytes = new TextEncoder().encode(header);
 
