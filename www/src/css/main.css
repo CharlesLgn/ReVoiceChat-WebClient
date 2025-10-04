@@ -275,6 +275,7 @@ svg {
     display: flex;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+    padding-top: 0.5rem;
     min-height: 4rem;
     border-top-width: 1px;
 }
@@ -283,6 +284,7 @@ svg {
     flex: 1 1 0%;
     display: flex;
     flex-direction: row;
+    padding-bottom: 0.5rem;
     align-items: center;
 }
 
@@ -296,6 +298,7 @@ svg {
     min-height: 2rem;
     resize: none;
     overflow-y: hidden;
+
 }
 
 .text-control input:focus,
