@@ -630,43 +630,6 @@ function render() {
     for (const room of roomsNotRendered) {
         container.appendChild(renderItem({ id: room, type: 'ROOM' }, null));
     }
-
-    // Update JSON display
-    document.getElementById('jsonOutput').textContent = JSON.stringify(structureData, null, 2);
-}
-
-function exportJSON() {
-    const dataStr = JSON.stringify(structureData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = 'room-structure.json';
-
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-}
-
-function importJSON() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    structureData = JSON.parse(e.target.result);
-                    render();
-                } catch (error) {
-                    alert('Erreur lors de l\'import du fichier JSON: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-    };
-    input.click();
 }
 
 async function structureSave() {

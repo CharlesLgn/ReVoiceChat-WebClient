@@ -185,33 +185,11 @@
                             <revoice-icon-folder-plus></revoice-icon-folder-plus>
                             Category
                         </button>
-                        <button onclick="showStructureAsJSON()">
-                            <revoice-icon-eye-open></revoice-icon-eye-open>
-                            JSON
-                        </button>
                     </div>
                     <div class="server-structure-container">
                         <div class="server-structure-panel">
                             <div class="server-structure-tree-container" id="treeContainer">
                                 <div class="server-structure-drop-zone" id="rootDropZone"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="server-structure-modal" id="jsonModal">
-                        <div class="server-structure-modal-large server-structure-modal-content">
-                            <h3>📋 Structure JSON</h3>
-                            <div class="server-structure-form-group">
-                                <pre class="server-structure-json-output" id="jsonOutput"></pre>
-                            </div>
-                            <div style="margin-top: 15px; display: flex; justify-content: space-between;">
-                                <div>
-                                    <button class="config-right" onclick="exportJSON()">💾 Export as JSON</button>
-                                    <button class="config-right" onclick="importJSON()">📥 Import structure</button>
-                                </div>
-                                <div>
-                                    <button class="config-right" onclick="closeModal()">Exit</button>
-                                </div>
                             </div>
                         </div>
                     </div>
