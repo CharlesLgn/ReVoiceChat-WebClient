@@ -51,7 +51,7 @@
 .emoji-category-btn {
     background: transparent;
     border: none;
-    padding: 8px 12px;
+    padding: 8px 12px !important;
     cursor: pointer;
     border-radius: 4px;
     font-size: 20px;
@@ -66,6 +66,11 @@
 
 .emoji-category-btn.active {
     background: var(--pri-button-hover-color);
+}
+
+.emoji-category-btn img {
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .emoji-picker-search {
@@ -109,7 +114,7 @@
 .emoji-item {
     background: transparent;
     border: none;
-    padding: 8px;
+    padding: 0.1rem!important;
     cursor: pointer;
     font-size: 24px;
     border-radius: 4px;
@@ -118,6 +123,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    font-variant-emoji: emoji;
 }
 
 .emoji-item:hover {
@@ -141,3 +149,10 @@
     height: 24px;
     object-fit: contain;
 }
+
+@media screen and (max-width: 600px) {
+    .emoji-picker {
+        right: 0;
+    }
+}
+
