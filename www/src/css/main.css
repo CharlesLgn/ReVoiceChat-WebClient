@@ -241,10 +241,21 @@ svg {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: 100%;
 }
 
-.room-title svg {
-    margin-right: 0.5rem;
+.room-title-name {
+    margin-left: 0.5rem;
+}
+
+.room-title-extension {
+    display: flex;
+    margin-left: auto;
+    margin-right: 0px;
+}
+
+.room-title-extension svg{
+    padding: 0.2rem;
 }
 
 .room-container {
