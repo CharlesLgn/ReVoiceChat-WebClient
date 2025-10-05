@@ -1,7 +1,29 @@
 class VoiceCall {
+    "use strict";
+
     static CLOSE = 0;
     static CONNECTING = 1;
     static OPEN = 2;
+    static DEFAULT_SETTINGS = {
+        compressor: {
+            enabled: true,
+            attack: 0,
+            knee: 40,
+            ratio: 12,
+            release: 0.25,
+            threshold: -50,
+        },
+        gate: {
+            attack: 0.01,
+            release: 0.4,
+            threshold: -45,
+        },
+        self: {
+            muted: false,
+            volume: 1,
+        },
+        users: {}
+    }
 
     #codecSettings = {
         codec: "opus",
@@ -30,11 +52,30 @@ class VoiceCall {
     #gateNode;
     #users = {};
     #state = 0;
-    #muted = false;
+    #settings = {};
 
-    usersSettings = {};
+    constructor(settings) {
+        if (settings) {
+            this.#settings = settings;
+        }
+        else {
+            this.#settings = DEFAULT_SETTINGS;
+        }
+    }
 
     async open(voiceUrl, roomId, token) {
+        if(!voiceUrl){
+            throw Error('VoiceUrl is null or undefined');
+        }
+
+        if(!roomId){
+            throw Error('roomId is null or undefined');
+        }
+
+        if(!token){
+            throw Error('token is null or undefined');
+        }
+
         this.#state = VoiceCall.CONNECTING;
 
         // Create WebSocket
@@ -62,7 +103,6 @@ class VoiceCall {
         }
 
         // Flush and close all decoders
-        console.log(this.#users)
         for (const [, user] of Object.entries(this.#users)) {
             if (user?.decoder && user.decoder.state === 'configured') {
                 await user.decoder.flush();
@@ -87,16 +127,18 @@ class VoiceCall {
         return this.#state;
     }
 
+    getSettings() {
+        return this.#settings;
+    }
+
     async addUser(userId) {
         if (userId && this.#users[userId] === undefined && this.#socket !== null && this.#socket.readyState === WebSocket.OPEN) {
-            console.debug("Creating decoder for user:", userId);
-
             const isSupported = await AudioDecoder.isConfigSupported(this.#codecSettings);
             if (isSupported.supported) {
                 this.#users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null, source: null };
 
-                if (!this.usersSettings[userId]) {
-                    this.usersSettings[userId] = { muted: false, volume: 1 };
+                if (!this.#settings.users[userId]) {
+                    this.#settings.users[userId] = { muted: false, volume: 1 };
                 }
 
                 this.#users[userId].decoder = new AudioDecoder({
@@ -147,59 +189,88 @@ class VoiceCall {
     }
 
     toggleUserMute(userId) {
-        this.#users[userId].muted = !this.#users[userId].muted;
-        this.usersSettings[userId].muted = this.#users[userId].muted;
+        if (this.#settings.users[userId]) {
+            this.#users[userId].muted = !this.#users[userId].muted;
+            this.#settings.users[userId].muted = this.#users[userId].muted;
+        }
     }
 
     setUserMute(userId, muted) {
-        this.#users[userId].muted = muted;
+        if (this.#settings.users[userId]) {
+            this.#users[userId].muted = muted;
+            this.#settings.users[userId].muted = muted;
+        }
     }
 
     getUserMute(userId) {
-        return this.#users[userId].muted;
+        if (this.#settings.users[userId]) {
+            return this.#settings.users[userId].muted;
+        }
     }
 
     setUserVolume(userId, volume) {
-        
+        if (this.#settings.users[userId]) {
+            this.#settings.users[userId].volume = volume;
 
-        this.usersSettings[userId].volume = volume;
-
-        const userGainNode = this.#users[userId].gainNode;
-        if (userGainNode) {
-            userGainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
+            if (this.#users[userId]) {
+                const userGainNode = this.#users[userId].gainNode;
+                if (userGainNode) {
+                    userGainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
+                }
+            }
         }
     }
 
     getUserVolume(userId) {
-        if (this.usersSettings[userId] === undefined) {
-            return 1;
+        if (this.#settings.users[userId]) {
+            return this.#settings.users[userId].volume;
         }
-
-        return this.usersSettings[userId].volume;
     }
 
     toggleSelfMute() {
-        this.#muted = !this.#muted;
+        this.#settings.self.muted = !this.#settings.self.muted;
     }
 
     setSelfMute(muted) {
-        this.#muted = muted;
+        this.#settings.self.muted = muted;
     }
 
     getSelfMute() {
-        return this.#muted;
+        return this.#settings.self.muted;
     }
 
     setSelfVolume(volume) {
+        this.#settings.self.volume = volume;
+
         if (this.#gainNode) {
             this.#gainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
         }
     }
 
     getSelfVolume() {
-        return this.#gainNode.gain;
+        if (this.#gainNode) {
+            return this.#gainNode.gain;
+        }
     }
 
+    setGate(gateSettings) {
+        this.#settings.gate = gateSettings;
+        this.#gateNode.parameters.get("attack").setValueAtTime(this.#settings.gate.attack, this.#audioContext.currentTime);
+        this.#gateNode.parameters.get("release").setValueAtTime(this.#settings.gate.release, this.#audioContext.currentTime);
+        this.#gateNode.parameters.get("threshold").setValueAtTime(this.#settings.gate.threshold, this.#audioContext.currentTime);
+    }
+
+    setCompressor(compressorSetting) {
+        this.#settings.compressor = compressorSetting;
+
+        if (this.#compressorNode) {
+            this.#compressorNode.attack.setValueAtTime(this.#settings.compressor.attack, this.#audioContext.currentTime);
+            this.#compressorNode.knee.setValueAtTime(this.#settings.compressor.knee, this.#audioContext.currentTime);
+            this.#compressorNode.ratio.setValueAtTime(this.#settings.compressor.ratio, this.#audioContext.currentTime);
+            this.#compressorNode.release.setValueAtTime(this.#settings.compressor.release, this.#audioContext.currentTime);
+            this.#compressorNode.threshold.setValueAtTime(this.#settings.compressor.threshold, this.#audioContext.currentTime);
+        }
+    }
 
     #packetEncode(header, data) {
         const headerBytes = new TextEncoder().encode(header);
@@ -257,43 +328,48 @@ class VoiceCall {
 
         // Create Gain node
         this.#gainNode = this.#audioContext.createGain();
-        this.#gainNode.gain.setValueAtTime(1, this.#audioContext.currentTime);
-
-        // Create AudioCollector
-        this.#audioCollector = new AudioWorkletNode(this.#audioContext, "AudioCollector");
-
-        // Create NoiseGate (with default parameters)
-        this.#gateNode = new AudioWorkletNode(this.#audioContext, "NoiseGate", {
-            parameterData: {
-                attack: 0.01,
-                release: 0.4,
-                threshold: -45
-            }
-        });
-
-        // Create compressorNode Node (with default parameters)
-        this.#compressorNode = this.#audioContext.createDynamicsCompressor();
-        this.#compressorNode.attack.setValueAtTime(0, this.#audioContext.currentTime);
-        this.#compressorNode.knee.setValueAtTime(40, this.#audioContext.currentTime);
-        this.#compressorNode.ratio.setValueAtTime(12, this.#audioContext.currentTime);
-        this.#compressorNode.release.setValueAtTime(0, this.#audioContext.currentTime);
-        this.#compressorNode.threshold.setValueAtTime(-50, this.#audioContext.currentTime);
+        this.#gainNode.gain.setValueAtTime(this.#settings.self.volume, this.#audioContext.currentTime);
 
         // Connect microphone to gain
         micSource.connect(this.#gainNode);
 
+        // Create Gate
+        this.#gateNode = new AudioWorkletNode(this.#audioContext, "NoiseGate", {
+            parameterData: {
+                attack: this.#settings.gate.attack,
+                release: this.#settings.gate.release,
+                threshold: this.#settings.gate.threshold
+            }
+        });
+
         // Connect gain to gate
         this.#gainNode.connect(this.#gateNode)
 
-        // Connect gate to compressor
-        this.#gateNode.connect(this.#compressorNode);
+        // Create AudioCollector
+        this.#audioCollector = new AudioWorkletNode(this.#audioContext, "AudioCollector");
 
-        // Connect compressor to audioCollector
-        this.#compressorNode.connect(this.#audioCollector);
+        // Create compressor if enabled
+        if (this.#settings.compressor.enabled) {
+            this.#compressorNode = this.#audioContext.createDynamicsCompressor();
+            this.#compressorNode.attack.setValueAtTime(this.#settings.compressor.attack, this.#audioContext.currentTime);
+            this.#compressorNode.knee.setValueAtTime(this.#settings.compressor.knee, this.#audioContext.currentTime);
+            this.#compressorNode.ratio.setValueAtTime(this.#settings.compressor.ratio, this.#audioContext.currentTime);
+            this.#compressorNode.release.setValueAtTime(this.#settings.compressor.release, this.#audioContext.currentTime);
+            this.#compressorNode.threshold.setValueAtTime(this.#settings.compressor.threshold, this.#audioContext.currentTime);
+
+            // Connect gate to compressor
+            this.#gateNode.connect(this.#compressorNode);
+
+            // Connect compressor to audioCollector
+            this.#compressorNode.connect(this.#audioCollector);
+        } else {
+            // Connect gate to audioCollector (i.e. bypass compressor)
+            this.#gateNode.connect(this.#audioCollector);
+        }
 
         this.#audioCollector.port.onmessage = (event) => {
             // We don't do anything if we are self muted
-            if (this.#muted) {
+            if (this.#settings.self.muted) {
                 return;
             }
 
