@@ -91,6 +91,7 @@ class ServerRolesWebComponent extends HTMLElement {
                 .main {
                     display: flex;
                     height: 100vh;
+                    width: max-content;
                 }
 
                 .room-header {
