@@ -65,15 +65,15 @@ class VoiceCall {
 
     async open(voiceUrl, roomId, token) {
         if(!voiceUrl){
-            throw Error('VoiceUrl is null or undefined');
+            throw new Error('VoiceUrl is null or undefined');
         }
 
         if(!roomId){
-            throw Error('roomId is null or undefined');
+            throw new Error('roomId is null or undefined');
         }
 
         if(!token){
-            throw Error('token is null or undefined');
+            throw new Error('token is null or undefined');
         }
 
         this.#state = VoiceCall.CONNECTING;
@@ -143,7 +143,7 @@ class VoiceCall {
 
                 this.#users[userId].decoder = new AudioDecoder({
                     output: (chunk) => { decoderCallback(chunk, this.#audioContext, this.#users) },
-                    error: (error) => { throw Error(`Decoder setup failed:\n${error}\nCurrent codec :${this.#codecSettings}`) },
+                    error: (error) => { throw new Error(`Decoder setup failed:\n${error}\nCurrent codec :${this.#codecSettings}`) },
                 });
 
                 this.#users[userId].decoder.configure(this.#codecSettings)
@@ -314,7 +314,7 @@ class VoiceCall {
         // Setup Encoder
         this.#encoder = new AudioEncoder({
             output: (chunk) => { encoderCallback(chunk, this.#audioTimestamp, this.#socket, this.#packetEncode); },
-            error: (error) => { throw Error(`Encoder setup failed:\n${error}\nCurrent codec :${this.#codecSettings}`) },
+            error: (error) => { throw new Error(`Encoder setup failed:\n${error}\nCurrent codec :${this.#codecSettings}`) },
         });
 
         this.#encoder.configure(this.#codecSettings)
