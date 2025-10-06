@@ -50,11 +50,18 @@ class VoiceCall {
     #bufferMaxLength = 960; // 48000Hz × 0.020 sec = 960 samples (should be compute from sample rate and frame duration)
     #gainNode;
     #gateNode;
+    #user;
     #users = {};
     #state = 0;
     #settings = {};
 
-    constructor(settings) {
+    constructor(user, settings) {
+        if(!user){
+            throw new Error('user is null or undefined');
+        }
+
+        this.#user = user;
+
         if (settings) {
             this.#settings = settings;
         }
@@ -417,7 +424,7 @@ class VoiceCall {
             const header = JSON.stringify({
                 timestamp: Date.now(),
                 audioTimestamp: audioTimestamp / 1000, // audioTimestamp is in µs but sending ms is enough
-                user: global.user.id,
+                user: this.#user,
             })
 
             const packet = packetEncode(header, audioChunkCopy);

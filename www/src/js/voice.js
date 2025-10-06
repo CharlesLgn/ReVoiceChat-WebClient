@@ -19,7 +19,7 @@ async function voiceJoin(roomId) {
     voice.activeRoom = roomId;
 
     try {
-        voice.instance = new VoiceCall(voice.settings);
+        voice.instance = new VoiceCall(global.user.id, voice.settings);
         await voice.instance.open(global.url.voice, roomId, global.jwtToken);
 
         // Update users in room
