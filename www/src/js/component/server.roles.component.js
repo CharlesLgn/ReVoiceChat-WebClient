@@ -235,7 +235,7 @@ class ServerRolesWebComponent extends HTMLElement {
                 <div class="icon" style="background: ${role.color}"></div>
                 <h2>${role.name}</h2>
                 <div class="detail-priority">Priority: ${role.priority}</div>
-                <div class="detail-priority"><button class="btn-primary" id="assigned-popup-button">Assigned user: ${role.members.length}</button></div>
+                <div class="detail-priority"><button class="btn-primary" id="assigned-popup-button">Members: ${role.members.length}</button></div>
             </div>
 
             <div class="config-section">
@@ -361,7 +361,7 @@ class ServerRolesWebComponent extends HTMLElement {
 
     async #assignedUser(role) {
         Swal.fire({
-            title: 'Assigned Users',
+            title: 'Members',
             animation: false,
             customClass: {
                 title: "swalTitle",
@@ -375,13 +375,19 @@ class ServerRolesWebComponent extends HTMLElement {
             focusConfirm: false,
             confirmButtonText: "Save",
             allowOutsideClick: false,
+            preConfirm: () => {
+                // Get form values
+                let users = Array.from(Swal.getPopup().querySelectorAll('.assigned-user-item'));
+                users = users.filter(elt => elt.querySelector("input:checked"))
+                users = users.map(item => item.dataset.userId)
+                return users;
+            },
             html: `
             <style>
                  .assigned-user-item {
                     color: var(--pri-text-color);
                     display: flex;
                     align-items: center;
-                    padding: 0.75rem;
                 }
                 
                 .assigned-user-item.selected {
@@ -399,30 +405,64 @@ class ServerRolesWebComponent extends HTMLElement {
                     cursor: pointer;
                     accent-color: var(--pri-button-bg-color);
                 }
+                
+                .members-list {
+                    overflow-y: auto;
+                    max-height: 10rem;
+                }
+                
+                .assigned-user-item.hide {
+                    display: none;
+                }
             </style>
             <form class='popup'>
-                ${this.availableUsers.map(user => `
-                <div class="assigned-user-item"
-                     data-role-id="${role.id}" data-user-id="${user.id}">
-                    <div class="assigned-user-checkbox">
-                        <input type="checkbox" ${role.members.includes(user.id) ? 'checked' : ''} readonly>
-                    </div>
-                    <div>${user.displayName}</div>
-                </div>`).join('')}
+                <h2>Current members</h2>
+                <input type="text" placeholder="Search..." id="current-members-search">
+                <div id="current-members-list" class="members-list">
+                    ${this.availableUsers.filter(user => role.members.includes(user.id)).map(user => this.#memberItem(role, user)).join('')}
+                </div>
+                <h2>Add members :</h2>
+                <input type="text" placeholder="Search..." id="add-members-search">
+                <div id="add-members-list" class="members-list">
+                    ${this.availableUsers.filter(user => !role.members.includes(user.id)).map(user => this.#memberItem(role, user)).join('')}
+                </div>
             </form>`,
-            preConfirm: () => {
-                // Get form values
-                let users = Array.from(Swal.getPopup().querySelectorAll('.assigned-user-item'));
-                users = users.filter(elt => elt.querySelector("input:checked"))
-                users = users.map(item => item.dataset.userId)
-                return users;
+            didOpen: () => {
+                const filterMemberList = (elt, value) => {
+                    const items = Array.from(elt.querySelectorAll(".assigned-user-item"))
+                    items.forEach(item => { item.classList.remove("hide")})
+                    items.filter(item => !item.dataset.userLogin.toLowerCase().includes(value.toLowerCase()))
+                         .filter(item => !item.dataset.userDisplayName.toLowerCase().includes(value.toLowerCase()))
+                         .forEach(item => { item.classList.add("hide")})
+                }
+                document.querySelector("#current-members-search").addEventListener('input', (e) => {
+                    const elt = document.querySelector("#current-members-list")
+                    filterMemberList(elt, e.target.value)
+                });
+                document.getElementById("add-members-search").addEventListener('input', (e) => {
+                    const elt = document.querySelector("#add-members-list")
+                    filterMemberList(elt, e.target.value)
+                });
             }
-        }).then(async (result) => {
+            }).then(async (result) => {
             if (result.isConfirmed) {
                 const roleId = role.id
                 await this.#toggleUsers(roleId, result.value);
             }
         });
+    }
+
+    #memberItem(role, user) {
+        return `<div class="assigned-user-item"
+                     data-role-id="${role.id}"
+                     data-user-id="${user.id}"
+                     data-user-login="${user.login}"
+                     data-user-display-name="${user.displayName}">
+                    <div class="assigned-user-checkbox">
+                        <input type="checkbox" ${role.members.includes(user.id) ? 'checked' : ''} readonly>
+                    </div>
+                    <div>${user.displayName}</div>
+                </div>`;
     }
 
     async #toggleUsers(roleId, users) {
