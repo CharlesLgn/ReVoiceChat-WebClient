@@ -320,7 +320,7 @@ class VoiceCall {
 
         // Setup Encoder
         this.#encoder = new AudioEncoder({
-            output: (chunk) => { encoderCallback(chunk, this.#audioTimestamp, this.#socket, this.#packetEncode); },
+            output: (chunk) => { this.#encoderCallback(chunk, this.#audioTimestamp, this.#socket, this.#packetEncode, this.#user); },
             error: (error) => { throw new Error(`Encoder setup failed:\n${error}\nCurrent codec :${this.#codecSettings}`) },
         });
 
@@ -414,8 +414,9 @@ class VoiceCall {
                 this.#audioTimestamp += 20_000;
             }
         }
+    }
 
-        function encoderCallback(audioChunk, audioTimestamp, socket, packetEncode) {
+    #encoderCallback(audioChunk, audioTimestamp, socket, packetEncode, user) {
             // Get a copy of audioChunk and audioTimestamp
             const audioChunkCopy = new ArrayBuffer(audioChunk.byteLength);
             audioChunk.copyTo(audioChunkCopy);
@@ -424,7 +425,7 @@ class VoiceCall {
             const header = JSON.stringify({
                 timestamp: Date.now(),
                 audioTimestamp: audioTimestamp / 1000, // audioTimestamp is in µs but sending ms is enough
-                user: this.#user,
+                user: user,
             })
 
             const packet = packetEncode(header, audioChunkCopy);
@@ -434,7 +435,6 @@ class VoiceCall {
                 socket.send(packet);
             }
         }
-    }
 
     #receiveAndDecode(packet, packetDecode) {
         const result = packetDecode(packet);
