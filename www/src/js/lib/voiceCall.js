@@ -143,7 +143,9 @@ class VoiceCall {
         if (userId && this.#users[userId] === undefined && this.#socket !== null && this.#socket.readyState === WebSocket.OPEN) {
             const isSupported = await AudioDecoder.isConfigSupported(this.#codecSettings);
             if (isSupported.supported) {
-                this.#users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null, source: null };
+                this.#users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null, source: null, gateHtml: null };
+
+                this.#users[userId].gateHtml = document.getElementById(`voice-gate-${userId}`);
 
                 if (!this.#settings.users[userId]) {
                     this.#settings.users[userId] = { muted: false, volume: 1 };
@@ -456,10 +458,10 @@ class VoiceCall {
 
             // User gate open/close
             if (header.gateState){
-                document.getElementById(`voice-gate-${header.user}`).classList.add('gate-active');
+                currentUser.gateHtml.classList.add('gate-active');
             }
             else{
-                document.getElementById(`voice-gate-${header.user}`).classList.remove('gate-active');
+                currentUser.gateHtml.classList.remove('gate-active');
             }
 
             // Decode and read audio
