@@ -55,12 +55,6 @@ class NoiseGate extends AudioWorkletProcessor {
         if (this.smoothRms > threshold) {
             // Gate open
             this.gain = 1 - (1 - this.gain) * attackCoeff;
-
-            // Change state
-            if (!this.isOpen) {
-                this.isOpen = true;
-                this.port.postMessage({ open: this.isOpen });
-            }
         } else {
             // Gate close
             this.gain = this.gain * releaseCoeff;
@@ -73,6 +67,13 @@ class NoiseGate extends AudioWorkletProcessor {
         // Apply gain
         for (let i = 0; i < input.length; i++) {
             output[i] = input[i] * this.gain;
+        }
+
+        // Determine open/close state (with hysteresis to avoid flicker)
+        const openNow = this.smoothRms > threshold * 1.1; // 10% hysteresis
+        if (openNow !== this.isOpen) {
+            this.isOpen = openNow;
+            this.port.postMessage({ open: this.isOpen });
         }
 
         return true;
