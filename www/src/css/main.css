@@ -54,14 +54,14 @@ form.popup {
     display: flex;
     margin-top: 1.5rem;
     width: 100%;
-    background-color: #6366f1;
+    background-color: var(--pri-button-bg-color);
     color: #ffffff;
     justify-content: center;
     align-items: center;
 }
 
 .login-form button:hover {
-    background-color: #4042a1;
+    background-color: var(--pri-button-hover-color);
 }
 
 .login-form .switch {
@@ -71,11 +71,11 @@ form.popup {
     padding: 0 !important;
     font-family: arial, sans-serif;
     text-decoration: underline;
-    color: #6366f1;
+    color: var(--pri-button-bg-color);
 }
 
 .login-form .switch:hover {
-    color: #4042a1;
+    color: var(--pri-button-hover-color);
 }
 
 .login-element {
@@ -751,11 +751,11 @@ textarea.config-item {
 }
 
 .server-structure-tree-item.server-structure-room {
-    border-left: 4px solid rgb(34 197 94);
+    border-left: 4px solid var(--pri-button-bg-color);
 }
 
 .server-structure-tree-item.server-structure-category {
-    border-left: 4px solid rgb(99, 102, 241);
+    border-left: 4px solid var(--pri-button-bg-color);
 }
 
 .server-structure-tree-item.dragging {
@@ -924,19 +924,18 @@ textarea.config-item {
 }
 
 .toggle-btn.active.enabled {
-    background: rgb(37, 211, 102) !important;
-    border-color: rgb(37, 211, 102) !important;
-    color: black;
+    background: var(--pri-button-bg-color) !important;
+    border-color: var(--pri-button-bg-color) !important;
 }
 
 .toggle-btn.active.disabled {
-    background: rgb(220, 38, 38) !important;
-    border-color: rgb(220, 38, 38) !important;
+    background: var(--sec-button-bg-color) !important;
+    border-color: var(--sec-button-bg-color) !important;
 }
 
 .toggle-btn.active.default {
-    background: #6366f1 !important;
-    border-color: #6366f1 !important;
+    background: var(--qua-bg-color)!important;
+    border-color: var(--qua-bg-color)!important;
 }
 
 .empty-state {

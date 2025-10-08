@@ -74,9 +74,7 @@ class EmojiPicker {
     attachEvents() {
         this.element.querySelectorAll('.emoji-category-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const category = btn.dataset.category;
-                this.currentCategory = category;
-
+                this.currentCategory = btn.dataset.category;
                 this.element.querySelectorAll('.emoji-category-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
@@ -96,29 +94,32 @@ async function initCustomGeneral(picker) {
     initCustomEmojiCategory(picker,
         'custom_general',
         '<img src="src/img/favicon.png" alt="revoice"/>',
-        global.chat.emojisGlobal)
+        global.chat.emojisGlobal.map(emote => {
+            return {link: emote, content: emote, description: emote, names: [emote]}
+        }))
 }
 
-function initCustomServer(picker) {
-    picker.addCustomEmojiCategory('custom_server', {
-        icon: '🏠',
-        emojis: [
-            {content: '🏰', description: "castle", names: ["castle"]},
-            {content: '⚔️', description: "sword", names: ["sword"]},
-            {content: '🛡️', description: "shield", names: ["shield"]}
-        ]
-    })
+async function initCustomServer(picker) {
+    initCustomEmojiCategory(picker,
+        'custom_server',
+        '🏠',
+         [
+             { link: "🏰", content: "🏰", description: "castle", names: ["castle"]},
+             { link: "⚔️", content: "⚔️", description: "sword", names: ["sword"]},
+             { link: "🛡️", content: "🛡️", description: "shield", names: ["shield"]}
+         ]
+        )
 }
 
-function initCustomUser(picker) {
-    picker.addCustomEmojiCategory('custom_perso', {
-        icon: '👽',
-        emojis: [
-            {content: '🦄', description: "unicorn", names: ["unicorn"]},
-            {content: '🌟', description: "star", names: ["star"]},
-            {content: '🔮', description: "magic", names: ["magic"]}
+async function initCustomUser(picker) {
+    initCustomEmojiCategory(picker, 'custom_perso',
+        `<img class="emoji ${global.user.id}" src="${global.url.media}/profiles/${global.user.id}" alt="user-emote"/>`,
+        [
+            { link: "🦄", content: "🦄", description: "unicorn", names: ["unicorn"]},
+            { link: "🌟", content: "🌟", description: "star", names: ["star"]},
+            { link: "🔮", content: "🔮", description: "magic", names: ["magic"]}
         ]
-    })
+    )
 }
 
 function initCustomEmojiCategory(picker, name, icon, emojis) {
@@ -128,10 +129,10 @@ function initCustomEmojiCategory(picker, name, icon, emojis) {
     }
     emojis.forEach(emote => {
         emojiCategory.emojis.push({
-            content: `<img class="emoji" src="${global.url.media}/emojis/${emote}" alt="${emote}" title=":${emote}:"/>`,
-            data: `:${emote}:`,
-            description: emote,
-            names: [emote]
+            content: `<img class="emoji" src="${global.url.media}/emojis/${emote.link}" alt="${emote.content}" title=":${emote.content}:"/>`,
+            data: `:${emote.content}:`,
+            description: emote.description,
+            names: emote.names
         })
     })
     picker.addCustomEmojiCategory(name, emojiCategory)

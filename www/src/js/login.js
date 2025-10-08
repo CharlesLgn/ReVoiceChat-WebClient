@@ -81,6 +81,12 @@ async function login(loginData, host) {
             focusConfirm: false,
             allowOutsideClick: false,
             animation: false,
+            customClass: {
+                title: "swalTitle",
+                popup: "swalPopup",
+                cancelButton: "swalCancel",
+                confirmButton: "swalConfirm",
+            },
         })
     }
 }

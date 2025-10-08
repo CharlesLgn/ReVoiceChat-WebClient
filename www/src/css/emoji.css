@@ -93,7 +93,7 @@
 
 .emoji-search-input:focus {
     outline: none;
-    border-color: #5865f2;
+    border-color: var(--pri-button-bg-color);
 }
 
 .emoji-picker-body {
