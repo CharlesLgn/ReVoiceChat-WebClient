@@ -359,7 +359,11 @@ textarea.config-item:hover {
     border: 1px solid var(--pri-bd-color);
 }
 
-.swal-input,
+.swal-input {
+    color: var(--pri-text-color);
+    background-color: var(--sec-bg-color);
+}
+
 .swalTitle {
     color: var(--pri-text-color);
 }
