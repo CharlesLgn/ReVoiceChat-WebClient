@@ -40,11 +40,10 @@ function settingThemeShow() {
     const themeForm = document.getElementById("setting-themes-form");
     let html = "";
     getAllDeclaredDataThemes().forEach(theme => html += `
-        <button style="padding: 0" type="button" onclick="changeTheme('${theme}')">
+        <button style="padding: 0" class="theme-select-button" type="button" onclick="changeTheme('${theme}')">
             <revoice-theme-preview theme="${theme}"></revoice-theme-preview>
         </button>`);
     themeForm.innerHTML = html;
-    //document.querySelector(`revoice-theme-preview[theme="${localStorage.getItem("Theme")}"]`).parentElement.disabled = true;
 }
 
 function selectSettingItem(name) {

@@ -909,7 +909,6 @@ textarea.config-item {
     border: 1px solid;
     border-color: var(--ter-bg-color) !important;
     background: var(--ter-bg-color) !important;
-    ;
     border-radius: 0.25rem;
     cursor: pointer;
     font-size: 0.875rem;
@@ -929,8 +928,8 @@ textarea.config-item {
 }
 
 .toggle-btn.active.disabled {
-    background: var(--sec-button-bg-color) !important;
-    border-color: var(--sec-button-bg-color) !important;
+    background: var(--ter-button-bg-color) !important;
+    border-color: var(--ter-button-bg-color) !important;
 }
 
 .toggle-btn.active.default {
