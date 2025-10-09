@@ -335,7 +335,7 @@ class ServerRolesWebComponent extends HTMLElement {
                 </div>
                 <div class="server-structure-form-group">
                     <label for="roleColor">Color</label>
-                    <input style="height: 2.5rem; padding: 0" type="color" id="roleColor" value="#6366f1">
+                    <input style="height: 2.5rem; padding: 0" type="color" id="roleColor" value="#5e8c61">
                 </div>
                 <div class="server-structure-form-group">
                     <label for="rolePriority">Priority</label>
