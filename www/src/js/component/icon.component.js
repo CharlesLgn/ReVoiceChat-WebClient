@@ -195,7 +195,7 @@ class ArrowPointingIn extends HTMLElement {
 }
 
 class SpeakerIconComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
         this.innerHTML = `
             <svg data-slot="icon" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -206,7 +206,7 @@ class SpeakerIconComponent extends HTMLElement {
 }
 
 class SpeakerXIconComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
         this.innerHTML = `
             <svg data-slot="icon" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -216,17 +216,17 @@ class SpeakerXIconComponent extends HTMLElement {
 }
 
 class EmojiIconComponent extends HTMLElement {
-        constructor(){
+    constructor() {
         super()
         this.innerHTML = `
             <svg data-slot="icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path clip-rule="evenodd" fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-2.625 6c-.54 0-.828.419-.936.634a1.96 1.96 0 0 0-.189.866c0 .298.059.605.189.866.108.215.395.634.936.634.54 0 .828-.419.936-.634.13-.26.189-.568.189-.866 0-.298-.059-.605-.189-.866-.108-.215-.395-.634-.936-.634Zm4.314.634c.108-.215.395-.634.936-.634.54 0 .828.419.936.634.13.26.189.568.189.866 0 .298-.059.605-.189.866-.108.215-.395.634-.936.634-.54 0-.828-.419-.936-.634a1.96 1.96 0 0 1-.189-.866c0-.298.059-.605.189-.866Zm2.023 6.828a.75.75 0 1 0-1.06-1.06 3.75 3.75 0 0 1-5.304 0 .75.75 0 0 0-1.06 1.06 5.25 5.25 0 0 0 7.424 0Z"></path>
             </svg>`
-        }
+    }
 }
 
 class UserIconComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
         this.innerHTML = `
             <svg data-slot="icon" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -236,7 +236,7 @@ class UserIconComponent extends HTMLElement {
 }
 
 class RoleIconComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
         this.innerHTML = `
             <svg data-slot="icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -257,6 +257,16 @@ class RoleIconComponent extends HTMLElement {
                     mask="url(#userMask)"
                     d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Z">
               </path>
+            </svg>`
+    }
+}
+
+class PaperClipIconComponent extends HTMLElement {
+    constructor() {
+        super()
+        this.innerHTML = `
+            <svg data-slot="icon" aria-hidden="true" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>`
     }
 }
@@ -284,3 +294,4 @@ customElements.define('revoice-icon-speaker-x', SpeakerXIconComponent);
 customElements.define('revoice-icon-emoji', EmojiIconComponent);
 customElements.define('revoice-icon-user', UserIconComponent);
 customElements.define('revoice-icon-role', RoleIconComponent);
+customElements.define('revoice-icon-paper-clip', PaperClipIconComponent);
