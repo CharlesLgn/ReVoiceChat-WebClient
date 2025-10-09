@@ -365,6 +365,19 @@ form.popup label {
     background-color: var(--pri-button-hover-color);
 }
 
+.theme-select-button {
+    background-color: var(--sec-button-bg-color)!important;
+    color: var(--sec-button-text-color)!important;;
+}
+
+.theme-select-button:hover {
+    background-color: var(--sec-button-hover-color)!important;;
+}
+
+.theme-select-button[disabled] {
+    background-color: var(--sec-button-hover-color)!important;;
+}
+
 textarea.config-item:hover {
     background-color: var(--sec-hover-color);
 }
