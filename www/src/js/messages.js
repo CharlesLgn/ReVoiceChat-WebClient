@@ -131,10 +131,13 @@ async function sendMessage() {
     }
 
     // Attachment ?
-    const fileInput = document.getElementById("text-attachment");
-    const filePath = fileInput.value
-    if (filePath) {
-        data.medias.push({ name: filenameFromPath(filePath) });
+    const input = document.getElementById("text-attachment");
+    const attachments = [];
+    if (input) {
+        for (const element of input.files) {
+            data.medias.push({ name: element.name });
+            attachments[element.name] = element;
+        }
     }
 
     switch (getGlobal().chat.mode) {
@@ -151,7 +154,7 @@ async function sendMessage() {
         if (getGlobal().chat.mode === "send") {
             for (const media of result.medias) {
                 const formData = new FormData();
-                formData.append("file", fileInput.files[0]);
+                formData.append("file", attachments[media.name]);
                 await fetch(`${getGlobal().url.media}/attachments/${media.id}`, {
                     method: "POST",
                     signal: AbortSignal.timeout(5000),
@@ -164,7 +167,7 @@ async function sendMessage() {
         }
 
         // Clean file input
-        fileInput.value = "";
+        attachments.value = "";
         document.getElementById("text-attachment-div").classList.add('hidden');
 
         // Clean text input

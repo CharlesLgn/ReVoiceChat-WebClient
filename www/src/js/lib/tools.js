@@ -145,15 +145,6 @@ async function copyToClipboard(data) {
     }
 }
 
-function filenameFromPath(path) {
-    let startIndex = (path.indexOf('\\') >= 0 ? path.lastIndexOf('\\') : path.lastIndexOf('/'));
-    let filename = path.substring(startIndex);
-    if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
-        filename = filename.substring(1);
-    }
-    return filename;
-}
-
 function getGlobal() {
     return global;
 }
