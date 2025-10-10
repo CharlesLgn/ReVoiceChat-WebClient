@@ -932,7 +932,6 @@ textarea.config-item {
 
 .toggle-btn:hover {
     background: var(--qua-bg-color) !important;
-    ;
 }
 
 .toggle-btn.active.enabled {

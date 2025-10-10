@@ -163,7 +163,7 @@ customElements.define('revoice-theme-preview', ThemePreviewComponent);
 function getDataThemesFromDOM() {
   return Array.from(new Set(
       Array.from(document.querySelectorAll('[data-theme]'))
-          .map(el => el.getAttribute('data-theme') || "")
+          .map(el => el.dataset.theme || "")
           .flatMap(v => v.split(/\s+/))
           .filter(Boolean)
   ));
@@ -171,7 +171,7 @@ function getDataThemesFromDOM() {
 
 function getDataThemesFromStylesheets() {
   const themes = new Set();
-  const regex = /\[data-theme\s*=\s*["']?([^"'\]]+)["']?]/g;
+  const regex = /\[data-theme\s*=\s*(?:"([^"\]]+)"|'([^'\]]+)'|([^\]\s]+))]/g;
 
   for (const sheet of document.styleSheets) {
     let rules;

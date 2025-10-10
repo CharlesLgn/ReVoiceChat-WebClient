@@ -216,9 +216,9 @@ class MessageComponent extends HTMLElement {
   }
 
   #renderCodeTemplate(contentDiv) {
-    contentDiv.querySelectorAll('pre code').forEach(block => {
+    for (const block of contentDiv.querySelectorAll('pre code')) {
       hljs.highlightElement(block);
-    });
+    }
   }
 
   /** Identify HTML tags in the input string. Replacing the identified HTML tag with a null string.*/
@@ -231,20 +231,20 @@ class MessageComponent extends HTMLElement {
 
   #injectEmojis(inputText) {
     return inputText.replace(/:([A-Za-z0-9\-_]+):/g, (_, emoji) => {
-      if (global.chat.emojisGlobal.includes(emoji)) {
-        return `<img class="emoji" src="${global.url.media}/emojis/${emoji}" alt="${emoji}" title=":${emoji}:">`;
+      if (getGlobal().chat.emojisGlobal.includes(emoji)) {
+        return `<img class="emoji" src="${getGlobal().url.media}/emojis/${emoji}" alt="${emoji}" title=":${emoji}:">`;
       }
       console.log(this.emotes);
       const emote = Array.from(this.emotes).find(item => item.name === emoji);
       if (emote) {
-        return `<img class="emoji" src="${global.url.media}/emojis/${emote.id}" alt="${emoji}" title=":${emoji}:">`;
+        return `<img class="emoji" src="${getGlobal().url.media}/emojis/${emote.id}" alt="${emoji}" title=":${emoji}:">`;
       }
       return `:${emoji}:`
     });
   }
 
   #setupMarked() {
-    var renderer = new marked.Renderer();
+    const renderer = new marked.Renderer();
     renderer.heading = function ({tokens: e, depth: t}) {
       const text = this.parser.parse(e);
       const DIV = document.createElement('div');

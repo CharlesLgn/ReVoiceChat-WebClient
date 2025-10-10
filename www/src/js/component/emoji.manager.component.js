@@ -3,9 +3,7 @@ class EmojiManager extends HTMLElement {
         super();
         this.attachShadow({ mode: 'open' });
         this.emojis = [];
-        this.emojiImages = {};
         this.currentEditId = null;
-        this.previewImage = null;
     }
 
     connectedCallback() {
@@ -96,7 +94,12 @@ class EmojiManager extends HTMLElement {
         const reader = new FileReader();
         reader.onload = (e) => {
             const preview = this.shadowRoot.getElementById(previewId);
-            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            const src = e.target.result
+            if (typeof src === 'string') {
+                preview.innerHTML = `<img src="${src}" alt="Preview">`;
+            } else {
+                console.warn('Unexpected non-string FileReader result', src);
+            }
             preview.style.display = 'flex';
         };
         reader.readAsDataURL(file);
@@ -155,11 +158,11 @@ class EmojiManager extends HTMLElement {
             );
             const formData = new FormData();
             formData.append('file', file);
-            await fetch(`${global.url.media}/emojis/${emojiData.id}`, {
+            await fetch(`${getGlobal().url.media}/emojis/${emojiData.id}`, {
                 method: "POST",
                 signal: AbortSignal.timeout(5000),
                 headers: {
-                    'Authorization': `Bearer ${global.jwtToken}`
+                    'Authorization': `Bearer ${getGlobal().jwtToken}`
                 },
                 body: formData
             });
@@ -167,7 +170,6 @@ class EmojiManager extends HTMLElement {
             // Temporary: Store image locally until API is integrated
             const reader = new FileReader();
             reader.onload = (e) => {
-                this.emojiImages[emojiData.id] = e.target.result;
                 this.emojis.push(emojiData);
 
                 // Dispatch custom event
@@ -215,7 +217,6 @@ class EmojiManager extends HTMLElement {
 
                     // Temporary: Delete locally until API is integrated
                     this.emojis = this.emojis.filter(e => e.id !== id);
-                    delete this.emojiImages[id];
 
                     // Dispatch custom event
                     this.dispatchEvent(new CustomEvent('emoji-deleted', {
@@ -245,13 +246,8 @@ class EmojiManager extends HTMLElement {
 
         // Show current image
         const editPreview = this.shadowRoot.getElementById('editPreview');
-        if (this.emojiImages[id]) {
-            editPreview.innerHTML = `<img src="${this.emojiImages[id]}" alt="${emoji.name}">`;
-            editPreview.style.display = 'flex';
-        } else {
-            editPreview.innerHTML = '<span style="font-size: 2rem;">🎨</span>';
-            editPreview.style.display = 'flex';
-        }
+        editPreview.innerHTML = `<img src="${getGlobal().url.media}/emojis/${id}" alt="${emoji.name}">`;
+        editPreview.style.display = 'flex';
 
         this.shadowRoot.getElementById('editModal').classList.add('active');
     }
@@ -303,11 +299,11 @@ class EmojiManager extends HTMLElement {
                     if (fileInput.files[0]) {
                         const formData = new FormData();
                         formData.append('file', fileInput.files[0]);
-                        await fetch(`${global.url.media}/emojis/${emojiData.id}`, {
+                        await fetch(`${getGlobal().url.media}/emojis/${this.currentEditId}`, {
                             method: "POST",
                             signal: AbortSignal.timeout(5000),
                             headers: {
-                                'Authorization': `Bearer ${global.jwtToken}`
+                                'Authorization': `Bearer ${getGlobal().jwtToken}`
                             },
                             body: formData
                         });
@@ -315,8 +311,6 @@ class EmojiManager extends HTMLElement {
                         // Temporary: Store image locally until API is integrated
                         const reader = new FileReader();
                         reader.onload = (e) => {
-                            this.emojiImages[this.currentEditId] = e.target.result;
-
                             // Dispatch custom event
                             this.dispatchEvent(new CustomEvent('emoji-updated', {
                                 detail: { emoji, oldName },
@@ -370,7 +364,7 @@ class EmojiManager extends HTMLElement {
             <div class="config-item">
                 <div class="emoji-header">
                     <div class="emoji-preview">
-                        <img src="${global.url.media}/emojis/${emoji.id}" alt="${emoji.name}">
+                        <img src="${getGlobal().url.media}/emojis/${emoji.id}" alt="${emoji.name}">
                     </div>
                     <div class="emoji-info">
                         <div class="emoji-name">:${emoji.name}:</div>
@@ -389,13 +383,13 @@ class EmojiManager extends HTMLElement {
         `).join('');
 
         // Add event listeners for buttons
-        grid.querySelectorAll('button[data-action="edit"]').forEach(btn => {
+        for (const btn of grid.querySelectorAll('button[data-action="edit"]')) {
             btn.addEventListener('click', () => this.openEditModal(btn.dataset.id));
-        });
+        }
 
-        grid.querySelectorAll('button[data-action="delete"]').forEach(btn => {
+        for (const btn of grid.querySelectorAll('button[data-action="delete"]')) {
             btn.addEventListener('click', () => this.deleteEmoji(btn.dataset.id));
-        });
+        }
     }
 
     render() {
