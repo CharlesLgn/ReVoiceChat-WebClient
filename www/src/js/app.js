@@ -30,7 +30,7 @@ const global = {
 
 // Ready state
 document.addEventListener('DOMContentLoaded', function () {
-    document.documentElement.setAttribute("data-theme", localStorage.getItem("Theme") || "dark");
+    document.documentElement.dataset.theme = localStorage.getItem("Theme") || "dark";
 
     // Login
     if (sessionStorage.getItem('url.core')) {

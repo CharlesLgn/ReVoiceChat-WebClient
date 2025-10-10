@@ -72,15 +72,17 @@ class EmojiPicker {
     }
 
     attachEvents() {
-        this.element.querySelectorAll('.emoji-category-btn').forEach(btn => {
+        for (const btn of this.element.querySelectorAll('.emoji-category-btn')) {
             btn.addEventListener('click', () => {
                 this.currentCategory = btn.dataset.category;
-                this.element.querySelectorAll('.emoji-category-btn').forEach(b => b.classList.remove('active'));
+                for (const b of this.element.querySelectorAll('.emoji-category-btn')) {
+                    b.classList.remove('active');
+                }
                 btn.classList.add('active');
 
                 this.renderEmojis();
             });
-        });
+        }
 
         const searchInput = this.element.querySelector('.emoji-search-input');
         searchInput.addEventListener('input', (e) => {
@@ -94,13 +96,13 @@ async function initCustomGeneral(picker) {
     initCustomEmojiCategory(picker,
         'custom_general',
         '<img src="src/img/favicon.png" alt="revoice"/>',
-        global.chat.emojisGlobal.map(emote => {
+        getGlobal().chat.emojisGlobal.map(emote => {
             return {link: emote, content: emote, description: emote, names: [emote]}
         }))
 }
 
 async function initCustomServer(picker) {
-    const emojis = await fetchCoreAPI(`/emote/server/${global.server.id}`);
+    const emojis = await fetchCoreAPI(`/emote/server/${getGlobal().server.id}`);
     initCustomEmojiCategory(picker, 'custom_server',
         '🏠',
         Array.from(emojis).map(emoji => {
@@ -117,8 +119,8 @@ async function initCustomServer(picker) {
 async function initCustomUser(picker) {
     const emojis = await fetchCoreAPI(`/emote/me`);
     initCustomEmojiCategory(picker, 'custom_perso',
-        `<img class="emoji ${global.user.id}"
-                   src="${global.url.media}/profiles/${global.user.id}"
+        `<img class="emoji ${getGlobal().user.id}"
+                   src="${getGlobal().url.media}/profiles/${getGlobal().user.id}"
                    style="border-radius: 9999px;"
                    alt="user-emote"/>`,
         Array.from(emojis).map(emoji => {
@@ -139,7 +141,7 @@ function initCustomEmojiCategory(picker, name, icon, emojis) {
     }
     for (const emote of emojis) {
         emojiCategory.emojis.push({
-            content: `<img class="emoji" src="${global.url.media}/emojis/${emote.link}" alt="${emote.content}" title=":${emote.content}:"/>`,
+            content: `<img class="emoji" src="${getGlobal().url.media}/emojis/${emote.link}" alt="${emote.content}" title=":${emote.content}:"/>`,
             data: `:${emote.content}:`,
             description: emote.description,
             names: emote.names

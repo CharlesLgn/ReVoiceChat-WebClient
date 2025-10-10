@@ -8,7 +8,7 @@ document.getElementById("text-input").addEventListener('keydown', function (e) {
 
     if (e.key === 'Escape') {
         document.getElementById("text-input").value = "";
-        global.chat.mode = "send";
+        getGlobal().chat.mode = "send";
     }
 });
 
@@ -103,7 +103,7 @@ function createMessageContent(data) {
 }
 
 function createMessageContextMenu(messageData) {
-    if (messageData.user.id == global.user.id) {
+    if (messageData.user.id == getGlobal().user.id) {
         return `
         <div class="message-context-menu">
             <div class="icon" onclick="editMessage('${messageData.id}')"><revoice-icon-pencil></revoice-icon-pencil></div>
@@ -137,26 +137,26 @@ async function sendMessage() {
         data.medias.push({ name: filenameFromPath(filePath) });
     }
 
-    switch (global.chat.mode) {
+    switch (getGlobal().chat.mode) {
         case "send":
-            result = await fetchCoreAPI(`/room/${global.room.id}/message`, 'PUT', data);
+            result = await fetchCoreAPI(`/room/${getGlobal().room.id}/message`, 'PUT', data);
             break;
 
         case "edit":
-            result = await fetchCoreAPI(`/message/${global.chat.editId}`, 'PATCH', data);
+            result = await fetchCoreAPI(`/message/${getGlobal().chat.editId}`, 'PATCH', data);
             break;
     }
 
     if (result) {
-        if (global.chat.mode == "send") {
-            for (media of result.medias) {
+        if (getGlobal().chat.mode === "send") {
+            for (const media of result.medias) {
                 const formData = new FormData();
                 formData.append("file", fileInput.files[0]);
-                await fetch(`${global.url.media}/attachments/${result.id}`, {
+                await fetch(`${getGlobal().url.media}/attachments/${media.id}`, {
                     method: "POST",
                     signal: AbortSignal.timeout(5000),
                     headers: {
-                        'Authorization': `Bearer ${global.jwtToken}`
+                        'Authorization': `Bearer ${getGlobal().jwtToken}`
                     },
                     body: formData
                 });
@@ -173,8 +173,8 @@ async function sendMessage() {
         textarea.style.height = "auto";
 
         // Default mode
-        global.chat.mode = "send";
-        global.chat.editId = null;
+        getGlobal().chat.mode = "send";
+        getGlobal().chat.editId = null;
         return;
     }
 
@@ -193,8 +193,8 @@ async function editMessage(id) {
         textarea.value = result.text;
         textarea.style.height = "auto";
         textarea.style.height = textarea.scrollHeight + "px";
-        global.chat.mode = "edit";
-        global.chat.editId = id;
+        getGlobal().chat.mode = "edit";
+        getGlobal().chat.editId = id;
         document.getElementById("text-input").focus();
     }
 }
@@ -204,15 +204,15 @@ function textInputMode(input) {
     textarea.style.height = "auto";
     textarea.style.height = textarea.scrollHeight + "px";
     if (input.value == "") {
-        global.chat.mode = "send";
-        global.chat.editId = null;
+        getGlobal().chat.mode = "send";
+        getGlobal().chat.editId = null;
         console.info("CHAT : Switching to 'send' mode");
     }
 }
 
 async function getEmojisGlobal() {
     try {
-        const response = await fetch(`${global.url.media}/emojis/global/all`, {
+        const response = await fetch(`${getGlobal().url.media}/emojis/global/all`, {
             signal: AbortSignal.timeout(5000),
         });
 
@@ -220,15 +220,15 @@ async function getEmojisGlobal() {
             throw new Error("Not OK");
         }
 
-        global.chat.emojisGlobal = await response.json();
+        getGlobal().chat.emojisGlobal = await response.json();
     } catch (error) {
-        console.error(`An error occurred while processing your request \n${error}\nHost : ${global.url.media}\n`);
+        console.error(`An error occurred while processing your request \n${error}\nHost : ${getGlobal().url.media}\n`);
         return null;
     }
 }
 
 function roomMessage(data) {
-    if (data.message.roomId !== global.room.id) {
+    if (data.message.roomId !== getGlobal().room.id) {
         return;
     }
 
@@ -255,8 +255,12 @@ function roomMessage(data) {
 function userUpdate(data) {
     console.log(data);
     const id = data.id;
-    document.querySelectorAll(`.${id} img.icon`).forEach(icon => icon.src = `${global.url.media}/profiles/${id}?t=${new Date().getTime()}`);
-    document.querySelectorAll(`.${id} .name`).forEach(name => name.innerText = data.displayName);
+    for (const icon of document.querySelectorAll(`.${id} img.icon`)) {
+        icon.src = `${getGlobal().url.media}/profiles/${id}?t=${Date.now()}`;
+    }
+    for (const name of document.querySelectorAll(`.${id} .name`)) {
+        name.innerText = data.displayName;
+    }
 }
 
 function messageJoinAttachment() {

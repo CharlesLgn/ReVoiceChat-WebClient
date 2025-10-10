@@ -11,9 +11,9 @@ const currentSetting = {
 let newProfilPictureFile = null;
 
 function settingLoad() {
-    document.getElementById("setting-user-uuid").innerText = global.user.id;
-    document.getElementById("setting-user-name").value = global.user.displayName;
-    document.getElementById("setting-user-picture").src = `${global.url.media}/profiles/${global.user.id}`;
+    document.getElementById("setting-user-uuid").innerText = getGlobal().user.id;
+    document.getElementById("setting-user-name").value = getGlobal().user.displayName;
+    document.getElementById("setting-user-picture").src = `${getGlobal().url.media}/profiles/${getGlobal().user.id}`;
     settingThemeShow();
     settingEmoteShow();
     settingVolumeShow();
@@ -40,10 +40,11 @@ function settingLoad() {
 function settingThemeShow() {
     const themeForm = document.getElementById("setting-themes-form");
     let html = "";
-    getAllDeclaredDataThemes().forEach(theme => html += `
-        <button style="padding: 0" class="theme-select-button" type="button" onclick="changeTheme('${theme}')">
-            <revoice-theme-preview theme="${theme}"></revoice-theme-preview>
-        </button>`);
+    for (const theme of getAllDeclaredDataThemes()) {
+        html += `<button style="padding: 0" class="theme-select-button" type="button" onclick="changeTheme('${theme}')">
+                     <revoice-theme-preview theme="${theme}"></revoice-theme-preview>
+                 </button>`;
+    }
     themeForm.innerHTML = html;
 }
 
@@ -70,11 +71,13 @@ function selectSettingItem(name) {
 
 function changeTheme(theme) {
     localStorage.setItem("Theme", theme);
-    document.querySelectorAll("revoice-message").forEach(elt => elt.setAttribute("data-theme", theme));
-    document.documentElement.setAttribute("data-theme", theme);
-    document.querySelectorAll(`revoice-theme-preview`).forEach(elt => {
+    for (const elt of document.querySelectorAll("revoice-message")) {
+        elt.dataset.theme = theme;
+    }
+    document.documentElement.dataset.theme = theme;
+    for (const elt of document.querySelectorAll(`revoice-theme-preview`)) {
         elt.parentElement.disabled = false
-    })
+    }
     document.querySelector(`revoice-theme-preview[theme="${theme}"]`).parentElement.disabled = true;
 }
 
@@ -130,7 +133,7 @@ async function settingDisplayName(displayName) {
     }
     const result = await fetchCoreAPI(`/user/me`, 'PATCH', {displayName: displayName});
     if (result) {
-        global.user.displayName = result.displayName
+        getGlobal().user.displayName = result.displayName
         document.getElementById('setting-user-name').value = result.displayName;
     }
 }
@@ -140,11 +143,11 @@ async function settingProfilePicture() {
     if (settingUserPictureNewPath.value && newProfilPictureFile) {
         const formData = new FormData();
         formData.append("file", newProfilPictureFile);
-        await fetch(`${global.url.media}/profiles/${global.user.id}`, {
+        await fetch(`${getGlobal().url.media}/profiles/${getGlobal().user.id}`, {
             method: "POST",
             signal: AbortSignal.timeout(5000),
             headers: {
-                'Authorization': `Bearer ${global.jwtToken}`
+                'Authorization': `Bearer ${getGlobal().jwtToken}`
             },
             body: formData
         });
@@ -159,16 +162,16 @@ function uploadNewProfilePicture() {
 }
 
 function settingVolumeDirectShow(element) {
-    document.getElementById('volume-label').innerText = `Volume ${parseInt(element.value * 100)}%`;
+    document.getElementById('volume-label').innerText = `Volume ${Number.parseInt(element.value * 100)}%`;
 }
 
 function settingVolumeShow() {
-    document.getElementById('volume-label').innerText = `Volume ${parseInt(voice.settings.self.volume * 100)}%`;
+    document.getElementById('volume-label').innerText = `Volume ${Number.parseInt(voice.settings.self.volume * 100)}%`;
     document.getElementById('volume-input').value = voice.settings.self.volume;
 }
 
 function settingVolumeUpdate(data) {
-    voice.settings.self.volume = parseFloat(data.value)
+    voice.settings.self.volume = Number.parseFloat(data.value)
     appSaveSettings();
     settingVolumeShow();
     voiceUpdateSelfVolume();
@@ -239,19 +242,19 @@ function settingCompressorUpdate(param, data) {
             voice.settings.compressor.enabled = data.checked === "checked";
             break;
         case 'attack':
-            voice.settings.compressor.attack = parseFloat(data.value);
+            voice.settings.compressor.attack = Number.parseFloat(data.value);
             break;
         case 'ratio':
-            voice.settings.compressor.ratio = parseInt(data.value);
+            voice.settings.compressor.ratio = Number.parseInt(data.value);
             break;
         case 'reduction':
-            voice.settings.compressor.reduction = parseFloat(data.value);
+            voice.settings.compressor.reduction = Number.parseFloat(data.value);
             break;
         case 'release':
-            voice.settings.compressor.release = parseFloat(data.value);
+            voice.settings.compressor.release = Number.parseFloat(data.value);
             break;
         case 'threshold':
-            voice.settings.compressor.threshold = parseInt(data.value);
+            voice.settings.compressor.threshold = Number.parseInt(data.value);
             break;
     }
 
@@ -314,13 +317,13 @@ function settingNoiseGateShow() {
 function settingNoiseGateUpdate(param, data) {
     switch (param) {
         case 'attack':
-            voice.settings.gate.attack = parseFloat(data.value);
+            voice.settings.gate.attack = Number.parseFloat(data.value);
             break;
         case 'release':
-            voice.settings.gate.release = parseFloat(data.value);
+            voice.settings.gate.release = Number.parseFloat(data.value);
             break;
         case 'threshold':
-            voice.settings.gate.threshold = parseInt(data.value);
+            voice.settings.gate.threshold = Number.parseInt(data.value);
             break;
     }
 

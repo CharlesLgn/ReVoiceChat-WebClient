@@ -8,8 +8,8 @@ async function getServers() {
 
     buildServerList(result);
 
-    if (global.server.id !== null) {
-        selectServer(global.server);
+    if (getGlobal().server.id !== null) {
+        selectServer(getGlobal().server);
     }
     else {
         selectServer(result[0]);
@@ -31,7 +31,7 @@ function selectServer(serverData) {
 
     console.info(`SERVER : Selected server : ${serverData.id}`);
 
-    global.server = serverData;
+    getGlobal().server = serverData;
     document.getElementById("server-name").innerText = serverData.name;
 
     getServerUsers(serverData.id);
@@ -41,7 +41,7 @@ function selectServer(serverData) {
 function serverUpdate(data) {
     switch (data.action) {
         case "MODIFY":
-            getRooms(global.server.id);
+            getRooms(getGlobal().server.id);
             return;
         
         default:
@@ -50,14 +50,14 @@ function serverUpdate(data) {
 }
 
 function sseOpen() {
-    console.info(`SERVER : Connecting to "${global.url.core}/api/sse"`);
+    console.info(`SERVER : Connecting to "${getGlobal().url.core}/api/sse"`);
 
     // Close current if it exist before openning a new connection
     sseClose();
 
-    global.sse = new EventSource(`${global.url.core}/api/sse?jwt=${global.jwtToken}`);
+    getGlobal().sse = new EventSource(`${getGlobal().url.core}/api/sse?jwt=${getGlobal().jwtToken}`);
 
-    global.sse.onmessage = (event) => {
+    getGlobal().sse.onmessage = (event) => {
         event = JSON.parse(event.data);
         const type = event.type;
         const data = event.data;
@@ -105,11 +105,11 @@ function sseOpen() {
         }
     };
 
-    global.sse.onerror = () => {
-        console.error(`An error occurred while attempting to connect to "${global.url.core}/api/sse".\nRetry in 10 seconds`);
+    getGlobal().sse.onerror = () => {
+        console.error(`An error occurred while attempting to connect to "${getGlobal().url.core}/api/sse".\nRetry in 10 seconds`);
         setTimeout(() => {
             sseOpen();
-            getMessages(global.room.id);
+            getMessages(getGlobal().room.id);
         }, 10000);
     }
 }

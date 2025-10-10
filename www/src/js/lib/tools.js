@@ -153,3 +153,7 @@ function filenameFromPath(path) {
     }
     return filename;
 }
+
+function getGlobal() {
+    return global;
+}
