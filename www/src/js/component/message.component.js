@@ -163,17 +163,10 @@ class MessageComponent extends HTMLElement {
 
   #handleSlottedEmotes() {
     const emotesSlot = this.shadowRoot.querySelector('slot[name="emotes"]');
-    console.log(emotesSlot);
     const slottedElements = emotesSlot.assignedElements();
-    console.log(slottedElements);
     for (const element of slottedElements) {
-      console.log(element);
-      console.log(element.tagName);
-      console.log(element.type);
-      console.log(element.textContent);
       if (element.tagName === 'SCRIPT' && element.type === 'application/json') {
         this.emotes = JSON.parse(element.textContent)
-        console.log(this.emotes);
         break;
       }
     }

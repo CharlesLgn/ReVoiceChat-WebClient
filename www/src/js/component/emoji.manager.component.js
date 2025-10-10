@@ -155,7 +155,7 @@ class EmojiManager extends HTMLElement {
             );
             const formData = new FormData();
             formData.append('file', file);
-            await fetch(`${global.url.media}/emote/${emojiData.id}`, {
+            await fetch(`${global.url.media}/emojis/${emojiData.id}`, {
                 method: "POST",
                 signal: AbortSignal.timeout(5000),
                 headers: {
@@ -303,7 +303,7 @@ class EmojiManager extends HTMLElement {
                     if (fileInput.files[0]) {
                         const formData = new FormData();
                         formData.append('file', fileInput.files[0]);
-                        await fetch(`${global.url.media}/emote/${emojiData.id}`, {
+                        await fetch(`${global.url.media}/emojis/${emojiData.id}`, {
                             method: "POST",
                             signal: AbortSignal.timeout(5000),
                             headers: {
