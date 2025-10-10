@@ -15,6 +15,7 @@ function settingLoad() {
     document.getElementById("setting-user-name").value = global.user.displayName;
     document.getElementById("setting-user-picture").src = `${global.url.media}/profiles/${global.user.id}`;
     settingThemeShow();
+    settingEmoteShow();
     settingVolumeShow();
     settingNoiseGateShow();
     settingCompressorShow();
@@ -44,6 +45,16 @@ function settingThemeShow() {
             <revoice-theme-preview theme="${theme}"></revoice-theme-preview>
         </button>`);
     themeForm.innerHTML = html;
+}
+
+function settingEmoteShow() {
+    fetchCoreAPI(`/emote/me`).then(response => {
+        const emoteForm = document.getElementById("setting-emotes-form");
+        emoteForm.innerHTML = `
+            <script type="application/json" slot="emojis-data">
+                ${JSON.stringify(response)}
+            </script>`;
+    });
 }
 
 function selectSettingItem(name) {

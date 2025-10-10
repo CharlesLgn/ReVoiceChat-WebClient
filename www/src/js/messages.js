@@ -14,10 +14,10 @@ document.getElementById("text-input").addEventListener('keydown', function (e) {
 
 const picker = new EmojiPicker();
 picker.init()
-    .then(() => initCustomGeneral(picker))
-    .then(() => {
-        initCustomServer(picker)
-        initCustomUser(picker)
+    .then(async () => {
+        await initCustomGeneral(picker)
+        await initCustomUser(picker)
+        await initCustomServer(picker)
         const pickerContainer = document.getElementById('emoji-picker');
         pickerContainer.appendChild(picker.create());
         // Gestion de l'interface

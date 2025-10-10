@@ -13,10 +13,22 @@ async function configLoad() {
     await loadRoomData();
     await loadRoomStructure();
     await loadServerRoles();
+    await loadServerEmotes();
     await loadMembers();
     await loadInvitations();
 
     selectConfigItem("overview");
+}
+
+async function loadServerEmotes() {
+    const response = await fetchCoreAPI(`/emote/server/${global.server.id}`);
+    document.getElementById("emotes-config").innerHTML = `
+        <h1>Emotes</h1>
+        <revoice-emoji-manager path="server/${global.server.id}" id="setting-emotes-form">
+            <script type="application/json" slot="emojis-data">
+                ${JSON.stringify(response)}
+            </script>
+        </revoice-emoji-manager>`
 }
 
 function selectConfigItem(name) {
