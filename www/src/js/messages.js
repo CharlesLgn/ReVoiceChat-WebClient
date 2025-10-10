@@ -130,6 +130,13 @@ async function sendMessage() {
         medias: []
     }
 
+    // Attachment ?
+    const fileInput = document.getElementById("text-attachment");
+    const filePath = fileInput.value
+    if (filePath) {
+        data.medias.push({ name: filenameFromPath(filePath) });
+    }
+
     switch (global.chat.mode) {
         case "send":
             result = await fetchCoreAPI(`/room/${global.room.id}/message`, 'PUT', data);
@@ -137,15 +144,37 @@ async function sendMessage() {
 
         case "edit":
             result = await fetchCoreAPI(`/message/${global.chat.editId}`, 'PATCH', data);
-            global.chat.mode = "send";
-            global.chat.editId = null;
             break;
     }
 
     if (result) {
+        if (global.chat.mode == "send") {
+            for (media of result.medias) {
+                const formData = new FormData();
+                formData.append("file", fileInput.files[0]);
+                await fetch(`${global.url.media}/attachments/${result.id}`, {
+                    method: "POST",
+                    signal: AbortSignal.timeout(5000),
+                    headers: {
+                        'Authorization': `Bearer ${global.jwtToken}`
+                    },
+                    body: formData
+                });
+            }
+        }
+
+        // Clean file input
+        fileInput.value = "";
+        document.getElementById("text-attachment-div").classList.add('hidden');
+
+        // Clean text input
         const textarea = document.getElementById("text-input");
         textarea.value = "";
         textarea.style.height = "auto";
+
+        // Default mode
+        global.chat.mode = "send";
+        global.chat.editId = null;
         return;
     }
 
@@ -230,7 +259,26 @@ function userUpdate(data) {
     document.querySelectorAll(`.${id} .name`).forEach(name => name.innerText = data.displayName);
 }
 
-function messageJoinAttachment(){
+function messageJoinAttachment() {
     const fileInput = document.getElementById("text-attachment");
     fileInput.click();
+    fileInput.addEventListener('change', getFileName);
+}
+
+function messageRemoveAttachment() {
+    const fileInput = document.getElementById("text-attachment");
+    fileInput.value = "";
+    document.getElementById("text-attachment-div").classList.add('hidden');
+}
+
+const getFileName = (event) => {
+    const fileInput = document.getElementById("text-attachment");
+    const fileInputDiv = document.getElementById("text-attachment-div");
+    if (fileInput.value) {
+        fileInputDiv.classList.remove('hidden');
+    }
+
+    const files = event.target.files;
+    const fileName = files[0].name;
+    console.log("file name: ", fileName);
 }
