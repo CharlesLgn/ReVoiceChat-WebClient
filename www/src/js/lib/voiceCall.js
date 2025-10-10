@@ -153,7 +153,7 @@ class VoiceCall {
 
                 this.#users[userId].decoder = new AudioDecoder({
                     output: (chunk) => { this.#decoderCallback(chunk, this.#audioContext, this.#users, userId) },
-                    error: (error) => { throw new Error(`Decoder setup failed:\n${error}\nCurrent codec :${this.#codecSettings}`) },
+                    error: (error) => { throw new Error(`Decoder setup failed:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) },
                 });
 
                 this.#users[userId].decoder.configure(this.#codecSettings)
@@ -301,7 +301,7 @@ class VoiceCall {
         // Setup Encoder
         this.#encoder = new AudioEncoder({
             output: (chunk) => { this.#encoderCallback(chunk, this.#audioTimestamp, this.#socket, this.#packetEncode, this.#user, this.#gateState); },
-            error: (error) => { throw new Error(`Encoder setup failed:\n${error}\nCurrent codec :${this.#codecSettings}`) },
+            error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) },
         });
 
         this.#encoder.configure(this.#codecSettings)

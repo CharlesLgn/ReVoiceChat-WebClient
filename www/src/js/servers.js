@@ -2,25 +2,14 @@ async function getServers() {
     const result = await fetchCoreAPI("/server", 'GET');
 
     if (result === null) {
-        //document.location.href = "index.html";
         return;
     }
 
-    buildServerList(result);
-
-    if (getGlobal().server.id !== null) {
+    if (getGlobal().server.id) {
         selectServer(getGlobal().server);
-    }
-    else {
+    } else {
         selectServer(result[0]);
     }
-}
-
-function buildServerList(data) {
-    /*const serverList = document.getElementById("srv-list");
-    for (const neddle in data) {
-        serverList.appendChild(createAnchor(data[neddle].name, () => selectServer(data[neddle].id), data[neddle].id));
-    }*/
 }
 
 function selectServer(serverData) {
