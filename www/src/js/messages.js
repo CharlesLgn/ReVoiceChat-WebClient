@@ -14,10 +14,10 @@ document.getElementById("text-input").addEventListener('keydown', function (e) {
 
 const picker = new EmojiPicker();
 picker.init()
-    .then(() => initCustomGeneral(picker))
-    .then(() => {
-        initCustomServer(picker)
-        initCustomUser(picker)
+    .then(async () => {
+        await initCustomGeneral(picker)
+        await initCustomUser(picker)
+        await initCustomServer(picker)
         const pickerContainer = document.getElementById('emoji-picker');
         pickerContainer.appendChild(picker.create());
         // Gestion de l'interface
@@ -81,6 +81,9 @@ function createMessage(messageData) {
           <script type="text/markdown" slot="content">
             ${messageData.text}
           </script>
+          <script type="application/json" slot="emotes">
+                ${JSON.stringify(messageData.emotes)}
+        </script>
         </revoice-message>
     `;
     return DIV;
@@ -89,7 +92,13 @@ function createMessage(messageData) {
 function createMessageContent(data) {
     const DIV_CONTENT = document.createElement('revoice-message');
     DIV_CONTENT.id = data.id;
-    DIV_CONTENT.innerHTML = `<script type="text/markdown" slot="content">${data.text}</script>`;
+    DIV_CONTENT.innerHTML = `
+        <script type="text/markdown" slot="content">
+            ${data.text}
+        </script>
+        <script type="application/json" slot="emotes">
+                ${JSON.stringify(data.emotes)}
+        </script>`;
     return DIV_CONTENT;
 }
 

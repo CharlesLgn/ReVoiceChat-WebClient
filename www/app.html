@@ -156,6 +156,9 @@
                     <button class="sub-category" id="roles" onclick="selectConfigItem('roles')">
                         <revoice-icon-role></revoice-icon-role> Roles
                     </button>
+                    <button class="sub-category" id="emotes" onclick="selectConfigItem('emotes')">
+                        <revoice-icon-emoji></revoice-icon-emoji> Emotes
+                    </button>
                     <!-- Members -->
                     <button class="sub-category" id="members" onclick="selectConfigItem('members')">
                         <revoice-icon-users></revoice-icon-users> Members
@@ -218,6 +221,9 @@
                     <revoice-server-roles id="roles-config-component" server-id=""></revoice-server-roles>
                 </div>
 
+                <!-- Emotes -->
+                <div class="hidden" id="emotes-config"></div>
+
                 <!-- Members -->
                 <div class="hidden" id="members-config">
                     <h1>Members</h1>
@@ -257,6 +263,12 @@
                     <button class="sub-category" id="setting-tab-themes" onclick="selectSettingItem('themes')">
                         <revoice-icon-swatch></revoice-icon-swatch>
                         Themes
+                    </button>
+
+                    <!-- Themes -->
+                    <button class="sub-category" id="setting-tab-emotes" onclick="selectSettingItem('emotes')">
+                        <revoice-icon-emoji></revoice-icon-emoji>
+                        Emotes
                     </button>
 
                     <!-- Input -->
@@ -317,6 +329,12 @@
                 <div class="hidden" id="setting-content-themes">
                     <h1>Themes</h1>
                     <form id="setting-themes-form" class="theme-form"></form>
+                </div>
+
+                <!-- Themes -->
+                <div class="hidden" id="setting-content-emotes">
+                    <h1>Emotes</h1>
+                    <revoice-emoji-manager path="me" id="setting-emotes-form"></revoice-emoji-manager>
                 </div>
 
                 <!-- Audio input -->
@@ -418,6 +436,7 @@
     <!-- Components -->
     <script src="src/js/component/icon.component.js"></script>
     <script src="src/js/component/emoji.component.js"></script>
+    <script src="src/js/component/emoji.manager.component.js"></script>
     <script src="src/js/component/message.component.js"></script>
     <script src="src/js/component/theme.component.js"></script>
     <script src="src/js/component/server.roles.component.js" type="module"></script>

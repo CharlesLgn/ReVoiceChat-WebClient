@@ -100,28 +100,35 @@ async function initCustomGeneral(picker) {
 }
 
 async function initCustomServer(picker) {
-    initCustomEmojiCategory(picker,
-        'custom_server',
+    const emojis = await fetchCoreAPI(`/emote/server/${global.server.id}`);
+    initCustomEmojiCategory(picker, 'custom_server',
         '🏠',
-         [
-             { link: "🏰", content: "🏰", description: "castle", names: ["castle"]},
-             { link: "⚔️", content: "⚔️", description: "sword", names: ["sword"]},
-             { link: "🛡️", content: "🛡️", description: "shield", names: ["shield"]}
-         ]
-        )
+        Array.from(emojis).map(emoji => {
+            return {
+                link: emoji.id,
+                content: emoji.name,
+                description: emoji.name,
+                names: emoji.keywords
+            }
+        })
+    )
 }
 
 async function initCustomUser(picker) {
+    const emojis = await fetchCoreAPI(`/emote/me`);
     initCustomEmojiCategory(picker, 'custom_perso',
         `<img class="emoji ${global.user.id}"
                    src="${global.url.media}/profiles/${global.user.id}"
                    style="border-radius: 9999px;"
                    alt="user-emote"/>`,
-        [
-            { link: "🦄", content: "🦄", description: "unicorn", names: ["unicorn"]},
-            { link: "🌟", content: "🌟", description: "star", names: ["star"]},
-            { link: "🔮", content: "🔮", description: "magic", names: ["magic"]}
-        ]
+        Array.from(emojis).map(emoji => {
+            return {
+                link: emoji.id,
+                content: emoji.name,
+                description: emoji.name,
+                names: emoji.keywords
+            }
+        })
     )
 }
 
@@ -130,13 +137,13 @@ function initCustomEmojiCategory(picker, name, icon, emojis) {
         icon: icon,
         emojis: []
     }
-    emojis.forEach(emote => {
+    for (const emote of emojis) {
         emojiCategory.emojis.push({
             content: `<img class="emoji" src="${global.url.media}/emojis/${emote.link}" alt="${emote.content}" title=":${emote.content}:"/>`,
             data: `:${emote.content}:`,
             description: emote.description,
             names: emote.names
         })
-    })
+    }
     picker.addCustomEmojiCategory(name, emojiCategory)
 }

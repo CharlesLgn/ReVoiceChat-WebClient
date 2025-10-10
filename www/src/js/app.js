@@ -62,11 +62,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Current page is the app
     const currentLocation = window.location.pathname.substring(window.location.pathname.lastIndexOf("/"));
     if (currentLocation === "/app.html") {
+        getEmojisGlobal();
         appLoadSettings();
         getServers();
         sseOpen();
         getUsername();
-        getEmojisGlobal();
         router(getQueryVariable('r'));
     }
 });
