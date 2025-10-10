@@ -1,9 +1,11 @@
-document.getElementById("text-input").addEventListener('keydown', function (e) {
+document.getElementById("text-input").addEventListener('keydown', async function (e) {
     if (e.key === 'Enter') {
         if (e.shiftKey) {
             return;
         }
-        sendMessage();
+        e.preventDefault();
+        await sendMessage();
+        return;
     }
 
     if (e.key === 'Escape') {
@@ -130,13 +132,32 @@ async function sendMessage() {
         medias: []
     }
 
-    // Attachment ?
+    // Attachments
     const input = document.getElementById("text-attachment");
     const attachments = [];
     if (input) {
         for (const element of input.files) {
-            data.medias.push({ name: element.name });
-            attachments[element.name] = element;
+            if (element.size < getGlobal().chat.attachmentMaxSize) {
+                data.medias.push({ name: element.name });
+                attachments[element.name] = element;
+            }
+            else {
+                await Swal.fire({
+                    icon: "error",
+                    title: "File too big",
+                    html: `"${element.name}" is too big<br/>Maximum size: ${humanFileSize(getGlobal().chat.attachmentMaxSize)}<br/>Your file: ${humanFileSize(element.size)}`,
+                    animation: true,
+                    customClass: {
+                        title: "swalTitle",
+                        popup: "swalPopup",
+                        confirmButton: "swalConfirm",
+                    },
+                    showCancelButton: false,
+                    focusConfirm: false,
+                    confirmButtonText: "OK",
+                });
+                return;
+            }
         }
     }
 
@@ -151,6 +172,8 @@ async function sendMessage() {
     }
 
     if (result) {
+
+        // Send attachements
         if (getGlobal().chat.mode === "send") {
             for (const media of result.medias) {
                 const formData = new FormData();
@@ -269,7 +292,7 @@ function userUpdate(data) {
 function messageJoinAttachment() {
     const fileInput = document.getElementById("text-attachment");
     fileInput.click();
-    fileInput.addEventListener('change', getFileName);
+    document.getElementById("text-attachment-div").classList.remove('hidden');
 }
 
 function messageRemoveAttachment() {
@@ -278,10 +301,6 @@ function messageRemoveAttachment() {
     document.getElementById("text-attachment-div").classList.add('hidden');
 }
 
-const getFileName = () => {
-    const fileInput = document.getElementById("text-attachment");
-    const fileInputDiv = document.getElementById("text-attachment-div");
-    if (fileInput.value) {
-        fileInputDiv.classList.remove('hidden');
-    }
+async function getAttachmentMaxSize() {
+    global.chat.attachmentMaxSize = await fetchMedia('maxfilesize');
 }
