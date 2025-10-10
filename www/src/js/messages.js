@@ -80,12 +80,15 @@ function createMessage(messageData) {
             ${createMessageContextMenu(messageData)}
         </div>
         <revoice-message id="${messageData.id}">
-          <script type="text/markdown" slot="content">
-            ${messageData.text}
-          </script>
-          <script type="application/json" slot="emotes">
+            <script type="application/json" slot="medias">
+                ${JSON.stringify(messageData.medias)}
+            </script>
+            <script type="text/markdown" slot="content">
+                ${messageData.text}
+            </script>
+            <script type="application/json" slot="emotes">
                 ${JSON.stringify(messageData.emotes)}
-        </script>
+            </script>
         </revoice-message>
     `;
     return DIV;
