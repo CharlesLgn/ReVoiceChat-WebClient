@@ -18,8 +18,6 @@ function selectServer(serverData) {
         return;
     }
 
-    console.info(`SERVER : Selected server : ${serverData.id}`);
-
     getGlobal().server = serverData;
     document.getElementById("server-name").innerText = serverData.name;
 
@@ -39,13 +37,10 @@ function serverUpdate(data) {
 }
 
 function sseOpen() {
-    console.info(`SERVER : Connecting to "${getGlobal().url.core}/api/sse"`);
-
     // Close current if it exist before openning a new connection
     sseClose();
 
     getGlobal().sse = new EventSource(`${getGlobal().url.core}/api/sse?jwt=${getGlobal().jwtToken}`);
-
     getGlobal().sse.onmessage = (event) => {
         event = JSON.parse(event.data);
         const type = event.type;
@@ -55,7 +50,6 @@ function sseOpen() {
 
         switch (type) {
             case "PING":
-                console.info("SSE : Pinged by server.");
                 return;
 
             case "SERVER_UPDATE":

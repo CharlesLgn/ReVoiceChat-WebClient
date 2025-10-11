@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('password').value = getQueryVariable('password') ? getQueryVariable('password') : "";
 
     // Got here from invitation link
-    if(getQueryVariable('register') === ""){
+    if (getQueryVariable('register') === "") {
         document.getElementById('register-invitation').value = getQueryVariable('invitation') ? getQueryVariable('invitation') : "";
         document.getElementById('register-host').value = getQueryVariable('host') ? getQueryVariable('host') : "";
         switchToRegister();
@@ -38,7 +38,16 @@ function userLogin() {
         login(LOGIN, inputHost.origin);
     }
     catch (e) {
-        console.error(e);
+        Swal.fire({
+            icon: 'error',
+            title: `Unable to login`,
+            error: e,
+            animation: false,
+            customClass: SwalCustomClass,
+            showCancelButton: false,
+            confirmButtonText: "OK",
+            allowOutsideClick: false,
+        });
     }
 }
 
@@ -74,10 +83,10 @@ async function login(loginData, host) {
     }
     catch (error) {
         spinner.error()
-        console.error("Error while login : ", error);
         Swal.fire({
             icon: "error",
             title: `Unable to connect to\n ${host}`,
+            error: error,
             focusConfirm: false,
             allowOutsideClick: false,
             animation: false,
@@ -111,12 +120,12 @@ function autoHost() {
     }
 }
 
-function switchToRegister(){
+function switchToRegister() {
     document.getElementById('login-form').classList.add("hidden");
     document.getElementById('register-form').classList.remove("hidden");
 }
 
-function switchToLogin(){
+function switchToLogin() {
     document.getElementById('login-form').classList.remove("hidden");
     document.getElementById('register-form').classList.add("hidden");
 }
@@ -136,7 +145,16 @@ function userRegister() {
         register(REGISTER, inputHost.origin);
     }
     catch (e) {
-        console.error(e);
+        Swal.fire({
+            icon: 'error',
+            title: `Unable to register`,
+            text: e,
+            animation: false,
+            customClass: SwalCustomClass,
+            showCancelButton: false,
+            confirmButtonText: "OK",
+            allowOutsideClick: false,
+        });
     }
 }
 
@@ -167,10 +185,10 @@ async function register(loginData, host) {
         })
     }
     catch (error) {
-        console.error("Error while login : ", error);
         Swal.fire({
             icon: "error",
             title: `Unable to register to\n ${host}`,
+            text: error,
             focusConfirm: false,
             allowOutsideClick: false,
             animation: false,

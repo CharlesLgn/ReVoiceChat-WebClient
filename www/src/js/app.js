@@ -38,11 +38,9 @@ document.addEventListener('DOMContentLoaded', function () {
         global.url.core = sessionStorage.getItem(('url.core'));
 
         const core = new URL(global.url.core);
-        console.info(`CORE : ${core.host}`);
 
         global.url.media = `${core.protocol}//${core.host}/media`;
         global.url.voice = `${core.protocol}//${core.host}/api/voice`;
-
         global.jwtToken = getCookie("jwtToken");
     }
 

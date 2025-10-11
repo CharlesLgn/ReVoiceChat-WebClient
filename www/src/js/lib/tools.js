@@ -1,3 +1,10 @@
+const SwalCustomClass ={
+    title: "swalTitle",
+    popup: "swalPopup",
+    cancelButton: "swalCancel",
+    confirmButton: "swalConfirm",
+}
+
 const sanitizeString = (str) => str.substring(0, 2000).trim();
 
 function isToday(date) {
@@ -157,7 +164,6 @@ async function copyToClipboard(data) {
     try {
         if (navigator.clipboard) {
             await navigator.clipboard.writeText(data);
-            console.log('Content copied to clipboard');
         }
         else {
             // Fallback
@@ -168,7 +174,6 @@ async function copyToClipboard(data) {
             document.getElementById('input-copy').select();
             document.execCommand("copy");
             input.remove();
-            console.log('Content copied to clipboard (fallback)');
         }
     } catch (err) {
         console.error('copyToClipboard: Failed to copy:', err);

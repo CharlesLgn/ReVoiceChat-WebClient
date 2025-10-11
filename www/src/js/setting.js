@@ -85,12 +85,7 @@ function settingPassword() {
     Swal.fire({
         title: `Change password`,
         animation: false,
-        customClass: {
-            title: "swalTitle",
-            popup: "swalPopup",
-            cancelButton: "swalCancel",
-            confirmButton: "swalConfirm",
-        },
+        customClass: SwalCustomClass,
         showCancelButton: true,
         focusConfirm: false,
         confirmButtonText: "Change",
@@ -111,7 +106,7 @@ function settingPassword() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await fetchCoreAPI(`/user/me`, 'PATCH', {password: currentSetting.password});
+            await fetchCoreAPI(`/user/me`, 'PATCH', { password: currentSetting.password });
 
         }
     });
@@ -128,10 +123,18 @@ async function saveSetting() {
 
 async function settingDisplayName(displayName) {
     if (displayName === "" || displayName === null || displayName === undefined) {
-        console.error("Display name is not valid");
+        Swal.fire({
+            icon: 'error',
+            title: `Display name invalid`,
+            animation: false,
+            customClass: SwalCustomClass,
+            showCancelButton: false,
+            confirmButtonText: "OK",
+            allowOutsideClick: false,
+        });
         return;
     }
-    const result = await fetchCoreAPI(`/user/me`, 'PATCH', {displayName: displayName});
+    const result = await fetchCoreAPI(`/user/me`, 'PATCH', { displayName: displayName });
     if (result) {
         getGlobal().user.displayName = result.displayName
         document.getElementById('setting-user-name').value = result.displayName;

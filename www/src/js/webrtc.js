@@ -45,9 +45,6 @@ async function initWebRTC() {
     // Handle signaling messages
     webrtc.socket.onmessage = async (msg) => {
         const data = JSON.parse(msg.data)
-
-        console.log(data);
-
         if (data.room === webrtc.activeRoom) {
             if (data.offer) {
                 await webrtc.p2p.setRemoteDescription(new RTCSessionDescription(data.offer));
