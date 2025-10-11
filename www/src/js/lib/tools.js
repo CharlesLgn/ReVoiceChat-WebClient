@@ -51,7 +51,7 @@ async function fetchCoreAPI(path, method = null, data = null) {
             signal: AbortSignal.timeout(5000),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${global.jwtToken}`
+                'Authorization': `Bearer ${RVC.getToken()}`
             },
             body: data
         });
@@ -82,7 +82,7 @@ async function fetchMedia(path, method = null) {
             method: method,
             signal: AbortSignal.timeout(5000),
             headers: {
-                'Authorization': `Bearer ${global.jwtToken}`
+                'Authorization': `Bearer ${RVC.getToken()}`
             }
         });
 

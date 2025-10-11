@@ -172,7 +172,7 @@ async function sendMessage() {
                     method: "POST",
                     signal: AbortSignal.timeout(5000),
                     headers: {
-                        'Authorization': `Bearer ${getGlobal().jwtToken}`
+                        'Authorization': `Bearer ${RVC.getToken()}`
                     },
                     body: formData
                 });
@@ -262,6 +262,9 @@ function roomMessage(data) {
     switch (data.action) {
         case "ADD":
             room.appendChild(createMessage(message));
+            if(getGlobal().user.id != message.user.id){
+                RVC.playNotification('messageNew');
+            }
             break;
         case "MODIFY":
             document.getElementById(message.id).replaceWith(createMessageContent(message));

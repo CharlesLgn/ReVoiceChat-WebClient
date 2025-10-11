@@ -150,7 +150,7 @@ async function settingProfilePicture() {
             method: "POST",
             signal: AbortSignal.timeout(5000),
             headers: {
-                'Authorization': `Bearer ${getGlobal().jwtToken}`
+                'Authorization': `Bearer ${RVC.getToken()}`
             },
             body: formData
         });

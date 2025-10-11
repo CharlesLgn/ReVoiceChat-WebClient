@@ -30,7 +30,7 @@ function serverUpdate(data) {
         case "MODIFY":
             getRooms(getGlobal().server.id);
             return;
-        
+
         default:
             return;
     }
@@ -40,7 +40,7 @@ function sseOpen() {
     // Close current if it exist before openning a new connection
     sseClose();
 
-    getGlobal().sse = new EventSource(`${getGlobal().url.core}/api/sse?jwt=${getGlobal().jwtToken}`);
+    getGlobal().sse = new EventSource(`${getGlobal().url.core}/api/sse?jwt=${RVC.getToken()}`);
     getGlobal().sse.onmessage = (event) => {
         event = JSON.parse(event.data);
         const type = event.type;

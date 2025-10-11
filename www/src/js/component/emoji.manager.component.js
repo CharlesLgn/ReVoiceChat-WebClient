@@ -135,7 +135,7 @@ class EmojiManager extends HTMLElement {
                 method: "POST",
                 signal: AbortSignal.timeout(5000),
                 headers: {
-                    'Authorization': `Bearer ${getGlobal().jwtToken}`
+                    'Authorization': `Bearer ${RVC.getToken()}`
                 },
                 body: formData
             });
@@ -317,7 +317,7 @@ class EmojiManager extends HTMLElement {
                             method: "POST",
                             signal: AbortSignal.timeout(5000),
                             headers: {
-                                'Authorization': `Bearer ${getGlobal().jwtToken}`
+                                'Authorization': `Bearer ${RVC.getToken()}`
                             },
                             body: formData
                         });

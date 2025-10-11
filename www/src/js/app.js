@@ -1,6 +1,7 @@
+const RVC = new ReVoiceChat();
+
 const global = {
     sse: null,
-    jwtToken: null,
     url: {
         core: null,
         media: null,
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         global.url.media = `${core.protocol}//${core.host}/media`;
         global.url.voice = `${core.protocol}//${core.host}/api/voice`;
-        global.jwtToken = getCookie("jwtToken");
+        RVC.setToken(getCookie("jwtToken"));
     }
 
     // Last state (app wasn't closed)

@@ -20,7 +20,7 @@ async function voiceJoin(roomId) {
 
     try {
         voice.instance = new VoiceCall(global.user.id, voice.settings);
-        await voice.instance.open(global.url.voice, roomId, global.jwtToken);
+        await voice.instance.open(global.url.voice, roomId, RVC.getToken());
 
         // Update users in room
         await voiceUpdateJoinedUsers();
@@ -31,11 +31,7 @@ async function voiceJoin(roomId) {
         // Update counter
         await voiceUsersCountUpdate(roomId);
 
-        let audio = new Audio('src/audio/userConnectedMale.mp3');
-        audio.volume = 0.25;
-        audio.play();
-
-        console.debug("VOICE : Room joined");
+        RVC.playNotification('voiceConnected');
     }
     catch (error) {
         console.error(error);
@@ -55,9 +51,7 @@ async function voiceLeave() {
     voice.activeRoom = null;
 
     // Play leave audio
-    let audio = new Audio('src/audio/userDisconnectedMale.mp3');
-    audio.volume = 0.25;
-    audio.play();
+    RVC.playNotification('voiceDisconnected');
 }
 
 // <server.js> call this when a new user join the room
@@ -75,9 +69,7 @@ async function voiceUserJoining(data) {
         voice.instance.addUser(userData.id);
         voiceUpdateUserControls(userData.id);
 
-        let audio = new Audio('src/audio/userJoinMale.mp3');
-        audio.volume = 0.25;
-        audio.play();
+        RVC.playNotification('voiceUserJoin');
     }
 }
 
@@ -96,9 +88,7 @@ async function voiceUserLeaving(data) {
     if (userId !== global.user.id && voice.instance !== null && voice.instance.state === VoiceCall.OPEN) {
         voice.instance.removeUser(userId);
 
-        let audio = new Audio('src/audio/userLeftMale.mp3');
-        audio.volume = 0.25;
-        audio.play();
+        RVC.playNotification('voiceUserLeft');
     }
 }
 
