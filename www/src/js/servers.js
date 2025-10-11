@@ -55,7 +55,6 @@ function sseOpen() {
 
         switch (type) {
             case "PING":
-                console.info("SSE : Pinged by server.");
                 return;
 
             case "SERVER_UPDATE":

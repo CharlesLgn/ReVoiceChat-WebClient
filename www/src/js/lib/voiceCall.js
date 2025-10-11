@@ -97,8 +97,7 @@ class VoiceCall {
         this.#socket.onmessage = (message) => { this.#receiveAndDecode(message, this.#packetDecode) };
 
         // Socket states
-        this.#socket.onopen = () => { console.debug('VoiceCall : WebSocket open') };
-        this.#socket.onclose = async () => { console.debug('VoiceCall : WebSocket closed') };
+        this.#socket.onclose = async () => { await this.close(); };
         this.#socket.onerror = async (e) => { await this.close(); console.error('VoiceCall : WebSocket error:', e) };
 
         this.#state = VoiceCall.OPEN;
@@ -106,7 +105,7 @@ class VoiceCall {
 
     async close() {
         // Close WebSocket
-        if (this.#socket !== null) {
+        if (this.#socket !== null || this.#socket.readyState != WebSocket.OPEN) {
             this.#socket.close();
         }
 

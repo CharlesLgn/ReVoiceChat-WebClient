@@ -194,7 +194,16 @@ async function sendMessage() {
         return;
     }
 
-    console.error("Error while sending message");
+    Swal.fire({
+        icon: 'error',
+        title: `Something went wrong`,
+        text: "Error while sending message",
+        animation: false,
+        customClass: SwalCustomClass,
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        allowOutsideClick: false,
+    });
 }
 
 async function deleteMessage(id) {
@@ -269,7 +278,6 @@ function roomMessage(data) {
 }
 
 function userUpdate(data) {
-    console.log(data);
     const id = data.id;
     for (const icon of document.querySelectorAll(`.${id} img.icon`)) {
         icon.src = `${getGlobal().url.media}/profiles/${id}?t=${Date.now()}`;

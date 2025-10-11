@@ -208,7 +208,6 @@ class MessageComponent extends HTMLElement {
   #updateTheme() {
     let theme = getComputedStyle(this).getPropertyValue("--hljs-theme").trim();
     theme = theme.substring(1, theme.length - 1)
-    console.log('Theme updated to:', theme);
     const link = document.createElement("link");
     link.id = "highlightjs-theme";
     link.rel = "stylesheet";

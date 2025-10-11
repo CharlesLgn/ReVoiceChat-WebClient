@@ -111,7 +111,16 @@ async function updateServerName(input) {
     const serverName = input.value;
 
     if (!serverName) {
-        console.error("Display name is incorrect");
+        spinner.error();
+        Swal.fire({
+            icon: 'error',
+            title: `Server name invalid`,
+            animation: false,
+            customClass: SwalCustomClass,
+            showCancelButton: false,
+            confirmButtonText: "OK",
+            allowOutsideClick: false,
+        });
         return;
     }
 
@@ -133,11 +142,7 @@ async function configAddInvitation() {
             title: `New invitation`,
             html: `<input class='swal-input' type='text' value='${result.id}' readonly>`,
             animation: false,
-            customClass: {
-                title: "swalTitle",
-                popup: "swalPopup",
-                confirmButton: "swalConfirm",
-            },
+            customClass: SwalCustomClass,
             showCancelButton: false,
             confirmButtonText: "OK",
             allowOutsideClick: false,
@@ -264,12 +269,7 @@ async function roomAdd() {
     Swal.fire({
         title: 'Add a room',
         animation: false,
-        customClass: {
-            title: "swalTitle",
-            popup: "swalPopup",
-            cancelButton: "swalCancel",
-            confirmButton: "swalConfirm",
-        },
+        customClass: SwalCustomClass,
         showCancelButton: true,
         focusConfirm: false,
         confirmButtonText: "Add",
@@ -303,12 +303,7 @@ async function roomEdit(item) {
     Swal.fire({
         title: `Edit room '${data.name}'`,
         animation: false,
-        customClass: {
-            title: "swalTitle",
-            popup: "swalPopup",
-            cancelButton: "swalCancel",
-            confirmButton: "swalConfirm",
-        },
+        customClass: SwalCustomClass,
         showCancelButton: true,
         focusConfirm: false,
         confirmButtonText: "Edit",
@@ -372,12 +367,7 @@ function categoryEdit(item) {
     Swal.fire({
         title: `Edit category '${item.name}'`,
         animation: false,
-        customClass: {
-            title: "swalTitle",
-            popup: "swalPopup",
-            cancelButton: "swalCancel",
-            confirmButton: "swalConfirm",
-        },
+        customClass: SwalCustomClass,
         showCancelButton: true,
         focusConfirm: false,
         confirmButtonText: "Edit",
@@ -666,8 +656,17 @@ async function structureSave() {
         spinner.success()
     }
     catch (error) {
-        spinner.error()
-        console.error("CONFIG : Updating structure:", error)
+        spinner.error();
+        Swal.fire({
+            icon: 'error',
+            title: `Updating structure failed`,
+            text: error,
+            animation: false,
+            customClass: SwalCustomClass,
+            showCancelButton: false,
+            confirmButtonText: "OK",
+            allowOutsideClick: false,
+        });
     }
 }
 
