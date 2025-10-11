@@ -81,8 +81,6 @@ async function roomCreateElement(data) {
 }
 
 function roomSelectText(data) {
-    console.info(`ROOM : Selected text room : ${data.id}`);
-
     if (global.room.id !== null && document.getElementById(global.room.id) !== undefined) {
         document.getElementById(global.room.id).classList.remove("active");
     }
