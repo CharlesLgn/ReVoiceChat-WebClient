@@ -1,7 +1,6 @@
 const RVC = new ReVoiceChat();
 
 const global = {
-    sse: null,
     url: {
         core: null,
         media: null,
@@ -66,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
         getEmojisGlobal();
         appLoadSettings();
         getServers();
-        sseOpen();
+        RVC.openSSE();
         getUsername();
         router(getQueryVariable('r'));
     }
@@ -74,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 addEventListener("beforeunload", () => {
     sessionStorage.setItem('lastState', JSON.stringify(global));
-    sseClose();
+    RVC.closeSSE();
 })
 
 function appSaveSettings() {

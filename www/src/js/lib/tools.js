@@ -153,13 +153,6 @@ function eraseCookie(name) {
     document.cookie = name + "=; Max-Age=-99999999; path=/";
 }
 
-function sseClose() {
-    if (global.sse !== null) {
-        global.sse.close();
-        global.sse = null;
-    }
-}
-
 async function copyToClipboard(data) {
     try {
         if (navigator.clipboard) {
