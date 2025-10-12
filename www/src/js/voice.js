@@ -19,7 +19,7 @@ async function voiceJoin(roomId) {
     voice.activeRoom = roomId;
 
     try {
-        voice.instance = new VoiceCall(RVC_User.getId(), voice.settings);
+        voice.instance = new VoiceCall(RVC.getUserId(), voice.settings);
         await voice.instance.open(RVC.voiceUrl, roomId, RVC.getToken());
 
         // Update users in room
@@ -58,14 +58,14 @@ async function voiceLeave() {
 async function voiceUserJoining(data) {
     voiceUsersCountUpdate(data.roomId);
     
-    if (data.roomId !== global.room.id) { return; }
+    if (data.roomId !== RVC.getRoomId()) { return; }
 
     const userData = data.user;
     const voiceContent = document.getElementById("voice-content");
     voiceContent.appendChild(voiceCreateUserHTML(userData));
 
     // User joining this is NOT self and current user is connected to voice room
-    if (userData.id !== RVC_User.getId() && voice.instance !== null && voice.instance.getState() === VoiceCall.OPEN) {
+    if (userData.id !== RVC.getUserId() && voice.instance !== null && voice.instance.getState() === VoiceCall.OPEN) {
         voice.instance.addUser(userData.id);
         voiceUpdateUserControls(userData.id);
 
@@ -77,7 +77,7 @@ async function voiceUserJoining(data) {
 async function voiceUserLeaving(data) {
     voiceUsersCountUpdate(data.roomId);
 
-    if (data.roomId !== global.room.id) { return; }
+    if (data.roomId !== RVC.getRoomId()) { return; }
 
     const userId = data.userId;
 
@@ -85,7 +85,7 @@ async function voiceUserLeaving(data) {
     document.getElementById(`voice-${userId}`).remove();
 
     // User leaving is NOT self
-    if (userId !== RVC_User.getId() && voice.instance !== null && voice.instance.state === VoiceCall.OPEN) {
+    if (userId !== RVC.getUserId() && voice.instance !== null && voice.instance.state === VoiceCall.OPEN) {
         voice.instance.removeUser(userId);
 
         RVC.notification.play('voiceUserLeft');
@@ -94,7 +94,7 @@ async function voiceUserLeaving(data) {
 
 // Show users in a room
 async function voiceShowJoinedUsers() {
-    const result = await RVC.fetchCore(`/room/${global.room.id}/user`, 'GET');
+    const result = await RVC.fetchCore(`/room/${RVC.getRoomId()}/user`, 'GET');
 
     if (result.connectedUser === null) {
         console.debug("VOICE : No user in room");
@@ -115,14 +115,14 @@ async function voiceShowJoinedUsers() {
     }
 
     // Room is currently active
-    if (voice.activeRoom === global.room.id) {
+    if (voice.activeRoom === RVC.getRoomId()) {
         voiceUpdateJoinedUsers();
     }
 }
 
 // Add or remove controls on users in room
 async function voiceUpdateJoinedUsers() {
-    const result = await RVC.fetchCore(`/room/${global.room.id}/user`, 'GET');
+    const result = await RVC.fetchCore(`/room/${RVC.getRoomId()}/user`, 'GET');
 
     if (result === null) {
         console.debug("VOICE : No user in room");
@@ -137,7 +137,7 @@ async function voiceUpdateJoinedUsers() {
         voice.instance.addUser(userId);
 
         // Not self
-        if (RVC_User.getId() !== userId) {
+        if (RVC.getUserId() !== userId) {
             voiceUpdateUserControls(userId);
         }
     }
@@ -235,12 +235,12 @@ function voiceUpdateSelf() {
 
         case VoiceCall.CLOSE:
             // Set connect actions
-            document.getElementById(global.room.id).classList.remove('active-voice');
+            document.getElementById(RVC.getRoomId()).classList.remove('active-voice');
             voiceAction.className = "join";
             voiceAction.classList.add('disconnected');
             voiceAction.title = "Join the room";
             voiceAction.innerHTML = `<revoice-icon-phone></revoice-icon-phone>`;
-            voiceAction.onclick = () => voiceJoin(global.room.id);
+            voiceAction.onclick = () => voiceJoin(RVC.getRoomId());
             break;
 
         case VoiceCall.OPEN:

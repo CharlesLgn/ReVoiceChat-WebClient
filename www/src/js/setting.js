@@ -11,9 +11,9 @@ const currentSetting = {
 let newProfilPictureFile = null;
 
 function settingLoad() {
-    document.getElementById("setting-user-uuid").innerText = RVC_User.getId();
+    document.getElementById("setting-user-uuid").innerText = RVC.getUserId();
     document.getElementById("setting-user-name").value = RVC_User.getDisplayName();
-    document.getElementById("setting-user-picture").src = `${RVC.mediaUrl}/profiles/${RVC_User.getId()}`;
+    document.getElementById("setting-user-picture").src = `${RVC.mediaUrl}/profiles/${RVC.getUserId()}`;
     settingThemeShow();
     settingEmoteShow();
     settingVolumeShow();
@@ -146,7 +146,7 @@ async function settingProfilePicture() {
     if (settingUserPictureNewPath.value && newProfilPictureFile) {
         const formData = new FormData();
         formData.append("file", newProfilPictureFile);
-        await fetch(`${RVC.mediaUrl}/profiles/${RVC_User.getId()}`, {
+        await fetch(`${RVC.mediaUrl}/profiles/${RVC.getUserId()}`, {
             method: "POST",
             signal: AbortSignal.timeout(5000),
             headers: {

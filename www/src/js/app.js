@@ -1,19 +1,9 @@
 const RVC = new ReVoiceChat();
-const RVC_User = new ReVoiceChatUser(RVC);
 
 const global = {
     url: {
         voiceSignal: null,
         voiceStun: null,
-    },
-    room: {
-        id: null,
-        name: null,
-        type: null,
-    },
-    user: {
-        id: null,
-        displayName: null,
     },
     chat: {
         mode: "send",

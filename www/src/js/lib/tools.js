@@ -85,10 +85,6 @@ async function copyToClipboard(data) {
     }
 }
 
-function getGlobal() {
-    return global;
-}
-
 /**
  * Format bytes as human-readable text.
  * 

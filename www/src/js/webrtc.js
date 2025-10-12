@@ -10,7 +10,7 @@ let remoteDescSet = false;
 async function initWebRTC() {
     console.info("WEBRTC : Initializing");
 
-    webrtc.socket = new WebSocket(getGlobal().url.voiceSignal);
+    webrtc.socket = new WebSocket(global.url.voiceSignal);
     webrtc.p2p = new RTCPeerConnection({
         iceServers: [
             {

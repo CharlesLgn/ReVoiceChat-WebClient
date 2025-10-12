@@ -261,7 +261,7 @@ class MessageComponent extends HTMLElement {
 
   #injectEmojis(inputText) {
     return inputText.replace(/:([A-Za-z0-9\-_]+):/g, (_, emoji) => {
-      if (getGlobal().chat.emojisGlobal.includes(emoji)) {
+      if (global.chat.emojisGlobal.includes(emoji)) {
         return `<img class="emoji" src="${RVC.mediaUrl}/emojis/${emoji}" alt="${emoji}" title=":${emoji}:">`;
       }
       if (this.emotes) {

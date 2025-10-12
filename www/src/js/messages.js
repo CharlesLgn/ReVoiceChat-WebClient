@@ -10,7 +10,7 @@ document.getElementById("text-input").addEventListener('keydown', async function
 
     if (e.key === 'Escape') {
         document.getElementById("text-input").value = "";
-        getGlobal().chat.mode = "send";
+        global.chat.mode = "send";
     }
 });
 
@@ -95,7 +95,7 @@ function createMessage(messageData) {
 }
 
 function createMessageContextMenu(messageData) {
-    if (messageData.user.id == RVC_User.getId()) {
+    if (messageData.user.id == RVC.getUserId()) {
         return `
         <div class="message-context-menu">
             <div class="icon" onclick="editMessage('${messageData.id}')"><revoice-icon-pencil></revoice-icon-pencil></div>
@@ -125,9 +125,9 @@ async function sendMessage() {
     // Attachments
     const input = document.getElementById("text-attachment");
     const attachments = [];
-    if (input && getGlobal().chat.mode === "send") {
+    if (input && global.chat.mode === "send") {
         for (const element of input.files) {
-            if (element.size < getGlobal().chat.attachmentMaxSize) {
+            if (element.size < global.chat.attachmentMaxSize) {
                 data.medias.push({ name: element.name });
                 attachments[element.name] = element;
             }
@@ -135,7 +135,7 @@ async function sendMessage() {
                 await Swal.fire({
                     icon: "error",
                     title: "File too big",
-                    html: `"${element.name}" is too big<br/>Maximum size: ${humanFileSize(getGlobal().chat.attachmentMaxSize)}<br/>Your file: ${humanFileSize(element.size)}`,
+                    html: `"${element.name}" is too big<br/>Maximum size: ${humanFileSize(global.chat.attachmentMaxSize)}<br/>Your file: ${humanFileSize(element.size)}`,
                     animation: true,
                     customClass: {
                         title: "swalTitle",
@@ -151,20 +151,20 @@ async function sendMessage() {
         }
     }
 
-    switch (getGlobal().chat.mode) {
+    switch (global.chat.mode) {
         case "send":
-            result = await RVC.fetchCore(`/room/${getGlobal().room.id}/message`, 'PUT', data);
+            result = await RVC.fetchCore(`/room/${RVC.getRoomId()}/message`, 'PUT', data);
             break;
 
         case "edit":
-            result = await RVC.fetchCore(`/message/${getGlobal().chat.editId}`, 'PATCH', data);
+            result = await RVC.fetchCore(`/message/${global.chat.editId}`, 'PATCH', data);
             break;
     }
 
     if (result) {
 
         // Send attachements
-        if (getGlobal().chat.mode === "send") {
+        if (global.chat.mode === "send") {
             for (const media of result.medias) {
                 const formData = new FormData();
                 formData.append("file", attachments[media.name]);
@@ -189,8 +189,8 @@ async function sendMessage() {
         textarea.style.height = "auto";
 
         // Default mode
-        getGlobal().chat.mode = "send";
-        getGlobal().chat.editId = null;
+        global.chat.mode = "send";
+        global.chat.editId = null;
         return;
     }
 
@@ -218,8 +218,8 @@ async function editMessage(id) {
         textarea.value = result.text;
         textarea.style.height = "auto";
         textarea.style.height = textarea.scrollHeight + "px";
-        getGlobal().chat.mode = "edit";
-        getGlobal().chat.editId = id;
+        global.chat.mode = "edit";
+        global.chat.editId = id;
         document.getElementById("text-input").focus();
     }
 }
@@ -229,8 +229,8 @@ function textInputMode(input) {
     textarea.style.height = "auto";
     textarea.style.height = textarea.scrollHeight + "px";
     if (input.value == "") {
-        getGlobal().chat.mode = "send";
-        getGlobal().chat.editId = null;
+        global.chat.mode = "send";
+        global.chat.editId = null;
         console.info("CHAT : Switching to 'send' mode");
     }
 }
@@ -245,7 +245,7 @@ async function getEmojisGlobal() {
             throw new Error("Not OK");
         }
 
-        getGlobal().chat.emojisGlobal = await response.json();
+        global.chat.emojisGlobal = await response.json();
     } catch (error) {
         console.error(`An error occurred while processing your request \n${error}\nHost : ${RVC.mediaUrl}\n`);
         return null;
@@ -253,7 +253,7 @@ async function getEmojisGlobal() {
 }
 
 function roomMessage(data) {
-    if (data.message.roomId !== getGlobal().room.id) {
+    if (data.message.roomId !== RVC.getRoomId()) {
         return;
     }
 
@@ -262,7 +262,7 @@ function roomMessage(data) {
     switch (data.action) {
         case "ADD":
             room.appendChild(createMessage(message));
-            if(RVC_User.getId() != message.user.id){
+            if(RVC.getUserId() != message.user.id){
                 RVC.notification.play('messageNew');
             }
             break;
