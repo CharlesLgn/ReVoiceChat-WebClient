@@ -154,12 +154,12 @@ function roomCreateSeparator(data) {
 function roomUpdate(data){
     const room = data.room;
 
-    if(!room && room.serverId !== global.server.id){return;}
+    if(!room && room.serverId !== RVCS.getId()){return;}
 
     switch(data.action){
         case "ADD":
         case "REMOVE":
-            getRooms(global.server.id);
+            getRooms(RVCS.getId());
             return;
 
         case "MODIFY":

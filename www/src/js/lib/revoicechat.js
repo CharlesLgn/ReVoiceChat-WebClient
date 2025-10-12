@@ -272,6 +272,62 @@ class ReVoiceChatRouter {
     }
 }
 
-class ReVoiceChatServers {
+class ReVoiceChatServer {
+    #rvc;
+    #id;
+    #name;
 
+    constructor(rvc) {
+        this.#rvc = rvc;
+        this.load();
+    }
+
+    async load() {
+        const result = await this.#rvc.fetchCore("/server", 'GET');
+
+        if (result === null) {
+            return;
+        }
+
+        if (this.#id) {
+            this.select(this.#id, this.#name);
+        } else {
+            const server = result[0]
+            this.select(server.id, server.name);
+        }
+    }
+
+    select(id, name) {
+        if (!id || !name) {
+            console.error("Server id or name is null or undefined");
+            return;
+        }
+
+        this.#id = id;
+        this.#name = name;
+
+        document.getElementById("server-name").innerText = name;
+
+        getServerUsers(id);
+        getRooms(id);
+    }
+
+    update(data) {
+        switch (data.action) {
+            case "MODIFY":
+                getRooms(this.#id);
+                return;
+
+            default:
+                return;
+        }
+    }
+
+    getId() {
+        return this.#id;
+    }
+
+    getName() {
+        return this.#name;
+    }
 }

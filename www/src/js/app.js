@@ -1,13 +1,10 @@
 const RVC = new ReVoiceChat();
+const RVCS = new ReVoiceChatServer(RVC);
 
 const global = {
     url: {
         voiceSignal: null,
         voiceStun: null,
-    },
-    server: {
-        id: null,
-        name: null,
     },
     room: {
         id: null,
@@ -36,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
         getAttachmentMaxSize();
         getEmojisGlobal();
         appLoadSettings();
-        getServers();
+        //getServers();
         getUsername();
 
         RVC.openSSE();
