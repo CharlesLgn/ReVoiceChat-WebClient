@@ -102,7 +102,7 @@ async function initCustomGeneral(picker) {
 }
 
 async function initCustomServer(picker) {
-    const emojis = await RVC.fetchCore(`/emote/server/${RVC_Server.getId()}`);
+    const emojis = await RVC.fetchCore(`/emote/server/${RVC.getServerId()}`);
     initCustomEmojiCategory(picker, 'custom_server',
         '🏠',
         Array.from(emojis).map(emoji => {

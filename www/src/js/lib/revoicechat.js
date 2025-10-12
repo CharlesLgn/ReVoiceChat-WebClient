@@ -28,6 +28,9 @@ class ReVoiceChat {
         // Restore State
         this.#restoreState();
 
+        // Load server list
+        this.serverLoad();
+
         // Save state before page unload
         addEventListener("beforeunload", () => {
             this.#saveState();
@@ -95,7 +98,7 @@ class ReVoiceChat {
                     return;
 
                 case "SERVER_UPDATE":
-                    serverUpdate(data);
+                    this.#serverUpdate(data);
                     return;
 
                 case "ROOM_UPDATE":
@@ -212,6 +215,120 @@ class ReVoiceChat {
             return null;
         }
     }
+
+    // Servers
+    #serverId;
+    #serverName;
+
+    getServerId() {
+        return this.#serverId;
+    }
+
+    getServerName() {
+        return this.#serverName;
+    }
+
+    async serverLoad() {
+        const result = await this.fetchCore("/server", 'GET');
+
+        if (result === null) {
+            return;
+        }
+
+        if (this.#serverId) {
+            this.serverSelect(this.#serverId, this.#serverName);
+        } else {
+            const server = result[0]
+            this.serverSelect(server.id, server.name);
+        }
+    }
+
+    serverSelect(id, name) {
+        if (!id || !name) {
+            console.error("Server id or name is null or undefined");
+            return;
+        }
+
+        this.#serverId = id;
+        this.#serverName = name;
+        document.getElementById("server-name").innerText = name;
+
+        this.#serverUsers(id);
+        getRooms(id);
+    }
+
+    #serverUpdate(data) {
+        switch (data.action) {
+            case "MODIFY":
+                getRooms(this.#serverId);
+                return;
+
+            default:
+                return;
+        }
+    }
+
+    async #serverUsers(serverId) {
+        const result = await this.fetchCore(`/server/${serverId}/user`, 'GET');
+
+        if (result !== null) {
+            const sortedByDisplayName = [...result].sort((a, b) => {
+                return a.displayName.localeCompare(b.displayName);
+            });
+
+            const sortedByStatus = [...sortedByDisplayName].sort((a, b) => {
+                if (a.status === b.status) {
+                    return 0;
+                }
+                else {
+                    if (a.status === "OFFLINE") {
+                        return 1;
+                    }
+                    if (b.status === "OFFLINE") {
+                        return -1;
+                    }
+                }
+            });
+
+            const userList = document.getElementById("user-list");
+            userList.innerHTML = "";
+
+            for (const user of sortedByStatus) {
+                userList.appendChild(await this.#createUser(user));
+            }
+        }
+    }
+
+    async #createUser(data) {
+        const DIV = document.createElement('div');
+        DIV.id = data.id;
+        DIV.className = `${data.id} user-profile`
+        const profilePicture = `${this.mediaUrl}/profiles/${data.id}`;
+        DIV.innerHTML = `
+            <div class="relative">
+                <img src="${profilePicture}" alt="PFP" class="icon ring-2" />
+                <div id="dot-${data.id}" class="user-dot ${statusToDotClassName(data.status)}"></div>
+            </div>
+            <div class="user">
+                <h2 class="name">${data.displayName}</h2>
+            </div>
+        `;
+
+        return DIV;
+    }
+
+    // Rooms
+    #roomId;
+    #roomName;
+    getRoomId() {
+        return this.#roomName;
+    }
+
+    getRoomName() {
+        return this.#roomName;
+    }
+
+    
 }
 
 class ReVoiceChatNotification {
@@ -269,114 +386,6 @@ class ReVoiceChatRouter {
         }
 
         history.pushState({}, "", url);
-    }
-}
-
-class ReVoiceChatServer {
-    #rvc;
-    #id;
-    #name;
-
-    constructor(rvc) {
-        this.#rvc = rvc;
-        this.load();
-    }
-
-    getId() {
-        return this.#id;
-    }
-
-    getName() {
-        return this.#name;
-    }
-
-    async load() {
-        const result = await this.#rvc.fetchCore("/server", 'GET');
-
-        if (result === null) {
-            return;
-        }
-
-        if (this.#id) {
-            this.select(this.#id, this.#name);
-        } else {
-            const server = result[0]
-            this.select(server.id, server.name);
-        }
-    }
-
-    select(id, name) {
-        if (!id || !name) {
-            console.error("Server id or name is null or undefined");
-            return;
-        }
-
-        this.#id = id;
-        this.#name = name;
-        document.getElementById("server-name").innerText = name;
-
-        this.#getUsers(id);
-        getRooms(id);
-    }
-
-    update(data) {
-        switch (data.action) {
-            case "MODIFY":
-                getRooms(this.#id);
-                return;
-
-            default:
-                return;
-        }
-    }
-
-    async #getUsers(serverId) {
-        const result = await this.#rvc.fetchCore(`/server/${serverId}/user`, 'GET');
-
-        if (result !== null) {
-            const sortedByDisplayName = [...result].sort((a, b) => {
-                return a.displayName.localeCompare(b.displayName);
-            });
-
-            const sortedByStatus = [...sortedByDisplayName].sort((a, b) => {
-                if (a.status === b.status) {
-                    return 0;
-                }
-                else {
-                    if (a.status === "OFFLINE") {
-                        return 1;
-                    }
-                    if (b.status === "OFFLINE") {
-                        return -1;
-                    }
-                }
-            });
-
-            const userList = document.getElementById("user-list");
-            userList.innerHTML = "";
-
-            for (const user of sortedByStatus) {
-                userList.appendChild(await this.#createUser(user));
-            }
-        }
-    }
-
-    async #createUser(data) {
-        const DIV = document.createElement('div');
-        DIV.id = data.id;
-        DIV.className = `${data.id} user-profile`
-        const profilePicture = `${this.#rvc.mediaUrl}/profiles/${data.id}`;
-        DIV.innerHTML = `
-        <div class="relative">
-            <img src="${profilePicture}" alt="PFP" class="icon ring-2" />
-            <div id="dot-${data.id}" class="user-dot ${statusToDotClassName(data.status)}"></div>
-        </div>
-        <div class="user">
-            <h2 class="name">${data.displayName}</h2>
-        </div>
-    `;
-
-        return DIV;
     }
 }
 
