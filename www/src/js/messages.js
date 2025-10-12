@@ -52,7 +52,7 @@ picker.init()
     })
 
 async function getMessages(roomId) {
-    const result = await fetchCoreAPI(`/room/${roomId}/message`, 'GET');
+    const result = await RVC.fetchCore(`/room/${roomId}/message`, 'GET');
 
     if (result !== null) {
         const ROOM = document.getElementById("text-content");
@@ -153,11 +153,11 @@ async function sendMessage() {
 
     switch (getGlobal().chat.mode) {
         case "send":
-            result = await fetchCoreAPI(`/room/${getGlobal().room.id}/message`, 'PUT', data);
+            result = await RVC.fetchCore(`/room/${getGlobal().room.id}/message`, 'PUT', data);
             break;
 
         case "edit":
-            result = await fetchCoreAPI(`/message/${getGlobal().chat.editId}`, 'PATCH', data);
+            result = await RVC.fetchCore(`/message/${getGlobal().chat.editId}`, 'PATCH', data);
             break;
     }
 
@@ -207,11 +207,11 @@ async function sendMessage() {
 }
 
 async function deleteMessage(id) {
-    await fetchCoreAPI(`/message/${id}`, 'DELETE');
+    await RVC.fetchCore(`/message/${id}`, 'DELETE');
 }
 
 async function editMessage(id) {
-    const result = await fetchCoreAPI(`/message/${id}`, 'GET');
+    const result = await RVC.fetchCore(`/message/${id}`, 'GET');
 
     if (result) {
         const textarea = document.getElementById("text-input");
@@ -303,6 +303,6 @@ function messageRemoveAttachment() {
 }
 
 async function getAttachmentMaxSize() {
-    const response = await fetchMedia('/maxfilesize');
+    const response = await RVC.fetchMedia('/maxfilesize');
     global.chat.attachmentMaxSize = response.maxFileSize;
 }

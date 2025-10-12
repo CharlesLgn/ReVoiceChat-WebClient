@@ -37,8 +37,9 @@ document.addEventListener('DOMContentLoaded', function () {
         getEmojisGlobal();
         appLoadSettings();
         getServers();
-        RVC.openSSE();
         getUsername();
+
+        RVC.openSSE();
         RVC.router.routeTo(getQueryVariable('r'));
     }
 });

@@ -49,7 +49,7 @@ function settingThemeShow() {
 }
 
 function settingEmoteShow() {
-    fetchCoreAPI(`/emote/me`).then(response => {
+    RVC.fetchCore(`/emote/me`).then(response => {
         const emoteForm = document.getElementById("setting-emotes-form");
         emoteForm.innerHTML = `
             <script type="application/json" slot="emojis-data">
@@ -106,7 +106,7 @@ function settingPassword() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await fetchCoreAPI(`/user/me`, 'PATCH', { password: currentSetting.password });
+            await RVC.fetchCore(`/user/me`, 'PATCH', { password: currentSetting.password });
 
         }
     });
@@ -134,7 +134,7 @@ async function settingDisplayName(displayName) {
         });
         return;
     }
-    const result = await fetchCoreAPI(`/user/me`, 'PATCH', { displayName: displayName });
+    const result = await RVC.fetchCore(`/user/me`, 'PATCH', { displayName: displayName });
     if (result) {
         getGlobal().user.displayName = result.displayName
         document.getElementById('setting-user-name').value = result.displayName;

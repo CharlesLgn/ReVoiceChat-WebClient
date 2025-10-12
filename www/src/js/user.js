@@ -1,5 +1,5 @@
 async function getUsername() {
-    const result = await fetchCoreAPI(`/user/me`, 'GET');
+    const result = await RVC.fetchCore(`/user/me`, 'GET');
 
     if (result !== null) {
         global.user = result;
@@ -13,7 +13,7 @@ async function getUsername() {
 }
 
 async function getServerUsers(serverId) {
-    const result = await fetchCoreAPI(`/server/${serverId}/user`, 'GET');
+    const result = await RVC.fetchCore(`/server/${serverId}/user`, 'GET');
 
     if (result !== null) {
         const sortedByDisplayName = [...result].sort((a, b) => {

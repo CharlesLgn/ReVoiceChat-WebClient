@@ -1,6 +1,6 @@
 async function getRooms(serverId) {
-    const roomResult = await fetchCoreAPI(`/server/${serverId}/room`, 'GET');
-    const structResult = await fetchCoreAPI(`/server/${serverId}/structure`, 'GET');
+    const roomResult = await RVC.fetchCore(`/server/${serverId}/room`, 'GET');
+    const structResult = await RVC.fetchCore(`/server/${serverId}/structure`, 'GET');
 
     if (structResult?.items && roomResult) {
         const rooms = [];

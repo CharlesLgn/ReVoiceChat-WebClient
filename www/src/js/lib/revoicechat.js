@@ -133,7 +133,7 @@ class ReVoiceChat {
         this.#sse.onerror = () => {
             console.error(`An error occurred while attempting to connect to "${this.coreUrl}/api/sse".\nRetry in 10 seconds`);
             setTimeout(() => {
-                this.sseOpen();
+                this.openSSE();
                 getMessages(getGlobal().room.id);
             }, 10000);
         }
@@ -143,6 +143,73 @@ class ReVoiceChat {
         if (this.#sse) {
             this.#sse.close();
             this.#sse = null;
+        }
+    }
+
+    // Fetch
+    async fetchCore(path, method = null, data = null) {
+        if (method === null) {
+            method = 'GET';
+        }
+
+        if (data) {
+            data = JSON.stringify(data);
+        }
+
+        try {
+            const response = await fetch(`${this.coreUrl}/api${path}`, {
+                method: method,
+                signal: AbortSignal.timeout(5000),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.#token}`
+                },
+                body: data
+            });
+
+            if (method !== "DELETE") {
+                const contentType = response.headers.get("content-type");
+
+                if (contentType?.includes("application/json")) {
+                    return await response.json();
+                }
+            }
+
+            return response.ok;
+        }
+        catch (error) {
+            console.error(`RVC.fetchCore: An error occurred while processing request \n${error}\nHost: ${this.coreUrl}\nPath: ${path}\nMethod: ${method}`);
+            return null;
+        }
+    }
+
+    async fetchMedia(path, method = null) {
+        if (method === null) {
+            method = 'GET';
+        }
+
+        try {
+            const response = await fetch(`${this.coreUrl}/media${path}`, {
+                method: method,
+                signal: AbortSignal.timeout(5000),
+                headers: {
+                    'Authorization': `Bearer ${this.#token}`
+                }
+            });
+
+            if (method !== "DELETE") {
+                const contentType = response.headers.get("content-type");
+
+                if (contentType?.includes("application/json")) {
+                    return await response.json();
+                }
+            }
+
+            return response.ok;
+        }
+        catch (error) {
+            console.error(`RVC.fetchMedia: An error occurred while processing request \n${error}\nHost: ${this.coreUrl}\nPath: ${path}\nMethod: ${method}`);
+            return null;
         }
     }
 }
@@ -203,4 +270,8 @@ class ReVoiceChatRouter {
 
         history.pushState({}, "", url);
     }
+}
+
+class ReVoiceChatServers {
+
 }

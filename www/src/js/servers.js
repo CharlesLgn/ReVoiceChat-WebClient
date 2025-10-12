@@ -1,5 +1,5 @@
 async function getServers() {
-    const result = await fetchCoreAPI("/server", 'GET');
+    const result = await RVC.fetchCore("/server", 'GET');
 
     if (result === null) {
         return;

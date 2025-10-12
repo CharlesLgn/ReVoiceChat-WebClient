@@ -46,23 +46,23 @@ class ServerRolesWebComponent extends HTMLElement {
     }
 
     async fetchRoles() {
-        this.roles = await fetchCoreAPI(`/server/${this.serverId}/role`);
+        this.roles = await RVC.fetchCore(`/server/${this.serverId}/role`);
     }
 
     async fetchUsers() {
-        this.availableUsers = await fetchCoreAPI(`/server/${this.serverId}/user`);
+        this.availableUsers = await RVC.fetchCore(`/server/${this.serverId}/user`);
     }
 
     async fetchRisks() {
-        this.availableRisks = await fetchCoreAPI('/risk');
+        this.availableRisks = await RVC.fetchCore('/risk');
     }
 
     async createRoleAPI(roleData) {
-        return await fetchCoreAPI(`/server/${this.serverId}/role`, 'PUT', roleData);
+        return await RVC.fetchCore(`/server/${this.serverId}/role`, 'PUT', roleData);
     }
 
     async updateRoleRisk(roleId, riskName, status) {
-        await fetchCoreAPI(`/role/${roleId}/risk/${riskName}`, 'PATCH', status.toUpperCase());
+        await RVC.fetchCore(`/role/${roleId}/risk/${riskName}`, 'PATCH', status.toUpperCase());
     }
 
     render() {
@@ -468,7 +468,7 @@ class ServerRolesWebComponent extends HTMLElement {
 
     async #toggleUsers(roleId, users) {
         try {
-            await fetchCoreAPI(`/role/${roleId}/user`, 'PUT', users)
+            await RVC.fetchCore(`/role/${roleId}/user`, 'PUT', users)
             await this.fetchRoles();
             this.renderRoleDetails();
         } catch (error) {

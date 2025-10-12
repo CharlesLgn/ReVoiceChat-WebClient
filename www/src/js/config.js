@@ -20,7 +20,7 @@ async function configLoad() {
 }
 
 async function loadServerEmotes() {
-    const response = await fetchCoreAPI(`/emote/server/${global.server.id}`);
+    const response = await RVC.fetchCore(`/emote/server/${global.server.id}`);
     document.getElementById("emotes-config").innerHTML = `
         <h1>Emotes</h1>
         <revoice-emoji-manager path="server/${global.server.id}" id="setting-emotes-form">
@@ -51,7 +51,7 @@ function createContextMenuButton(className, innerHTML, onclick, title = "") {
 }
 
 async function loadMembers() {
-    const result = await fetchCoreAPI(`/server/${global.server.id}/user`, 'GET');
+    const result = await RVC.fetchCore(`/server/${global.server.id}/user`, 'GET');
 
     if (result) {
         const sortedByDisplayName = [...result].sort((a, b) => {
@@ -94,7 +94,7 @@ async function createItemUser(data) {
 
 async function loadOverview() {
     const id = global.server.id;
-    const serverInfo = await fetchCoreAPI(`/server/${id}`, 'GET');
+    const serverInfo = await RVC.fetchCore(`/server/${id}`, 'GET');
 
     document.getElementById('config-server-uuid').innerText = serverInfo.id;
     document.getElementById('config-server-name').value = serverInfo.name;
@@ -125,7 +125,7 @@ async function updateServerName(input) {
     }
 
     const id = global.server.id;
-    const result = await fetchCoreAPI(`/server/${id}`, 'PATCH', { name: serverName })
+    const result = await RVC.fetchCore(`/server/${id}`, 'PATCH', { name: serverName })
     if (result) {
         document.getElementById('config-server-name').value = result.name;
         global.server.name = result.name
@@ -135,7 +135,7 @@ async function updateServerName(input) {
 /* INVITATIONS */
 async function configAddInvitation() {
     const serverId = global.server.id;
-    const result = await fetchCoreAPI(`/invitation/server/${serverId}`, 'POST');
+    const result = await RVC.fetchCore(`/invitation/server/${serverId}`, 'POST');
     if (result.status === "CREATED") {
         loadInvitations();
         Swal.fire({
@@ -173,7 +173,7 @@ async function createItemInvitation(data) {
 
 async function loadInvitations() {
     const serverId = global.server.id;
-    const result = await fetchCoreAPI(`/invitation/server/${serverId}`, 'GET');
+    const result = await RVC.fetchCore(`/invitation/server/${serverId}`, 'GET');
 
     if (result) {
         const list = document.getElementById("config-invitations-list");
@@ -203,7 +203,7 @@ async function deleteInvitation(data) {
         allowOutsideClick: false,
     }).then(async (result) => {
         if (result.value) {
-            await fetchCoreAPI(`/invitation/${data.id}`, 'DELETE');
+            await RVC.fetchCore(`/invitation/${data.id}`, 'DELETE');
             loadInvitations();
         }
     });
@@ -244,7 +244,7 @@ async function createItemRoom(data) {
 }
 
 async function loadRoomData() {
-    const roomResult = await fetchCoreAPI(`/server/${global.server.id}/room`, 'GET');
+    const roomResult = await RVC.fetchCore(`/server/${global.server.id}/room`, 'GET');
     if (roomResult) {
         roomsData = {};
         for (const room of roomResult) {
@@ -255,7 +255,7 @@ async function loadRoomData() {
 }
 
 async function loadRoomStructure() {
-    const struct = await fetchCoreAPI(`/server/${global.server.id}/structure`, 'GET');
+    const struct = await RVC.fetchCore(`/server/${global.server.id}/structure`, 'GET');
     if (struct) {
         structureData = struct;
         render();
@@ -290,7 +290,7 @@ async function roomAdd() {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await fetchCoreAPI(`/server/${global.server.id}/room`, 'PUT', { name: popupData.name, type: popupData.type });
+            await RVC.fetchCore(`/server/${global.server.id}/room`, 'PUT', { name: popupData.name, type: popupData.type });
             await loadRoomData();
         }
     });
@@ -316,7 +316,7 @@ async function roomEdit(item) {
         `,
     }).then(async (result) => {
         if (result.value) {
-            await fetchCoreAPI(`/room/${data.id}`, 'PATCH', { name: popupData.name, type: popupData.type });
+            await RVC.fetchCore(`/room/${data.id}`, 'PATCH', { name: popupData.name, type: popupData.type });
             await loadRoomData();
         }
     });
@@ -339,7 +339,7 @@ async function roomDelete(item) {
         allowOutsideClick: false,
     }).then(async (result) => {
         if (result.value) {
-            await fetchCoreAPI(`/room/${data.id}`, 'DELETE');
+            await RVC.fetchCore(`/room/${data.id}`, 'DELETE');
             await loadRoomData();
         }
     });
@@ -652,7 +652,7 @@ async function structureSave() {
     structureClean(structureData.items);
 
     try {
-        await fetchCoreAPI(`/server/${global.server.id}/structure`, 'PATCH', structureData);
+        await RVC.fetchCore(`/server/${global.server.id}/structure`, 'PATCH', structureData);
         spinner.success()
     }
     catch (error) {
