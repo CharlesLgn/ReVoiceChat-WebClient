@@ -221,7 +221,7 @@ class State {
         sessionStorage.setItem('lastState', JSON.stringify(state));
     }
 
-    restore() {
+    load() {
         const lastState = JSON.parse(sessionStorage.getItem('lastState'));
         if (lastState) {
             this.#rvc.server.id = lastState.server.id;
