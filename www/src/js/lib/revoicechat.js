@@ -81,7 +81,7 @@ class ReVoiceChat {
     openSSE() {
         this.#closeSSE();
 
-        this.#sse = new EventSource(`${RVC.coreUrl}/api/sse?jwt=${RVC.getToken()}`);
+        this.#sse = new EventSource(`${this.coreUrl}/api/sse?jwt=${this.#token}`);
 
         this.#sse.onmessage = (event) => {
             event = JSON.parse(event.data);
@@ -131,9 +131,9 @@ class ReVoiceChat {
         };
 
         this.#sse.onerror = () => {
-            console.error(`An error occurred while attempting to connect to "${RVC.coreUrl}/api/sse".\nRetry in 10 seconds`);
+            console.error(`An error occurred while attempting to connect to "${this.coreUrl}/api/sse".\nRetry in 10 seconds`);
             setTimeout(() => {
-                sseOpen();
+                this.sseOpen();
                 getMessages(getGlobal().room.id);
             }, 10000);
         }
