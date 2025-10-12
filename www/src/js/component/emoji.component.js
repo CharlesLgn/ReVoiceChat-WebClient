@@ -119,8 +119,8 @@ async function initCustomServer(picker) {
 async function initCustomUser(picker) {
     const emojis = await RVC.fetchCore(`/emote/me`);
     initCustomEmojiCategory(picker, 'custom_perso',
-        `<img class="emoji ${RVC.getUserId()}"
-                   src="${RVC.mediaUrl}/profiles/${RVC.getUserId()}"
+        `<img class="emoji ${RVC_User.getId()}"
+                   src="${RVC.mediaUrl}/profiles/${RVC_User.getId()}"
                    style="border-radius: 9999px;"
                    alt="user-emote"/>`,
         Array.from(emojis).map(emoji => {

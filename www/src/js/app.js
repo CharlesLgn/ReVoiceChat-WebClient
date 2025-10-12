@@ -1,4 +1,5 @@
 const RVC = new ReVoiceChat();
+const RVC_User = new ReVoiceChatUser(RVC);
 
 const global = {
     url: {

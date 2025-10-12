@@ -1,6 +1,7 @@
 class ReVoiceChat {
     notification = new ReVoiceChatNotification();
     router = new ReVoiceChatRouter();
+    user;
 
     // URL
     coreUrl;
@@ -30,9 +31,6 @@ class ReVoiceChat {
 
         // Load server list
         this.#serverLoad();
-
-        // Load User
-        this.#userLoad();
 
         // Save state before page unload
         addEventListener("beforeunload", () => {
@@ -350,7 +348,7 @@ class ReVoiceChat {
             if (this.#roomId) {
                 this.#roomSelect(this.#roomId, this.#roomName, this.#roomType);
             }
-            else{
+            else {
                 const key = Object.keys(rooms)[0];
                 const room = rooms[key];
                 this.#roomSelect(room.id, room.name, room.type);
@@ -505,33 +503,6 @@ class ReVoiceChat {
                 return;
         }
     }
-
-    // User
-    #userId;
-    #userDisplayName;
-
-    getUserDisplayName() {
-        return this.#userDisplayName;
-    }
-
-    getUserId() {
-        return this.#userId;
-    }
-
-    async #userLoad() {
-        const result = await this.fetchCore(`/user/me`, 'GET');
-
-        if (result !== null) {
-            this.#userId = result.id;
-            this.#userDisplayName = result.displayName;
-
-            document.getElementById("status-container").classList.add(result.id);
-            document.getElementById("user-name").innerText = result.displayName;
-            document.getElementById("user-status").innerText = result.status;
-            document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
-            document.getElementById("user-picture").src = `${this.mediaUrl}/profiles/${result.id}`;
-        }
-    }
 }
 
 class ReVoiceChatNotification {
@@ -557,7 +528,9 @@ class ReVoiceChatNotification {
 
 class ReVoiceChatRouter {
     routeTo(destination) {
-        document.querySelectorAll('.main').forEach(element => { element.classList.add('hidden') });
+        for (const element of document.querySelectorAll('.main')) {
+            element.classList.add('hidden');
+        }
 
         switch (destination) {
             case "setting":
@@ -591,3 +564,39 @@ class ReVoiceChatRouter {
         history.pushState({}, "", url);
     }
 }
+
+class ReVoiceChatUser {
+    #rvc;
+    #id;
+    #displayName;
+
+    constructor(rvc){
+        this.#rvc = rvc;
+        rvc.user = this;
+        this.#load();
+    }
+
+    getDisplayName() {
+        return this.#displayName;
+    }
+
+    getId() {
+        return this.#id;
+    }
+
+    async #load() {
+        const result = await this.#rvc.fetchCore(`/user/me`, 'GET');
+
+        if (result !== null) {
+            this.#id = result.id;
+            this.#displayName = result.displayName;
+
+            document.getElementById("status-container").classList.add(result.id);
+            document.getElementById("user-name").innerText = result.displayName;
+            document.getElementById("user-status").innerText = result.status;
+            document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
+            document.getElementById("user-picture").src = `${this.#rvc.mediaUrl}/profiles/${result.id}`;
+        }
+    }
+}
+
