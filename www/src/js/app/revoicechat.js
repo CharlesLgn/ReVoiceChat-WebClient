@@ -648,3 +648,7 @@ class Server {
 class TextRoomController {
 
 }
+
+class VoiceRoomController {
+    
+}
