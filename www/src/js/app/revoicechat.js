@@ -89,7 +89,7 @@ class ReVoiceChat {
                     return;
 
                 case "USER_UPDATE":
-                    userUpdate(data);
+                    this.user.update(data);
                     return;
 
                 case "VOICE_JOINING":
@@ -129,12 +129,12 @@ class Fetcher {
     #mediaURL;
     #token;
 
-    constructor(token, coreURL, mediaURL){
+    constructor(token, coreURL, mediaURL) {
         this.#coreURL = coreURL;
         this.#mediaURL = mediaURL;
         this.#token = token;
     }
-    
+
     async fetchCore(path, method = null, data = null) {
         if (method === null) {
             method = 'GET';
@@ -355,6 +355,16 @@ class User {
         }
         else {
             voice.settings = defaultVoice;
+        }
+    }
+
+    update(data) {
+        const id = data.id;
+        for (const icon of document.querySelectorAll(`.${id} img.icon`)) {
+            icon.src = `${this.#mediaURL}/profiles/${id}?t=${Date.now()}`;
+        }
+        for (const name of document.querySelectorAll(`.${id} .name`)) {
+            name.innerText = data.displayName;
         }
     }
 }
@@ -652,5 +662,5 @@ class TextRoomController {
 }
 
 class VoiceRoomController {
-    
+
 }

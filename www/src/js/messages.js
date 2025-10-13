@@ -281,16 +281,6 @@ function roomMessage(data) {
     room.scrollTop = room.scrollHeight;
 }
 
-function userUpdate(data) {
-    const id = data.id;
-    for (const icon of document.querySelectorAll(`.${id} img.icon`)) {
-        icon.src = `${RVC.mediaUrl}/profiles/${id}?t=${Date.now()}`;
-    }
-    for (const name of document.querySelectorAll(`.${id} .name`)) {
-        name.innerText = data.displayName;
-    }
-}
-
 function messageJoinAttachment() {
     const fileInput = document.getElementById("text-attachment");
     fileInput.click();
