@@ -587,7 +587,7 @@ class Server {
     update(data) {
         switch (data.action) {
             case "MODIFY":
-                getRooms(this.id);
+                this.#rvc.room.load(this.id);
                 return;
 
             default:
