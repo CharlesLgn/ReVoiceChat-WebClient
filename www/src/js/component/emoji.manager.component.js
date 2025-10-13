@@ -123,7 +123,7 @@ class EmojiManager extends HTMLElement {
             .filter(k => k.length > 0);
 
         try {
-            const emojiData = await RVC.fetchCore(`/emote/${this.path}`, 'PUT', {
+            const emojiData = await RVC.fetcher.fetchCore(`/emote/${this.path}`, 'PUT', {
                     fileName: file.name,
                     content: nameInput.value.trim(),
                     keywords: keywords
@@ -186,7 +186,7 @@ class EmojiManager extends HTMLElement {
         }).then(async (result) => {
             if (result.value) {
                 try {
-                    await RVC.fetchCore(`/emote/${id}`, 'DELETE');
+                    await RVC.fetcher.fetchCore(`/emote/${id}`, 'DELETE');
 
                     // Temporary: Delete locally until API is integrated
                     this.emojis = this.emojis.filter(e => e.id !== id);
@@ -300,7 +300,7 @@ class EmojiManager extends HTMLElement {
 
             const updateEmoji = async () => {
                 try {
-                    await RVC.fetchCore(`/emote/${this.currentEditId}`, 'PATCH', {
+                    await RVC.fetcher.fetchCore(`/emote/${this.currentEditId}`, 'PATCH', {
                         fileName: result.file?.name,
                         content: result.name.trim(),
                         keywords: keywords

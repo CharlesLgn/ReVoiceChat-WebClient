@@ -52,7 +52,7 @@ picker.init()
     })
 
 async function getMessages(roomId) {
-    const result = await RVC.fetchCore(`/room/${roomId}/message`, 'GET');
+    const result = await RVC.fetcher.fetchCore(`/room/${roomId}/message`, 'GET');
 
     if (result !== null) {
         const ROOM = document.getElementById("text-content");
@@ -153,11 +153,11 @@ async function sendMessage() {
 
     switch (global.chat.mode) {
         case "send":
-            result = await RVC.fetchCore(`/room/${RVC.room.id}/message`, 'PUT', data);
+            result = await RVC.fetcher.fetchCore(`/room/${RVC.room.id}/message`, 'PUT', data);
             break;
 
         case "edit":
-            result = await RVC.fetchCore(`/message/${global.chat.editId}`, 'PATCH', data);
+            result = await RVC.fetcher.fetchCore(`/message/${global.chat.editId}`, 'PATCH', data);
             break;
     }
 
@@ -207,11 +207,11 @@ async function sendMessage() {
 }
 
 async function deleteMessage(id) {
-    await RVC.fetchCore(`/message/${id}`, 'DELETE');
+    await RVC.fetcher.fetchCore(`/message/${id}`, 'DELETE');
 }
 
 async function editMessage(id) {
-    const result = await RVC.fetchCore(`/message/${id}`, 'GET');
+    const result = await RVC.fetcher.fetchCore(`/message/${id}`, 'GET');
 
     if (result) {
         const textarea = document.getElementById("text-input");
@@ -304,6 +304,6 @@ function messageRemoveAttachment() {
 }
 
 async function getAttachmentMaxSize() {
-    const response = await RVC.fetchMedia('/maxfilesize');
+    const response = await RVC.fetcher.fetchMedia('/maxfilesize');
     global.chat.attachmentMaxSize = response.maxFileSize;
 }

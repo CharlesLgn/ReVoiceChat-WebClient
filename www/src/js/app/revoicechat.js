@@ -1,6 +1,7 @@
 class ReVoiceChat {
     alert = new Alert();
     router = new Router();
+    fetcher;
     user;
     room;
     server;
@@ -30,7 +31,8 @@ class ReVoiceChat {
         this.#token = getCookie("jwtToken");
 
         // Instantiate other classes
-        this.user = new User(this);
+        this.fetcher = new Fetcher(this.#token, this.coreUrl);
+        this.user = new User(this.fetcher, this.mediaUrl);
         this.room = new Room(this);
         this.server = new Server(this);
         this.state = new State(this);
@@ -120,7 +122,17 @@ class ReVoiceChat {
         }
     }
 
-    // Fetch
+}
+
+class Fetcher {
+    #coreURL;
+    #token;
+
+    constructor(token, coreURL){
+        this.#coreURL = coreURL;
+        this.#token = token;
+    }
+    
     async fetchCore(path, method = null, data = null) {
         if (method === null) {
             method = 'GET';
@@ -131,7 +143,7 @@ class ReVoiceChat {
         }
 
         try {
-            const response = await fetch(`${this.coreUrl}/api${path}`, {
+            const response = await fetch(`${this.#coreURL}/api${path}`, {
                 method: method,
                 signal: AbortSignal.timeout(5000),
                 headers: {
@@ -152,7 +164,7 @@ class ReVoiceChat {
             return response.ok;
         }
         catch (error) {
-            console.error(`fetchCore: An error occurred while processing request \n${error}\nHost: ${this.coreUrl}\nPath: ${path}\nMethod: ${method}`);
+            console.error(`fetchCore: An error occurred while processing request \n${error}\nHost: ${this.#coreURL}\nPath: ${path}\nMethod: ${method}`);
             return null;
         }
     }
@@ -163,7 +175,7 @@ class ReVoiceChat {
         }
 
         try {
-            const response = await fetch(`${this.coreUrl}/media${path}`, {
+            const response = await fetch(`${this.#coreURL}/media${path}`, {
                 method: method,
                 signal: AbortSignal.timeout(5000),
                 headers: {
@@ -182,7 +194,7 @@ class ReVoiceChat {
             return response.ok;
         }
         catch (error) {
-            console.error(`fetchMedia: An error occurred while processing request \n${error}\nHost: ${this.coreUrl}\nPath: ${path}\nMethod: ${method}`);
+            console.error(`fetchMedia: An error occurred while processing request \n${error}\nHost: ${this.#coreURL}/media\nPath: ${path}\nMethod: ${method}`);
             return null;
         }
     }
@@ -293,17 +305,19 @@ class Router {
 }
 
 class User {
-    #rvc;
+    #fetcher;
+    #mediaURL;
     id;
     displayName;
 
-    constructor(rvc) {
-        this.#rvc = rvc;
+    constructor(fetcher, mediaURL) {
+        this.#fetcher = fetcher;
+        this.#mediaURL = mediaURL;
         this.#load();
     }
 
     async #load() {
-        const result = await this.#rvc.fetchCore(`/user/me`, 'GET');
+        const result = await this.#fetcher.fetchCore(`/user/me`, 'GET');
 
         if (result !== null) {
             this.id = result.id;
@@ -313,7 +327,7 @@ class User {
             document.getElementById("user-name").innerText = result.displayName;
             document.getElementById("user-status").innerText = result.status;
             document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
-            document.getElementById("user-picture").src = `${this.#rvc.mediaUrl}/profiles/${result.id}`;
+            document.getElementById("user-picture").src = `${this.#mediaURL}/profiles/${result.id}`;
         }
     }
 
@@ -345,17 +359,19 @@ class User {
 
 class Room {
     #rvc;
+    #fetcher;
     id;
     name;
     type;
 
     constructor(rvc) {
         this.#rvc = rvc;
+        this.#fetcher = rvc.fetcher;
     }
 
     async load(serverId) {
-        const roomResult = await this.#rvc.fetchCore(`/server/${serverId}/room`, 'GET');
-        const structResult = await this.#rvc.fetchCore(`/server/${serverId}/structure`, 'GET');
+        const roomResult = await this.#fetcher.fetchCore(`/server/${serverId}/room`, 'GET');
+        const structResult = await this.#fetcher.fetchCore(`/server/${serverId}/structure`, 'GET');
 
         if (structResult?.items && roomResult) {
             const rooms = [];
@@ -529,16 +545,18 @@ class Room {
 
 class Server {
     #rvc;
+    #fetcher;
     id;
     name;
 
     constructor(rvc) {
         this.#rvc = rvc;
+        this.#fetcher = rvc.fetcher;
         this.#load();
     }
 
     async #load() {
-        const result = await this.#rvc.fetchCore("/server", 'GET');
+        const result = await this.#fetcher.fetchCore("/server", 'GET');
 
         if (result === null) {
             return;
@@ -578,7 +596,7 @@ class Server {
     }
 
     async #usersLoad() {
-        const result = await this.#rvc.fetchCore(`/server/${this.id}/user`, 'GET');
+        const result = await this.#fetcher.fetchCore(`/server/${this.id}/user`, 'GET');
 
         if (result !== null) {
             const sortedByDisplayName = [...result].sort((a, b) => {
@@ -625,4 +643,8 @@ class Server {
 
         return DIV;
     }
+}
+
+class TextRoomController {
+
 }

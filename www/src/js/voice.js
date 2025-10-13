@@ -94,7 +94,7 @@ async function voiceUserLeaving(data) {
 
 // Show users in a room
 async function voiceShowJoinedUsers() {
-    const result = await RVC.fetchCore(`/room/${RVC.room.id}/user`, 'GET');
+    const result = await RVC.fetcher.fetchCore(`/room/${RVC.room.id}/user`, 'GET');
 
     if (result.connectedUser === null) {
         console.debug("VOICE : No user in room");
@@ -122,7 +122,7 @@ async function voiceShowJoinedUsers() {
 
 // Add or remove controls on users in room
 async function voiceUpdateJoinedUsers() {
-    const result = await RVC.fetchCore(`/room/${RVC.room.id}/user`, 'GET');
+    const result = await RVC.fetcher.fetchCore(`/room/${RVC.room.id}/user`, 'GET');
 
     if (result === null) {
         console.debug("VOICE : No user in room");
@@ -315,7 +315,7 @@ function voiceUpdateSelfVolume() {
 
 // Count user in room
 async function voiceUsersCount(roomId) {
-    const result = await RVC.fetchCore(`/room/${roomId}/user`, 'GET');
+    const result = await RVC.fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
 
     if (result.connectedUser === null) {
         return 0;
@@ -325,7 +325,7 @@ async function voiceUsersCount(roomId) {
 }
 
 async function voiceUsersCountUpdate(roomId) {
-    const result = await RVC.fetchCore(`/room/${roomId}/user`, 'GET');
+    const result = await RVC.fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
     const element = document.getElementById(`room-extension-${roomId}`);
 
     let count = 0
