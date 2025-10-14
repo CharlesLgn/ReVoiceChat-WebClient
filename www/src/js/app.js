@@ -21,3 +21,20 @@ document.addEventListener('DOMContentLoaded', function () {
     RVC.router.routeTo(getQueryVariable('r'));
     RVC.user.loadSettings();
 });
+
+// Event listener
+document.getElementById("text-input").addEventListener('keydown', async function (e) {
+    if (e.key === 'Enter') {
+        if (e.shiftKey) {
+            return;
+        }
+        e.preventDefault();
+        await RVC.room.textController.send();
+        return;
+    }
+
+    if (e.key === 'Escape') {
+        document.getElementById("text-input").value = "";
+        RVC.room.textController.mode = "send";
+    }
+});
