@@ -94,7 +94,7 @@ class VoiceCall {
         await this.#encodeAudio();
 
         // Setup receiver and decoder
-        this.#socket.onmessage = (message) => { this.#receiveAndDecode(message, this.#packetDecode) };
+        this.#socket.onmessage = (message) => { this.#receivePacket(message, this.#packetDecode) };
 
         // Socket states
         this.#socket.onclose = async () => { await this.close(); };
@@ -399,7 +399,7 @@ class VoiceCall {
         }
     }
 
-    #receiveAndDecode(packet, packetDecode) {
+    #receivePacket(packet, packetDecode) {
         const result = packetDecode(packet);
         const header = result.header;
         const data = result.data;
