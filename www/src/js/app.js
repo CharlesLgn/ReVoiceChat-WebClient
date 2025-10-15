@@ -41,4 +41,6 @@ document.getElementById("text-input").addEventListener('keydown', async function
     }
 });
 
-export { RVC, global };
+// Attach to window (need improvement)
+window.global = global;
+window.RVC = RVC;
