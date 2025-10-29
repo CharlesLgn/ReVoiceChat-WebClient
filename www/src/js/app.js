@@ -1,4 +1,5 @@
 import ReVoiceChat from './app/revoicechat.js';
+import TextController from './app/textController.js';
 
 const RVC = new ReVoiceChat();
 
@@ -37,7 +38,7 @@ document.getElementById("text-input").addEventListener('keydown', async function
 
     if (e.key === 'Escape') {
         document.getElementById("text-input").value = "";
-        RVC.room.textController.mode = "send";
+        RVC.room.textController.mode = TextController.MODE_SEND;
     }
 });
 

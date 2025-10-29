@@ -1,9 +1,12 @@
 export default class TextController {
+    static MODE_SEND = 0;
+    static MODE_EDIT = 1;
+
     #alert;
     #user;
     #fetcher;
     #room;
-    mode = "send";
+    mode = 0;
     #editId;
     #attachmentMaxSize = 0;
     emojisGlobal;
@@ -35,7 +38,7 @@ export default class TextController {
         }
     }
 
-    processSSE(data) {
+    message(data) {
         if (data.action === "ADD" && this.#user.id != data.message.user.id) {
             this.#alert.play('messageNew');
         }
@@ -92,7 +95,7 @@ export default class TextController {
         // Attachments
         const input = document.getElementById("text-attachment");
         const attachments = [];
-        if (input && this.mode === "send") {
+        if (input && this.mode === TextController.MODE_SEND) {
             for (const element of input.files) {
                 if (element.size < this.#attachmentMaxSize) {
                     data.medias.push({ name: element.name });
@@ -119,11 +122,11 @@ export default class TextController {
         }
 
         switch (this.mode) {
-            case "send":
+            case TextController.MODE_SEND:
                 result = await this.#fetcher.fetchCore(`/room/${this.#room.id}/message`, 'PUT', data);
                 break;
 
-            case "edit":
+            case TextController.MODE_EDIT:
                 result = await this.#fetcher.fetchCore(`/message/${this.#editId}`, 'PATCH', data);
                 break;
 
@@ -135,7 +138,7 @@ export default class TextController {
         if (result) {
 
             // Send attachements
-            if (this.mode === "send") {
+            if (this.mode === TextController.MODE_SEND) {
                 for (const media of result.medias) {
                     const formData = new FormData();
                     formData.append("file", attachments[media.name]);
@@ -160,7 +163,7 @@ export default class TextController {
             textarea.style.height = "auto";
 
             // Default mode
-            this.mode = "send";
+            this.mode = TextController.MODE_SEND;
             this.#editId = null;
             return;
         }
@@ -181,7 +184,7 @@ export default class TextController {
         input.style.height = "auto";
         input.style.height = input.scrollHeight + "px";
         if (input.value == "") {
-            this.mode = "send";
+            this.mode = TextController.MODE_SEND;
             this.#editId = null;
         }
     }
@@ -231,7 +234,7 @@ export default class TextController {
             textarea.value = result.text;
             textarea.style.height = "auto";
             textarea.style.height = textarea.scrollHeight + "px";
-            this.mode = "edit";
+            this.mode = TextController.MODE_EDIT;
             this.#editId = id;
             document.getElementById("text-input").focus();
         }

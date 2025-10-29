@@ -84,7 +84,7 @@ export default class ReVoiceChat {
                     return;
 
                 case "ROOM_MESSAGE":
-                    this.room.textController.processSSE(data);
+                    this.room.textController.message(data);
                     return;
 
                 case "DIRECT_MESSAGE":
