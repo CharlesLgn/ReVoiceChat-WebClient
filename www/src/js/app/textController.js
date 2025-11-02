@@ -154,7 +154,7 @@ export default class TextController {
             }
 
             // Clean file input
-            removeAttachment();
+            this.removeAttachment();
 
             // Clean text input
             const textarea = document.getElementById("text-input");
