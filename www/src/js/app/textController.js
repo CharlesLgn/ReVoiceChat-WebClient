@@ -154,8 +154,7 @@ export default class TextController {
             }
 
             // Clean file input
-            attachments.value = "";
-            document.getElementById("text-attachment-div").classList.add('hidden');
+            this.removeAttachment();
 
             // Clean text input
             const textarea = document.getElementById("text-input");

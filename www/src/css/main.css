@@ -595,7 +595,7 @@ svg {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .config h1 {
