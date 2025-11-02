@@ -266,7 +266,7 @@ function settingCompressorUpdate(param, data) {
 }
 
 function settingCompressorDefault() {
-    voice.compressorSetting = {
+    RVC.user.voiceSettings.compressor = {
         enabled: true,
         attack: 0,
         knee: 40,
@@ -339,7 +339,7 @@ function settingNoiseGateDefault() {
     RVC.user.voiceSettings.gate = {
         attack: 0.01,
         release: 0.4,
-        threshold: -45,
+        threshold: -60,
     }
     RVC.user.saveSettings();
     RVC.room.voiceController.updateGate();
@@ -354,10 +354,12 @@ function settingVoiceMode() {
         button.innerText = "Simple";
         document.getElementById('voice-sensitivity').innerText = "Noise gate";
         document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${RVC.user.voiceSettings.gate.threshold}dB`;
+        document.getElementById('voice-default-all').classList.add("hidden");
     } else {
         button.innerText = "Advanced";
         document.getElementById('voice-sensitivity').innerText = "Voice detection";
         document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${RVC.user.voiceSettings.gate.threshold}dB`;
+        document.getElementById('voice-default-all').classList.remove("hidden");
     }
 
     const toggleable = document.getElementsByClassName('voice-toggleable');
@@ -368,4 +370,10 @@ function settingVoiceMode() {
             element.classList.add('hidden');
         }
     }
+}
+
+function settingVoiceDefault() {
+    settingVolumeUpdate({value: 1});
+    settingNoiseGateDefault();
+    settingCompressorDefault();
 }

@@ -35,7 +35,8 @@
                     </div>
 
                     <div class="block-right">
-                        <button onclick="RVC.router.routeTo('config')"><revoice-icon-cog-6></revoice-icon-cog-6></button>
+                        <button
+                            onclick="RVC.router.routeTo('config')"><revoice-icon-cog-6></revoice-icon-cog-6></button>
                     </div>
                 </div>
             </div>
@@ -89,7 +90,8 @@
                                 onclick="RVC.room.textController.removeAttachment()"><revoice-icon-trash></revoice-icon-trash></button>
                         </div>
                         <div class="text-control-text">
-                            <textarea rows="1" id="text-input" oninput="RVC.room.textController.oninput(this)"></textarea>
+                            <textarea rows="1" id="text-input"
+                                oninput="RVC.room.textController.oninput(this)"></textarea>
                             <button class="emoji-btn" id="attachment-button"
                                 onclick="RVC.room.textController.joinAttachment()"><revoice-icon-paper-clip></revoice-icon-paper-clip></button>
                             <button class="emoji-btn"
@@ -111,7 +113,8 @@
                         <button id="voice-join-action" class="connect join">[JOIN]</button>
                     </div>
                     <div class="voice-control">
-                        <button id="voice-self-mute" onclick="RVC.room.voiceController.controlSelfMute()" title="Mute" class="mute">
+                        <button id="voice-self-mute" onclick="RVC.room.voiceController.controlSelfMute()" title="Mute"
+                            class="mute">
                             <revoice-icon-microphone></revoice-icon-microphone>
                         </button>
                     </div>
@@ -367,11 +370,12 @@
                         <input type="range" id="noise-gate-threshold" min="-100" max="0" step="1"
                             onchange="settingNoiseGateUpdate('threshold', this)"
                             oninput="settingNoiseGateDirectShow('threshold', this)">
-                    </form>
 
-                    <div class="config-buttons">
-                        <button class="config-button" type="button" onclick="settingNoiseGateDefault()">Default</button>
-                    </div>
+                        <div class="config-buttons">
+                            <button class="config-button voice-toggleable hidden" type="button"
+                                onclick="settingNoiseGateDefault()">Default</button>
+                        </div>
+                    </form>
 
                     <h2 class="voice-toggleable hidden">Compressor</h2>
                     <form class="voice-settings voice-toggleable hidden">
@@ -409,6 +413,8 @@
                     </form>
 
                     <div class="config-buttons">
+                        <button class="config-button" type="button" id="voice-default-all"
+                                onclick="settingVoiceDefault()">Default</button>
                         <button class="config-button" type="button" id="voice-mode"
                             onclick="settingVoiceMode()">Advanced</button>
                     </div>
@@ -429,7 +435,7 @@
     <script src="src/js/lib/marked.min.js"></script>
     <script src="src/js/lib/highlight.min.js"></script>
     <script src="src/js/lib/tools.js"></script>
-    
+
     <!-- Components -->
     <script src="src/js/component/icon.component.js"></script>
     <script src="src/js/component/emoji.component.js"></script>
@@ -438,7 +444,7 @@
     <script src="src/js/component/theme.component.js"></script>
     <script src="src/js/component/server.roles.component.js" type="module"></script>
     <script src="src/js/component/button.spinner.component.js"></script>
-    
+
     <!-- App -->
     <script src="src/js/app.js" type="module"></script>
     <script src="src/js/emoji.js"></script>
