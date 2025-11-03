@@ -1,16 +1,11 @@
-import VoiceCall from "./voiceCall.js";
+import SettingsController from "./settingsController.js";
 
 export default class User {
     #fetcher;
     #mediaURL;
+    settings = new SettingsController();
     id;
     displayName;
-    voiceSettings = {
-        compressor: {},
-        gate: {},
-        self: {},
-        users: {},
-    }
 
     constructor(fetcher, mediaURL) {
         this.#fetcher = fetcher;
@@ -30,31 +25,6 @@ export default class User {
             document.getElementById("user-status").innerText = result.status;
             document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
             document.getElementById("user-picture").src = `${this.#mediaURL}/profiles/${result.id}`;
-        }
-    }
-
-    saveSettings() {
-        const settings = {
-            voice: this.voiceSettings,
-        }
-
-        localStorage.setItem('userSettings', JSON.stringify(settings));
-    }
-
-    loadSettings() {
-        const settings = JSON.parse(localStorage.getItem('userSettings'));
-
-        const defaultVoice = VoiceCall.DEFAULT_SETTINGS;
-
-        // Apply settings
-        if (settings.voice) {
-            this.voiceSettings.self = settings.voice.self ? settings.voice.self : defaultVoice.self;
-            this.voiceSettings.users = settings.voice.users ? settings.voice.users : {};
-            this.voiceSettings.compressor = settings.voice.compressor ? settings.voice.compressor : defaultVoice.compressor;
-            this.voiceSettings.gate = settings.voice.gate ? settings.voice.gate : defaultVoice.gate;
-        }
-        else {
-            this.voiceSettings = defaultVoice;
         }
     }
 

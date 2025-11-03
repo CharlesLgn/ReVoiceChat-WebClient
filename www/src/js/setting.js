@@ -16,9 +16,7 @@ function settingLoad() {
     document.getElementById("setting-user-picture").src = `${RVC.mediaUrl}/profiles/${RVC.user.id}`;
     settingThemeShow();
     settingEmoteShow();
-    settingVolumeShow();
-    settingNoiseGateShow();
-    settingCompressorShow();
+    RVC.user.settings.updateUI();
     selectSettingItem("overview");
 
     const settingUserPictureNewPath = document.getElementById("setting-user-picture-new-path");
@@ -164,188 +162,6 @@ function uploadNewProfilePicture() {
     fileInput.click();
 }
 
-function settingVolumeDirectShow(element) {
-    document.getElementById('volume-label').innerText = `Volume ${Number.parseInt(element.value * 100)}%`;
-}
-
-function settingVolumeShow() {
-    document.getElementById('volume-label').innerText = `Volume ${Number.parseInt(RVC.user.voiceSettings.self.volume * 100)}%`;
-    document.getElementById('volume-input').value = RVC.user.voiceSettings.self.volume;
-}
-
-function settingVolumeUpdate(data) {
-    RVC.user.voiceSettings.self.volume = Number.parseFloat(data.value)
-    RVC.user.saveSettings();
-    settingVolumeShow();
-    RVC.room.voiceController.setSelfVolume();
-}
-
-function settingCompressorDirectShow(param, element) {
-    switch (param) {
-        case 'attack':
-            document.getElementById('compressor-attack-label').innerText = `Attack : ${element.value * 1000}ms`;
-            break;
-        case 'ratio':
-            document.getElementById('compressor-ratio-label').innerText = `Ratio : ${element.value}`;
-            break;
-        case 'reduction':
-            document.getElementById('compressor-reduction-label').innerText = `Reduction : ${element.value}dB`;
-            break;
-        case 'release':
-            document.getElementById('compressor-release-label').innerText = `Release : ${element.value * 1000}ms`;
-            break;
-        case 'threshold':
-            document.getElementById('compressor-threshold-label').innerText = `Threshold : ${element.value}dB`;
-            break;
-    }
-}
-
-function settingCompressorShow() {
-    const buttonEnabled = document.getElementById('compressor-enabled')
-    if (RVC.user.voiceSettings.compressor.enabled) {
-        buttonEnabled.innerText = "Enabled";
-        buttonEnabled.classList.remove("disabled");
-        buttonEnabled.classList.add("enabled");
-    } else {
-        buttonEnabled.innerText = "Disabled";
-        buttonEnabled.classList.add("disabled");
-        buttonEnabled.classList.remove("enabled");
-    }
-
-    document.getElementById('compressor-attack').value = RVC.user.voiceSettings.compressor.attack;
-    document.getElementById('compressor-attack').title = RVC.user.voiceSettings.compressor.attack * 1000 + "ms";
-    document.getElementById('compressor-attack-label').innerText = `Attack : ${RVC.user.voiceSettings.compressor.attack * 1000}ms`;
-
-    document.getElementById('compressor-ratio').value = RVC.user.voiceSettings.compressor.ratio;
-    document.getElementById('compressor-ratio').title = RVC.user.voiceSettings.compressor.ratio;
-    document.getElementById('compressor-ratio-label').innerText = `Ratio : ${RVC.user.voiceSettings.compressor.ratio}`;
-
-    document.getElementById('compressor-reduction').value = RVC.user.voiceSettings.compressor.reduction;
-    document.getElementById('compressor-reduction').title = RVC.user.voiceSettings.compressor.reduction + "dB";
-    document.getElementById('compressor-reduction-label').innerText = `Reduction : ${RVC.user.voiceSettings.compressor.reduction}dB`;
-
-    document.getElementById('compressor-release').value = RVC.user.voiceSettings.compressor.release;
-    document.getElementById('compressor-release').title = RVC.user.voiceSettings.compressor.release * 1000 + "ms";
-    document.getElementById('compressor-release-label').innerText = `Release : ${RVC.user.voiceSettings.compressor.release * 1000}ms`;
-
-    document.getElementById('compressor-threshold').value = RVC.user.voiceSettings.compressor.threshold;
-    document.getElementById('compressor-threshold').title = RVC.user.voiceSettings.compressor.threshold + "dB";
-    document.getElementById('compressor-threshold-label').innerText = `Threshold : ${RVC.user.voiceSettings.compressor.threshold}dB`;
-}
-
-function settingCompressorEnabled() {
-    RVC.user.voiceSettings.compressor.enabled = !RVC.user.voiceSettings.compressor.enabled;
-    RVC.user.saveSettings();
-    settingCompressorShow();
-}
-
-function settingCompressorUpdate(param, data) {
-    switch (param) {
-        case 'enabled':
-            RVC.user.voiceSettings.compressor.enabled = data.checked === "checked";
-            break;
-        case 'attack':
-            RVC.user.voiceSettings.compressor.attack = Number.parseFloat(data.value);
-            break;
-        case 'ratio':
-            RVC.user.voiceSettings.compressor.ratio = Number.parseInt(data.value);
-            break;
-        case 'reduction':
-            RVC.user.voiceSettings.compressor.reduction = Number.parseFloat(data.value);
-            break;
-        case 'release':
-            RVC.user.voiceSettings.compressor.release = Number.parseFloat(data.value);
-            break;
-        case 'threshold':
-            RVC.user.voiceSettings.compressor.threshold = Number.parseInt(data.value);
-            break;
-    }
-
-    RVC.user.saveSettings();
-    settingCompressorShow();
-}
-
-function settingCompressorDefault() {
-    RVC.user.voiceSettings.compressor = {
-        enabled: true,
-        attack: 0,
-        knee: 40,
-        ratio: 12,
-        reduction: 0,
-        release: 0.25,
-        threshold: -50,
-    }
-    RVC.user.saveSettings();
-    settingCompressorShow();
-}
-
-function settingNoiseGateDirectShow(param, element) {
-    switch (param) {
-        case 'attack':
-            document.getElementById('noise-gate-attack-label').innerText = `Attack : ${element.value * 1000}ms`;
-            break;
-        case 'release':
-            document.getElementById('noise-gate-release-label').innerText = `Release : ${element.value * 1000}ms`;
-            break;
-        case 'threshold': {
-            if (currentSetting.voiceAdvanced) {
-                document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${element.value}dB`;
-            } else {
-                document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${element.value}dB`;
-            }
-            break;
-        }
-    }
-}
-
-function settingNoiseGateShow() {
-    document.getElementById('noise-gate-attack').value = RVC.user.voiceSettings.gate.attack;
-    document.getElementById('noise-gate-attack').title = RVC.user.voiceSettings.gate.attack * 1000 + "ms";
-    document.getElementById('noise-gate-attack-label').innerText = `Attack : ${RVC.user.voiceSettings.gate.attack * 1000}ms`;
-
-    document.getElementById('noise-gate-release').value = RVC.user.voiceSettings.gate.release;
-    document.getElementById('noise-gate-release').title = RVC.user.voiceSettings.gate.release * 1000 + "ms";
-    document.getElementById('noise-gate-release-label').innerText = `Release : ${RVC.user.voiceSettings.gate.release * 1000}ms`;
-
-    document.getElementById('noise-gate-threshold').value = RVC.user.voiceSettings.gate.threshold;
-    document.getElementById('noise-gate-threshold').title = RVC.user.voiceSettings.gate.threshold + "dB";
-
-    if (currentSetting.voiceAdvanced) {
-        document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${RVC.user.voiceSettings.gate.threshold}dB`;
-    } else {
-        document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${RVC.user.voiceSettings.gate.threshold}dB`;
-    }
-}
-
-function settingNoiseGateUpdate(param, data) {
-    switch (param) {
-        case 'attack':
-            RVC.user.voiceSettings.gate.attack = Number.parseFloat(data.value);
-            break;
-        case 'release':
-            RVC.user.voiceSettings.gate.release = Number.parseFloat(data.value);
-            break;
-        case 'threshold':
-            RVC.user.voiceSettings.gate.threshold = Number.parseInt(data.value);
-            break;
-    }
-
-    RVC.user.saveSettings();
-    RVC.room.voiceController.updateGate();
-    settingNoiseGateShow();
-}
-
-function settingNoiseGateDefault() {
-    RVC.user.voiceSettings.gate = {
-        attack: 0.01,
-        release: 0.4,
-        threshold: -60,
-    }
-    RVC.user.saveSettings();
-    RVC.room.voiceController.updateGate();
-    settingNoiseGateShow();
-}
-
 function settingVoiceMode() {
     currentSetting.voiceAdvanced = !currentSetting.voiceAdvanced;
 
@@ -353,12 +169,12 @@ function settingVoiceMode() {
     if (currentSetting.voiceAdvanced) {
         button.innerText = "Simple";
         document.getElementById('voice-sensitivity').innerText = "Noise gate";
-        document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${RVC.user.voiceSettings.gate.threshold}dB`;
+        document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${RVC.user.settings.voice.gate.threshold}dB`;
         document.getElementById('voice-default-all').classList.add("hidden");
     } else {
         button.innerText = "Advanced";
         document.getElementById('voice-sensitivity').innerText = "Voice detection";
-        document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${RVC.user.voiceSettings.gate.threshold}dB`;
+        document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${RVC.user.settings.voice.gate.threshold}dB`;
         document.getElementById('voice-default-all').classList.remove("hidden");
     }
 
@@ -370,10 +186,4 @@ function settingVoiceMode() {
             element.classList.add('hidden');
         }
     }
-}
-
-function settingVoiceDefault() {
-    settingVolumeUpdate({value: 1});
-    settingNoiseGateDefault();
-    settingCompressorDefault();
 }

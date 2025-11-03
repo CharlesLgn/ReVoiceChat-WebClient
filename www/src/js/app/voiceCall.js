@@ -11,6 +11,7 @@ export default class VoiceCall {
             knee: 40,
             ratio: 12,
             release: 0.25,
+            reduction: 0,
             threshold: -50,
         },
         gate: {

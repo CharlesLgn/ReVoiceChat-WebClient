@@ -22,11 +22,11 @@ window.RVC = RVC;
 document.addEventListener('DOMContentLoaded', function () {
     document.documentElement.dataset.theme = localStorage.getItem("Theme") || "dark";
 
+    RVC.user.settings.load();
     RVC.state.load();
     RVC.openSSE();
     RVC.router.routeTo(getQueryVariable('r'));
-    RVC.user.loadSettings();
-
+    
     getEmojisGlobal();
 });
 

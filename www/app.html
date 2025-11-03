@@ -35,8 +35,7 @@
                     </div>
 
                     <div class="block-right">
-                        <button
-                            onclick="RVC.router.routeTo('config')"><revoice-icon-cog-6></revoice-icon-cog-6></button>
+                        <button onclick="RVC.router.routeTo('config')"><revoice-icon-cog-6></revoice-icon-cog-6></button>
                     </div>
                 </div>
             </div>
@@ -86,16 +85,12 @@
                     <div class="text-control">
                         <div class="text-control-file hidden" id="text-attachment-div">
                             <input type="file" id="text-attachment" multiple>
-                            <button class="emoji-btn" id="attachment-button"
-                                onclick="RVC.room.textController.removeAttachment()"><revoice-icon-trash></revoice-icon-trash></button>
+                            <button class="emoji-btn" id="attachment-button" onclick="RVC.room.textController.removeAttachment()"><revoice-icon-trash></revoice-icon-trash></button>
                         </div>
                         <div class="text-control-text">
-                            <textarea rows="1" id="text-input"
-                                oninput="RVC.room.textController.oninput(this)"></textarea>
-                            <button class="emoji-btn" id="attachment-button"
-                                onclick="RVC.room.textController.joinAttachment()"><revoice-icon-paper-clip></revoice-icon-paper-clip></button>
-                            <button class="emoji-btn"
-                                id="emoji-picker-button"><revoice-icon-emoji></revoice-icon-emoji></button>
+                            <textarea rows="1" id="text-input" oninput="RVC.room.textController.oninput(this)"></textarea>
+                            <button class="emoji-btn" id="attachment-button" onclick="RVC.room.textController.joinAttachment()"><revoice-icon-paper-clip></revoice-icon-paper-clip></button>
+                            <button class="emoji-btn" id="emoji-picker-button"><revoice-icon-emoji></revoice-icon-emoji></button>
                         </div>
                     </div>
                 </div>
@@ -113,8 +108,7 @@
                         <button id="voice-join-action" class="connect join">[JOIN]</button>
                     </div>
                     <div class="voice-control">
-                        <button id="voice-self-mute" onclick="RVC.room.voiceController.controlSelfMute()" title="Mute"
-                            class="mute">
+                        <button id="voice-self-mute" onclick="RVC.room.voiceController.controlSelfMute()" title="Mute" class="mute">
                             <revoice-icon-microphone></revoice-icon-microphone>
                         </button>
                     </div>
@@ -188,8 +182,7 @@
                     <p>Server ID : <span id="config-server-uuid" class="selectable">[SERVER UUID]</span></p>
                     <h2>Server name</h2>
                     <input type="text" id="config-server-name" value="[SERVER NAME]">
-                    <button id="save-server-settings-button" class="config-button"
-                        onclick="serverSettingsSave()">Save</button>
+                    <button id="save-server-settings-button" class="config-button" onclick="serverSettingsSave()">Save</button>
                 </div>
 
                 <!-- Rooms -->
@@ -274,15 +267,13 @@
                     </button>
 
                     <!-- Input -->
-                    <button class="sub-category" id="setting-tab-audio-input"
-                        onclick="selectSettingItem('audio-input')">
+                    <button class="sub-category" id="setting-tab-audio-input" onclick="selectSettingItem('audio-input')">
                         <revoice-icon-microphone></revoice-icon-microphone>
                         Audio input
                     </button>
 
                     <!-- Output -->
-                    <button class="sub-category" id="setting-tab-audio-output"
-                        onclick="selectSettingItem('audio-output')">
+                    <button class="sub-category" id="setting-tab-audio-output" onclick="selectSettingItem('audio-output')">
                         <revoice-icon-speaker></revoice-icon-speaker>
                         Audio output
                     </button>
@@ -307,11 +298,9 @@
                     <p>User ID : <span id="setting-user-uuid" class="selectable">[USER UUID]</span></p>
                     <br />
                     <div class="sidebar-container">
-                        <input type="file" id="setting-user-picture-new-file"
-                            accept="image/webp,image/png,image/jpg,image/jpeg,image/gif" style="display:none;">
+                        <input type="file" id="setting-user-picture-new-file" accept="image/webp,image/png,image/jpg,image/jpeg,image/gif" style="display:none;">
                         <input type="hidden" id="setting-user-picture-new-path" name="imagePath">
-                        <img id="setting-user-picture" src="src/img/default-avatar.webp" alt="Preview PFP"
-                            class="icon large-icon ring-2">
+                        <img id="setting-user-picture" src="src/img/default-avatar.webp" alt="Preview PFP" class="icon large-icon ring-2">
                         <span style="width: 10px"></span>
                         <button class="button" onclick="uploadNewProfilePicture()">Upload a profile picture</button>
                     </div>
@@ -346,77 +335,53 @@
                     <h2>Volume</h2>
 
                     <form class="voice-settings">
-                        <label for="volume-attack" id="volume-label">[VOLUME]</label>
-                        <input type="range" id="volume-input" min="0" max="1.5" step="0.01"
-                            onchange="settingVolumeUpdate(this)" oninput="settingVolumeDirectShow(this)">
+                        <label for="input-volume" id="input-volume-label">[VOLUME]</label>
+                        <input type="range" id="input-volume" min="0" max="1.5" step="0.01">
                     </form>
 
                     <h2 id="voice-sensitivity">Voice detection</h2>
 
                     <form class="voice-settings">
-                        <label class="voice-toggleable hidden" for="noise-gate-attack"
-                            id="noise-gate-attack-label">[ATTACK]</label>
-                        <input class="voice-toggleable hidden" type="range" id="noise-gate-attack" min="0.01" max="0.05"
-                            step="0.001" onchange="settingNoiseGateUpdate('attack', this)"
-                            oninput="settingNoiseGateDirectShow('attack', this)">
+                        <label class="voice-toggleable hidden" for="noise-gate-attack" id="noise-gate-attack-label">[ATTACK]</label>
+                        <input class="voice-toggleable hidden" type="range" id="noise-gate-attack" min="0.01" max="0.05" step="0.001">
 
-                        <label class="voice-toggleable hidden" for="noise-gate-release"
-                            id="noise-gate-release-label">[RELEASE]</label>
-                        <input class="voice-toggleable hidden" type="range" id="noise-gate-release" min="0.2" max="0.6"
-                            step="0.001" onchange="settingNoiseGateUpdate('release', this)"
-                            oninput="settingNoiseGateDirectShow('release', this)">
+                        <label class="voice-toggleable hidden" for="noise-gate-release" id="noise-gate-release-label">[RELEASE]</label>
+                        <input class="voice-toggleable hidden" type="range" id="noise-gate-release" min="0.2" max="0.6" step="0.001">
 
                         <label for="noise-gate-threshold" id="noise-gate-threshold-label">[THRESHOLD]</label>
-                        <input type="range" id="noise-gate-threshold" min="-100" max="0" step="1"
-                            onchange="settingNoiseGateUpdate('threshold', this)"
-                            oninput="settingNoiseGateDirectShow('threshold', this)">
+                        <input type="range" id="noise-gate-threshold" min="-100" max="0" step="1">
 
                         <div class="config-buttons">
-                            <button class="config-button voice-toggleable hidden" type="button"
-                                onclick="settingNoiseGateDefault()">Default</button>
+                            <button class="config-button voice-toggleable hidden" type="button" id="noise-gate-default">Default</button>
                         </div>
                     </form>
 
                     <h2 class="voice-toggleable hidden">Compressor</h2>
                     <form class="voice-settings voice-toggleable hidden">
                         <label for="compressor-attack" id="compressor-attack-label">[ATTACK]</label>
-                        <input type="range" id="compressor-attack" min="0" max="1" step="0.01"
-                            onchange="settingCompressorUpdate('attack', this)"
-                            oninput="settingCompressorDirectShow('attack', this)">
+                        <input type="range" id="compressor-attack" min="0" max="1" step="0.01">
 
                         <label for="compressor-ratio" id="compressor-ratio-label">[RATIO]</label>
-                        <input type="range" id="compressor-ratio" min="1" max="20" step="1"
-                            onchange="settingCompressorUpdate('ratio', this)"
-                            oninput="settingCompressorDirectShow('ratio', this)">
+                        <input type="range" id="compressor-ratio" min="1" max="20" step="1">
 
                         <label for="compressor-reduction" id="compressor-reduction-label">[REDUCTION]</label>
-                        <input type="range" id="compressor-reduction" min="-20" max="0" step="1"
-                            onchange="settingCompressorUpdate('reduction', this)"
-                            oninput="settingCompressorDirectShow('reduction', this)">
+                        <input type="range" id="compressor-reduction" min="-20" max="0" step="1">
 
                         <label for="compressor-release" id="compressor-release-label">[RELEASE]</label>
-                        <input type="range" id="compressor-release" min="0" max="1" step="0.01"
-                            onchange="settingCompressorUpdate('release', this)"
-                            oninput="settingCompressorDirectShow('release', this)">
+                        <input type="range" id="compressor-release" min="0" max="1" step="0.01">
 
                         <label for="compressor-threshold" id="compressor-threshold-label">[THRESHOLD]</label>
-                        <input type="range" id="compressor-threshold" min="-100" max="0" step="1"
-                            onchange="settingCompressorUpdate('threshold', this)"
-                            oninput="settingCompressorDirectShow('threshold', this)">
+                        <input type="range" id="compressor-threshold" min="-100" max="0" step="1">
 
                         <div class="config-buttons">
-                            <button class="config-button" type="button"
-                                onclick="settingCompressorDefault()">Default</button>
-                            <button class="config-button" id="compressor-enabled" type="button"
-                                onclick="settingCompressorEnabled()">Enabled</button>
+                            <button class="config-button" type="button" id="compressor-default">Default</button>
+                            <button class="config-button" type="button" id="compressor-enabled">Enabled</button>
                         </div>
                     </form>
 
                     <div class="config-buttons">
-                        <button class="config-button" type="button" id="voice-default-all"
-                                onclick="settingVoiceDefault()">Default</button>
-                        <button class="config-button" type="button" id="voice-mode"
-                            onclick="settingVoiceMode()">Advanced</button>
+                        <button class="config-button" type="button" id="voice-default-all">Default</button>
+                        <button class="config-button" type="button" id="voice-mode" onclick="settingVoiceMode()">Advanced</button>
                     </div>
                 </div>
 
