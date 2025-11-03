@@ -3,11 +3,12 @@ import SettingsController from "./settingsController.js";
 export default class User {
     #fetcher;
     #mediaURL;
-    settings = new SettingsController();
+    settings;
     id;
     displayName;
 
     constructor(fetcher, mediaURL) {
+        this.settings = new SettingsController(fetcher);
         this.#fetcher = fetcher;
         this.#mediaURL = mediaURL;
         this.#load();

@@ -1,9 +1,12 @@
 import VoiceCall from "./voiceCall.js";
 
 export default class SettingsController {
+    #fetcher;
     voice = structuredClone(VoiceCall.DEFAULT_SETTINGS);
 
-    constructor() {
+    constructor(fetcher) {
+        this.#fetcher = fetcher;
+
         // Voice default
         document.getElementById('voice-default').addEventListener('click', () => this.#voiceDefault());
 
@@ -52,24 +55,24 @@ export default class SettingsController {
         compressorThreshold.addEventListener('input', () => this.#compressorUpdateUI('threshold', compressorThreshold));
     }
 
-    save() {
+    async save() {
         const settings = {
             voice: this.voice,
         }
-
-        localStorage.setItem('userSettings', JSON.stringify(settings));
+        await this.#fetcher.fetchCore(`/settings/me`, 'PATCH', JSON.stringify(settings));
     }
 
-    load() {
-        const storedSettings = JSON.parse(localStorage.getItem('userSettings'));
-
-        // Apply settings
-        if (storedSettings.voice) {
-            
-            this.voice.self = storedSettings.voice.self ? storedSettings.voice.self : defaultVoice.self;
-            this.voice.users = storedSettings.voice.users ? storedSettings.voice.users : {};
-            this.voice.compressor = storedSettings.voice.compressor ? storedSettings.voice.compressor : defaultVoice.compressor;
-            this.voice.gate = storedSettings.voice.gate ? storedSettings.voice.gate : defaultVoice.gate;
+    async load() {
+        const result = await this.#fetcher.fetchCore(`/settings/me`, 'GET');
+        if (result !== null) {
+            const storedSettings = JSON.parse(result);
+            console.log(storedSettings);
+            if (storedSettings.voice) {
+                this.voice.self = storedSettings.voice.self ? storedSettings.voice.self : defaultVoice.self;
+                this.voice.users = storedSettings.voice.users ? storedSettings.voice.users : {};
+                this.voice.compressor = storedSettings.voice.compressor ? storedSettings.voice.compressor : defaultVoice.compressor;
+                this.voice.gate = storedSettings.voice.gate ? storedSettings.voice.gate : defaultVoice.gate;
+            }
         }
     }
 
