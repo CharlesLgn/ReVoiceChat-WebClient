@@ -1,7 +1,7 @@
 import VoiceCall from "./voiceCall.js";
 
 export default class SettingsController {
-    voice = VoiceCall.DEFAULT_SETTINGS;
+    voice = structuredClone(VoiceCall.DEFAULT_SETTINGS);
 
     constructor() {
         // Voice default
@@ -160,7 +160,7 @@ export default class SettingsController {
     }
 
     #noiseGateDefault() {
-        this.voice.gate = VoiceCall.DEFAULT_SETTINGS.gate;
+        this.voice.gate = structuredClone(VoiceCall.DEFAULT_SETTINGS.gate);
         this.save();
         this.#noiseGateShow();
         RVC.room.voiceController.updateGate();
@@ -253,7 +253,7 @@ export default class SettingsController {
     }
 
     #compressorDefault() {
-        this.voice.compressor = VoiceCall.DEFAULT_SETTINGS.compressor;
+        this.voice.compressor = structuredClone(VoiceCall.DEFAULT_SETTINGS.compressor);
         this.save();
         this.#compressorShow();
     }
