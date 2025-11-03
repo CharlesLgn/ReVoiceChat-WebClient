@@ -324,6 +324,15 @@ body {
     color: var(--pri-button-bg-color);
 }
 
+.config .sub-category.danger{
+    color: red;
+}
+
+.config .sub-category.danger:hover{
+    background-color: darkred;
+    color: #ff1f1f;
+}
+
 .config input,
 .config select,
 form.popup input,

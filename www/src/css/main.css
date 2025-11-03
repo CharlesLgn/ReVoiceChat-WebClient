@@ -588,6 +588,7 @@ svg {
     border-radius: 0.25rem;
     padding: 0.5rem;
     font-weight: 600;
+    width: 90%;
 }
 
 .sub-category svg {

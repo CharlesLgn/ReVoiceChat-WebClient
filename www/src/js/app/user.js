@@ -38,4 +38,11 @@ export default class User {
             name.innerText = data.displayName;
         }
     }
+
+    logout(){
+        sessionStorage.removeItem('lastState');
+        localStorage.removeItem('userSettings');
+        eraseCookie('jwtToken');
+        document.location.href = `index.html`;
+    }
 }
