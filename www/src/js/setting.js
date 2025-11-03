@@ -170,12 +170,12 @@ function settingVoiceMode() {
         button.innerText = "Simple";
         document.getElementById('voice-sensitivity').innerText = "Noise gate";
         document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${RVC.user.settings.voice.gate.threshold}dB`;
-        document.getElementById('voice-default-all').classList.add("hidden");
+        document.getElementById('voice-default').classList.add("hidden");
     } else {
         button.innerText = "Advanced";
         document.getElementById('voice-sensitivity').innerText = "Voice detection";
         document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${RVC.user.settings.voice.gate.threshold}dB`;
-        document.getElementById('voice-default-all').classList.remove("hidden");
+        document.getElementById('voice-default').classList.remove("hidden");
     }
 
     const toggleable = document.getElementsByClassName('voice-toggleable');
