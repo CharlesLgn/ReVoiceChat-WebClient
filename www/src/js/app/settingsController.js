@@ -1,12 +1,7 @@
 import VoiceCall from "./voiceCall.js";
 
 export default class SettingsController {
-    voice = {
-        compressor: {},
-        gate: {},
-        self: {},
-        users: {},
-    }
+    voice = VoiceCall.DEFAULT_SETTINGS;
 
     constructor() {
         // Voice default all
@@ -49,12 +44,12 @@ export default class SettingsController {
         compressorReduction.addEventListener('input', () => this.#compressorDirectShow('reduction', compressorReduction));
 
         const compressorRelease = document.getElementById('compressor-release');
-        compressorRelease.addEventListener('change', this.#compressorUpdate('release', compressorRelease));
-        compressorRelease.addEventListener('input', this.#compressorDirectShow('release', compressorRelease));
+        compressorRelease.addEventListener('change', () => this.#compressorUpdate('release', compressorRelease));
+        compressorRelease.addEventListener('input', () => this.#compressorDirectShow('release', compressorRelease));
 
         const compressorThreshold = document.getElementById('compressor-threshold');
-        compressorThreshold.addEventListener('change', this.#compressorUpdate('threshold', compressorThreshold));
-        compressorThreshold.addEventListener('input', this.#compressorDirectShow('threshold', compressorThreshold));
+        compressorThreshold.addEventListener('change', () => this.#compressorUpdate('threshold', compressorThreshold));
+        compressorThreshold.addEventListener('input', () => this.#compressorDirectShow('threshold', compressorThreshold));
     }
 
     save() {
@@ -66,19 +61,15 @@ export default class SettingsController {
     }
 
     load() {
-        const settings = JSON.parse(localStorage.getItem('userSettings'));
-
-        const defaultVoice = VoiceCall.DEFAULT_SETTINGS;
+        const storedSettings = JSON.parse(localStorage.getItem('userSettings'));
 
         // Apply settings
-        if (settings.voice) {
-            this.voice.self = settings.voice.self ? settings.voice.self : defaultVoice.self;
-            this.voice.users = settings.voice.users ? settings.voice.users : {};
-            this.voice.compressor = settings.voice.compressor ? settings.voice.compressor : defaultVoice.compressor;
-            this.voice.gate = settings.voice.gate ? settings.voice.gate : defaultVoice.gate;
-        }
-        else {
-            this.voice = defaultVoice;
+        if (storedSettings.voice) {
+            
+            this.voice.self = storedSettings.voice.self ? storedSettings.voice.self : defaultVoice.self;
+            this.voice.users = storedSettings.voice.users ? storedSettings.voice.users : {};
+            this.voice.compressor = storedSettings.voice.compressor ? storedSettings.voice.compressor : defaultVoice.compressor;
+            this.voice.gate = storedSettings.voice.gate ? storedSettings.voice.gate : defaultVoice.gate;
         }
     }
 
