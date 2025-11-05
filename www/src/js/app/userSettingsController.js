@@ -7,6 +7,11 @@ export default class UserSettingsController {
     voice = structuredClone(VoiceCall.DEFAULT_SETTINGS);
     #inputAdvanced = false;
     #currentTab;
+    #password = {
+        password: '',
+        newPassword: '',
+        confirmPassword: '',
+    }
 
     constructor(fetcher, user, mediaUrl) {
         this.#fetcher = fetcher;
@@ -17,6 +22,7 @@ export default class UserSettingsController {
         this.#selectEventHandler();
         this.select('overview');
 
+        this.#overviewEventHandler();
         this.#audioInputEventHandler();
     }
 
@@ -90,13 +96,53 @@ export default class UserSettingsController {
         });
     }
 
+    #overviewEventHandler(){
+        document.getElementById(`setting-change-password`).addEventListener('click', () => this.#overviewChangePassword());
+    }
+
+    #overviewChangePassword() {
+        Swal.fire({
+            title: `Change password`,
+            animation: false,
+            customClass: SwalCustomClass,
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: "Change",
+            allowOutsideClick: false,
+            html: `
+            <form class='popup'>
+                <label>Current password</label>
+                <input type='password' id='popup-current-password'>
+                <br/>
+                <br/>
+                <label>New password</label>
+                <input type='password' id='popup-new-password'>
+                <br/>
+                <br/>
+                <label>Confirm password</label>
+                <input type='password' id='popup-confirm-password'>
+            </form>`,
+            didOpen: () => {
+                document.getElementById('popup-current-password').oninput = () => {this.#password.password = document.getElementById('popup-current-password').value};
+                document.getElementById('popup-new-password').oninput = () => {this.#password.newPassword = document.getElementById('popup-new-password').value};
+                document.getElementById('popup-confirm-password').oninput = () => {this.#password.confirmPassword = document.getElementById('popup-confirm-password').value};
+            }
+        ,
+        }).then(async (result) => {
+            if (result.value) {
+                await this.#fetcher.fetchCore(`/user/me`, 'PATCH', { password: this.#password });
+
+            }
+        });
+    }
+
     #themeLoad() {
         const themeForm = document.getElementById("setting-themes-form");
         for (const theme of getAllDeclaredDataThemes()) {
             const button = document.createElement('button');
             button.onclick = () => this.#themeChange(theme);
             button.className = "theme-select-button";
-            button.innerHTML =  `<revoice-theme-preview theme="${theme}"></revoice-theme-preview>`;
+            button.innerHTML = `<revoice-theme-preview theme="${theme}"></revoice-theme-preview>`;
             themeForm.appendChild(button)
         }
     }

@@ -1,43 +1,4 @@
-const currentSetting = {
-    password: {
-        password: '',
-        newPassword: '',
-        confirmPassword: '',
-    }
-}
-
 let newProfilPictureFile = null;
-
-function settingPassword() {
-    Swal.fire({
-        title: `Change password`,
-        animation: false,
-        customClass: SwalCustomClass,
-        showCancelButton: true,
-        focusConfirm: false,
-        confirmButtonText: "Change",
-        allowOutsideClick: false,
-        html: `
-            <form class='popup'>
-                <label>Current password</label>
-                <input type='password' oninput='currentSetting.password.password=this.value'>
-                <br/>
-                <br/>
-                <label>New password</label>
-                <input type='password' oninput='currentSetting.password.newPassword=this.value'>
-                <br/>
-                <br/>
-                <label>Confirm password</label>
-                <input type='password' oninput='currentSetting.password.confirmPassword=this.value'>
-            </form>       
-        `,
-    }).then(async (result) => {
-        if (result.value) {
-            await RVC.fetcher.fetchCore(`/user/me`, 'PATCH', { password: currentSetting.password });
-
-        }
-    });
-}
 
 async function saveSetting() {
     const spinner = new SpinnerOnButton("save-setting-button")
