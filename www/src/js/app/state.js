@@ -17,8 +17,8 @@ export default class State {
                 type: this.#rvc.room.type,
             },
             user: {
-                id: null,
-                displayName: null,
+                id: this.#rvc.user.id,
+                displayName: this.#rvc.user.displayName,
             },
             chat: {
                 mode: "send",
@@ -39,6 +39,8 @@ export default class State {
             this.#rvc.room.id = lastState.room.id;
             this.#rvc.room.name = lastState.room.name;
             this.#rvc.room.type = lastState.room.type;
+            this.#rvc.user.id = lastState.user.id;
+            this.#rvc.user.displayName = lastState.user.displayName;
         }
     }
 }
