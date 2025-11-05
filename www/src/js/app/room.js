@@ -1,5 +1,5 @@
-import TextController from './textController.js';
-import VoiceController  from './voiceController.js';
+import RoomTextController from './roomTextController.js';
+import RoomVoiceController  from './roomVoiceController.js';
 
 export default class Room {
     #fetcher;
@@ -11,8 +11,8 @@ export default class Room {
 
     constructor(fetcher, alert, user, voiceURL, token) {
         this.#fetcher = fetcher;
-        this.textController = new TextController(fetcher, alert, user, this);
-        this.voiceController = new VoiceController(fetcher, voiceURL, token, user, alert, this);
+        this.textController = new RoomTextController(fetcher, alert, user, this);
+        this.voiceController = new RoomVoiceController(fetcher, voiceURL, token, user, alert, this);
     }
 
     async load(serverId) {

@@ -1,6 +1,6 @@
 import VoiceCall from "./voiceCall.js";
 
-export default class VoiceController {
+export default class RoomVoiceController {
     #alert;
     #fetcher;
     #voiceURL;

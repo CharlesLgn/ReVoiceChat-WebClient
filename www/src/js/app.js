@@ -1,5 +1,5 @@
 import ReVoiceChat from './app/revoicechat.js';
-import TextController from './app/textController.js';
+import TextController from './app/roomTextController.js';
 import {getEmojisGlobal} from './emoji.js';
 
 const RVC = new ReVoiceChat();

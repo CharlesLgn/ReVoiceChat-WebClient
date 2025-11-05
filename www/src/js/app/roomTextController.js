@@ -1,4 +1,4 @@
-export default class TextController {
+export default class RoomTextController {
     static MODE_SEND = 0;
     static MODE_EDIT = 1;
 
