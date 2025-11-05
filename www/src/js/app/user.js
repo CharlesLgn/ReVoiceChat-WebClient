@@ -1,4 +1,4 @@
-import SettingsController from "./settingsController.js";
+import UserSettingsController from "./userSettingsController.js";
 
 export default class User {
     #fetcher;
@@ -11,7 +11,7 @@ export default class User {
         this.#fetcher = fetcher;
         this.#mediaURL = mediaURL;
         this.#load();
-        this.settings = new SettingsController(this.#fetcher, this, this.#mediaURL);
+        this.settings = new UserSettingsController(this.#fetcher, this, this.#mediaURL);
     }
 
     async #load() {

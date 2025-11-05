@@ -1,6 +1,6 @@
 import VoiceCall from "./voiceCall.js";
 
-export default class SettingsController {
+export default class UserSettingsController {
     #user;
     #mediaUrl;
     #fetcher;
