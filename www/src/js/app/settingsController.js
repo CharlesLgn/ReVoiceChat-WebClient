@@ -10,49 +10,9 @@ export default class SettingsController {
         // Voice default
         document.getElementById('voice-default').addEventListener('click', () => this.#voiceDefault());
 
-        // Input Volume
-        const inputVolume = document.getElementById('input-volume');
-        inputVolume.addEventListener('change', () => this.#volumeUpdate(inputVolume));
-        inputVolume.addEventListener('input', () => this.#volumeUpdateUI(inputVolume));
-
-        // NoiseGate events
-        document.getElementById('noise-gate-default').addEventListener('click', () => this.#noiseGateDefault());
-
-        const noiseGateAttack = document.getElementById('noise-gate-attack');
-        noiseGateAttack.addEventListener('change', () => this.#noiseGateUpdate('attack', noiseGateAttack));
-        noiseGateAttack.addEventListener('input', () => this.#noiseGateUpdateUI('attack', noiseGateAttack));
-
-        const noiseGateRelease = document.getElementById('noise-gate-release');
-        noiseGateRelease.addEventListener('change', () => this.#noiseGateUpdate('release', noiseGateRelease));
-        noiseGateRelease.addEventListener('input', () => this.#noiseGateUpdateUI('release', noiseGateRelease));
-
-        const noiseGateThreshold = document.getElementById('noise-gate-threshold');
-        noiseGateThreshold.addEventListener('change', () => this.#noiseGateUpdate('threshold', noiseGateThreshold));
-        noiseGateThreshold.addEventListener('input', () => this.#noiseGateUpdateUI('threshold', noiseGateThreshold));
-
-        // Compressor events
-        document.getElementById('compressor-default').addEventListener('click', () => this.#compressorDefault());
-        document.getElementById('compressor-enabled').addEventListener('click', () => this.#compressorEnabled());
-
-        const compressorAttack = document.getElementById('compressor-attack');
-        compressorAttack.addEventListener('change', () => this.#compressorUpdate('attack', compressorAttack));
-        compressorAttack.addEventListener('input', () => this.#compressorUpdateUI('attack', compressorAttack));
-
-        const compressorRatio = document.getElementById('compressor-ratio');
-        compressorRatio.addEventListener('change', () => this.#compressorUpdate('ratio', compressorRatio));
-        compressorRatio.addEventListener('input', () => this.#compressorUpdateUI('ratio', compressorRatio));
-
-        const compressorReduction = document.getElementById('compressor-reduction');
-        compressorReduction.addEventListener('change', () => this.#compressorUpdate('reduction', compressorReduction));
-        compressorReduction.addEventListener('input', () => this.#compressorUpdateUI('reduction', compressorReduction));
-
-        const compressorRelease = document.getElementById('compressor-release');
-        compressorRelease.addEventListener('change', () => this.#compressorUpdate('release', compressorRelease));
-        compressorRelease.addEventListener('input', () => this.#compressorUpdateUI('release', compressorRelease));
-
-        const compressorThreshold = document.getElementById('compressor-threshold');
-        compressorThreshold.addEventListener('change', () => this.#compressorUpdate('threshold', compressorThreshold));
-        compressorThreshold.addEventListener('input', () => this.#compressorUpdateUI('threshold', compressorThreshold));
+        this.#inputVolumeEventHandler();
+        this.#noiseGateEventHandler();
+        this.#compressorEventHandler();
     }
 
     async save() {
@@ -79,33 +39,50 @@ export default class SettingsController {
     updateUI() {
         this.#noiseGateShow();
         this.#compressorShow();
-        this.#volumeShow();
+        this.#inputVolumeShow();
     }
 
     #voiceDefault() {
-        this.#volumeUpdate({ value: 1 });
+        this.#inputVolumeUpdate({ value: 1 });
         this.#noiseGateDefault();
         this.#compressorDefault();
     }
 
     // Input Volume
-    #volumeUpdateUI(element) {
+    #inputVolumeEventHandler(){
+        const inputVolume = document.getElementById('input-volume');
+        inputVolume.addEventListener('change', () => this.#inputVolumeUpdate(inputVolume));
+        inputVolume.addEventListener('input', () => this.#inputVolumeUpdateUI(inputVolume));
+    }
+
+    #inputVolumeUpdateUI(element) {
         document.getElementById('input-volume-label').innerText = `Volume ${Number.parseInt(element.value * 100)}%`;
     }
 
-    #volumeShow() {
+    #inputVolumeShow() {
         document.getElementById('input-volume-label').innerText = `Volume ${Number.parseInt(this.voice.self.volume * 100)}%`;
         document.getElementById('input-volume').value = this.voice.self.volume;
     }
 
-    #volumeUpdate(data) {
+    #inputVolumeUpdate(data) {
         this.voice.self.volume = Number.parseFloat(data.value)
         this.save();
-        this.#volumeShow();
+        this.#inputVolumeShow();
         RVC.room.voiceController.setSelfVolume();
     }
 
     // Noise gate
+    #noiseGateEventHandler(){
+        document.getElementById('noise-gate-default').addEventListener('click', () => this.#noiseGateDefault());
+
+        const noiseGateParameters = ['attack', 'release', 'threshold'];
+        for (const param of noiseGateParameters) {
+            const element = document.getElementById(`compressor-${param}`);
+            element.addEventListener('change', () => this.#compressorUpdate(param, element));
+            element.addEventListener('input', () => this.#compressorUpdateUI(param, element));
+        }
+    }
+
     #noiseGateUpdateUI(param, element) {
         switch (param) {
             case 'attack':
@@ -170,6 +147,18 @@ export default class SettingsController {
     }
 
     // Compressor
+    #compressorEventHandler(){
+        document.getElementById('compressor-default').addEventListener('click', () => this.#compressorDefault());
+        document.getElementById('compressor-enabled').addEventListener('click', () => this.#compressorEnabled());
+
+        const compressorParameters = ['attack', 'ratio', 'reduction', 'release', 'threshold'];
+        for (const param of compressorParameters) {
+            const element = document.getElementById(`compressor-${param}`);
+            element.addEventListener('change', () => this.#compressorUpdate(param, element));
+            element.addEventListener('input', () => this.#compressorUpdateUI(param, element));
+        }
+    }
+
     #compressorUpdateUI(param, element) {
         switch (param) {
             case 'attack':
