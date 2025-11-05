@@ -1,4 +1,4 @@
-import ServerSettingsController from "./serverSettingsController";
+import ServerSettingsController from "./serverSettingsController.js";
 
 export default class Server {
     #fetcher;
