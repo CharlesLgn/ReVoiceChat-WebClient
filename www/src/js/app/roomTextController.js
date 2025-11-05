@@ -95,7 +95,7 @@ export default class RoomTextController {
         // Attachments
         const input = document.getElementById("text-attachment");
         const attachments = [];
-        if (input && this.mode === TextController.MODE_SEND) {
+        if (input && this.mode === RoomTextController.MODE_SEND) {
             for (const element of input.files) {
                 if (element.size < this.#attachmentMaxSize) {
                     data.medias.push({ name: element.name });
@@ -122,11 +122,11 @@ export default class RoomTextController {
         }
 
         switch (this.mode) {
-            case TextController.MODE_SEND:
+            case RoomTextController.MODE_SEND:
                 result = await this.#fetcher.fetchCore(`/room/${this.#room.id}/message`, 'PUT', data);
                 break;
 
-            case TextController.MODE_EDIT:
+            case RoomTextController.MODE_EDIT:
                 result = await this.#fetcher.fetchCore(`/message/${this.#editId}`, 'PATCH', data);
                 break;
 
@@ -138,7 +138,7 @@ export default class RoomTextController {
         if (result) {
 
             // Send attachements
-            if (this.mode === TextController.MODE_SEND) {
+            if (this.mode === RoomTextController.MODE_SEND) {
                 for (const media of result.medias) {
                     const formData = new FormData();
                     formData.append("file", attachments[media.name]);
@@ -162,7 +162,7 @@ export default class RoomTextController {
             textarea.style.height = "auto";
 
             // Default mode
-            this.mode = TextController.MODE_SEND;
+            this.mode = RoomTextController.MODE_SEND;
             this.#editId = null;
             return;
         }
@@ -183,7 +183,7 @@ export default class RoomTextController {
         input.style.height = "auto";
         input.style.height = input.scrollHeight + "px";
         if (input.value == "") {
-            this.mode = TextController.MODE_SEND;
+            this.mode = RoomTextController.MODE_SEND;
             this.#editId = null;
         }
     }
@@ -233,7 +233,7 @@ export default class RoomTextController {
             textarea.value = result.text;
             textarea.style.height = "auto";
             textarea.style.height = textarea.scrollHeight + "px";
-            this.mode = TextController.MODE_EDIT;
+            this.mode = RoomTextController.MODE_EDIT;
             this.#editId = id;
             document.getElementById("text-input").focus();
         }
