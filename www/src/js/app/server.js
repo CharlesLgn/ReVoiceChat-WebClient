@@ -1,15 +1,19 @@
+import ServerSettingsController from "./serverSettingsController";
+
 export default class Server {
     #fetcher;
     #mediaURL;
     #room;
     id;
     name;
+    settings;
 
     constructor(fetcher, mediaURL, room) {
         this.#fetcher = fetcher;
         this.#mediaURL = mediaURL;
         this.#room = room;
         this.#load();
+        this.settings = new ServerSettingsController();
     }
 
     async #load() {
