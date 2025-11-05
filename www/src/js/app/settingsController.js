@@ -1,23 +1,29 @@
 import VoiceCall from "./voiceCall.js";
 
 export default class SettingsController {
+    #user;
+    #mediaUrl;
     #fetcher;
     voice = structuredClone(VoiceCall.DEFAULT_SETTINGS);
+    #inputAdvanced = false;
+    #currentTab;
 
-    constructor(fetcher) {
+    constructor(fetcher, user, mediaUrl) {
         this.#fetcher = fetcher;
+        this.#user = user;
+        this.#mediaUrl = mediaUrl;
 
-        // Voice default
-        document.getElementById('voice-default').addEventListener('click', () => this.#voiceDefault());
+        // Tabs
+        this.#selectEventHandler();
+        this.select('overview');
 
-        this.#inputVolumeEventHandler();
-        this.#noiseGateEventHandler();
-        this.#compressorEventHandler();
+        this.#audioInputEventHandler();
     }
 
     async save() {
         const settings = {
             voice: this.voice,
+            inputAdvanced: this.#inputAdvanced,
         }
         await this.#fetcher.fetchCore(`/settings/me`, 'PATCH', JSON.stringify(settings));
     }
@@ -26,7 +32,7 @@ export default class SettingsController {
         const result = await this.#fetcher.fetchCore(`/settings/me`, 'GET');
         if (result !== null) {
             const storedSettings = JSON.parse(result);
-            console.log(storedSettings);
+
             if (storedSettings.voice) {
                 this.voice.self = storedSettings.voice.self ? storedSettings.voice.self : defaultVoice.self;
                 this.voice.users = storedSettings.voice.users ? storedSettings.voice.users : {};
@@ -34,32 +40,187 @@ export default class SettingsController {
                 this.voice.gate = storedSettings.voice.gate ? storedSettings.voice.gate : defaultVoice.gate;
             }
         }
+
+        // Load UI
+        this.#overviewLoad();
+        this.#themeLoad();
+        this.#emoteLoad();
+        this.#gateLoad();
+        this.#compressorLoad();
+        this.#inputVolumeLoad();
     }
 
-    updateUI() {
-        this.#noiseGateShow();
-        this.#compressorShow();
-        this.#inputVolumeShow();
+    select(name) {
+        if (this.#currentTab) {
+            document.getElementById(`setting-tab-${this.#currentTab}`).classList.remove("active");
+            document.getElementById(`setting-content-${this.#currentTab}`).classList.add("hidden");
+        }
+
+        this.#currentTab = name;
+        document.getElementById(`setting-tab-${name}`).classList.add('active');
+        document.getElementById(`setting-content-${name}`).classList.remove('hidden');
     }
 
-    #voiceDefault() {
+    #selectEventHandler() {
+        const parameters = ['overview', 'themes', 'emotes', 'audio-input', 'audio-output'];
+        for (const param of parameters) {
+            document.getElementById(`setting-tab-${param}`).addEventListener('click', () => this.select(param));
+        }
+    }
+
+    #overviewLoad() {
+        document.getElementById("setting-user-uuid").innerText = this.#user.id;
+        document.getElementById("setting-user-name").value = this.#user.displayName;
+        document.getElementById("setting-user-picture").src = `${this.#mediaUrl}/profiles/${this.#user.id}`;
+
+        const settingUserPictureNewPath = document.getElementById("setting-user-picture-new-path");
+        const settingUserPictureNewFile = document.getElementById("setting-user-picture-new-file");
+        const settingUserPicture = document.getElementById("setting-user-picture");
+        newProfilPictureFile = null
+        settingUserPictureNewFile.addEventListener("change", () => {
+            const file = settingUserPictureNewFile.files[0];
+            if (file) {
+                newProfilPictureFile = file;
+                settingUserPictureNewPath.value = file.name;
+                settingUserPicture.src = URL.createObjectURL(file);
+                settingUserPicture.style.display = "block";
+            }
+        });
+    }
+
+    #themeLoad() {
+        const themeForm = document.getElementById("setting-themes-form");
+        let html = "";
+        for (const theme of getAllDeclaredDataThemes()) {
+            html += `<button style="padding: 0" class="theme-select-button" type="button" onclick="changeTheme('${theme}')">
+                     <revoice-theme-preview theme="${theme}"></revoice-theme-preview>
+                 </button>`;
+        }
+        themeForm.innerHTML = html;
+    }
+
+    #emoteLoad() {
+        this.#fetcher.fetchCore(`/emote/me`).then(response => {
+            const emoteForm = document.getElementById("setting-emotes-form");
+            emoteForm.innerHTML = `
+            <script type="application/json" slot="emojis-data">
+                ${JSON.stringify(response)}
+            </script>`;
+        });
+    }
+
+    // Audio Input
+    #audioInputEventHandler() {
+        document.getElementById('audio-input-default').addEventListener('click', () => this.#audioInputDefault());
+        document.getElementById('audio-input-advanced').addEventListener('click', () => this.#audioInputAdvanced());
+        document.getElementById('gate-default').addEventListener('click', () => this.#gateDefault());
+        document.getElementById('compressor-default').addEventListener('click', () => this.#compressorDefault());
+        document.getElementById('compressor-enabled').addEventListener('click', () => this.#compressorEnabled());
+
+        const parameters = [
+            'input-volume',
+            'gate-attack',
+            'gate-release',
+            'gate-threshold',
+            'compressor-attack',
+            'compressor-ratio',
+            'compressor-reduction',
+            'compressor-release',
+            'compressor-threshold'
+        ]
+
+        for (const param of parameters) {
+            const element = document.getElementById(param);
+            element.addEventListener('input', () => this.#audioInputUpdateUI(param, element));
+            element.addEventListener('change', () => this.#audioInputApplyParameter(param, element));
+        }
+    }
+
+    #audioInputDefault() {
         this.#inputVolumeUpdate({ value: 1 });
-        this.#noiseGateDefault();
+        this.#gateDefault();
         this.#compressorDefault();
     }
 
+    #audioInputAdvanced() {
+        this.#inputAdvanced = !this.#inputAdvanced;
+
+        const button = document.getElementById("audio-input-advanced");
+        if (this.#inputAdvanced) {
+            button.innerText = "Simple";
+            document.getElementById('voice-sensitivity').innerText = "Noise gate";
+            document.getElementById('gate-threshold-label').innerText = `Threshold : ${this.voice.gate.threshold}dB`;
+            document.getElementById('audio-input-default').classList.add("hidden");
+        } else {
+            button.innerText = "Advanced";
+            document.getElementById('voice-sensitivity').innerText = "Voice detection";
+            document.getElementById('gate-threshold-label').innerText = `Sensitivity ${this.voice.gate.threshold}dB`;
+            document.getElementById('audio-input-default').classList.remove("hidden");
+        }
+
+        const toggleable = document.getElementsByClassName('voice-toggleable');
+        for (const element of toggleable) {
+            if (this.#inputAdvanced) {
+                element.classList.remove('hidden');
+            } else {
+                element.classList.add('hidden');
+            }
+        }
+    }
+
+    #audioInputUpdateUI(param, element) {
+        switch (param) {
+            case 'input-volume':
+                document.getElementById('input-volume-label').innerText = `Volume ${Number.parseInt(element.value * 100)}%`;
+                break;
+            case 'gate-attack':
+                document.getElementById('gate-attack-label').innerText = `Attack : ${element.value * 1000}ms`;
+                break;
+            case 'gate-release':
+                document.getElementById('gate-release-label').innerText = `Release : ${element.value * 1000}ms`;
+                break;
+            case 'gate-threshold': {
+                if (this.#inputAdvanced) {
+                    document.getElementById('gate-threshold-label').innerText = `Threshold : ${element.value}dB`;
+                } else {
+                    document.getElementById('gate-threshold-label').innerText = `Sensitivity ${element.value}dB`;
+                }
+                break;
+            }
+            case 'compressor-attack':
+                document.getElementById('compressor-attack-label').innerText = `Attack : ${element.value * 1000}ms`;
+                break;
+            case 'compressor-ratio':
+                document.getElementById('compressor-ratio-label').innerText = `Ratio : ${element.value}`;
+                break;
+            case 'compressor-reduction':
+                document.getElementById('compressor-reduction-label').innerText = `Reduction : ${element.value}dB`;
+                break;
+            case 'compressor-release':
+                document.getElementById('compressor-release-label').innerText = `Release : ${element.value * 1000}ms`;
+                break;
+            case 'compressor-threshold':
+                document.getElementById('compressor-threshold-label').innerText = `Threshold : ${element.value}dB`;
+                break;
+        }
+    }
+
+    #audioInputApplyParameter(param, element) {
+        switch (param.split('-')[0]) {
+            case 'input':
+                document.getElementById('input-volume').addEventListener('change', () => this.#inputVolumeUpdate(element));
+                break;
+            case 'gate':
+                this.#gateApplyParameter(param, element);
+                break;
+            case 'compressor':
+                this.#compressorApplyParameter(param, element);
+                break;
+        }
+    }
+
     // Input Volume
-    #inputVolumeEventHandler(){
-        const inputVolume = document.getElementById('input-volume');
-        inputVolume.addEventListener('change', () => this.#inputVolumeUpdate(inputVolume));
-        inputVolume.addEventListener('input', () => this.#inputVolumeUpdateUI(inputVolume));
-    }
-
-    #inputVolumeUpdateUI(element) {
-        document.getElementById('input-volume-label').innerText = `Volume ${Number.parseInt(element.value * 100)}%`;
-    }
-
-    #inputVolumeShow() {
+    #inputVolumeLoad() {
         document.getElementById('input-volume-label').innerText = `Volume ${Number.parseInt(this.voice.self.volume * 100)}%`;
         document.getElementById('input-volume').value = this.voice.self.volume;
     }
@@ -67,119 +228,57 @@ export default class SettingsController {
     #inputVolumeUpdate(data) {
         this.voice.self.volume = Number.parseFloat(data.value)
         this.save();
-        this.#inputVolumeShow();
+        this.#inputVolumeLoad();
         RVC.room.voiceController.setSelfVolume();
     }
 
     // Noise gate
-    #noiseGateEventHandler(){
-        document.getElementById('noise-gate-default').addEventListener('click', () => this.#noiseGateDefault());
+    #gateLoad() {
+        document.getElementById('gate-attack').value = this.voice.gate.attack;
+        document.getElementById('gate-attack').title = this.voice.gate.attack * 1000 + "ms";
+        document.getElementById('gate-attack-label').innerText = `Attack : ${this.voice.gate.attack * 1000}ms`;
 
-        const noiseGateParameters = ['attack', 'release', 'threshold'];
-        for (const param of noiseGateParameters) {
-            const element = document.getElementById(`noise-gate-${param}`);
-            element.addEventListener('change', () => this.#noiseGateUpdate(param, element));
-            element.addEventListener('input', () => this.#noiseGateUpdateUI(param, element));
-        }
-    }
+        document.getElementById('gate-release').value = this.voice.gate.release;
+        document.getElementById('gate-release').title = this.voice.gate.release * 1000 + "ms";
+        document.getElementById('gate-release-label').innerText = `Release : ${this.voice.gate.release * 1000}ms`;
 
-    #noiseGateUpdateUI(param, element) {
-        switch (param) {
-            case 'attack':
-                document.getElementById('noise-gate-attack-label').innerText = `Attack : ${element.value * 1000}ms`;
-                break;
-            case 'release':
-                document.getElementById('noise-gate-release-label').innerText = `Release : ${element.value * 1000}ms`;
-                break;
-            case 'threshold': {
-                if (currentSetting.voiceAdvanced) {
-                    document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${element.value}dB`;
-                } else {
-                    document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${element.value}dB`;
-                }
-                break;
-            }
-        }
-    }
+        document.getElementById('gate-threshold').value = this.voice.gate.threshold;
+        document.getElementById('gate-threshold').title = this.voice.gate.threshold + "dB";
 
-    #noiseGateShow() {
-        document.getElementById('noise-gate-attack').value = this.voice.gate.attack;
-        document.getElementById('noise-gate-attack').title = this.voice.gate.attack * 1000 + "ms";
-        document.getElementById('noise-gate-attack-label').innerText = `Attack : ${this.voice.gate.attack * 1000}ms`;
-
-        document.getElementById('noise-gate-release').value = this.voice.gate.release;
-        document.getElementById('noise-gate-release').title = this.voice.gate.release * 1000 + "ms";
-        document.getElementById('noise-gate-release-label').innerText = `Release : ${this.voice.gate.release * 1000}ms`;
-
-        document.getElementById('noise-gate-threshold').value = this.voice.gate.threshold;
-        document.getElementById('noise-gate-threshold').title = this.voice.gate.threshold + "dB";
-
-        if (currentSetting.voiceAdvanced) {
-            document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${this.voice.gate.threshold}dB`;
+        if (this.#inputAdvanced) {
+            document.getElementById('gate-threshold-label').innerText = `Threshold : ${this.voice.gate.threshold}dB`;
         } else {
-            document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${this.voice.gate.threshold}dB`;
+            document.getElementById('gate-threshold-label').innerText = `Sensitivity ${this.voice.gate.threshold}dB`;
         }
     }
 
-    #noiseGateUpdate(param, data) {
+    #gateApplyParameter(param, data) {
         switch (param) {
-            case 'attack':
+            case 'gate-attack':
                 this.voice.gate.attack = Number.parseFloat(data.value);
                 break;
-            case 'release':
+            case 'gate-release':
                 this.voice.gate.release = Number.parseFloat(data.value);
                 break;
-            case 'threshold':
+            case 'gate-threshold':
                 this.voice.gate.threshold = Number.parseInt(data.value);
                 break;
         }
 
         this.save();
-        this.#noiseGateShow();
+        this.#gateLoad();
         RVC.room.voiceController.updateGate();
     }
 
-    #noiseGateDefault() {
+    #gateDefault() {
         this.voice.gate = structuredClone(VoiceCall.DEFAULT_SETTINGS.gate);
         this.save();
-        this.#noiseGateShow();
+        this.#gateLoad();
         RVC.room.voiceController.updateGate();
     }
 
     // Compressor
-    #compressorEventHandler(){
-        document.getElementById('compressor-default').addEventListener('click', () => this.#compressorDefault());
-        document.getElementById('compressor-enabled').addEventListener('click', () => this.#compressorEnabled());
-
-        const compressorParameters = ['attack', 'ratio', 'reduction', 'release', 'threshold'];
-        for (const param of compressorParameters) {
-            const element = document.getElementById(`compressor-${param}`);
-            element.addEventListener('change', () => this.#compressorUpdate(param, element));
-            element.addEventListener('input', () => this.#compressorUpdateUI(param, element));
-        }
-    }
-
-    #compressorUpdateUI(param, element) {
-        switch (param) {
-            case 'attack':
-                document.getElementById('compressor-attack-label').innerText = `Attack : ${element.value * 1000}ms`;
-                break;
-            case 'ratio':
-                document.getElementById('compressor-ratio-label').innerText = `Ratio : ${element.value}`;
-                break;
-            case 'reduction':
-                document.getElementById('compressor-reduction-label').innerText = `Reduction : ${element.value}dB`;
-                break;
-            case 'release':
-                document.getElementById('compressor-release-label').innerText = `Release : ${element.value * 1000}ms`;
-                break;
-            case 'threshold':
-                document.getElementById('compressor-threshold-label').innerText = `Threshold : ${element.value}dB`;
-                break;
-        }
-    }
-
-    #compressorShow() {
+    #compressorLoad() {
         const buttonEnabled = document.getElementById('compressor-enabled')
         if (this.voice.compressor.enabled) {
             buttonEnabled.innerText = "Enabled";
@@ -215,38 +314,38 @@ export default class SettingsController {
     #compressorEnabled() {
         this.voice.compressor.enabled = !this.voice.compressor.enabled;
         this.save();
-        this.#compressorShow();
+        this.#compressorLoad();
     }
 
-    #compressorUpdate(param, data) {
+    #compressorApplyParameter(param, data) {
         switch (param) {
-            case 'enabled':
+            case 'compressor-enabled':
                 this.voice.compressor.enabled = data.checked === "checked";
                 break;
-            case 'attack':
+            case 'compressor-attack':
                 this.voice.compressor.attack = Number.parseFloat(data.value);
                 break;
-            case 'ratio':
+            case 'compressor-ratio':
                 this.voice.compressor.ratio = Number.parseInt(data.value);
                 break;
-            case 'reduction':
+            case 'compressor-reduction':
                 this.voice.compressor.reduction = Number.parseFloat(data.value);
                 break;
-            case 'release':
+            case 'compressor-release':
                 this.voice.compressor.release = Number.parseFloat(data.value);
                 break;
-            case 'threshold':
+            case 'compressor-threshold':
                 this.voice.compressor.threshold = Number.parseInt(data.value);
                 break;
         }
 
         this.save();
-        this.#compressorShow();
+        this.#compressorLoad();
     }
 
     #compressorDefault() {
         this.voice.compressor = structuredClone(VoiceCall.DEFAULT_SETTINGS.compressor);
         this.save();
-        this.#compressorShow();
+        this.#compressorLoad();
     }
 }

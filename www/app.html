@@ -249,31 +249,31 @@
                     <h2>User settings</h2>
 
                     <!-- Overview -->
-                    <button class="sub-category" id="setting-tab-overview" onclick="selectSettingItem('overview')">
+                    <button class="sub-category" id="setting-tab-overview">
                         <revoice-icon-information></revoice-icon-information>
                         Overview
                     </button>
 
                     <!-- Themes -->
-                    <button class="sub-category" id="setting-tab-themes" onclick="selectSettingItem('themes')">
+                    <button class="sub-category" id="setting-tab-themes">
                         <revoice-icon-swatch></revoice-icon-swatch>
                         Themes
                     </button>
 
                     <!-- Themes -->
-                    <button class="sub-category" id="setting-tab-emotes" onclick="selectSettingItem('emotes')">
+                    <button class="sub-category" id="setting-tab-emotes">
                         <revoice-icon-emoji></revoice-icon-emoji>
                         Emotes
                     </button>
 
                     <!-- Input -->
-                    <button class="sub-category" id="setting-tab-audio-input" onclick="selectSettingItem('audio-input')">
+                    <button class="sub-category" id="setting-tab-audio-input">
                         <revoice-icon-microphone></revoice-icon-microphone>
                         Audio input
                     </button>
 
                     <!-- Output -->
-                    <button class="sub-category" id="setting-tab-audio-output" onclick="selectSettingItem('audio-output')">
+                    <button class="sub-category" id="setting-tab-audio-output">
                         <revoice-icon-speaker></revoice-icon-speaker>
                         Audio output
                     </button>
@@ -349,17 +349,17 @@
                     <h2 id="voice-sensitivity">Voice detection</h2>
 
                     <form class="voice-settings">
-                        <label class="voice-toggleable hidden" for="noise-gate-attack" id="noise-gate-attack-label">[ATTACK]</label>
-                        <input class="voice-toggleable hidden" type="range" id="noise-gate-attack" min="0.01" max="0.05" step="0.001">
+                        <label class="voice-toggleable hidden" for="gate-attack" id="gate-attack-label">[ATTACK]</label>
+                        <input class="voice-toggleable hidden" type="range" id="gate-attack" min="0.01" max="0.05" step="0.001">
 
-                        <label class="voice-toggleable hidden" for="noise-gate-release" id="noise-gate-release-label">[RELEASE]</label>
-                        <input class="voice-toggleable hidden" type="range" id="noise-gate-release" min="0.2" max="0.6" step="0.001">
+                        <label class="voice-toggleable hidden" for="gate-release" id="gate-release-label">[RELEASE]</label>
+                        <input class="voice-toggleable hidden" type="range" id="gate-release" min="0.2" max="0.6" step="0.001">
 
-                        <label for="noise-gate-threshold" id="noise-gate-threshold-label">[THRESHOLD]</label>
-                        <input type="range" id="noise-gate-threshold" min="-100" max="0" step="1">
+                        <label for="gate-threshold" id="gate-threshold-label">[THRESHOLD]</label>
+                        <input type="range" id="gate-threshold" min="-100" max="0" step="1">
 
                         <div class="config-buttons">
-                            <button class="config-button voice-toggleable hidden" type="button" id="noise-gate-default">Default</button>
+                            <button class="config-button voice-toggleable hidden" type="button" id="gate-default">Default</button>
                         </div>
                     </form>
 
@@ -387,8 +387,8 @@
                     </form>
 
                     <div class="config-buttons">
-                        <button class="config-button" type="button" id="voice-default">Default</button>
-                        <button class="config-button" type="button" id="voice-mode" onclick="settingVoiceMode()">Advanced</button>
+                        <button class="config-button" type="button" id="audio-input-default">Default</button>
+                        <button class="config-button" type="button" id="audio-input-advanced">Advanced</button>
                     </div>
                 </div>
 

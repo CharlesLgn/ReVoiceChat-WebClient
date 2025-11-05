@@ -8,10 +8,10 @@ export default class User {
     displayName;
 
     constructor(fetcher, mediaURL) {
-        this.settings = new SettingsController(fetcher);
         this.#fetcher = fetcher;
         this.#mediaURL = mediaURL;
         this.#load();
+        this.settings = new SettingsController(this.#fetcher, this, this.#mediaURL);
     }
 
     async #load() {
@@ -25,7 +25,7 @@ export default class User {
             document.getElementById("user-name").innerText = result.displayName;
             document.getElementById("user-status").innerText = result.status;
             document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
-            document.getElementById("user-picture").src = `${this.#mediaURL}/profiles/${result.id}`;
+            document.getElementById("user-picture").src = `${this.#mediaURL}/profiles/${result.id}`;    
         }
     }
 

@@ -1,71 +1,12 @@
 const currentSetting = {
-    active: null,
     password: {
         password: '',
         newPassword: '',
         confirmPassword: '',
-    },
-    voiceAdvanced: false,
+    }
 }
 
 let newProfilPictureFile = null;
-
-function settingLoad() {
-    document.getElementById("setting-user-uuid").innerText = RVC.user.id;
-    document.getElementById("setting-user-name").value = RVC.user.displayName;
-    document.getElementById("setting-user-picture").src = `${RVC.mediaUrl}/profiles/${RVC.user.id}`;
-    settingThemeShow();
-    settingEmoteShow();
-    RVC.user.settings.updateUI();
-    selectSettingItem("overview");
-
-    const settingUserPictureNewPath = document.getElementById("setting-user-picture-new-path");
-    const settingUserPictureNewFile = document.getElementById("setting-user-picture-new-file");
-    const settingUserPicture = document.getElementById("setting-user-picture");
-    newProfilPictureFile = null
-    settingUserPictureNewFile.addEventListener("change", () => {
-        const file = settingUserPictureNewFile.files[0];
-        if (file) {
-            newProfilPictureFile = file;
-            settingUserPictureNewPath.value = file.name;
-            settingUserPicture.src = URL.createObjectURL(file);
-            settingUserPicture.style.display = "block";
-        }
-    });
-
-}
-
-function settingThemeShow() {
-    const themeForm = document.getElementById("setting-themes-form");
-    let html = "";
-    for (const theme of getAllDeclaredDataThemes()) {
-        html += `<button style="padding: 0" class="theme-select-button" type="button" onclick="changeTheme('${theme}')">
-                     <revoice-theme-preview theme="${theme}"></revoice-theme-preview>
-                 </button>`;
-    }
-    themeForm.innerHTML = html;
-}
-
-function settingEmoteShow() {
-    RVC.fetcher.fetchCore(`/emote/me`).then(response => {
-        const emoteForm = document.getElementById("setting-emotes-form");
-        emoteForm.innerHTML = `
-            <script type="application/json" slot="emojis-data">
-                ${JSON.stringify(response)}
-            </script>`;
-    });
-}
-
-function selectSettingItem(name) {
-    if (currentSetting.active !== null) {
-        document.getElementById(`setting-tab-${currentSetting.active}`).classList.remove("active");
-        document.getElementById(`setting-content-${currentSetting.active}`).classList.add("hidden");
-    }
-
-    currentSetting.active = name;
-    document.getElementById(`setting-tab-${name}`).classList.add('active');
-    document.getElementById(`setting-content-${name}`).classList.remove('hidden');
-}
 
 function changeTheme(theme) {
     localStorage.setItem("Theme", theme);
@@ -160,30 +101,4 @@ async function settingProfilePicture() {
 function uploadNewProfilePicture() {
     const fileInput = document.getElementById("setting-user-picture-new-file");
     fileInput.click();
-}
-
-function settingVoiceMode() {
-    currentSetting.voiceAdvanced = !currentSetting.voiceAdvanced;
-
-    const button = document.getElementById("voice-mode");
-    if (currentSetting.voiceAdvanced) {
-        button.innerText = "Simple";
-        document.getElementById('voice-sensitivity').innerText = "Noise gate";
-        document.getElementById('noise-gate-threshold-label').innerText = `Threshold : ${RVC.user.settings.voice.gate.threshold}dB`;
-        document.getElementById('voice-default').classList.add("hidden");
-    } else {
-        button.innerText = "Advanced";
-        document.getElementById('voice-sensitivity').innerText = "Voice detection";
-        document.getElementById('noise-gate-threshold-label').innerText = `Sensitivity ${RVC.user.settings.voice.gate.threshold}dB`;
-        document.getElementById('voice-default').classList.remove("hidden");
-    }
-
-    const toggleable = document.getElementsByClassName('voice-toggleable');
-    for (element of toggleable) {
-        if (currentSetting.voiceAdvanced) {
-            element.classList.remove('hidden');
-        } else {
-            element.classList.add('hidden');
-        }
-    }
 }

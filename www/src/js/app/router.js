@@ -7,7 +7,6 @@ export default class Router {
         switch (destination) {
             case "setting":
                 this.#pushState('setting');
-                settingLoad();
                 document.getElementById('route-setting').classList.remove('hidden');
                 break;
 
