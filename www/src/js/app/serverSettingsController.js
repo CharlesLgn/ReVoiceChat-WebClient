@@ -2,14 +2,17 @@ export default class ServerSettingsController {
     #server;
     #fetcher;
     #currentTab;
+    #mediaUrl;
 
-    constructor(server, fetcher) {
+    constructor(server, fetcher, mediaUrl) {
         this.#server = server;
         this.#fetcher = fetcher;
+        this.#mediaUrl = mediaUrl;
 
         // Load
         this.#overviewLoad();
         this.#invitationLoad();
+        this.#memberLoad();
 
         // Events
         this.#selectEventHandler();
@@ -43,7 +46,7 @@ export default class ServerSettingsController {
         document.getElementById('server-setting-overview-name').value = this.#server.name;
     }
 
-    #overviewEventHandler(){
+    #overviewEventHandler() {
         document.getElementById(`server-setting-overview-save`).addEventListener('click', () => this.#overviewSave());
     }
 
@@ -76,6 +79,44 @@ export default class ServerSettingsController {
             this.#server.name = result.name;
             this.#overviewLoad();
         }
+    }
+
+    // MEMBERS
+    async #memberLoad() {
+        const result = await this.#fetcher.fetchCore(`/server/${this.#server.id}/user`, 'GET');
+
+        if (result) {
+            const sortedByDisplayName = [...result].sort((a, b) => {
+                return a.displayName.localeCompare(b.displayName);
+            });
+
+            if (sortedByDisplayName !== null) {
+                const userList = document.getElementById("server-setting-members");
+                userList.innerHTML = "";
+                for (const user of sortedByDisplayName) {
+                    userList.appendChild(this.#memberItem(user));
+                }
+            }
+        }
+    }
+
+    #memberItem(data) {
+        const DIV = document.createElement('div');
+        DIV.id = data.id;
+        DIV.className = `${data.id} config-item`;
+
+        const profilePicture = `${this.#mediaUrl}/profiles/${data.id}`;
+
+        DIV.innerHTML = `
+            <div class="relative">
+                <img src="${profilePicture}" alt="PFP" class="icon ring-2" />
+            </div>
+            <div class="user">
+                <div class="name" id="user-name">${data.displayName}<div>
+            </div>
+        `;
+
+        return DIV;
     }
 
     // INVITATION

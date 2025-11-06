@@ -29,7 +29,7 @@ export default class Server {
             this.select(server.id, server.name);
         }
 
-        this.settings = new ServerSettingsController(this, this.#fetcher);
+        this.settings = new ServerSettingsController(this, this.#fetcher, this.#mediaURL);
     }
 
     select(id, name) {

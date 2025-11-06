@@ -12,7 +12,6 @@ async function configLoad() {
     await loadRoomStructure();
     await loadServerRoles();
     await loadServerEmotes();
-    await loadMembers(); 
 }
 
 async function loadServerEmotes() {
@@ -26,46 +25,9 @@ async function loadServerEmotes() {
         </revoice-emoji-manager>`
 }
 
-async function loadMembers() {
-    const result = await RVC.fetcher.fetchCore(`/server/${RVC.server.id}/user`, 'GET');
-
-    if (result) {
-        const sortedByDisplayName = [...result].sort((a, b) => {
-            return a.displayName.localeCompare(b.displayName);
-        });
-
-        if (sortedByDisplayName !== null) {
-            const userList = document.getElementById("config-members-list");
-            userList.innerHTML = "";
-            for (const user of sortedByDisplayName) {
-                userList.appendChild(await createItemUser(user));
-            }
-        }
-    }
-}
-
 async function loadServerRoles() {
     document.getElementById("roles-config-component")
             .setAttribute("server-id", RVC.server.id)
-}
-
-async function createItemUser(data) {
-    const DIV = document.createElement('div');
-    DIV.id = data.id;
-    DIV.className = `${data.id} config-item`;
-
-    const profilePicture = `${RVC.mediaUrl}/profiles/${data.id}`;
-
-    DIV.innerHTML = `
-        <div class="relative">
-            <img src="${profilePicture}" alt="PFP" class="icon ring-2" />
-        </div>
-        <div class="user">
-            <div class="name" id="user-name">${data.displayName}<div>
-        </div>
-    `;
-
-    return DIV;
 }
 
 /* ROOMS */

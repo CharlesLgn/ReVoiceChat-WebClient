@@ -1,6 +1,7 @@
 export default class Router {
     constructor(){
         document.getElementById(`user-setting-tab-exit`).addEventListener('click', () => this.routeTo('app'));
+        document.getElementById(`server-setting-tab-exit`).addEventListener('click', () => this.routeTo('app'));
     }
 
     routeTo(destination) {
