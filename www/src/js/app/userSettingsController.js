@@ -150,9 +150,9 @@ export default class UserSettingsController {
     async #overviewChangeName() {
         const displayName = document.getElementById("overview-displayname").value
         if (displayName && displayName != "") {
-            const result = await RVC.fetcher.fetchCore(`/user/me`, 'PATCH', { displayName: displayName });
+            const result = await this.#fetcher.fetchCore(`/user/me`, 'PATCH', { displayName: displayName });
             if (result) {
-                RVC.user.displayName = result.displayName
+                this.#user.displayName = result.displayName
                 document.getElementById('overview-displayname').value = result.displayName;
             }
         }
@@ -175,14 +175,7 @@ export default class UserSettingsController {
         if (settingUserPictureNewPath.value && this.#newProfilPictureFile) {
             const formData = new FormData();
             formData.append("file", this.#newProfilPictureFile);
-            await fetch(`${RVC.mediaUrl}/profiles/${RVC.user.id}`, {
-                method: "POST",
-                signal: AbortSignal.timeout(5000),
-                headers: {
-                    'Authorization': `Bearer ${RVC.getToken()}`
-                },
-                body: formData
-            });
+            await this.#fetcher.fetchMedia(`/profiles/${this.#user.id}`, formData);
             this.#newProfilPictureFile = null
             settingUserPictureNewPath.value = null
         }
