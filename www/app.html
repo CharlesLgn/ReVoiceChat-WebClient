@@ -305,21 +305,21 @@
                     <p>User ID : <span id="setting-user-uuid" class="selectable">[USER UUID]</span></p>
                     <br />
                     <div class="sidebar-container">
-                        <input type="file" id="setting-user-picture-new-file" accept="image/webp,image/png,image/jpg,image/jpeg,image/gif" style="display:none;">
-                        <input type="hidden" id="setting-user-picture-new-path" name="imagePath">
+                        <input type="file" id="overview-picture-new" accept="image/webp,image/png,image/jpg,image/jpeg,image/gif" style="display:none;">
+                        <input type="hidden" id="overview-picture" name="imagePath">
                         <img id="setting-user-picture" src="src/img/default-avatar.webp" alt="Preview PFP" class="icon large-icon ring-2">
                         <span style="width: 10px"></span>
-                        <button class="button" onclick="uploadNewProfilePicture()">Upload a profile picture</button>
+                        <button class="button" id="overview-select-picture">Upload a profile picture</button>
                     </div>
                     <h2>Display name</h2>
-                    <input type="text" id="setting-user-name" value="[DISPLAYNAME]">
+                    <input type="text" id="overview-displayname" value="[DISPLAYNAME]">
 
                     <br />
                     <br />
                     <div class="sidebar-container">
-                        <button class="button" id="setting-change-password">Change password</button>
+                        <button class="button" id="overview-change-password">Change password</button>
                         <span style="width: 10px"></span>
-                        <button id="save-setting-button" class="button" onclick="saveSetting()">Save Settings</button>
+                        <button id="overview-save" class="button">Save Settings</button>
                     </div>
                 </div>
 
@@ -434,9 +434,6 @@
 
     <!-- Server config -->
     <script src="src/js/config.js"></script>
-
-    <!-- User settings -->
-    <script src="src/js/setting.js"></script>
 </body>
 
 </html>

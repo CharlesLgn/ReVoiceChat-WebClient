@@ -12,6 +12,7 @@ export default class UserSettingsController {
         newPassword: '',
         confirmPassword: '',
     }
+    #newProfilPictureFile;
 
     constructor(fetcher, user, mediaUrl) {
         this.#fetcher = fetcher;
@@ -78,17 +79,17 @@ export default class UserSettingsController {
 
     #overviewLoad() {
         document.getElementById("setting-user-uuid").innerText = this.#user.id;
-        document.getElementById("setting-user-name").value = this.#user.displayName;
+        document.getElementById("overview-displayname").value = this.#user.displayName;
         document.getElementById("setting-user-picture").src = `${this.#mediaUrl}/profiles/${this.#user.id}`;
 
-        const settingUserPictureNewPath = document.getElementById("setting-user-picture-new-path");
-        const settingUserPictureNewFile = document.getElementById("setting-user-picture-new-file");
+        const settingUserPictureNewPath = document.getElementById("overview-picture");
+        const settingUserPictureNewFile = document.getElementById("overview-picture-new");
         const settingUserPicture = document.getElementById("setting-user-picture");
-        newProfilPictureFile = null
+        this.#newProfilPictureFile = null
         settingUserPictureNewFile.addEventListener("change", () => {
             const file = settingUserPictureNewFile.files[0];
             if (file) {
-                newProfilPictureFile = file;
+                this.#newProfilPictureFile = file;
                 settingUserPictureNewPath.value = file.name;
                 settingUserPicture.src = URL.createObjectURL(file);
                 settingUserPicture.style.display = "block";
@@ -96,8 +97,10 @@ export default class UserSettingsController {
         });
     }
 
-    #overviewEventHandler(){
-        document.getElementById(`setting-change-password`).addEventListener('click', () => this.#overviewChangePassword());
+    #overviewEventHandler() {
+        document.getElementById('overview-change-password').addEventListener('click', () => this.#overviewChangePassword());
+        document.getElementById('overview-save').addEventListener('click', () => this.#overviewSave());
+        document.getElementById('overview-select-picture').addEventListener('click', () => this.#overviewSelectPicture());
     }
 
     #overviewChangePassword() {
@@ -123,17 +126,70 @@ export default class UserSettingsController {
                 <input type='password' id='popup-confirm-password'>
             </form>`,
             didOpen: () => {
-                document.getElementById('popup-current-password').oninput = () => {this.#password.password = document.getElementById('popup-current-password').value};
-                document.getElementById('popup-new-password').oninput = () => {this.#password.newPassword = document.getElementById('popup-new-password').value};
-                document.getElementById('popup-confirm-password').oninput = () => {this.#password.confirmPassword = document.getElementById('popup-confirm-password').value};
+                document.getElementById('popup-current-password').oninput = () => { this.#password.password = document.getElementById('popup-current-password').value };
+                document.getElementById('popup-new-password').oninput = () => { this.#password.newPassword = document.getElementById('popup-new-password').value };
+                document.getElementById('popup-confirm-password').oninput = () => { this.#password.confirmPassword = document.getElementById('popup-confirm-password').value };
             }
-        ,
+            ,
         }).then(async (result) => {
             if (result.value) {
                 await this.#fetcher.fetchCore(`/user/me`, 'PATCH', { password: this.#password });
 
             }
         });
+    }
+
+    async #overviewSave() {
+        const spinner = new SpinnerOnButton("overview-save")
+        spinner.run()
+        await this.#overviewChangeName();
+        await this.#overviewChangePicture();
+        spinner.success()
+    }
+
+    async #overviewChangeName() {
+        const displayName = document.getElementById("overview-displayname").value
+        if (displayName && displayName != "") {
+            const result = await RVC.fetcher.fetchCore(`/user/me`, 'PATCH', { displayName: displayName });
+            if (result) {
+                RVC.user.displayName = result.displayName
+                document.getElementById('overview-displayname').value = result.displayName;
+            }
+        }
+        else {
+            Swal.fire({
+                icon: 'error',
+                title: `Display name invalid`,
+                animation: false,
+                customClass: SwalCustomClass,
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false,
+            });
+            return;
+        }
+    }
+
+    async #overviewChangePicture() {
+        const settingUserPictureNewPath = document.getElementById("overview-picture");
+        if (settingUserPictureNewPath.value && this.#newProfilPictureFile) {
+            const formData = new FormData();
+            formData.append("file", this.#newProfilPictureFile);
+            await fetch(`${RVC.mediaUrl}/profiles/${RVC.user.id}`, {
+                method: "POST",
+                signal: AbortSignal.timeout(5000),
+                headers: {
+                    'Authorization': `Bearer ${RVC.getToken()}`
+                },
+                body: formData
+            });
+            this.#newProfilPictureFile = null
+            settingUserPictureNewPath.value = null
+        }
+    }
+
+    #overviewSelectPicture() {
+        document.getElementById("overview-picture-new").click();
     }
 
     #themeLoad() {
