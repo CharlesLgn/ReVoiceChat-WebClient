@@ -99,7 +99,6 @@ async function roomAdd() {
                 <select oninput='popupData.type=value'>
                     <option value='TEXT'>Text</option>
                     <option value='VOICE'>Voice (Built-in)</option>
-                    <option value='WEBRTC'>Voice (WebRTC)</option>
                 </select>
             </form>       
         `,
