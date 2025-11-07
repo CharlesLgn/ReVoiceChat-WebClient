@@ -6,18 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     <link href="src/css/tailwind.css" rel="stylesheet" />
     <link href="src/css/main.css" rel="stylesheet" />
     <link href="src/css/emoji.css" rel="stylesheet" />
     <link href="src/css/themes.css" rel="stylesheet" />
     <link rel="shortcut icon" type="image/png" href="src/img/favicon.png" />
     <title>ReVoiceChat - App</title>
-    <style>
-        body {
-            font-family: 'Noto Color Emoji', sans-serif;
-        }
-    </style>
 </head>
 
 <body>
@@ -63,14 +57,17 @@
                 </div>
             </div>
         </div>
-
         <!-- Room Container -->
         <div class="room">
 
-            <!-- Room Header -->
+          <!-- Room Header -->
             <div class="room-header">
-                <span id="room-icon"></span>
-                <h3 class="room-name" id="room-name">[ROOM-NAME]</h3>
+                <button class="mobile-btn" id="toggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
+                <div style="display: flex; column-gap: 0.5rem">
+                  <span id="room-icon"></span>
+                  <h3 class="room-name" id="room-name">[ROOM-NAME]</h3>
+                </div>
+              <button class="mobile-btn" id="toggleUsers"><revoice-icon-users></revoice-icon-users></button>
             </div>
 
             <!-- Text Container -->
@@ -116,7 +113,6 @@
             </div>
 
         </div>
-
         <!-- Sidebar users-->
         <div class="sidebar-right">
             <div class="sidebar-header">
@@ -133,6 +129,7 @@
                 <!-- JS -->
             </div>
         </div>
+        <div class="overlay" id="overlay"></div>
     </div>
 
     <!-- Config Containter -->
@@ -421,7 +418,7 @@
         </div>
     </div>
 
-    <!-- Libraries -->
+  <!-- Libraries -->
     <script src="src/js/lib/sweetalert2.min.js"></script>
     <script src="src/js/lib/marked.min.js"></script>
     <script src="src/js/lib/highlight.min.js"></script>
@@ -439,6 +436,7 @@
 
     <!-- App -->
     <script src="src/js/app.js" type="module"></script>
+    <script src="src/js/mobile.js"></script>
 </body>
 
 </html>
