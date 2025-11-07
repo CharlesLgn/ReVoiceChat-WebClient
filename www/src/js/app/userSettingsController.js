@@ -17,7 +17,8 @@ export default class UserSettingsController {
     voice = structuredClone(VoiceCall.DEFAULT_SETTINGS);
     #audioOutput = {
         main: 1,
-        notification: 0.25
+        notification: 0.25,
+        voice: 1
     }
 
     constructor(user, fetcher, mediaUrl) {
@@ -483,6 +484,7 @@ export default class UserSettingsController {
         const parameters = [
             'output-main-volume',
             'output-notification-volume',
+            'output-voice-volume',
         ]
 
         for (const param of parameters) {
@@ -498,6 +500,9 @@ export default class UserSettingsController {
 
         document.getElementById('output-notification-volume').value = this.#audioOutput.notification;
         this.#audioOutputUpdateUI('output-notification-volume', this.#audioOutput.notification);
+
+        document.getElementById('output-voice-volume').value = this.#audioOutput.voice;
+        this.#audioOutputUpdateUI('output-voice-volume', this.#audioOutput.voice);
     }
 
     #audioOutputUpdateUI(param, value) {
@@ -507,6 +512,9 @@ export default class UserSettingsController {
                 break;
             case 'output-notification-volume':
                 document.getElementById('output-notification-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
+                break;
+            case 'output-voice-volume':
+                document.getElementById('output-voice-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
                 break;
         }
     }
@@ -519,6 +527,11 @@ export default class UserSettingsController {
             case 'output-notification-volume':
                 this.#audioOutput.notification = value;
                 break;
+            case 'output-voice-volume':
+                this.#audioOutput.voice = value;
+                break;
         }
+
+        this.#room.voiceController.setOutputVolume(getVoiceVolume());
     }
 }

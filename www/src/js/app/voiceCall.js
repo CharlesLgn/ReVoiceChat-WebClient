@@ -56,6 +56,7 @@ export default class VoiceCall {
     #state = 0;
     #settings = {};
     #gateState = false;
+    #outputGain;
 
     constructor(user, settings) {
         if (!user) {
@@ -96,6 +97,10 @@ export default class VoiceCall {
 
         // Setup receiver and decoder
         this.#socket.onmessage = (message) => { this.#receivePacket(message, this.#packetDecode) };
+
+        // Setup main output gain
+        this.#outputGain = this.#audioContext.createGain();
+        this.#outputGain.setValueAtTime(this.#settings, this.#audioContext.currentTime);
 
         // Socket states
         this.#socket.onclose = async () => { await this.close(); };
@@ -245,6 +250,12 @@ export default class VoiceCall {
         this.#gateNode.parameters.get("attack").setValueAtTime(this.#settings.gate.attack, this.#audioContext.currentTime);
         this.#gateNode.parameters.get("release").setValueAtTime(this.#settings.gate.release, this.#audioContext.currentTime);
         this.#gateNode.parameters.get("threshold").setValueAtTime(this.#settings.gate.threshold, this.#audioContext.currentTime);
+    }
+
+    setOutputVolume(volume) {
+        if (this.#outputGain) {
+            this.#outputGain.setValueAtTime(volume, this.#audioContext.currentTime);
+        }
     }
 
     setCompressor(compressorSetting) {
@@ -470,11 +481,11 @@ export default class VoiceCall {
         source.buffer = buffer;
 
         source.connect(users[userId].gainNode); // connect audio source to gain
-        users[userId].gainNode.connect(audioContext.destination); // connect gain to output
+        users[userId].gainNode.connect(this.#outputGain); // connect user gain to main gain
+        this.#outputGain.connect(audioContext.destination); // connect main gain to output
 
         users[userId].playhead = Math.max(users[userId].playhead, audioContext.currentTime) + buffer.duration;
         source.start(users[userId].playhead);
         audioData.close();
     }
-
 }

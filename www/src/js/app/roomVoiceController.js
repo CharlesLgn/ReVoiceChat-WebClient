@@ -28,7 +28,7 @@ export default class RoomVoiceController {
         this.#activeRoom = roomId;
 
         try {
-            this.#voiceCall = new VoiceCall(this.#user.id, this.#user.settings.voice);
+            this.#voiceCall = new VoiceCall(this.#user.id, this.#user.settings.voice, this.#user.settings.getVoiceVolume());
             await this.#voiceCall.open(this.#voiceURL, roomId, this.#token);
 
             // Update users in room
@@ -257,6 +257,12 @@ export default class RoomVoiceController {
     setSelfVolume() {
         if (this.#voiceCall) {
             this.#voiceCall.setSelfVolume(this.#user.settings.voice.self.volume);
+        }
+    }
+
+    setOutputVolume(value){
+        if (this.#voiceCall){
+            this.#voiceCall.setOutputVolume(value);
         }
     }
 
