@@ -200,11 +200,11 @@
                     <h1>Rooms</h1>
 
                     <div class="config-buttons">
-                        <button onclick="roomAdd()">
+                        <button id="server-setting-room-add">
                             <revoice-icon-circle-plus></revoice-icon-circle-plus>
                             Room
                         </button>
-                        <button onclick="categoryAdd()">
+                        <button id="server-setting-category-add">
                             <revoice-icon-folder-plus></revoice-icon-folder-plus>
                             Category
                         </button>
@@ -217,7 +217,7 @@
                         </div>
                     </div>
 
-                    <button id="structure-save-button" class="config-button" onclick="structureSave()">Save</button>
+                    <button id="server-setting-structure-save" class="config-button">Save</button>
                 </div>
 
                 <!-- Roles -->
@@ -439,9 +439,6 @@
 
     <!-- App -->
     <script src="src/js/app.js" type="module"></script>
-
-    <!-- Server config -->
-    <script src="src/js/config.js"></script>
 </body>
 
 </html>

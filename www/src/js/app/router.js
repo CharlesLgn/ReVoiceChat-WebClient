@@ -17,7 +17,6 @@ export default class Router {
 
             case "config":
                 this.#pushState('config');
-                configLoad()
                 document.getElementById('route-config').classList.remove('hidden');
                 break;
 
