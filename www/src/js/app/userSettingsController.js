@@ -532,6 +532,6 @@ export default class UserSettingsController {
                 break;
         }
 
-        this.#room.voiceController.setOutputVolume(getVoiceVolume());
+        this.#room.voiceController.setOutputVolume(this.getVoiceVolume());
     }
 }
