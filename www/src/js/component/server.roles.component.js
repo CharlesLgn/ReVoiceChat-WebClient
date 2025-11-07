@@ -67,7 +67,6 @@ class ServerRolesWebComponent extends HTMLElement {
 
     render() {
         this.shadowRoot.innerHTML = `
-            <link href="src/css/tailwind.css" rel="stylesheet" />
             <link href="src/css/main.css" rel="stylesheet" />
             <link href="src/css/emoji.css" rel="stylesheet" />
             <link href="src/css/themes.css" rel="stylesheet" />
