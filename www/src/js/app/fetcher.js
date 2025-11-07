@@ -45,9 +45,13 @@ export default class Fetcher {
         }
     }
 
-    async fetchMedia(path, method = null) {
+    async fetchMedia(path, method = null, data = null) {
         if (method === null) {
             method = 'GET';
+        }
+
+        if (data) {
+            data = JSON.stringify(data);
         }
 
         try {
@@ -56,7 +60,8 @@ export default class Fetcher {
                 signal: AbortSignal.timeout(5000),
                 headers: {
                     'Authorization': `Bearer ${this.#token}`
-                }
+                },
+                body: data
             });
 
             if (method !== "DELETE") {
