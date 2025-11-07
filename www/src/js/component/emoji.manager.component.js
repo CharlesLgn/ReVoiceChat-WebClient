@@ -642,13 +642,12 @@ class EmojiManager extends HTMLElement {
                 <slot name="emojis-data"></slot>
 
                 <div class="add-section">
-                    <h2>+ Add an emoji</h2>
                     <form class="add-form" id="addForm">
                         <div class="form-row-with-preview">
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
                                 <div class="form-row">
                                     <div class="emotes-form-group">
-                                        <label for="emojiFile">Emoji image</label>
+                                        <label for="emojiFile">Image</label>
                                         <input type="file" id="emojiFile" accept="image/*" required>
                                         <div class="error" id="fileError"></div>
                                     </div>
@@ -665,7 +664,7 @@ class EmojiManager extends HTMLElement {
                             </div>
                             <div class="preview-container" id="addPreview"></div>
                         </div>
-                        <button type="submit" class="btn-primary">Add emoji</button>
+                        <button type="submit" class="btn-primary">Add emote</button>
                     </form>
                 </div>
 
