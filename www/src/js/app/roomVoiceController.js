@@ -262,6 +262,29 @@ export default class RoomVoiceController {
         }
     }
 
+    controlSelfDeaf(updateState = true) {
+        if (updateState) {
+            if (this.#voiceCall) {
+                this.#voiceCall.toggleSelfDeaf();
+            }
+            this.#saveSettings();
+        }
+
+        const button = document.getElementById("voice-self-deaf");
+        if (this.#voiceCall) {
+            if (this.#voiceCall.getSelfDeaf()) {
+                // Muted
+                button.classList.add('active');
+                this.#alert.play('soundMuted');
+            }
+            else {
+                // Unmuted
+                button.classList.remove('active');
+                this.#alert.play('soundActivated');
+            }
+        }
+    }
+
     setOutputVolume(value) {
         if (this.#voiceCall) {
             this.#voiceCall.setOutputVolume(value);
@@ -286,6 +309,7 @@ export default class RoomVoiceController {
     updateSelf() {
         const voiceAction = document.getElementById("voice-join-action");
         const muteButton = document.getElementById("voice-self-mute");
+        const deafButton = document.getElementById("voice-self-deaf");
         const instanceState = this.#voiceCall ? this.#voiceCall.getState() : VoiceCall.CLOSE;
 
         switch (instanceState) {
@@ -307,6 +331,7 @@ export default class RoomVoiceController {
                 voiceAction.innerHTML = `<revoice-icon-phone></revoice-icon-phone>`;
                 voiceAction.onclick = () => this.join(this.#room.id);
                 muteButton.classList.add('hidden');
+                deafButton.classList.add('hidden');
                 break;
 
             case VoiceCall.OPEN:
@@ -317,6 +342,7 @@ export default class RoomVoiceController {
                 voiceAction.innerHTML = `<revoice-icon-phone-x></revoice-icon-phone-x>`;
                 voiceAction.onclick = () => this.leave();
                 muteButton.classList.remove('hidden');
+                deafButton.classList.remove('hidden');
                 break;
         }
     }

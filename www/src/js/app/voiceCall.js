@@ -21,6 +21,7 @@ export default class VoiceCall {
         },
         self: {
             muted: false,
+            deaf: false,
             volume: 1,
         },
         users: {}
@@ -231,6 +232,18 @@ export default class VoiceCall {
         return this.#settings.self.muted;
     }
 
+    toggleSelfDeaf() {
+        this.#settings.self.deaf = !this.#settings.self.deaf;
+    }
+
+    setSelfDeaf(deaf) {
+        this.#settings.self.deaf = deaf;
+    }
+
+    getSelfDeaf() {
+        return this.#settings.self.deaf;
+    }
+
     setSelfVolume(volume) {
         this.#settings.self.volume = volume;
 
@@ -418,8 +431,8 @@ export default class VoiceCall {
 
         if (this.#users[header.user]) {
             const currentUser = this.#users[header.user];
-            // If user sending packet is muted, we stop
-            if (currentUser.muted) {
+            // If user sending packet is muted OR we are deaf, we stop
+            if (currentUser.muted || this.#settings.self.deaf) {
                 return;
             }
 
