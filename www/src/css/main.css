@@ -1404,7 +1404,6 @@ input[type=file]::file-selector-button {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-
     .sidebar,
     .sidebar-right {
         position: fixed;
@@ -1438,8 +1437,7 @@ input[type=file]::file-selector-button {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding-top: 4rem;
-        padding-bottom: 2rem;
+        height: 3rem;
     }
 
     .login-box {
