@@ -11,8 +11,12 @@ export default class Alert {
         soundMuted: 'src/audio/soundMutedMale.mp3',
         soundActivated: 'src/audio/soundActivatedMale.mp3',
     }
+    #testSounds = {
+        notification: 'src/audio/tryNotificationMale.mp3',
+        voiceChat: 'src/audio/tryVoiceChatMale.mp3',
+    }
 
-    constructor(userSettings){
+    constructor(userSettings) {
         this.#userSettings = userSettings;
     }
 
@@ -23,6 +27,25 @@ export default class Alert {
 
         let audio = new Audio(this.#defaultSounds[type]);
         audio.volume = this.#userSettings.getNotificationVolume();
+        audio.play();
+    }
+
+    playTest(type) {
+        if (!this.#testSounds[type]) {
+            console.error('Notification type is null or undefined');
+        }
+
+        let audio = new Audio(this.#testSounds[type]);
+
+        switch(type){
+            case 'notification':
+                audio.volume = this.#userSettings.getNotificationVolume();
+                break;
+            case 'voiceChat':
+                audio.volume = this.#userSettings.getVoiceVolume();
+                break;
+        }
+
         audio.play();
     }
 }
