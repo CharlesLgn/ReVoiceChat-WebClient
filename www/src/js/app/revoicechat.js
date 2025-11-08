@@ -49,11 +49,11 @@ export default class ReVoiceChat {
         // Instantiate other classes
         this.fetcher = new Fetcher(this.#token, this.coreUrl, this.mediaUrl);
         this.user = new User(this.fetcher, this.mediaUrl, this.coreUrl);
+        this.alert = new Alert(this.user.settings);
         this.room = new Room(this.fetcher, this.alert, this.user, this.voiceUrl, this.#token);
         this.server = new Server(this.fetcher, this.mediaUrl, this.room);
         this.state = new State(this);
-        this.alert = new Alert(this.user);
-
+        
         // Add missing classes
         this.user.settings.setRoom(this.room);
 
