@@ -149,17 +149,17 @@
                     </button>
 
                     <!-- Rooms -->
-                    <button class="sub-category" id="server-setting-tab-rooms">
+                    <button class="sub-category hidden" id="server-setting-tab-rooms">
                         <revoice-icon-chat-bubble></revoice-icon-chat-bubble> Rooms
                     </button>
 
                     <!-- Roles -->
-                    <button class="sub-category" id="server-setting-tab-roles">
+                    <button class="sub-category hidden" id="server-setting-tab-roles">
                         <revoice-icon-role></revoice-icon-role> Roles
                     </button>
 
                     <!-- Emotes -->
-                    <button class="sub-category" id="server-setting-tab-emotes">
+                    <button class="sub-category hidden" id="server-setting-tab-emotes">
                         <revoice-icon-emoji></revoice-icon-emoji> Emotes
                     </button>
 
@@ -169,7 +169,7 @@
                     </button>
 
                     <!-- Invitation -->
-                    <button class="sub-category" id="server-setting-tab-invitations">
+                    <button class="sub-category hidden" id="server-setting-tab-invitations">
                         <revoice-icon-envelope></revoice-icon-envelope> Invitations
                     </button>
                 </div>
@@ -191,9 +191,10 @@
                     <p>Server ID : <span id="server-setting-overview-uuid" class="selectable">[SERVER UUID]</span></p>
 
                     <h2>Server name</h2>
-                    <input type="text" id="server-setting-overview-name" value="[SERVER NAME]">
+                    <p><span id="server-setting-overview-name" class="selectable">[SERVER NAME]</span></p>
+                    <input type="text" id="server-setting-overview-name-input" value="[SERVER NAME]" class="hidden">
 
-                    <button id="server-setting-overview-save" class="config-button">Save</button>
+                    <button id="server-setting-overview-save" class="config-button hidden">Save</button>
                 </div>
 
                 <!-- Rooms -->
