@@ -90,7 +90,7 @@ export default class VoiceCall {
         this.#state = VoiceCall.CONNECTING;
 
         // Create WebSocket
-        this.#socket = new WebSocket(`${voiceUrl}/${roomId}?token=${token}`);
+        this.#socket = new WebSocket(`${voiceUrl}/${roomId}`, ["Bearer." + token]);
         this.#socket.binaryType = "arraybuffer";
 
         // Setup encoder and transmitter
