@@ -114,6 +114,7 @@ export default class VoiceCall {
         // Close WebSocket
         if (this.#socket !== null || this.#socket.readyState != WebSocket.OPEN) {
             this.#socket.close();
+            this.#socket = null;
         }
 
         // Flush and close all decoders
@@ -121,17 +122,20 @@ export default class VoiceCall {
             if (user?.decoder && user.decoder.state === 'configured') {
                 await user.decoder.flush();
                 await user.decoder.close();
+                user.decoder = null;
             }
         }
 
         // Close self encoder
         if (this.#encoder && this.#encoder.state !== "closed") {
             this.#encoder.close();
+            this.#encoder = null;
         }
 
         // Close audioContext
         if (this.#audioContext && this.#audioContext.state !== "closed") {
             this.#audioContext.close();
+            this.#audioContext = null;
         }
 
         this.#state = VoiceCall.CLOSE;
