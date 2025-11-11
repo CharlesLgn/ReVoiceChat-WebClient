@@ -12,6 +12,7 @@ export default class ServerSettingsController {
     #roomsData = [];
     #roomsNotRendered = [];
     #draggedElement = null;
+    #flattenRisks = [];
 
     constructor(server, fetcher, mediaUrl) {
         this.#server = server;
@@ -32,6 +33,7 @@ export default class ServerSettingsController {
         const isAdmin = me.type === "ADMIN";
         const flattenRisks = await this.#fetcher.fetchCore(`/user/server/${this.#server.id}/risks`);
 
+        this.#flattenRisks = flattenRisks;
         this.#selectEventHandler(flattenRisks, isAdmin);
         this.#attachEventsFromRisks(flattenRisks, isAdmin);
 
@@ -42,7 +44,7 @@ export default class ServerSettingsController {
 
     async #attachEventsFromRisks(flattenRisks, isAdmin) {
         const overviewRisks = ['SERVER_UPDATE'];
-        const roomRisks = ['SERVER_ROOM_UPDATE'];
+        const roomRisks = ['SERVER_ROOM_UPDATE', 'SERVER_ROOM_DELETE'];
         const rolesRisks = ['ADD_ROLE', 'UPDATE_ROLE', 'ADD_USER_ROLE'];
         const emoteRisks = ['ADD_EMOTE', 'UPDATE_EMOTE', 'REMOVE_EMOTE'];
         const invitationRisks = ['SERVER_INVITATION_ADD', 'SERVER_INVITATION_FETCH'];
@@ -61,6 +63,9 @@ export default class ServerSettingsController {
         }
         else {
             this.#roomEventHandler(true);
+            if (this.#currentTab === "rooms") {
+                this.#select('overview');
+            }
         }
 
         if (isAdmin || flattenRisks.some(elem => rolesRisks.includes(elem))) {
@@ -68,10 +73,18 @@ export default class ServerSettingsController {
         }
         else {
             this.#rolesLoad(true);
+            if (this.#currentTab === "roles") {
+                this.#select('overview');
+            }
         }
 
         if (isAdmin || flattenRisks.some(elem => emoteRisks.includes(elem))) {
             this.#emotesLoad();
+        }
+        else {
+            if (this.#currentTab === "emotes") {
+                this.#select('overview');
+            }
         }
 
         if (isAdmin || flattenRisks.some(elem => invitationRisks.includes(elem))) {
@@ -80,6 +93,9 @@ export default class ServerSettingsController {
         }
         else {
             this.#invitationEventHandler(true);
+            if (this.#currentTab === "invitations") {
+                this.#select('overview');
+            }
         }
     }
 
@@ -105,14 +121,18 @@ export default class ServerSettingsController {
         ]
 
         for (const param of parameters) {
+            const button = document.getElementById(`server-setting-tab-${param.button}`);
+
             if (isAdmin || param.risks) {
                 if (isAdmin || flattenRisks.some(elem => param.risks.includes(elem))) {
-                    const button = document.getElementById(`server-setting-tab-${param.button}`);
                     button.classList.remove('hidden');
                     button.addEventListener('click', () => this.#select(param.button));
                 }
+                else {
+                    button.classList.add('hidden');
+                    button.removeEventListener('click', null);
+                }
             } else {
-                const button = document.getElementById(`server-setting-tab-${param.button}`);
                 button.classList.remove('hidden');
                 button.addEventListener('click', () => this.#select(param.button));
             }
@@ -177,13 +197,11 @@ export default class ServerSettingsController {
     // ROOMS AND STRUCTURE
     #roomEventHandler(remove) {
         if (remove) {
-            document.getElementById(`server-setting-tab-rooms`).classList.add('hidden');
             document.getElementById(`server-setting-structure-save`).removeEventListener('click', null);
             document.getElementById(`server-setting-room-add`).removeEventListener('click', null);
             document.getElementById(`server-setting-category-add`).removeEventListener('click', null);
         }
         else {
-            document.getElementById(`server-setting-tab-rooms`).classList.remove('hidden');
             document.getElementById(`server-setting-structure-save`).addEventListener('click', () => this.#structureSave());
             document.getElementById(`server-setting-room-add`).addEventListener('click', () => this.#roomAdd());
             document.getElementById(`server-setting-category-add`).addEventListener('click', () => this.#categoryAdd());
@@ -488,6 +506,9 @@ export default class ServerSettingsController {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'server-structure-item-header';
 
+        const updateHidden = this.#flattenRisks.includes('SERVER_ROOM_UPDATE') ? "" : "hidden";
+        const deleteHidden = this.#flattenRisks.includes('SERVER_ROOM_DELETE') ? "" : "hidden";
+
         switch (item.type) {
             case 'ROOM': {
                 // Remove room being rendered from list of not render
@@ -508,8 +529,8 @@ export default class ServerSettingsController {
                     <span class="server-structure-item-id">${room.id}</span>
                 </div>
                 <div class="server-structure-item-actions">
-                    <button class="server-structure-btn btn-edit" data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
-                    <button class="server-structure-btn btn-delete" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
+                    <button class="server-structure-btn btn-edit ${updateHidden}" data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
+                    <button class="server-structure-btn btn-delete ${deleteHidden}" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
                 </div>`;
                 break;
             }
@@ -642,7 +663,7 @@ export default class ServerSettingsController {
     // EMOTES
     async #emotesLoad() {
         const response = await this.#fetcher.fetchCore(`/emote/server/${this.#server.id}`);
-        
+
         const old_manager = document.getElementById("server-setting-emotes-form");
         if (old_manager) {
             document.getElementById('server-setting-content-emotes').removeChild(old_manager);
