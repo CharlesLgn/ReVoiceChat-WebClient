@@ -53,6 +53,20 @@ export default class User {
         }
     }
 
+    setStatus(id, status){
+        const className = `user-dot ${statusToDotClassName(status)}`;
+
+        // Static elements for self
+        if(this.id === id){
+            document.getElementById('user-dot').className = className;
+        }
+
+        // Dynamic elements
+        for(const dot of document.getElementsByName(`user-dot-${id}`)){
+            dot.className = className;
+        }
+    }
+
     logout(){
         sessionStorage.removeItem('lastState');
         localStorage.removeItem('userSettings');

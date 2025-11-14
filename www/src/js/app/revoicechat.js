@@ -5,8 +5,8 @@ import Router from './router.js';
 import User from './user.js';
 import Room from './room.js';
 import Server from './server.js';
-import {reloadEmojis} from '../emoji.js';
-import {Sse} from "./sse.js";
+import { reloadEmojis } from '../emoji.js';
+import { Sse } from "./sse.js";
 
 export default class ReVoiceChat {
     alert;
@@ -54,7 +54,7 @@ export default class ReVoiceChat {
         this.room = new Room(this.fetcher, this.alert, this.user, this.voiceUrl, this.#token);
         this.server = new Server(this.fetcher, this.mediaUrl, this.room);
         this.state = new State(this);
-        
+
         // Add missing classes
         this.user.settings.setRoom(this.room);
 
@@ -109,7 +109,8 @@ export default class ReVoiceChat {
                 case "DIRECT_MESSAGE":
                     return;
 
-                case "USER_STATUS_CHANGE":
+                case "USER_STATUS":
+                    this.user.setStatus(eventData.id, eventData.status);
                     return;
 
                 case "USER_UPDATE":
