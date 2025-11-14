@@ -19,11 +19,22 @@ const SwalCustomClass = {
 
 const sanitizeString = (str) => str.substring(0, 2000).trim();
 
+
+/**
+ * Is the date today
+ * @param date Date to check
+ * @returns True/False
+ */
 function isToday(date) {
     const today = new Date();
     return today.getFullYear() === date.getFullYear() && today.getMonth() === date.getMonth() && today.getDate() === date.getDate();
 }
 
+/**
+ * Convert UNIX timestamp to readable Date:Hour format
+ * @param {*} timestamp 
+ * @returns 
+ */
 function timestampToText(timestamp) {
     // By default timestamp is UTC (shouldn't matter for this function)
     timestamp = new Date(`${timestamp}`);
@@ -36,6 +47,11 @@ function timestampToText(timestamp) {
     return formatedTimestamp;
 }
 
+/**
+ * Retrieve query variable from URL
+ * @param variable Name of variable
+ * @returns Value of variable
+ */
 function getQueryVariable(variable) {
     const query = window.location.search.substring(1);
     const vars = query.split("&");
@@ -48,7 +64,12 @@ function getQueryVariable(variable) {
     return null;
 }
 
-// Save a cookie
+/**
+ * Set a cookie to browser / tauri
+ * @param name Name of cookie
+ * @param value Data of cookie
+ * @param days Expiration (in days)
+ */
 function setCookie(name, value, days) {
     if (tauriActive) {
         const data = {
@@ -67,7 +88,11 @@ function setCookie(name, value, days) {
     }
 }
 
-// Read a cookie
+/**
+ * Get a cookie from browser / tauri
+ * @param name Name of cookie to read/get
+ * @returns Data of cookie
+ */
 function getCookie(name) {
     if (tauriActive) {
         const stored = localStorage.getItem(`secure_${name}`);
@@ -98,7 +123,10 @@ function getCookie(name) {
     }
 }
 
-// Delete a cookie
+/**
+ * Erase a named cookie 
+ * @param name Name of the cookie
+ */
 function eraseCookie(name) {
     if (tauriActive) {
         localStorage.removeItem(`secure_${name}`);
@@ -107,6 +135,11 @@ function eraseCookie(name) {
     }
 }
 
+/**
+ * Copy data to user clipboard
+ * When available it use the newest API clipboard.writeText()
+ * @param data Data to copy to user clipboard
+ */
 async function copyToClipboard(data) {
     try {
         if (navigator.clipboard) {
@@ -131,8 +164,7 @@ async function copyToClipboard(data) {
  * Format bytes as human-readable text.
  * 
  * @param bytes Number of bytes.
- * @param si True to use metric (SI) units, aka powers of 1000. False to use 
- *           binary (IEC), aka powers of 1024.
+ * @param si True to use metric (SI) units, aka powers of 1000. False to use binary (IEC), aka powers of 1024.
  * @param dp Number of decimal places to display.
  * 
  * @return Formatted string.
@@ -155,10 +187,14 @@ function humanFileSize(bytes, si = false, dp = 1) {
         ++u;
     } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
 
-
     return bytes.toFixed(dp) + ' ' + units[u];
 }
 
+/**
+ * Convert user status to className
+ * @param status User status
+ * @returns Corresponding className
+ */
 function statusToDotClassName(status) {
     switch (status) {
         case "ONLINE":
@@ -173,7 +209,12 @@ function statusToDotClassName(status) {
     }
 }
 
-/** Fetch wrapper */
+/**
+ * Fetch wrapper for Tauri
+ * @param url 
+ * @param options 
+ * @returns function to use
+ */
 async function apiFetch(url, options = {}) {
     if (tauriActive && tauriFetch) {
         return tauriFetch(url, options);
