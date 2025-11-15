@@ -70,9 +70,12 @@ export default class ReVoiceChat {
             this.state.save();
             this.#sse.closeSSE();
         })
+
+        // Load more when document is fully loaded
+        document.addEventListener('DOMContentLoaded', () => this.#load());
     }
 
-    load() {
+    #load() {
         this.user.settings.load();
         this.state.load();
         this.#openSSE();
@@ -158,3 +161,5 @@ export default class ReVoiceChat {
         }, 10000);
     }
 }
+
+window.RVC = new ReVoiceChat();
