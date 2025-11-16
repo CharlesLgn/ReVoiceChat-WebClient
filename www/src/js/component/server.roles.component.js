@@ -98,6 +98,7 @@ class ServerRolesWebComponent extends HTMLElement {
 
                 .room-container {
                     padding-left: 2rem;
+                    width: 35rem;
                 }
 
                 .risk-category {
@@ -164,14 +165,29 @@ class ServerRolesWebComponent extends HTMLElement {
                     margin: 1rem;
                     text-align: center;
                 }
+
+                .tab button {
+                    background-color: inherit;
+                    float: left;
+                    border: none;
+                    outline: none;
+                    cursor: pointer;
+                    padding: 0.5rem;
+                    margin-right: 0.2rem;
+                }
+
+                .tab button.active {
+                    background-color: var(--pri-active-color);
+                    color: var(--pri-button-bg-color);
+                }
             </style>
 
             <div class="config config-right">            
-                <div class="config-buttons">
-                    <button id="createRoleBtn"><revoice-icon-circle-plus></revoice-icon-circle-plus> New</button>
-                </div>
                 <div class="role-settings-main">
                     <div class="role-settings-sidebar">
+                        <div class="config-buttons">
+                            <button id="createRoleBtn"><revoice-icon-circle-plus></revoice-icon-circle-plus> New</button>
+                        </div>
                         <div class="sidebar-room-container" id="rolesList"></div>
                     </div>
                     <div class="room">
@@ -232,11 +248,14 @@ class ServerRolesWebComponent extends HTMLElement {
             <div class="detail-header">
                 <div class="icon" style="background: ${role.color}"></div>
                 <h2>${role.name}</h2>
-                <div class="detail-priority">Priority: ${role.priority}</div>
-                <div class="detail-priority"><button class="btn-primary" id="assigned-popup-button">Members: ${role.members.length}</button></div>
+
+                <div class="tab">
+                    <button class="active" id="role-tab-auth">Authorizations</button>
+                    <button id="role-tab-members">Members</button>
+                </div>
             </div>
 
-            <div class="config-section">
+            <div class="config-section" id="auth-section">
                 ${this.availableRisks.map(category => `
                     <div class="risk-category">
                         <div class="risk-category-header">${category.title}</div>
@@ -263,7 +282,13 @@ class ServerRolesWebComponent extends HTMLElement {
                         </div>
                     </div>
                 `).join('')}
-            </div>`;
+            </div>
+
+            <div class="config-section hidden" id="members-section">
+                <button id="role-member-add">Add</button>
+                <br/>
+                <div id="role-member-list" class="config-members-list"></div>
+            </div >`;
 
         // Add event listeners for risk toggles
         for (const btn of roleDetails.querySelectorAll('.toggle-btn')) {
@@ -288,11 +313,69 @@ class ServerRolesWebComponent extends HTMLElement {
             });
         }
 
-        roleDetails.querySelector("#assigned-popup-button").addEventListener('click', async () => {
-            await this.#assignedUser(role)
-        })
+        // Add event listener
+        this.shadowRoot.getElementById("role-tab-auth").addEventListener('click', () => this.#selectRoleTab("auth-section"));
+        this.shadowRoot.getElementById("role-tab-members").addEventListener('click', () => this.#selectRoleTab("members-section"));
+        this.shadowRoot.getElementById("role-member-add").addEventListener('click', () => this.#assignedUser(role));
+
+        const users = [];
+        for (const user of this.availableUsers) {
+            users[user.id] = user;
+        }
+
+        // Populate role member
+        const memberList = this.shadowRoot.getElementById("role-member-list");
+        for (const memberId of role.members) {
+            const member = users[memberId]
+            memberList.appendChild(this.#memberItemList(member, role.id));
+        }
     }
 
+    #memberItemList(data, roleId) {
+        const DIV = document.createElement('div');
+        DIV.className = `config-item`;
+
+        const profilePicture = `${RVC.mediaUrl}/profiles/${data.id}`;
+
+        DIV.innerHTML = `
+            <div class="relative">
+                <img src="${profilePicture}" alt="PFP" class="icon ring-2" />
+            </div>
+            <div class="user">
+                <div class="name" id="user-name">
+                    ${data.displayName}
+                    <div class="login">${data.login}</div>
+                </div>
+            </div>
+        `;
+
+        // Context menu
+        const DIV_CM = document.createElement('div');
+        DIV_CM.className = "context-menu";
+        DIV_CM.appendChild(this.#createContextMenuButton("icon", "<revoice-icon-circle-x></revoice-icon-circle-x>", () => this.#updateRoleOfMember(roleId, data.id, 'DELETE')));
+        DIV.appendChild(DIV_CM);
+
+        return DIV;
+    }
+
+    #selectRoleTab(tab) {
+        this.shadowRoot.getElementById("auth-section").classList.add('hidden');
+        this.shadowRoot.getElementById("members-section").classList.add('hidden');
+        this.shadowRoot.getElementById("role-tab-auth").classList.remove('active');
+        this.shadowRoot.getElementById("role-tab-members").classList.remove('active');
+
+        switch (tab) {
+            case "auth-section":
+                this.shadowRoot.getElementById("auth-section").classList.remove('hidden');
+                this.shadowRoot.getElementById("role-tab-auth").classList.add('active')
+                break;
+
+            case "members-section":
+                this.shadowRoot.getElementById("members-section").classList.remove('hidden');
+                this.shadowRoot.getElementById("role-tab-members").classList.add('active')
+                break;
+        }
+    }
 
     #findRisk(role, risk) {
         return role.risks.find(item => item.type === risk.type);
@@ -326,7 +409,7 @@ class ServerRolesWebComponent extends HTMLElement {
             confirmButtonText: "Add",
             allowOutsideClick: false,
             html: `
-            <form class='popup'>
+            < form class='popup' >
                 <div class="server-structure-form-group">
                     <label for="roleName">Role Name</label>
                     <input type="text" id="roleName" placeholder="Enter role name">
@@ -339,7 +422,7 @@ class ServerRolesWebComponent extends HTMLElement {
                     <label for="rolePriority">Priority</label>
                     <input type="number" id="rolePriority" placeholder="1" min="1">
                 </div>
-            </form>`,
+            </form > `,
             preConfirm: () => {
                 const popup = Swal.getPopup();
                 const name = popup.querySelector('#roleName').value;
@@ -414,11 +497,6 @@ class ServerRolesWebComponent extends HTMLElement {
                 }
             </style>
             <form class='popup'>
-                <h2>Current members</h2>
-                <input type="text" placeholder="Search..." id="current-members-search">
-                <div id="current-members-list" class="members-list">
-                    ${this.availableUsers.filter(user => role.members.includes(user.id)).map(user => this.#memberItem(role, user)).join('')}
-                </div>
                 <h2>Add members :</h2>
                 <input type="text" placeholder="Search..." id="add-members-search">
                 <div id="add-members-list" class="members-list">
@@ -436,10 +514,6 @@ class ServerRolesWebComponent extends HTMLElement {
                         }
                     }
                 }
-                document.querySelector("#current-members-search").addEventListener('input', (e) => {
-                    const elt = document.querySelector("#current-members-list")
-                    filterMemberList(elt, e.target.value)
-                });
                 document.getElementById("add-members-search").addEventListener('input', (e) => {
                     const elt = document.querySelector("#add-members-list")
                     filterMemberList(elt, e.target.value)
@@ -448,9 +522,21 @@ class ServerRolesWebComponent extends HTMLElement {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const roleId = role.id
-                await this.#toggleUsers(roleId, result.value);
+                await this.#updateRoleOfMember(roleId, result.value, 'PUT');
             }
         });
+    }
+
+    async #updateRoleOfMember(roleId, user, type) {
+        try {
+            await RVC.fetcher.fetchCore(`/role/${roleId}/user`, type, user)
+            await this.fetchRoles();
+            this.renderRoleDetails();
+            this.#selectRoleTab("members-section");
+        } catch (error) {
+            console.error('Error updating user:', error);
+            this.showError('Failed to update user assignment');
+        }
     }
 
     #memberItem(role, user) {
@@ -466,15 +552,13 @@ class ServerRolesWebComponent extends HTMLElement {
                 </div>`;
     }
 
-    async #toggleUsers(roleId, users) {
-        try {
-            await RVC.fetcher.fetchCore(`/role/${roleId}/user`, 'PUT', users)
-            await this.fetchRoles();
-            this.renderRoleDetails();
-        } catch (error) {
-            console.error('Error updating user:', error);
-            this.showError('Failed to update user assignment');
-        }
+    #createContextMenuButton(className, innerHTML, onclick, title = "") {
+        const DIV = document.createElement('div');
+        DIV.className = className;
+        DIV.innerHTML = innerHTML;
+        DIV.onclick = onclick;
+        DIV.title = title;
+        return DIV;
     }
 
     showError(message) {
