@@ -71,9 +71,11 @@ export default class User {
     }
 
     logout(){
-        sessionStorage.removeItem('lastState');
-        localStorage.removeItem('userSettings');
-        eraseCookie('jwtToken');
-        document.location.href = `index.html`;
+        this.#fetcher.fetchCore(`/auth/logout`, 'GET').then(() => {
+            sessionStorage.removeItem('lastState');
+            localStorage.removeItem('userSettings');
+            eraseCookie('jwtToken');
+            document.location.href = `index.html`;
+        });
     }
 }
