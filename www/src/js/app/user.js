@@ -53,7 +53,10 @@ export default class User {
         }
     }
 
-    setStatus(id, status){
+    setStatus(data){
+        const id = data.id;
+        const status = data.status;
+
         const className = `user-dot ${statusToDotClassName(status)}`;
 
         // Static elements for self

@@ -128,7 +128,7 @@ class SSEHandlers {
             'ROOM_UPDATE':        (data) => this.context.room.update(data, this.server.id),
             'ROOM_MESSAGE':       (data) => this.context.room.textController.message(data),
             'DIRECT_MESSAGE':     ()     => {},
-            'USER_STATUS_UPDATE': (data) => this.context.user.setStatus(data.id, data.status),
+            'USER_STATUS_UPDATE': (data) => this.context.user.setStatus(data),
             'USER_UPDATE':        (data) => this.context.user.update(data),
             'VOICE_JOINING':      (data) => this.context.room.voiceController.userJoining(data),
             'VOICE_LEAVING':      (data) => this.context.room.voiceController.userLeaving(data),
