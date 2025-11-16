@@ -123,17 +123,17 @@ class SSEHandlers {
         this.user = context.user;
 
         this.handlers = {
-            'PING':               ()     => {},
-            'SERVER_UPDATE':      (data) => this.context.server.update(data),
-            'ROOM_UPDATE':        (data) => this.context.room.update(data, this.server.id),
-            'ROOM_MESSAGE':       (data) => this.context.room.textController.message(data),
-            'DIRECT_MESSAGE':     ()     => {},
+            'PING': () => { },
+            'SERVER_UPDATE': (data) => this.context.server.update(data),
+            'ROOM_UPDATE': (data) => this.context.room.update(data, this.server.id),
+            'ROOM_MESSAGE': (data) => this.context.room.textController.message(data),
+            'DIRECT_MESSAGE': () => { },
             'USER_STATUS_UPDATE': (data) => this.context.user.setStatus(data),
-            'USER_UPDATE':        (data) => this.context.user.update(data),
-            'VOICE_JOINING':      (data) => this.context.room.voiceController.userJoining(data),
-            'VOICE_LEAVING':      (data) => this.context.room.voiceController.userLeaving(data),
-            'EMOTE_UPDATE':       ()     => reloadEmojis(),
-            'RISK_MANAGEMENT':    ()     => this.context.server.settings.riskModify(),
+            'USER_UPDATE': (data) => this.context.user.update(data),
+            'VOICE_JOINING': (data) => this.context.room.voiceController.userJoining(data),
+            'VOICE_LEAVING': (data) => this.context.room.voiceController.userLeaving(data),
+            'EMOTE_UPDATE': () => reloadEmojis(),
+            'RISK_MANAGEMENT': () => this.context.server.settings.riskModify(),
         };
     }
 
@@ -141,8 +141,9 @@ class SSEHandlers {
         const handler = this.handlers[type];
         if (handler) {
             handler(data);
+        } else {
+            console.error("SSE type unknown: ", type);
         }
-        console.error("SSE type unknown: ", type);
     }
 }
 
