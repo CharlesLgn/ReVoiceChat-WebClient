@@ -1411,12 +1411,16 @@ input[type=file]::file-selector-button {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+    :root {
+        --vh: 1vh;
+    }
+
     .sidebar,
     .sidebar-right {
         position: fixed;
         left: -100%;
         top: 0;
-        height: 100dvh;
+        height: calc(var(--vh, 1vh) * 100);
         z-index: 100;
         transition: left 0.3s;
         width: 15rem;
@@ -1445,21 +1449,64 @@ input[type=file]::file-selector-button {
         align-items: center;
         justify-content: space-between;
         height: 3rem;
+        flex-shrink: 0;
     }
 
     .login-box {
         width: -webkit-fill-available;
-        display: flex
+        display: flex;
     }
 
     body {
-        height: 100dvh;
+        height: calc(var(--vh, 1vh) * 100);
         overflow: hidden;
+        position: fixed;
+        width: 100%;
     }
 
-    .main, .room-container {
-        height: 100dvh;
-        max-height: 100dvh;
+    .main {
+        height: calc(var(--vh, 1vh) * 100);
+        max-height: calc(var(--vh, 1vh) * 100);
+    }
+
+    .room {
+        height: calc(var(--vh, 1vh) * 100);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .room-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+    }
+
+    .room-content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
+        padding-bottom: 1rem;
+    }
+
+    .room-control-container {
+        flex-shrink: 0;
+        display: flex;
+        padding: 0.5rem;
+        min-height: auto;
+        border-top-width: 1px;
+    }
+
+    .text-control {
+        width: 100%;
+        padding-bottom: 0;
+    }
+
+    .text-control textarea {
+        max-height: 8rem;
     }
 }
 
