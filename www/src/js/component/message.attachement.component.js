@@ -41,7 +41,7 @@ class AttachementMessageComponent extends HTMLElement {
     #picture(src, name) {
         return `<a class='media' href="${src}" target="_blank">
                   <img class='media' 
-                       src="${src}" 
+                       src="${src}/thumbnail" 
                        loading="lazy" 
                        alt="${name}"
                 </a>`
