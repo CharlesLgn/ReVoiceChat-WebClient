@@ -125,9 +125,10 @@ class MessageComponent extends HTMLElement {
                             color: #58a6ff;
                             font-weight: bold;
                         }
+                            
                         .emoji {
-                            width: 1.5rem;
-                            height: 1.5rem;
+                            width: 2rem;
+                            height: 2rem;
                         }
 
                         a.media {
