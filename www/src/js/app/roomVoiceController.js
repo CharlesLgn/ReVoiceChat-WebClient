@@ -4,19 +4,26 @@ export default class RoomVoiceController {
     #alert;
     #fetcher;
     #voiceURL;
+    #mediaUrl
     #token;
     #voiceCall;
     #activeRoom;
     #user;
     #room;
 
-    constructor(fetcher, voiceURL, token, user, alert, room) {
+    constructor(fetcher, voiceURL, token, user, alert, room, mediaUrl) {
         this.#fetcher = fetcher;
         this.#voiceURL = voiceURL;
         this.#token = token;
         this.#user = user;
         this.#alert = alert;
         this.#room = room;
+        this.#mediaUrl = mediaUrl;
+    }
+
+    attachEvents() {
+        document.getElementById("voice-self-mute").addEventListener('click', () => this.#controlSelfMute());
+        document.getElementById("voice-self-deaf").addEventListener('click', () => this.#controlSelfDeaf());
     }
 
     // <user> call this to join a call in a room
@@ -28,7 +35,7 @@ export default class RoomVoiceController {
         this.#activeRoom = roomId;
 
         try {
-            this.#voiceCall = new VoiceCall(this.#user.id, this.#user.settings.voice, this.#user.settings.getVoiceVolume());
+            this.#voiceCall = new VoiceCall(this.#user);
             await this.#voiceCall.open(this.#voiceURL, roomId, this.#token);
 
             // Update users in room
@@ -73,9 +80,9 @@ export default class RoomVoiceController {
         voiceContent.appendChild(this.#createUserElement(userData));
 
         // User joining this is NOT self and current user is connected to voice room
-        if (userData.id !== this.#user.id && this.#voiceCall !== null && this.#voiceCall.getState() === VoiceCall.OPEN) {
+        if (userData.id !== this.#user.id && this.#voiceCall && this.#voiceCall.getState() === VoiceCall.OPEN) {
             this.#voiceCall.addUser(userData.id);
-           this.#updateUserControls(userData.id);
+            this.#updateUserControls(userData.id);
             this.#alert.play('voiceUserJoin');
         }
     }
@@ -89,10 +96,13 @@ export default class RoomVoiceController {
         const userId = data.userId;
 
         // Remove user from UI
-        document.getElementById(`voice-${userId}`).remove();
+        const userElement = document.getElementById(`voice-${userId}`)
+        if (userElement) {
+            userElement.remove();
+        }
 
         // User leaving is NOT self
-        if (userId !== this.#user.id && this.#voiceCall !== null && this.#voiceCall.state === VoiceCall.OPEN) {
+        if (userId !== this.#user.id && this.#voiceCall && this.#voiceCall.getState() === VoiceCall.OPEN) {
             this.#voiceCall.removeUser(userId);
             this.#alert.play('voiceUserLeft');
         }
@@ -133,15 +143,15 @@ export default class RoomVoiceController {
         DIV.id = `voice-${userId}`;
         DIV.className = "voice-profile";
 
-        const profilePicture = `${RVC.mediaUrl}/profiles/${userId}`;
+        const profilePicture = `${this.#mediaUrl}/profiles/${userId}`;
 
         DIV.innerHTML = `
             <div class='block-user' id='voice-gate-${userId}'>
                 <div class='relative'>
-                    <img src='${profilePicture}' alt='PFP' class='icon' />
+                    <img src='${profilePicture}' alt='PFP' class='icon' name='user-picture-${userId}'/>
                 </div>
                 <div class='user'>
-                    <h2 class='name'>${userData.displayName}</h2>
+                    <h2 class='name' name='user-name-${userId}'>${userData.displayName}</h2>
                 </div>
             </div>
         `;
@@ -150,7 +160,7 @@ export default class RoomVoiceController {
     }
 
     // <voiceUpdateJoinedUsers> and <voiceUserJoining> call this to update control on given user
-   #updateUserControls(userId) {
+    #updateUserControls(userId) {
         const userDiv = document.getElementById(`voice-${userId}`);
 
         switch (this.#voiceCall.getState()) {
@@ -233,7 +243,7 @@ export default class RoomVoiceController {
     }
 
     // <user> call this to mute himself
-    controlSelfMute(updateState = true) {
+    #controlSelfMute(updateState = true) {
         if (updateState) {
             if (this.#voiceCall) {
                 this.#voiceCall.toggleSelfMute();
@@ -242,15 +252,17 @@ export default class RoomVoiceController {
         }
 
         const muteButton = document.getElementById("voice-self-mute");
-        if (this.#voiceCall.getSelfMute()) {
-            // Muted
-            console.debug("VOICE : Self mute");
-            muteButton.classList.add('active');
-        }
-        else {
-            // Unmuted
-            console.debug("VOICE : Self unmute");
-            muteButton.classList.remove('active');
+        if (this.#voiceCall) {
+            if (this.#voiceCall.getSelfMute()) {
+                // Muted
+                muteButton.classList.add('active');
+                this.#alert.play('microphoneMuted');
+            }
+            else {
+                // Unmuted
+                muteButton.classList.remove('active');
+                this.#alert.play('microphoneActivated');
+            }
         }
     }
 
@@ -260,8 +272,36 @@ export default class RoomVoiceController {
         }
     }
 
-    setOutputVolume(value){
-        if (this.#voiceCall){
+    #controlSelfDeaf(updateState = true) {
+        if (updateState) {
+            if (this.#voiceCall) {
+                this.#voiceCall.toggleSelfDeaf();
+            }
+            this.#saveSettings();
+        }
+
+        const button = document.getElementById("voice-self-deaf");
+        const muteButton = document.getElementById("voice-self-mute");
+        if (this.#voiceCall) {
+            if (this.#voiceCall.getSelfDeaf()) {
+                // Muted
+                button.classList.add('active');
+                this.#alert.play('soundMuted');
+                this.#voiceCall.setSelfMute(true);
+                muteButton.classList.add('active');
+            }
+            else {
+                // Unmuted
+                button.classList.remove('active');
+                this.#alert.play('soundActivated');
+                this.#voiceCall.setSelfMute(false);
+                muteButton.classList.remove('active');
+            }
+        }
+    }
+
+    setOutputVolume(value) {
+        if (this.#voiceCall) {
             this.#voiceCall.setOutputVolume(value);
         }
     }
@@ -271,7 +311,7 @@ export default class RoomVoiceController {
             this.#user.settings.voice = this.#voiceCall.getSettings();
         }
 
-        this.#user.saveSettings();
+        this.#user.settings.save();
     }
 
     updateGate() {
@@ -283,6 +323,8 @@ export default class RoomVoiceController {
     // Update user controls and UI
     updateSelf() {
         const voiceAction = document.getElementById("voice-join-action");
+        const muteButton = document.getElementById("voice-self-mute");
+        const deafButton = document.getElementById("voice-self-deaf");
         const instanceState = this.#voiceCall ? this.#voiceCall.getState() : VoiceCall.CLOSE;
 
         switch (instanceState) {
@@ -303,6 +345,8 @@ export default class RoomVoiceController {
                 voiceAction.title = "Join the room";
                 voiceAction.innerHTML = `<revoice-icon-phone></revoice-icon-phone>`;
                 voiceAction.onclick = () => this.join(this.#room.id);
+                muteButton.classList.add('hidden');
+                deafButton.classList.add('hidden');
                 break;
 
             case VoiceCall.OPEN:
@@ -312,6 +356,8 @@ export default class RoomVoiceController {
                 voiceAction.title = "Leave the room";
                 voiceAction.innerHTML = `<revoice-icon-phone-x></revoice-icon-phone-x>`;
                 voiceAction.onclick = () => this.leave();
+                muteButton.classList.remove('hidden');
+                deafButton.classList.remove('hidden');
                 break;
         }
     }
@@ -350,7 +396,7 @@ export default class RoomVoiceController {
 
             // Not self
             if (this.#user.id !== userId) {
-               this.#updateUserControls(userId);
+                this.#updateUserControls(userId);
             }
         }
     }

@@ -2,14 +2,14 @@ export default class RoomTextController {
     static MODE_SEND = 0;
     static MODE_EDIT = 1;
 
+    mode = 0;
+
     #alert;
     #user;
     #fetcher;
     #room;
-    mode = 0;
     #editId;
     #attachmentMaxSize = 0;
-    emojisGlobal;
 
     constructor(fetcher, alert, user, room) {
         this.#fetcher = fetcher;
@@ -17,6 +17,31 @@ export default class RoomTextController {
         this.#user = user;
         this.#room = room;
         this.#getAttachmentMaxSize();
+    }
+
+    attachEvents() {
+        const textInput = document.getElementById("text-input");
+        textInput.addEventListener('keydown', async (event) => await this.#eventHandler(event));
+        textInput.addEventListener('oninput', () => this.oninput(textInput));
+
+        document.getElementById("attachment-button-add").addEventListener('click', () => this.#addAttachment());
+        document.getElementById("attachment-button-remove").addEventListener('click', () => this.#removeAttachment());
+    }
+
+    async #eventHandler(event) {
+        if (event.key === 'Enter') {
+            if (event.shiftKey) {
+                return;
+            }
+            event.preventDefault();
+            await this.send();
+            return;
+        }
+
+        if (event.key === 'Escape') {
+            document.getElementById("text-input").value = "";
+            this.mode = RoomTextController.MODE_SEND;
+        }
     }
 
     async getAllFrom(roomId) {
@@ -43,7 +68,7 @@ export default class RoomTextController {
             this.#alert.play('messageNew');
         }
 
-        if (data.message.roomId !== RVC.room.id) {
+        if (data.message.roomId !== this.#room.id) {
             return;
         }
 
@@ -67,13 +92,13 @@ export default class RoomTextController {
         room.scrollTop = room.scrollHeight;
     }
 
-    joinAttachment() {
+    #addAttachment() {
         const fileInput = document.getElementById("text-attachment");
         fileInput.click();
         document.getElementById("text-attachment-div").classList.remove('hidden');
     }
 
-    removeAttachment() {
+    #removeAttachment() {
         const fileInput = document.getElementById("text-attachment");
         fileInput.value = "";
         document.getElementById("text-attachment-div").classList.add('hidden');
@@ -81,9 +106,11 @@ export default class RoomTextController {
 
     async send() {
         let result = null;
+
+        const attachments_input = document.getElementById("text-attachment");
         let textInput = sanitizeString(document.getElementById('text-input').value);
 
-        if (textInput == "" || textInput == null) {
+        if ((textInput == "" || textInput == null) && !attachments_input) {
             return;
         }
 
@@ -93,10 +120,9 @@ export default class RoomTextController {
         }
 
         // Attachments
-        const input = document.getElementById("text-attachment");
         const attachments = [];
-        if (input && this.mode === RoomTextController.MODE_SEND) {
-            for (const element of input.files) {
+        if (attachments_input && this.mode === RoomTextController.MODE_SEND) {
+            for (const element of attachments_input.files) {
                 if (element.size < this.#attachmentMaxSize) {
                     data.medias.push({ name: element.name });
                     attachments[element.name] = element;
@@ -147,7 +173,7 @@ export default class RoomTextController {
             }
 
             // Clean file input
-            this.removeAttachment();
+            this.#removeAttachment();
 
             // Clean text input
             const textarea = document.getElementById("text-input");

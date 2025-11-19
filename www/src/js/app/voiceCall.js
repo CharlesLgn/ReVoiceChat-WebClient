@@ -1,3 +1,5 @@
+import { PacketDecoder, PacketSender } from "./packet.js";
+
 export default class VoiceCall {
     "use strict";
 
@@ -21,6 +23,7 @@ export default class VoiceCall {
         },
         self: {
             muted: false,
+            deaf: false,
             volume: 1,
         },
         users: {}
@@ -57,16 +60,18 @@ export default class VoiceCall {
     #settings = {};
     #gateState = false;
     #outputGain;
+    #packetDecoder = new PacketDecoder();
+    #packetSender;
 
-    constructor(user, settings) {
+    constructor(user) {
         if (!user) {
             throw new Error('user is null or undefined');
         }
 
         this.#user = user;
 
-        if (settings) {
-            this.#settings = settings;
+        if (user.settings) {
+            this.#settings = user.settings.voice;
         }
         else {
             this.#settings = DEFAULT_SETTINGS;
@@ -89,18 +94,21 @@ export default class VoiceCall {
         this.#state = VoiceCall.CONNECTING;
 
         // Create WebSocket
-        this.#socket = new WebSocket(`${voiceUrl}/${roomId}?token=${token}`);
+        this.#socket = new WebSocket(`${voiceUrl}/${roomId}`, ["Bearer." + token]);
         this.#socket.binaryType = "arraybuffer";
+
+        // Setup PacketSender
+        this.#packetSender = new PacketSender(this.#socket);
 
         // Setup encoder and transmitter
         await this.#encodeAudio();
 
         // Setup receiver and decoder
-        this.#socket.onmessage = (message) => { this.#receivePacket(message, this.#packetDecode) };
+        this.#socket.onmessage = (message) => { this.#receivePacket(message, this.#packetDecoder.decode) };
 
         // Setup main output gain
         this.#outputGain = this.#audioContext.createGain();
-        this.#outputGain.setValueAtTime(this.#settings, this.#audioContext.currentTime);
+        this.#outputGain.gain.setValueAtTime(this.#user.settings.getVoiceVolume(), this.#audioContext.currentTime);
 
         // Socket states
         this.#socket.onclose = async () => { await this.close(); };
@@ -111,8 +119,9 @@ export default class VoiceCall {
 
     async close() {
         // Close WebSocket
-        if (this.#socket !== null || this.#socket.readyState != WebSocket.OPEN) {
-            this.#socket.close();
+        if (this.#socket && (this.#socket.readyState === WebSocket.OPEN || this.#socket.readyState === WebSocket.CONNECTING)) {
+            await this.#socket.close();
+            this.#socket = null;
         }
 
         // Flush and close all decoders
@@ -120,17 +129,20 @@ export default class VoiceCall {
             if (user?.decoder && user.decoder.state === 'configured') {
                 await user.decoder.flush();
                 await user.decoder.close();
+                user.decoder = null;
             }
         }
 
         // Close self encoder
         if (this.#encoder && this.#encoder.state !== "closed") {
             this.#encoder.close();
+            this.#encoder = null;
         }
 
         // Close audioContext
         if (this.#audioContext && this.#audioContext.state !== "closed") {
             this.#audioContext.close();
+            this.#audioContext = null;
         }
 
         this.#state = VoiceCall.CLOSE;
@@ -231,6 +243,18 @@ export default class VoiceCall {
         return this.#settings.self.muted;
     }
 
+    toggleSelfDeaf() {
+        this.#settings.self.deaf = !this.#settings.self.deaf;
+    }
+
+    setSelfDeaf(deaf) {
+        this.#settings.self.deaf = deaf;
+    }
+
+    getSelfDeaf() {
+        return this.#settings.self.deaf;
+    }
+
     setSelfVolume(volume) {
         this.#settings.self.volume = volume;
 
@@ -254,7 +278,7 @@ export default class VoiceCall {
 
     setOutputVolume(volume) {
         if (this.#outputGain) {
-            this.#outputGain.setValueAtTime(volume, this.#audioContext.currentTime);
+            this.#outputGain.gain.setValueAtTime(volume, this.#audioContext.currentTime);
         }
     }
 
@@ -270,39 +294,6 @@ export default class VoiceCall {
         }
     }
 
-    #packetEncode(header, data) {
-        const headerBytes = new TextEncoder().encode(header);
-
-        // Calculate length of packet
-        const packetLength = 2 + headerBytes.length + data.byteLength;
-
-        // Create packet of that length
-        const packet = new Uint8Array(packetLength);
-
-        // Fill packet
-        const view = new DataView(packet.buffer);
-        view.setUint16(0, headerBytes.length);
-        packet.set(headerBytes, 2);
-        packet.set(new Uint8Array(data), 2 + headerBytes.length);
-
-        return packet;
-    }
-
-    #packetDecode(packet) {
-        const data = packet.data;
-        const view = new DataView(data);
-
-        const headerEnd = 2 + view.getUint16(0);
-        const headerBytes = new Uint8Array(data.slice(2, headerEnd));
-        const headerJSON = new TextDecoder().decode(headerBytes);
-
-        const result = { header: null, data: null };
-        result.header = JSON.parse(headerJSON);
-        result.data = data.slice(headerEnd);
-
-        return result;
-    }
-
     async #encodeAudio() {
         const supported = await AudioEncoder.isConfigSupported(this.#codecSettings);
         if (!supported.supported) {
@@ -311,7 +302,17 @@ export default class VoiceCall {
 
         // Setup Encoder
         this.#encoder = new AudioEncoder({
-            output: (chunk) => { this.#sendPacket(chunk, this.#audioTimestamp, this.#socket, this.#packetEncode, this.#user, this.#gateState); },
+            output: (chunk) => {
+                this.#packetSender.send(
+                    {
+                        timestamp: Date.now(),
+                        audioTimestamp: this.#audioTimestamp / 1000, // audioTimestamp is in µs but sending ms is enough
+                        user: this.#user.id,
+                        gateState: this.#gateState,
+                    },
+                    chunk
+                );
+            },
             error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) },
         });
 
@@ -418,8 +419,8 @@ export default class VoiceCall {
 
         if (this.#users[header.user]) {
             const currentUser = this.#users[header.user];
-            // If user sending packet is muted, we stop
-            if (currentUser.muted) {
+            // If user sending packet is muted OR we are deaf, we stop
+            if (currentUser.muted || this.#settings.self.deaf) {
                 return;
             }
 
@@ -441,27 +442,6 @@ export default class VoiceCall {
             if (currentUser.decoder !== null && currentUser.decoder.state === "configured") {
                 currentUser.decoder.decode(audioChunk);
             }
-        }
-    }
-
-    #sendPacket(audioChunk, audioTimestamp, socket, packetEncode, user, gateState) {
-        // Get a copy of audioChunk and audioTimestamp
-        const audioChunkCopy = new ArrayBuffer(audioChunk.byteLength);
-        audioChunk.copyTo(audioChunkCopy);
-
-        // Create Header to send with audioChunk
-        const header = JSON.stringify({
-            timestamp: Date.now(),
-            audioTimestamp: audioTimestamp / 1000, // audioTimestamp is in µs but sending ms is enough
-            user: user,
-            gateState: gateState,
-        })
-
-        const packet = packetEncode(header, audioChunkCopy);
-
-        // Finally send it ! (but socket need to be open)
-        if (socket.readyState === WebSocket.OPEN) {
-            socket.send(packet);
         }
     }
 

@@ -1,18 +1,7 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Set theme
-    document.documentElement.setAttribute("data-theme", localStorage.getItem("Theme") || "dark");
-
-    // Autologin
-    autoLogin();
-
-    // Clear old session data
+document.addEventListener('DOMContentLoaded', async function () {
     sessionStorage.removeItem('lastState');
-
+    await autoLogin();
     autoHost();
-
-    // Get login from URL (testing)
-    document.getElementById('username').value = getQueryVariable('username') ? getQueryVariable('username') : "";
-    document.getElementById('password').value = getQueryVariable('password') ? getQueryVariable('password') : "";
 
     // Last login
     if (localStorage.getItem("lastUsername")) {
@@ -63,7 +52,7 @@ async function login(loginData, host) {
     const spinner = new SpinnerOnButton("login-button")
     try {
         spinner.run()
-        const response = await fetch(`${host}/api/auth/login`, {
+        const response = await apiFetch(`${host}/api/auth/login`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
             headers: {
@@ -88,6 +77,10 @@ async function login(loginData, host) {
         document.location.href = `app.html`;
     }
     catch (error) {
+        console.error(error.name);
+        console.error(error.message);
+        console.error(error.cause);
+        console.error(error.stack);
         spinner.error()
         Swal.fire({
             icon: "error",
@@ -166,7 +159,7 @@ function userRegister() {
 
 async function register(loginData, host) {
     try {
-        const response = await fetch(`${host}/api/auth/signup`, {
+        const response = await apiFetch(`${host}/api/auth/signup`, {
             cache: "no-store",
             signal: AbortSignal.timeout(5000),
             headers: {
@@ -207,7 +200,7 @@ async function autoLogin() {
     const storedCoreUrl = localStorage.getItem("lastHost");
     if (storedToken && storedCoreUrl) {
         try {
-            const response = await fetch(`${storedCoreUrl}/api/user/me`, {
+            const response = await apiFetch(`${storedCoreUrl}/api/user/me`, {
                 cache: "no-store",
                 signal: AbortSignal.timeout(5000),
                 headers: {

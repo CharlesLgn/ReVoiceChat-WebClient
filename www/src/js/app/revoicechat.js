@@ -6,6 +6,7 @@ import User from './user.js';
 import Room from './room.js';
 import Server from './server.js';
 import { reloadEmojis } from '../emoji.js';
+import { Sse } from "./sse.js";
 
 export default class ReVoiceChat {
     alert;
@@ -49,19 +50,40 @@ export default class ReVoiceChat {
         // Instantiate other classes
         this.fetcher = new Fetcher(this.#token, this.coreUrl, this.mediaUrl);
         this.user = new User(this.fetcher, this.mediaUrl, this.coreUrl);
-        this.room = new Room(this.fetcher, this.alert, this.user, this.voiceUrl, this.#token);
+        this.alert = new Alert(this.user.settings);
+        this.room = new Room(this.fetcher, this.alert, this.user, this.voiceUrl, this.#token, this.mediaUrl);
         this.server = new Server(this.fetcher, this.mediaUrl, this.room);
         this.state = new State(this);
-        this.alert = new Alert(this.user);
 
         // Add missing classes
         this.user.settings.setRoom(this.room);
 
+        this.#sse = new Sse(
+            this.#token,
+            this.coreUrl,
+            (data) => this.#handleSSEMessage(data),
+            () => this.#handleSSEError()
+        )
+        this.sseHandlers = new SSEHandlers(this);
+
         // Save state before page unload
         addEventListener("beforeunload", () => {
             this.state.save();
-            this.#closeSSE();
+            this.#sse.closeSSE();
         })
+
+        // Load more when document is fully loaded
+        document.addEventListener('DOMContentLoaded', () => this.#load());
+    }
+
+    #load() {
+        this.user.settings.load();
+        this.state.load();
+        this.#openSSE();
+        this.room.textController.attachEvents();
+        this.room.voiceController.attachEvents();
+        this.alert.attachEvents();
+        this.router.routeTo(getQueryVariable('r'));
     }
 
     // Token
@@ -69,75 +91,60 @@ export default class ReVoiceChat {
         return this.#token;
     }
 
-    // Server Send Event
-    openSSE() {
-        this.#closeSSE();
+    // Server Send Event avec JWT en header
+    #openSSE() {
+        this.#sse.openSSE()
+    }
 
-        this.#sse = new EventSource(`${this.coreUrl}/api/sse?jwt=${this.#token}`);
-
-        this.#sse.onmessage = (event) => {
-            event = JSON.parse(event.data);
-            const type = event.type;
-            const data = event.data;
-
+    #handleSSEMessage(data) {
+        try {
+            const event = JSON.parse(data);
             console.debug("SSE : ", event);
-
-            switch (type) {
-                case "PING":
-                    return;
-
-                case "SERVER_UPDATE":
-                    this.server.update(data);
-                    return;
-
-                case "ROOM_UPDATE":
-                    this.room.update(data, this.server.id);
-                    return;
-
-                case "ROOM_MESSAGE":
-                    this.room.textController.message(data);
-                    return;
-
-                case "DIRECT_MESSAGE":
-                    return;
-
-                case "USER_STATUS_CHANGE":
-                    return;
-
-                case "USER_UPDATE":
-                    this.user.update(data);
-                    return;
-
-                case "VOICE_JOINING":
-                    this.room.voiceController.userJoining(data);
-                    return;
-
-                case "VOICE_LEAVING":
-                    this.room.voiceController.userLeaving(data);
-                    return;
-                case "EMOTE_UPDATE":
-                    reloadEmojis()
-                    return;
-                default:
-                    console.error("SSE type unknowned: ", type);
-                    return;
-            }
-        };
-
-        this.#sse.onerror = () => {
-            console.error(`An error occurred while attempting to connect to "${this.coreUrl}/api/sse".\nRetry in 10 seconds`);
-            setTimeout(() => {
-                this.openSSE();
-                this.room.textController.getAllFrom(this.room.id);
-            }, 10000);
+            this.sseHandlers.handle(event.type, event.data);
+        } catch (error) {
+            console.error('Error parsing SSE message:', error, data);
         }
     }
 
-    #closeSSE() {
-        if (this.#sse) {
-            this.#sse.close();
-            this.#sse = null;
-        }
+    #handleSSEError() {
+        console.error(`An error occurred while attempting to connect to "${this.coreUrl}/api/sse".\nRetry in 10 seconds`);
+        setTimeout(() => {
+            this.openSSE();
+            this.room.textController.getAllFrom(this.room.id);
+        }, 10000);
     }
-
 }
+
+class SSEHandlers {
+    constructor(context) {
+        this.context = context;
+        this.server = context.server;
+        this.room = context.room;
+        this.user = context.user;
+
+        this.handlers = {
+            'PING': () => { },
+            'SERVER_UPDATE': (data) => this.server.update(data),
+            'ROOM_UPDATE': (data) => this.room.update(data, this.server.id),
+            'ROOM_MESSAGE': (data) => this.room.textController.message(data),
+            'DIRECT_MESSAGE': () => { },
+            'USER_STATUS_UPDATE': (data) => this.user.setStatus(data),
+            'USER_UPDATE': (data) => this.user.update(data),
+            'VOICE_JOINING': (data) => this.room.voiceController.userJoining(data),
+            'VOICE_LEAVING': (data) => this.room.voiceController.userLeaving(data),
+            'EMOTE_UPDATE': () => reloadEmojis(),
+            'RISK_MANAGEMENT': () => this.server.settings.riskModify(),
+        };
+    }
+
+    handle(type, data) {
+        const handler = this.handlers[type];
+        if (handler) {
+            handler(data);
+        } else {
+            console.error("SSE type unknown: ", type);
+        }
+    }
+}
+
+window.RVC = new ReVoiceChat();

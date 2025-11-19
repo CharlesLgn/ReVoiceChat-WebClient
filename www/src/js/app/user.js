@@ -31,18 +31,51 @@ export default class User {
 
     update(data) {
         const id = data.id;
-        for (const icon of document.querySelectorAll(`.${id} img.icon`)) {
-            icon.src = `${this.#mediaURL}/profiles/${id}?t=${Date.now()}`;
+        const name = data.displayName;
+        const picture = `${this.#mediaURL}/profiles/${id}?t=${Date.now()}`;
+
+        // Static elements for self
+        if(this.id === id){
+            // Main page
+            document.getElementById('user-name').innerText = name;
+            document.getElementById('user-picture').src = picture;
+            // User settings
+            document.getElementById('overview-displayname').value = name;
+            document.getElementById('setting-user-picture').src = picture;
         }
-        for (const name of document.querySelectorAll(`.${id} .name`)) {
+         
+        // Dynamic elements
+        for (const icon of document.getElementsByName(`user-picture-${id}`)) {
+            icon.src = picture;
+        }
+        for (const name of document.getElementsByName(`user-name-${id}`)) {
             name.innerText = data.displayName;
         }
     }
 
+    setStatus(data){
+        const id = data.id;
+        const status = data.status;
+
+        const className = `user-dot ${statusToDotClassName(status)}`;
+
+        // Static elements for self
+        if(this.id === id){
+            document.getElementById('user-dot').className = className;
+        }
+
+        // Dynamic elements
+        for(const dot of document.getElementsByName(`user-dot-${id}`)){
+            dot.className = className;
+        }
+    }
+
     logout(){
-        sessionStorage.removeItem('lastState');
-        localStorage.removeItem('userSettings');
-        eraseCookie('jwtToken');
-        document.location.href = `index.html`;
+        this.#fetcher.fetchCore(`/auth/logout`, 'GET').then(() => {
+            sessionStorage.removeItem('lastState');
+            localStorage.removeItem('userSettings');
+            eraseCookie('jwtToken');
+            document.location.href = `index.html`;
+        });
     }
 }

@@ -12,28 +12,91 @@ export default class ServerSettingsController {
     #roomsData = [];
     #roomsNotRendered = [];
     #draggedElement = null;
+    #flattenRisks = [];
 
     constructor(server, fetcher, mediaUrl) {
         this.#server = server;
         this.#fetcher = fetcher;
         this.#mediaUrl = mediaUrl;
 
-        // Load
+        this.#loadRisks();
         this.#overviewLoad();
-        this.#roomLoad();
-        this.#structureLoad();
-        this.#rolesLoad();
-        this.#emotesLoad();
-        this.#invitationLoad();
         this.#memberLoad();
+    }
 
-        // Events
-        this.#selectEventHandler();
-        this.#overviewEventHandler();
-        this.#roomEventHandler();
-        this.#invitationEventHandler();
+    riskModify() {
+        this.#loadRisks(false);
+    }
 
-        this.#select('overview');
+    async #loadRisks(select = true) {
+        const me = await this.#fetcher.fetchCore(`/user/me`);
+        const isAdmin = me.type === "ADMIN";
+        const flattenRisks = await this.#fetcher.fetchCore(`/user/server/${this.#server.id}/risks`);
+
+        this.#flattenRisks = flattenRisks;
+        this.#selectEventHandler(flattenRisks, isAdmin);
+        this.#attachEventsFromRisks(flattenRisks, isAdmin);
+
+        if (select) {
+            this.#select('overview');
+        }
+    }
+
+    async #attachEventsFromRisks(flattenRisks, isAdmin) {
+        const overviewRisks = ['SERVER_UPDATE'];
+        const roomRisks = ['SERVER_ROOM_UPDATE', 'SERVER_ROOM_DELETE'];
+        const rolesRisks = ['ADD_ROLE', 'UPDATE_ROLE', 'ADD_USER_ROLE'];
+        const emoteRisks = ['ADD_EMOTE', 'UPDATE_EMOTE', 'REMOVE_EMOTE'];
+        const invitationRisks = ['SERVER_INVITATION_ADD', 'SERVER_INVITATION_FETCH'];
+
+        if (isAdmin || flattenRisks.some(elem => overviewRisks.includes(elem))) {
+            this.#overviewEventHandler();
+        }
+        else {
+            this.#overviewEventHandler(true);
+        }
+
+        if (isAdmin || flattenRisks.some(elem => roomRisks.includes(elem))) {
+            this.#structureLoad();
+            this.#roomLoad();
+            this.#roomEventHandler();
+        }
+        else {
+            this.#roomEventHandler(true);
+            if (this.#currentTab === "rooms") {
+                this.#select('overview');
+            }
+        }
+
+        if (isAdmin || flattenRisks.some(elem => rolesRisks.includes(elem))) {
+            this.#rolesLoad();
+        }
+        else {
+            this.#rolesLoad(true);
+            if (this.#currentTab === "roles") {
+                this.#select('overview');
+            }
+        }
+
+        if (isAdmin || flattenRisks.some(elem => emoteRisks.includes(elem))) {
+            this.#emotesLoad();
+        }
+        else {
+            if (this.#currentTab === "emotes") {
+                this.#select('overview');
+            }
+        }
+
+        if (isAdmin || flattenRisks.some(elem => invitationRisks.includes(elem))) {
+            this.#invitationLoad();
+            this.#invitationEventHandler();
+        }
+        else {
+            this.#invitationEventHandler(true);
+            if (this.#currentTab === "invitations") {
+                this.#select('overview');
+            }
+        }
     }
 
     #select(name) {
@@ -47,21 +110,57 @@ export default class ServerSettingsController {
         document.getElementById(`server-setting-content-${this.#currentTab}`).classList.remove('hidden');
     }
 
-    #selectEventHandler() {
-        const parameters = ['overview', 'rooms', 'roles', 'emotes', 'members', 'invitations'];
+    #selectEventHandler(flattenRisks, isAdmin) {
+        const parameters = [
+            { button: 'overview', risks: null },
+            { button: 'rooms', risks: ['SERVER_ROOM_UPDATE', 'SERVER_ROOM_DELETE'] },
+            { button: 'roles', risks: ['UPDATE_ROLE', 'ADD_USER_ROLE', 'ADD_ROLE'] },
+            { button: 'emotes', risks: ['UPDATE_EMOTE', 'REMOVE_EMOTE', 'ADD_EMOTE'] },
+            { button: 'members', risks: null },
+            { button: 'invitations', risks: ['SERVER_INVITATION_ADD', 'SERVER_INVITATION_FETCH'] }
+        ]
+
         for (const param of parameters) {
-            document.getElementById(`server-setting-tab-${param}`).addEventListener('click', () => this.#select(param));
+            const button = document.getElementById(`server-setting-tab-${param.button}`);
+
+            if (isAdmin || param.risks) {
+                if (isAdmin || flattenRisks.some(elem => param.risks.includes(elem))) {
+                    button.classList.remove('hidden');
+                    button.addEventListener('click', () => this.#select(param.button));
+                }
+                else {
+                    button.classList.add('hidden');
+                    button.removeEventListener('click', null);
+                }
+            } else {
+                button.classList.remove('hidden');
+                button.addEventListener('click', () => this.#select(param.button));
+            }
         }
     }
 
     // OVERVIEW
     #overviewLoad() {
         document.getElementById('server-setting-overview-uuid').innerText = this.#server.id;
-        document.getElementById('server-setting-overview-name').value = this.#server.name;
+        document.getElementById('server-setting-overview-name').innerText = this.#server.name;
+        document.getElementById('server-setting-overview-name-input').value = this.#server.name;
     }
 
-    #overviewEventHandler() {
-        document.getElementById(`server-setting-overview-save`).addEventListener('click', () => this.#overviewSave());
+    #overviewEventHandler(remove) {
+        if (remove) {
+            document.getElementById('server-setting-overview-name').classList.remove('hidden');
+            document.getElementById('server-setting-overview-name-input').classList.add('hidden');
+            const button = document.getElementById(`server-setting-overview-save`);
+            button.classList.add('hidden');
+            button.removeEventListener('click', null);
+        }
+        else {
+            document.getElementById('server-setting-overview-name').classList.add('hidden');
+            document.getElementById('server-setting-overview-name-input').classList.remove('hidden');
+            const button = document.getElementById(`server-setting-overview-save`);
+            button.classList.remove('hidden');
+            button.addEventListener('click', () => this.#overviewSave());
+        }
     }
 
     async #overviewSave() {
@@ -72,7 +171,7 @@ export default class ServerSettingsController {
     }
 
     async #nameUpdate() {
-        const serverName = document.getElementById("server-setting-overview-name").value;
+        const serverName = document.getElementById("server-setting-overview-name-input").value;
 
         if (!serverName) {
             spinner.error();
@@ -96,14 +195,21 @@ export default class ServerSettingsController {
     }
 
     // ROOMS AND STRUCTURE
-    #roomEventHandler() {
-        document.getElementById(`server-setting-structure-save`).addEventListener('click', () => this.#structureSave());
-        document.getElementById(`server-setting-room-add`).addEventListener('click', () => this.#roomAdd());
-        document.getElementById(`server-setting-category-add`).addEventListener('click', () => this.#categoryAdd());
+    #roomEventHandler(remove) {
+        if (remove) {
+            document.getElementById(`server-setting-structure-save`).removeEventListener('click', null);
+            document.getElementById(`server-setting-room-add`).removeEventListener('click', null);
+            document.getElementById(`server-setting-category-add`).removeEventListener('click', null);
+        }
+        else {
+            document.getElementById(`server-setting-structure-save`).addEventListener('click', () => this.#structureSave());
+            document.getElementById(`server-setting-room-add`).addEventListener('click', () => this.#roomAdd());
+            document.getElementById(`server-setting-category-add`).addEventListener('click', () => this.#categoryAdd());
+        }
     }
 
     async #roomLoad() {
-        const roomResult = await RVC.fetcher.fetchCore(`/server/${RVC.server.id}/room`, 'GET');
+        const roomResult = await this.#fetcher.fetchCore(`/server/${this.#server.id}/room`, 'GET');
         if (roomResult) {
             this.#roomsData = {};
             for (const room of roomResult) {
@@ -114,7 +220,7 @@ export default class ServerSettingsController {
     }
 
     async #structureLoad() {
-        const struct = await RVC.fetcher.fetchCore(`/server/${RVC.server.id}/structure`, 'GET');
+        const struct = await this.#fetcher.fetchCore(`/server/${this.#server.id}/structure`, 'GET');
         if (struct) {
             this.#structureData = struct;
             this.#render();
@@ -400,6 +506,9 @@ export default class ServerSettingsController {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'server-structure-item-header';
 
+        const updateHidden = this.#flattenRisks.includes('SERVER_ROOM_UPDATE') ? "" : "hidden";
+        const deleteHidden = this.#flattenRisks.includes('SERVER_ROOM_DELETE') ? "" : "hidden";
+
         switch (item.type) {
             case 'ROOM': {
                 // Remove room being rendered from list of not render
@@ -420,8 +529,8 @@ export default class ServerSettingsController {
                     <span class="server-structure-item-id">${room.id}</span>
                 </div>
                 <div class="server-structure-item-actions">
-                    <button class="server-structure-btn btn-edit" data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
-                    <button class="server-structure-btn btn-delete" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
+                    <button class="server-structure-btn btn-edit ${updateHidden}" data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
+                    <button class="server-structure-btn btn-delete ${deleteHidden}" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
                 </div>`;
                 break;
             }
@@ -554,6 +663,12 @@ export default class ServerSettingsController {
     // EMOTES
     async #emotesLoad() {
         const response = await this.#fetcher.fetchCore(`/emote/server/${this.#server.id}`);
+
+        const old_manager = document.getElementById("server-setting-emotes-form");
+        if (old_manager) {
+            document.getElementById('server-setting-content-emotes').removeChild(old_manager);
+        }
+
         const emoji_manager = document.createElement('revoice-emoji-manager');
         emoji_manager.setAttribute('path', `server/${this.#server.id}`);
         emoji_manager.id = "server-setting-emotes-form";
@@ -600,8 +715,13 @@ export default class ServerSettingsController {
     }
 
     // INVITATION
-    #invitationEventHandler() {
-        document.getElementById('server-setting-invitation-create').addEventListener('click', () => this.#invitationCreate());
+    #invitationEventHandler(remove) {
+        if (remove) {
+            document.getElementById('server-setting-invitation-create').removeEventListener('click', null);
+        }
+        else {
+            document.getElementById('server-setting-invitation-create').addEventListener('click', () => this.#invitationCreate());
+        }
     }
 
     async #invitationLoad() {
@@ -651,8 +771,8 @@ export default class ServerSettingsController {
         // Context menu
         const DIV_CM = document.createElement('div');
         DIV_CM.className = "context-menu";
-        DIV_CM.appendChild(createContextMenuButton("icon", "<revoice-icon-clipboard></revoice-icon-clipboard>", () => this.#invitationCopy(data.id)));
-        DIV_CM.appendChild(createContextMenuButton("icon", "<revoice-icon-trash></revoice-icon-trash>", () => this.#invitationDelete(data)));
+        DIV_CM.appendChild(this.#createContextMenuButton("icon", "<revoice-icon-clipboard></revoice-icon-clipboard>", () => this.#invitationCopy(data.id)));
+        DIV_CM.appendChild(this.#createContextMenuButton("icon", "<revoice-icon-trash></revoice-icon-trash>", () => this.#invitationDelete(data)));
         DIV.appendChild(DIV_CM);
 
         return DIV;
@@ -683,5 +803,14 @@ export default class ServerSettingsController {
     #invitationCopy(link) {
         const url = document.location.href.slice(0, -11) + `index.html?register=&invitation=${link}&host=${this.#coreUrl}`;
         copyToClipboard(url);
+    }
+
+    #createContextMenuButton(className, innerHTML, onclick, title = "") {
+        const DIV = document.createElement('div');
+        DIV.className = className;
+        DIV.innerHTML = innerHTML;
+        DIV.onclick = onclick;
+        DIV.title = title;
+        return DIV;
     }
 }
