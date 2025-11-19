@@ -104,7 +104,7 @@ export default class VoiceCall {
         await this.#encodeAudio();
 
         // Setup receiver and decoder
-        this.#socket.onmessage = (message) => { this.#receivePacket(message, this.#packetDecoder.decode) };
+        this.#socket.onmessage = (message) => { this.#receivePacket(message.data, this.#packetDecoder.decode) };
 
         // Setup main output gain
         this.#outputGain = this.#audioContext.createGain();

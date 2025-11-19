@@ -14,20 +14,25 @@ export class PacketEncoder {
         packet.set(headerBytes, 2);
         packet.set(new Uint8Array(data), 2 + headerBytes.length);
 
+        // Debug
+        //console.debug(`Packet encode, size : ${packet.byteLength}`);
+
         return packet;
     }
 }
 
 export class PacketDecoder {
     decode(packet) {
-        const data = packet.data;
-        const view = new DataView(data);
+        // Debug
+        //console.debug(`Packet encode, size : ${packet.byteLength}`);
+
+        const view = new DataView(packet);
 
         const headerEnd = 2 + view.getUint16(0);
-        const headerBytes = new Uint8Array(data.slice(2, headerEnd));
+        const headerBytes = new Uint8Array(packet.slice(2, headerEnd));
         const headerJSON = new TextDecoder().decode(headerBytes);
 
-        return { header: JSON.parse(headerJSON), data: data.slice(headerEnd) };
+        return { header: JSON.parse(headerJSON), data: packet.slice(headerEnd) };
     }
 }
 
