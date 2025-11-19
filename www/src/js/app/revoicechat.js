@@ -79,7 +79,7 @@ export default class ReVoiceChat {
     #load() {
         this.user.settings.load();
         this.state.load();
-        this.#openSSE();
+        this.#sse.openSSE()
         this.room.textController.attachEvents();
         this.room.voiceController.attachEvents();
         this.alert.attachEvents();
@@ -89,11 +89,6 @@ export default class ReVoiceChat {
     // Token
     getToken() {
         return this.#token;
-    }
-
-    // Server Send Event avec JWT en header
-    #openSSE() {
-        this.#sse.openSSE()
     }
 
     #handleSSEMessage(data) {
@@ -109,7 +104,7 @@ export default class ReVoiceChat {
     #handleSSEError() {
         console.error(`An error occurred while attempting to connect to "${this.coreUrl}/api/sse".\nRetry in 10 seconds`);
         setTimeout(() => {
-            this.openSSE();
+            this.#sse.openSSE();
             this.room.textController.getAllFrom(this.room.id);
         }, 10000);
     }
