@@ -146,7 +146,7 @@ export default class VoiceController {
         const profilePicture = `${this.#mediaUrl}/profiles/${userId}`;
 
         DIV.innerHTML = `
-            <div class='block-user' id='voice-gate-${userId}'>
+            <div class='block-user gate' id='voice-gate-${userId}'>
                 <div class='relative'>
                     <img src='${profilePicture}' alt='PFP' class='icon' name='user-picture-${userId}'/>
                 </div>

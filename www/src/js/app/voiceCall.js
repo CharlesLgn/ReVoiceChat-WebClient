@@ -305,7 +305,7 @@ export default class VoiceCall {
 
         /**
          * Audio routing 
-         * microphone -> gainNode -> gateNode -> compressorNode (optional) -> buffer -> encoder -> send
+         * microphone -> gainNode -> gateNode -> compressorNode (optional) -> collector -> buffer -> encoder -> send
          */
 
         // Init Mic capture
@@ -419,10 +419,10 @@ export default class VoiceCall {
 
             // User gate open/close
             if (header.gateState) {
-                currentUser.gateHtml.classList.add('gate-active');
+                currentUser.gateHtml.classList.add('active');
             }
             else {
-                currentUser.gateHtml.classList.remove('gate-active');
+                currentUser.gateHtml.classList.remove('active');
             }
 
             // Decode and read audio

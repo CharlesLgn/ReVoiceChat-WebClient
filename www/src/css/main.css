@@ -689,13 +689,22 @@ svg {
     height: 2rem;
 }
 
-.voice-profile .gate-active .icon {
+.voice-profile .gate .icon {
+    border-color: var(--pri-bd-color);
+    border-width: 3px;
+}
+
+.voice-profile .user .name {
+    color: var(--pri-placeholder-color);
+}
+
+.voice-profile .gate.active .icon {
     border-color: rgb(37, 211, 102);
     border-width: 3px;
 }
 
-.voice-profile .gate-active .user .name {
-    font-weight: 600;
+.voice-profile .gate.active .user .name {
+    color: var(--pri-text-color);
 }
 
 .block-action .volume {
@@ -1411,6 +1420,7 @@ input[type=file]::file-selector-button {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+
     .sidebar,
     .sidebar-right {
         position: fixed;
