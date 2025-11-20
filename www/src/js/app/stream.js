@@ -9,6 +9,7 @@ export default class Stream {
     #socket;
     #user;
     #encoder;
+    #encoderMetadata;
     #decoder;
     #packetDecoder = new PacketDecoder();
     #packetSender;
@@ -81,12 +82,14 @@ export default class Stream {
 
         // Setup Encoder
         this.#encoder = new VideoEncoder({
-            output: (frame) => {
-                console.debug('New frame send : ' + Date.now());
+            output: (frame, metadata) => {
+                if (!this.#encoderMetadata) {
+                    this.#encoderMetadata = metadata;
+                }
                 this.#packetSender.send(
                     {
-                        timestamp: Date.now(),
-                        codec: this.#codecSettings,
+                        timestamp: performance.now(),
+                        encoderMetadata: this.#encoderMetadata,
                     },
                     frame
                 );
@@ -113,54 +116,57 @@ export default class Stream {
 
         await video.play();
 
-        async function frameFromVideoElement(vid) {
-            // Preferred: directly construct VideoFrame from video (if supported)
-            try {
-                return new VideoFrame(vid, { timestamp: performance.now() * 1000 }); // timestamp in microseconds is allowed but not required
-            } catch (e) {
-                // Not supported: fallback to canvas -> ImageBitmap -> VideoFrame
-            }
+        if (window.MediaStreamTrackProcessor) {
+            // Faster but not available everywhere
+            const track = video.srcObject.getVideoTracks()[0];
+            const processor = new MediaStreamTrackProcessor({ track });
+            const reader = processor.readable.getReader();
 
-            // Use OffscreenCanvas if available (works better in worker)
-            const canvas = ('OffscreenCanvas' in window) ? new OffscreenCanvas(width, height) : document.createElement('canvas');
-            canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(vid, 0, 0, width, height);
-            // create ImageBitmap (fast) then VideoFrame
-            const bitmap = await createImageBitmap(canvas);
-            const vf = new VideoFrame(bitmap, { timestamp: performance.now() * 1000 });
-            bitmap.close();
-            return vf;
-        }
+            async function encodeLoop(encoder) {
+                while (true) {
+                    const result = await reader.read();
+                    if (result.done) break;
 
-        // Grab frame
-        setInterval(async () => {
-            console.debug("New frame encoded")
-            const vf = await frameFromVideoElement(video);
-            this.#encoder.encode(vf);
-            vf.close();
-        }, 1000 / this.#codecSettings.framerate)
-
-        /*
-        const track = video.srcObject.getVideoTracks()[0];
-        const processor = new MediaStreamTrackProcessor({ track });
-        const reader = processor.readable.getReader();
-
-        async function encodeLoop(encoder) {
-            while (true) {
-                const result = await reader.read();
-                if (result.done) break;
-
-                const frame = result.value;
-                try {
-                    encoder.encode(frame, { keyFrame: true });
-                } finally {
-                    frame.close(); // free memory
+                    const frame = result.value;
+                    try {
+                        encoder.encode(frame, { keyFrame: true });
+                    } finally {
+                        frame.close(); // free memory
+                    }
                 }
             }
-        }
 
-        encodeLoop(this.#encoder);*/
+            encodeLoop(this.#encoder);
+        }
+        else {
+            // Fallback
+            async function frameFromVideoElement(vid) {
+                // Preferred: directly construct VideoFrame from video (if supported)
+                try {
+                    return new VideoFrame(vid, { timestamp: performance.now() * 1000 }); // timestamp in microseconds is allowed but not required
+                } catch (e) {
+                    // Not supported: fallback to canvas -> ImageBitmap -> VideoFrame
+                }
+
+                // Use OffscreenCanvas if available (works better in worker)
+                const canvas = ('OffscreenCanvas' in window) ? new OffscreenCanvas(width, height) : document.createElement('canvas');
+                canvas.width = width; canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(vid, 0, 0, width, height);
+                // create ImageBitmap (fast) then VideoFrame
+                const bitmap = await createImageBitmap(canvas);
+                const vf = new VideoFrame(bitmap, { timestamp: performance.now() * 1000 });
+                bitmap.close();
+                return vf;
+            }
+
+            // Grab frame
+            setInterval(async () => {
+                const vf = await frameFromVideoElement(video);
+                this.#encoder.encode(vf, { keyFrame: true });
+                vf.close();
+            }, 1000 / this.#codecSettings.framerate)
+        }
 
         // Socket states
         this.#socket.onclose = async () => { };
@@ -179,18 +185,16 @@ export default class Stream {
 
             if (isSupported.supported) {
                 // Create WebSocket
-                this.#socket = new WebSocket(`${this.#streamUrl}/${this.#user.id}/${streamName}`, ["Bearer." + this.#token]);
+                this.#socket = new WebSocket(`${this.#streamUrl}/${userId}/${streamName}`, ["Bearer." + this.#token]);
                 this.#socket.binaryType = "arraybuffer";
-                this.#socket.onmessage = (message) => { console.debug('New frame received : ' + Date.now()); this.#receivePacket(message, this.#packetDecoder.decode) };
-
-                const video = document.createElement('video');
-
-                const videoRemote = document.getElementById('videoRemote');
-                videoRemote.innerText = `Remote : ${streamName} (${this.#user.id})`;
-                videoRemote.appendChild(video);
+                this.#socket.onmessage = (message) => { console.debug('New frame received : ' + Date.now()); this.#receivePacket(message.data, this.#packetDecoder.decode) };
 
                 const canvas = document.createElement("canvas");
                 const ctx = canvas.getContext("2d");
+                const videoRemote = document.getElementById('videoRemote');
+
+                videoRemote.innerText = `Remote : ${streamName} (${userId})`;
+                videoRemote.appendChild(canvas);
 
                 this.#decoder = new VideoDecoder({
                     output: (frame) => {
@@ -198,13 +202,12 @@ export default class Stream {
                         canvas.width = frame.codedWidth;
                         canvas.height = frame.codedHeight;
                         ctx.drawImage(frame, 0, 0);
-                        video.src = canvas.toDataURL();
+                        canvas.src = canvas.toDataURL();
                         frame.close();
                     },
                     error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) }
                 });
 
-                this.#decoder.configure(this.#codecSettings);
                 return true;
             }
             return false;
@@ -220,12 +223,16 @@ export default class Stream {
         const header = result.header;
         const data = result.data;
 
-
         const chunk = new EncodedVideoChunk({
             type: "key",
             timestamp: header.timestamp,
             data: new Uint8Array(data)
         });
+
+        if (this.#decoder.state === "unconfigured") {
+            console.log(header.encoderMetadata);
+            this.#decoder.configure(header.encoderMetadata.decoderConfig);
+        }
 
         this.#decoder.decode(chunk);
     }
