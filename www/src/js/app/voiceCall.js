@@ -124,13 +124,21 @@ export default class VoiceCall {
             this.#socket = null;
         }
 
-        // Flush and close all decoders
+        // For all users
         for (const [, user] of Object.entries(this.#users)) {
+            // Flush and close all decoders
             if (user?.decoder && user.decoder.state === 'configured') {
-                await user.decoder.flush();
-                await user.decoder.close();
-                user.decoder = null;
+                try {
+                    await user.decoder.flush();
+                    await user.decoder.close();
+                    user.decoder = null;
+                }
+                catch (error) {
+                    console.error(error);
+                }
             }
+            // Remove gate active
+            document.getElementById(user.gateHtmlId).classList.remove('active');
         }
 
         // Close self encoder
@@ -418,11 +426,14 @@ export default class VoiceCall {
             }
 
             // User gate open/close
-            if (header.gateState) {
-                currentUser.gateHtml.classList.add('active');
-            }
-            else {
-                currentUser.gateHtml.classList.remove('active');
+            const userGateHtml = document.getElementById(currentUser.gateHtmlId);
+            if (userGateHtml) {
+                if (header.gateState) {
+                    userGateHtml.classList.add('active');
+                }
+                else {
+                    userGateHtml.classList.remove('active');
+                }
             }
 
             // Decode and read audio
@@ -445,7 +456,7 @@ export default class VoiceCall {
         if (isSupported.supported) {
             this.#users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null, source: null, gateHtml: null };
 
-            this.#users[userId].gateHtml = document.getElementById(`voice-gate-${userId}`);
+            this.#users[userId].gateHtmlId = `voice-gate-${userId}`;
 
             if (!this.#settings.users[userId]) {
                 this.#settings.users[userId] = { muted: false, volume: 1 };

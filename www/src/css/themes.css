@@ -237,6 +237,11 @@ body {
     color: var(--pri-placeholder-color);
 }
 
+.voice-control-panel {
+    border-color: var(--pri-bd-color);
+    background-color: var(--ter-bg-color);
+}
+
 .voice-control .disconnected {
     background-color: #22c55e;
 }

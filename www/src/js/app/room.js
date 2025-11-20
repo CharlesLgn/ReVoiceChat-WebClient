@@ -141,6 +141,11 @@ export default class Room {
         document.getElementById("room-icon").innerHTML = `<revoice-icon-chat-bubble></revoice-icon-chat-bubble>`;
 
         document.getElementById("voice-container").classList.add('hidden');
+
+        if(!this.voiceController.isCallActive()){
+            document.getElementById("voice-control-panel").classList.add('hidden');
+        }
+        
         document.getElementById("text-container").classList.remove('hidden');
 
         document.getElementById("text-input").placeholder = `Send a message in ${this.name}`;
@@ -158,6 +163,7 @@ export default class Room {
 
         document.getElementById("text-container").classList.add('hidden');
         document.getElementById("voice-container").classList.remove('hidden');
+        document.getElementById("voice-control-panel").classList.remove('hidden');
 
         this.voiceController.updateSelf();
         this.voiceController.showJoinedUsers(this.id);

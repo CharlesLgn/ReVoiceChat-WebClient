@@ -400,4 +400,12 @@ export default class VoiceController {
             }
         }
     }
+
+    isCallActive(){
+        if (this.#activeRoom) {
+            return true;
+        }
+
+        return false;
+    }
 }
