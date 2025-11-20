@@ -158,26 +158,7 @@ export default class VoiceCall {
 
     async addUser(userId) {
         if (userId && this.#users[userId] === undefined && this.#socket !== null && this.#socket.readyState === WebSocket.OPEN) {
-            const isSupported = await AudioDecoder.isConfigSupported(this.#codecSettings);
-            if (isSupported.supported) {
-                this.#users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null, source: null, gateHtml: null };
-
-                this.#users[userId].gateHtml = document.getElementById(`voice-gate-${userId}`);
-
-                if (!this.#settings.users[userId]) {
-                    this.#settings.users[userId] = { muted: false, volume: 1 };
-                }
-
-                this.#users[userId].decoder = new AudioDecoder({
-                    output: (chunk) => { this.#playbackAudio(chunk, this.#audioContext, this.#users, userId) },
-                    error: (error) => { throw new Error(`Decoder setup failed:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) },
-                });
-
-                this.#users[userId].decoder.configure(this.#codecSettings)
-                this.#users[userId].playhead = 0;
-                this.#users[userId].gainNode = this.#audioContext.createGain();
-            }
-
+            await this.#createUserDecoder(userId);
             return true;
         }
         return false;
@@ -349,7 +330,11 @@ export default class VoiceCall {
         this.#gainNode.connect(this.#gateNode);
 
         // Create AudioCollector
-        this.#audioCollector = new AudioWorkletNode(this.#audioContext, "AudioCollector");
+        this.#audioCollector = new AudioWorkletNode(this.#audioContext, "AudioCollector", {
+            channelCount: 1,
+            channelCountMode: "explicit",
+            channelInterpretation: "speakers"
+        });
 
         // Create compressor if enabled
         if (this.#settings.compressor.enabled) {
@@ -378,6 +363,10 @@ export default class VoiceCall {
 
             const samples = event.data;
 
+            if (!samples || samples.some(v => isNaN(v))) {
+                console.warn("Invalid samples", samples);
+            }
+
             // Push samples to buffer
             this.#buffer.push(...samples);
 
@@ -402,6 +391,9 @@ export default class VoiceCall {
                 // Feed encoder
                 if (this.#encoder !== null && this.#encoder.state === "configured") {
                     this.#encoder.encode(audioData);
+                }
+                else {
+                    console.error("Self has no encoder");
                 }
 
                 audioData.close();
@@ -441,7 +433,31 @@ export default class VoiceCall {
 
             if (currentUser.decoder !== null && currentUser.decoder.state === "configured") {
                 currentUser.decoder.decode(audioChunk);
+            } else {
+                console.error(`User '${header.user}' has no decoder`);
             }
+        }
+    }
+
+    async #createUserDecoder(userId) {
+        const isSupported = await AudioDecoder.isConfigSupported(this.#codecSettings);
+        if (isSupported.supported) {
+            this.#users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null, source: null, gateHtml: null };
+
+            this.#users[userId].gateHtml = document.getElementById(`voice-gate-${userId}`);
+
+            if (!this.#settings.users[userId]) {
+                this.#settings.users[userId] = { muted: false, volume: 1 };
+            }
+
+            this.#users[userId].decoder = new AudioDecoder({
+                output: (chunk) => { this.#playbackAudio(chunk, this.#audioContext, this.#users, userId) },
+                error: (error) => { throw new Error(`Decoder setup failed:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) },
+            });
+
+            this.#users[userId].decoder.configure(this.#codecSettings)
+            this.#users[userId].playhead = 0;
+            this.#users[userId].gainNode = this.#audioContext.createGain();
         }
     }
 
