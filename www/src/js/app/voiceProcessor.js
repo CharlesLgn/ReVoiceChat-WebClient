@@ -43,7 +43,10 @@ class NoiseGate extends AudioWorkletProcessor {
         const input = inputs[0][0]; // mono
         const output = outputs[0][0]; // mono
 
-        this.port.postMessage(new Float32Array(input));
+        // Bypass TO DO : Fix this
+        for (let i = 0; i < input.length; i++) {
+            output[i] = input[i] * this.gain;
+        }
         return true;
 
         const threshold = this.dBToLinear(parameters.threshold[0]);
