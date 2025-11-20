@@ -1,4 +1,4 @@
-import { PacketDecoder, PacketSender } from "./packet.js";
+import { PacketSender, PacketReceiver } from "./packet.js";
 
 export default class VoiceCall {
     "use strict";
@@ -60,8 +60,8 @@ export default class VoiceCall {
     #settings = {};
     #gateState = false;
     #outputGain;
-    #packetDecoder = new PacketDecoder();
     #packetSender;
+    #packetReceiver;
 
     constructor(user) {
         if (!user) {
@@ -104,7 +104,7 @@ export default class VoiceCall {
         await this.#encodeAudio();
 
         // Setup receiver and decoder
-        this.#socket.onmessage = (message) => { this.#receivePacket(message.data, this.#packetDecoder.decode) };
+        this.#packetReceiver = new PacketReceiver(this.#socket, (header, data) => this.#decodeAudio(header, data));
 
         // Setup main output gain
         this.#outputGain = this.#audioContext.createGain();
@@ -409,11 +409,7 @@ export default class VoiceCall {
         }
     }
 
-    #receivePacket(packet, packetDecode) {
-        const result = packetDecode(packet);
-        const header = result.header;
-        const data = result.data;
-
+    #decodeAudio(header, data) {
         if (this.#users[header.user]) {
             const currentUser = this.#users[header.user];
             // If user sending packet is muted OR we are deaf, we stop
