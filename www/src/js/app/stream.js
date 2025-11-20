@@ -245,23 +245,4 @@ export default class Stream {
 
         this.#decoder.decode(chunk);
     }
-
-    async #receivePacket(packet, packetDecode) {
-        const result = packetDecode(packet);
-        const header = result.header;
-        const data = result.data;
-
-        const chunk = new EncodedVideoChunk({
-            type: "key",
-            timestamp: header.timestamp,
-            data: new Uint8Array(data)
-        });
-
-        if (this.#decoder.state === "unconfigured") {
-            console.log(header.encoderMetadata);
-            this.#decoder.configure(header.encoderMetadata.decoderConfig);
-        }
-
-        this.#decoder.decode(chunk);
-    }
 }
