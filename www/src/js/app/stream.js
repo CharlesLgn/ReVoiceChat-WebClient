@@ -1,4 +1,4 @@
-import { PacketDecoder, PacketSender } from "./packet.js";
+import { PacketSender, PacketReceiver } from "./packet.js";
 
 export default class Stream {
     static CLOSE = 0;
@@ -10,12 +10,16 @@ export default class Stream {
     #user;
     #encoder;
     #encoderMetadata;
+    #encoderInterval;
     #decoder;
-    #packetDecoder = new PacketDecoder();
     #packetSender;
+    #packetReceiver;
     #streamUrl;
     #token;
     #roomId;
+    #video;
+    #context;
+    #canvas;
     #codecSettings = {
         codec: "vp8",
         framerate: 30,
@@ -32,7 +36,7 @@ export default class Stream {
         },
         preferCurrentTab: false,
         selfBrowserSurface: "exclude",
-        systemAudio: "include",
+        systemAudio: "exclude",
         surfaceSwitching: "include",
         monitorTypeSurfaces: "include",
     }
@@ -99,31 +103,30 @@ export default class Stream {
 
         this.#encoder.configure(this.#codecSettings);
 
-        const video = document.createElement('video');
+        this.#video = document.createElement('video');
 
         switch (type) {
             case "webcam":
-                video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
+                this.#video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
                 break;
             case "display":
-                video.srcObject = await navigator.mediaDevices.getDisplayMedia(this.#displayMediaOptions);
+                this.#video.srcObject = await navigator.mediaDevices.getDisplayMedia(this.#displayMediaOptions);
                 break;
         }
 
         const videoPlayback = document.getElementById('videoPlayback')
-        videoPlayback.innerText = `Loopback : ${streamName} (${this.#user.id})`;
-        videoPlayback.appendChild(video);
+        videoPlayback.appendChild(this.#video);
 
-        await video.play();
+        await this.#video.play();
 
         if (window.MediaStreamTrackProcessor) {
             // Faster but not available everywhere
-            const track = video.srcObject.getVideoTracks()[0];
+            const track = this.#video.srcObject.getVideoTracks()[0];
             const processor = new MediaStreamTrackProcessor({ track });
             const reader = processor.readable.getReader();
 
             // Grab frame
-            setInterval(async () => {
+            this.#encoderInterval = setInterval(async () => {
                 const result = await reader.read();
                 const frame = result.value;
                 this.#encoder.encode(frame, { keyFrame: true });
@@ -132,29 +135,8 @@ export default class Stream {
         }
         else {
             // Fallback
-            async function frameFromVideoElement(vid) {
-                // Preferred: directly construct VideoFrame from video (if supported)
-                try {
-                    return new VideoFrame(vid, { timestamp: performance.now() * 1000 }); // timestamp in microseconds is allowed but not required
-                } catch (e) {
-                    // Not supported: fallback to canvas -> ImageBitmap -> VideoFrame
-                }
-
-                // Use OffscreenCanvas if available (works better in worker)
-                const canvas = ('OffscreenCanvas' in window) ? new OffscreenCanvas(width, height) : document.createElement('canvas');
-                canvas.width = width; canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(vid, 0, 0, width, height);
-                // create ImageBitmap (fast) then VideoFrame
-                const bitmap = await createImageBitmap(canvas);
-                const vf = new VideoFrame(bitmap, { timestamp: performance.now() * 1000 });
-                bitmap.close();
-                return vf;
-            }
-
-            // Grab frame
-            setInterval(async () => {
-                const vf = await frameFromVideoElement(video);
+            this.#encoderInterval = setInterval(async () => {
+                const vf = new VideoFrame(this.#video, { timestamp: performance.now() * 1000 });;
                 this.#encoder.encode(vf, { keyFrame: true });
                 vf.close();
             }, 1000 / this.#codecSettings.framerate)
@@ -167,8 +149,33 @@ export default class Stream {
         this.#state = Stream.OPEN;
     }
 
-    stop() {
+    async stop() {
+        // Stop frame grabbing
+        if (this.#encoderInterval) {
+            clearInterval(this.#encoderInterval);
+            this.#encoderInterval = null;
+        }
 
+        // Close WebSocket
+        if (this.#socket && (this.#socket.readyState === WebSocket.OPEN || this.#socket.readyState === WebSocket.CONNECTING)) {
+            await this.#socket.close();
+            this.#socket = null;
+        }
+
+        // Close encoder
+        if (this.#encoder && this.#encoder.state !== "closed") {
+            this.#encoder.close();
+            this.#encoder = null;
+        }
+
+        // Close playback
+        if (this.#video) {
+            await this.#video.pause();
+            this.#video.remove();
+            this.#video = null;
+        }
+
+        this.#state = Stream.CLOSE;
     }
 
     async join(userId, streamName) {
@@ -179,22 +186,19 @@ export default class Stream {
                 // Create WebSocket
                 this.#socket = new WebSocket(`${this.#streamUrl}/${userId}/${streamName}`, ["Bearer." + this.#token]);
                 this.#socket.binaryType = "arraybuffer";
-                this.#socket.onmessage = (message) => { console.debug('New frame received : ' + Date.now()); this.#receivePacket(message.data, this.#packetDecoder.decode) };
+                this.#packetReceiver = new PacketReceiver(this.#socket, (header, data) => this.#decodeVideo(header, data));
 
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
+                this.#canvas = document.createElement("canvas");
+                this.#context = this.#canvas.getContext("2d");
                 const videoRemote = document.getElementById('videoRemote');
 
-                videoRemote.innerText = `Remote : ${streamName} (${userId})`;
-                videoRemote.appendChild(canvas);
+                videoRemote.appendChild(this.#canvas);
 
                 this.#decoder = new VideoDecoder({
                     output: (frame) => {
-                        console.debug('New frame decode : ' + Date.now());
-                        canvas.width = frame.codedWidth;
-                        canvas.height = frame.codedHeight;
-                        ctx.drawImage(frame, 0, 0);
-                        canvas.src = canvas.toDataURL();
+                        this.#canvas.width = frame.codedWidth;
+                        this.#canvas.height = frame.codedHeight;
+                        this.#context.drawImage(frame, 0, 0);
                         frame.close();
                     },
                     error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) }
@@ -206,8 +210,40 @@ export default class Stream {
         }
     }
 
-    leave() {
+    async leave() {
+        // Close WebSocket
+        if (this.#socket && (this.#socket.readyState === WebSocket.OPEN || this.#socket.readyState === WebSocket.CONNECTING)) {
+            await this.#socket.close();
+            this.#socket = null;
+        }
 
+        // Close decoder
+        if (this.#decoder && this.#decoder.state !== "closed") {
+            this.#decoder.close();
+            this.#decoder = null;
+        }
+
+        // Close playback
+        if (this.#canvas && this.#context) {
+            this.#context.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+            this.#canvas = null;
+            this.#context = null;
+        }
+    }
+
+    #decodeVideo(header, data){
+        const chunk = new EncodedVideoChunk({
+            type: "key",
+            timestamp: header.timestamp,
+            data: new Uint8Array(data)
+        });
+
+        if (this.#decoder.state === "unconfigured") {
+            console.log(header.encoderMetadata);
+            this.#decoder.configure(header.encoderMetadata.decoderConfig);
+        }
+
+        this.#decoder.decode(chunk);
     }
 
     async #receivePacket(packet, packetDecode) {

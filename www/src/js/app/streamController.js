@@ -17,8 +17,9 @@ export default class StreamController {
 
     async startStream(type) {
         try {
-            const streamerId = this.#streamer.push(new Stream(this.#streamUrl, this.#user, this.#token, this.#room.id));
-            await this.#streamer[streamerId - 1].start(streamerId, type);
+            const position = this.#streamer.push(new Stream(this.#streamUrl, this.#user, this.#token, this.#room.id)) - 1;
+            const streamerId = `stream${position}`;
+            await this.#streamer[position].start(streamerId, type);
             console.log(`StreamerId : ${streamerId}`);
         }
         catch (error) {
@@ -26,9 +27,21 @@ export default class StreamController {
         }
     }
 
+    async stopStream(streamName){
+        const id = streamName.replace('stream', '');
+        if(this.#streamer[id]){
+            await this.#streamer[id].stop();
+        }
+    }
+
     async joinStream(userId, streamName){
-        const viewerId = this.#viewer.push(new Stream(this.#streamUrl, this.#user, this.#token, this.#room.id));
-        await this.#viewer[viewerId - 1].join(userId, streamName);
-        console.log(`ViewerId : ${viewerId}`);
+        this.#viewer[streamName] = new Stream(this.#streamUrl, this.#user, this.#token, this.#room.id);
+        await this.#viewer[streamName].join(userId, streamName);
+    }
+
+    async leaveStream(streamName){
+        if(this.#viewer[streamName]){
+            await this.#viewer[streamName].stop();
+        }
     }
 }
