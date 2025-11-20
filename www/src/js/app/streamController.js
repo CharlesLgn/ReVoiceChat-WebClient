@@ -23,38 +23,38 @@ export default class StreamController {
     }
 
     #toggleStream(type) {
-        if(type == "webcam"){
+        if (type == "webcam") {
             this.#webcamEnabled = !this.#webcamEnabled;
             const button = document.getElementById("stream-webcam");
 
-            if(this.#webcamEnabled){
-                this.startStream("webcam");
+            if (this.#webcamEnabled) {
+                this.#startStream("webcam");
                 button.classList.add("green");
             }
-            else{
-                this.stopStream("webcam");
+            else {
+                this.#stopStream("webcam");
                 button.classList.remove("green");
             }
             return;
         }
 
-        if(type == "display"){
+        if (type == "display") {
             this.#displayEnabled = !this.#displayEnabled;
             const button = document.getElementById("stream-display");
 
-            if(this.#displayEnabled){
-                this.startStream("display");
+            if (this.#displayEnabled) {
+                this.#startStream("display");
                 button.classList.add("green");
             }
-            else{
-                this.stopStream("display");
+            else {
+                this.#stopStream("display");
                 button.classList.remove("green");
             }
             return;
         }
     }
 
-    async startStream(type) {
+    async #startStream(type) {
         try {
             this.#streamer[type] = new Stream(this.#streamUrl, this.#user, this.#token, this.#room.id);
             await this.#streamer[type].start(type, type);
@@ -64,7 +64,7 @@ export default class StreamController {
         }
     }
 
-    async stopStream(type) {
+    async #stopStream(type) {
         if (this.#streamer[type]) {
             await this.#streamer[type].stop();
         }
@@ -79,5 +79,10 @@ export default class StreamController {
         if (this.#viewer[streamName]) {
             await this.#viewer[streamName].stop();
         }
+    }
+
+    async stopAll() {
+        this.#stopStream("webcam");
+        this.#stopStream("display");
     }
 }

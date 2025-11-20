@@ -1,4 +1,5 @@
 import VoiceCall from "./voiceCall.js";
+import StreamController from './streamController.js';
 
 export default class VoiceController {
     #alert;
@@ -10,8 +11,9 @@ export default class VoiceController {
     #activeRoom;
     #user;
     #room;
+    #streamController;
 
-    constructor(fetcher, alert, user, room, token, voiceURL, mediaUrl) {
+    constructor(fetcher, alert, user, room, token, voiceURL, mediaUrl, streamUrl) {
         this.#fetcher = fetcher;
         this.#voiceURL = voiceURL;
         this.#token = token;
@@ -19,11 +21,13 @@ export default class VoiceController {
         this.#alert = alert;
         this.#room = room;
         this.#mediaUrl = mediaUrl;
+        this.streamController = new StreamController(fetcher, alert, user, room, token, streamUrl);
     }
 
     attachEvents() {
         document.getElementById("voice-self-mute").addEventListener('click', () => this.#controlSelfMute());
         document.getElementById("voice-self-deaf").addEventListener('click', () => this.#controlSelfDeaf());
+        this.streamController.attachEvents();
     }
 
     // <user> call this to join a call in a room
@@ -59,6 +63,7 @@ export default class VoiceController {
     // <user> call this to leave a call in a room
     async leave() {
         this.#voiceCall.close();
+        this.streamController.stopAll();
         await this.#updateJoinedUsers();
         this.#updateUserCounter(this.#activeRoom);
         this.updateSelf();
