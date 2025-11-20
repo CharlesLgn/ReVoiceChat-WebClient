@@ -15,6 +15,11 @@ export default class StreamController {
         this.#user = user;
     }
 
+    attachEvents(){
+        document.getElementById("stream-webcam").addEventListener('click', () => this.startStream("webcam"));
+        document.getElementById("stream-screen").addEventListener('click', () => this.startStream("display"));
+    }
+
     async startStream(type) {
         try {
             const position = this.#streamer.push(new Stream(this.#streamUrl, this.#user, this.#token, this.#room.id)) - 1;

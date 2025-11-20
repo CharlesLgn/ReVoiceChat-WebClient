@@ -291,6 +291,26 @@ class MenuBurgerIconComponent extends HTMLElement {
     }
 }
 
+class CameraIconComponent extends HTMLElement {
+    constructor() {
+        super()
+        this.innerHTML = `
+            <svg data-slot="icon" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.5 4.5a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h8.25a3 3 0 0 0 3-3v-9a3 3 0 0 0-3-3H4.5ZM19.94 18.75l-2.69-2.69V7.94l2.69-2.69c.944-.945 2.56-.276 2.56 1.06v11.38c0 1.336-1.616 2.005-2.56 1.06Z"></path>
+            </svg>`
+    }
+}
+
+class DisplayIconComponent extends HTMLElement {
+    constructor() {
+        super()
+        this.innerHTML = `
+            <svg data-slot="icon" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path clip-rule="evenodd" d="M2.25 6a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V6Zm18 3H3.75v9a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V9Zm-15-3.75A.75.75 0 0 0 4.5 6v.008c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-.75-.75H5.25Zm1.5.75a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V6Zm3-.75A.75.75 0 0 0 9 6v.008c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-.75-.75H9.75Z" fill-rule="evenodd"></path>
+            </svg>`
+    }
+}
+
 customElements.define('revoice-icon-pencil', PencilIconComponent);
 customElements.define('revoice-icon-trash', TrashIconComponent);
 customElements.define('revoice-icon-chat-bubble', ChatBubbleIconComponent);
@@ -317,6 +337,8 @@ customElements.define('revoice-icon-role', RoleIconComponent);
 customElements.define('revoice-icon-paper-clip', PaperClipIconComponent);
 customElements.define('revoice-icon-logout', LogoutIconComponent);
 customElements.define('revoice-icon-menu-burger', MenuBurgerIconComponent);
+customElements.define('revoice-icon-camera', CameraIconComponent);
+customElements.define('revoice-icon-display', DisplayIconComponent);
 
 if (typeof module !== 'undefined') {
     module.exports = [
@@ -343,6 +365,9 @@ if (typeof module !== 'undefined') {
         EmojiIconComponent,
         UserIconComponent,
         RoleIconComponent,
-        PaperClipIconComponent
+        PaperClipIconComponent,
+        MenuBurgerIconComponent,
+        CameraIconComponent,
+        DisplayIconComponent
     ];
 }

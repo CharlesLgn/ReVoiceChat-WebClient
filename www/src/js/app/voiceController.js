@@ -325,6 +325,8 @@ export default class VoiceController {
         const voiceAction = document.getElementById("voice-join-action");
         const muteButton = document.getElementById("voice-self-mute");
         const deafButton = document.getElementById("voice-self-deaf");
+        const webcamButton = document.getElementById("stream-webcam");
+        const screenButton = document.getElementById("stream-screen");
         const instanceState = this.#voiceCall ? this.#voiceCall.getState() : VoiceCall.CLOSE;
 
         switch (instanceState) {
@@ -347,6 +349,8 @@ export default class VoiceController {
                 voiceAction.onclick = () => this.join(this.#room.id);
                 muteButton.classList.add('hidden');
                 deafButton.classList.add('hidden');
+                webcamButton.classList.add('hidden');
+                screenButton.classList.add('hidden');
                 break;
 
             case VoiceCall.OPEN:
@@ -358,6 +362,8 @@ export default class VoiceController {
                 voiceAction.onclick = () => this.leave();
                 muteButton.classList.remove('hidden');
                 deafButton.classList.remove('hidden');
+                webcamButton.classList.remove('hidden');
+                screenButton.classList.remove('hidden');
                 break;
         }
     }
