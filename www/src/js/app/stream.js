@@ -11,6 +11,7 @@ export default class Stream {
     #encoder;
     #encoderMetadata;
     #encoderInterval;
+    #encoderConfig;
     #decoder;
     #packetSender;
     #packetReceiver;
@@ -20,7 +21,7 @@ export default class Stream {
     #video;
     #context;
     #canvas;
-    #codecSettings = {
+    #codecConfig = {
         codec: "vp8",
         framerate: 30,
         width: 1280,
@@ -79,7 +80,7 @@ export default class Stream {
         this.#packetSender = new PacketSender(this.#socket);
 
         // Setup encoder and transmitter
-        const supported = await VideoEncoder.isConfigSupported(this.#codecSettings);
+        const supported = await VideoEncoder.isConfigSupported(this.#codecConfig);
         if (!supported.supported) {
             throw new Error("Encoder Codec not supported");
         }
@@ -98,10 +99,11 @@ export default class Stream {
                     frame
                 );
             },
-            error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) },
+            error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codecConfig.codec}`) },
         });
 
-        this.#encoder.configure(this.#codecSettings);
+        this.#encoderConfig = structuredClone(this.#codecConfig);
+        this.#encoder.configure(this.#encoderConfig);
 
         this.#video = document.createElement('video');
 
@@ -129,17 +131,19 @@ export default class Stream {
             this.#encoderInterval = setInterval(async () => {
                 const result = await reader.read();
                 const frame = result.value;
+
                 this.#encoder.encode(frame, { keyFrame: true });
                 frame.close();
-            }, 1000 / this.#codecSettings.framerate)
+            }, 1000 / this.#codecConfig.framerate)
         }
         else {
             // Fallback
             this.#encoderInterval = setInterval(async () => {
-                const vf = new VideoFrame(this.#video, { timestamp: performance.now() * 1000 });;
-                this.#encoder.encode(vf, { keyFrame: true });
-                vf.close();
-            }, 1000 / this.#codecSettings.framerate)
+                const frame = new VideoFrame(this.#video, { timestamp: performance.now() * 1000 });;
+                this.#checkEncoderResolution(frame);
+                this.#encoder.encode(frame, { keyFrame: true });
+                frame.close();
+            }, 1000 / this.#codecConfig.framerate)
         }
 
         // Socket states
@@ -147,6 +151,24 @@ export default class Stream {
         this.#socket.onerror = async (e) => { console.error('Stream : WebSocket error:', e) };
 
         this.#state = Stream.OPEN;
+    }
+
+    #checkEncoderResolution(frame) {
+        let changed = false;
+
+        if (frame.codedHeight && frame.codedHeight != this.#encoderConfig.height && frame.codedHeight <= this.#codecConfig.height) {
+            this.#encoderConfig.height = frame.codedHeight;
+            changed = true;
+        }
+
+        if (frame.codedWidth && frame.codedWidth != this.#encoderConfig.width && frame.codedWidth <= this.#codecConfig.width) {
+            this.#encoderConfig.width = frame.codedWidth;
+            changed = true;
+        }
+
+        if(changed){
+            this.#encoder.configure(this.#encoderConfig);
+        }
     }
 
     async stop() {
@@ -180,7 +202,7 @@ export default class Stream {
 
     async join(userId, streamName) {
         if (userId && streamName) {
-            const isSupported = await VideoDecoder.isConfigSupported(this.#codecSettings);
+            const isSupported = await VideoDecoder.isConfigSupported(this.#codecConfig);
 
             if (isSupported.supported) {
                 // Create WebSocket
@@ -197,7 +219,7 @@ export default class Stream {
                 this.#decoder = new VideoDecoder({
                     output: (frame) => {
                         const videoRemote = document.getElementById('videoRemote');
-                        const ratio =  frame.codedHeight / frame.codedWidth;
+                        const ratio = frame.codedHeight / frame.codedWidth;
                         const width = videoRemote.clientWidth;
                         const height = width * ratio;
                         this.#canvas.width = width;
@@ -205,7 +227,7 @@ export default class Stream {
                         this.#context.drawImage(frame, 0, 0, width, height);
                         frame.close();
                     },
-                    error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) }
+                    error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}\nCurrent codec :${this.#codecConfig.codec}`) }
                 });
 
                 return true;
