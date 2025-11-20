@@ -31,25 +31,29 @@ class NoiseGate extends AudioWorkletProcessor {
         return Math.pow(10, db / 20);
     }
 
+    rmsLevel(samples) {
+        let sum = 0;
+        for (let sample of samples) {
+            sum += sample ** 2;
+        }
+        return Math.sqrt(sum / samples.length);
+    }
+
     process(inputs, outputs, parameters) {
         const input = inputs[0][0]; // mono
         const output = outputs[0][0]; // mono
-        const threshold = this.dBToLinear(parameters.threshold);
-        const attackCoeff = Math.exp(-1 / (parameters.attack * this.sampleRate / 1000));
-        const releaseCoeff = Math.exp(-1 / (parameters.release * this.sampleRate / 1000));
 
-        if (!input || input.length === 0) {
-            return false;
-        }
+        this.port.postMessage(new Float32Array(input));
+        return true;
 
-        // Compute RMS level
-        let sum = 0;
-        for (let sample of input) {
-            sum += sample ** 2;
-        }
-        const rms = Math.sqrt(sum / input.length);
+        const threshold = this.dBToLinear(parameters.threshold[0]);
+        const attackCoeff = Math.exp(-1 / (parameters.attack[0] * this.sampleRate / 1000));
+        const releaseCoeff = Math.exp(-1 / (parameters.release[0] * this.sampleRate / 1000));
+        const rms = this.rmsLevel(input);
 
-        this.smoothRms = (this.smoothRms ** 2) + (rms * (1 - this.smoothing));
+        //this.smoothRms = (this.smoothRms ** 2) + (rms * (1 - this.smoothing));
+        const smoothFactor = 0.9;
+        this.rms = smoothFactor * this.rms + (1 - smoothFactor) * rms;
 
         // Gate logic
         if (this.smoothRms > threshold) {
