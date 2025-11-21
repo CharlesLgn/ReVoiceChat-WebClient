@@ -150,11 +150,13 @@ export default class VoiceCall {
                 try {
                     await user.decoder.flush();
                     await user.decoder.close();
-                    user.decoder = null;
+                    
                 }
                 catch (error) {
                     console.error(error);
                 }
+
+                user.decoder = null;
             }
             // Remove glow
             this.#setUserGlow(userId, false);
@@ -172,7 +174,7 @@ export default class VoiceCall {
     }
 
     async addUser(userId) {
-        if (userId && this.#users[userId] === undefined && this.#socket !== null && this.#socket.readyState === WebSocket.OPEN) {
+        if (userId && !this.#users[userId] && this.#socket && this.#socket.readyState === WebSocket.OPEN) {
             await this.#createUserDecoder(userId);
             return true;
         }
@@ -180,7 +182,7 @@ export default class VoiceCall {
     }
 
     async removeUser(userId) {
-        if (userId && this.#socket !== null && this.#socket.readyState === WebSocket.OPEN) {
+        if (userId) {
             const user = this.#users[userId];
             await user.decoder.flush();
             await user.decoder.close();
@@ -473,6 +475,7 @@ export default class VoiceCall {
             this.#users[userId].decoder.configure(this.#codecSettings)
             this.#users[userId].playhead = 0;
             this.#users[userId].gainNode = this.#audioContext.createGain();
+            this.#users[userId].gainNode.setValueAtTime(this.#settings.users[userId].volume, this.#audioContext.currentTime);
         }
     }
 
