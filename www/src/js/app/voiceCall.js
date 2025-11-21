@@ -227,11 +227,13 @@ export default class VoiceCall {
         }
     }
 
-    toggleSelfMute() {
+    async toggleSelfMute() {
+        // Need to be async !
         this.#settings.self.muted = !this.#settings.self.muted;
     }
 
-    setSelfMute(muted) {
+    async setSelfMute(muted) {
+        // Need to be async !
         this.#settings.self.muted = muted;
     }
 
@@ -239,11 +241,13 @@ export default class VoiceCall {
         return this.#settings.self.muted;
     }
 
-    toggleSelfDeaf() {
+    async toggleSelfDeaf() {
+        // Need to be async !
         this.#settings.self.deaf = !this.#settings.self.deaf;
     }
 
-    setSelfDeaf(deaf) {
+    async setSelfDeaf(deaf) {
+        // Need to be async !
         this.#settings.self.deaf = deaf;
     }
 
@@ -343,12 +347,15 @@ export default class VoiceCall {
         });
 
         this.#gateNode.port.onmessage = (event) => {
-            const opened = event.data.open
-            this.#gateState = opened;
+            const state = event.data.open
+            this.#gateState = state;
 
-            if (!this.#settings.self.muted) {
-                this.#setUserGlow(this.#user.id, opened);
-                this.#setSelfGlow(opened);
+            if (this.#settings.self.muted) {
+                this.#setUserGlow(this.#user.id, false);
+                this.#setSelfGlow(false);
+            }else{
+                this.#setUserGlow(this.#user.id, state);
+                this.#setSelfGlow(state);
             }
         }
 

@@ -25,8 +25,8 @@ export default class VoiceController {
     }
 
     attachEvents() {
-        document.getElementById("voice-self-mute").addEventListener('click', () => this.#controlSelfMute());
-        document.getElementById("voice-self-deaf").addEventListener('click', () => this.#controlSelfDeaf());
+        document.getElementById("voice-self-mute").addEventListener('click', async () => await this.#controlSelfMute());
+        document.getElementById("voice-self-deaf").addEventListener('click', async () => await this.#controlSelfDeaf());
         this.streamController.attachEvents();
     }
 
@@ -269,10 +269,10 @@ export default class VoiceController {
     }
 
     // <user> call this to mute himself
-    #controlSelfMute(updateState = true) {
+    async #controlSelfMute(updateState = true) {
         if (updateState) {
             if (this.#voiceCall) {
-                this.#voiceCall.toggleSelfMute();
+                await this.#voiceCall.toggleSelfMute();
             }
             this.#saveSettings();
         }
@@ -298,10 +298,10 @@ export default class VoiceController {
         }
     }
 
-    #controlSelfDeaf(updateState = true) {
+    async #controlSelfDeaf(updateState = true) {
         if (updateState) {
             if (this.#voiceCall) {
-                this.#voiceCall.toggleSelfDeaf();
+                await this.#voiceCall.toggleSelfDeaf();
             }
             this.#saveSettings();
         }
