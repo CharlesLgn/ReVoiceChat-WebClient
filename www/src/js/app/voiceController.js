@@ -46,7 +46,7 @@ export default class VoiceController {
             await this.#updateJoinedUsers();
 
             // Update self
-            this.updateSelf();
+            this.updateSelf(this.#user.settings.voice);
 
             // Update counter
             this.#updateUserCounter(roomId);
@@ -347,7 +347,7 @@ export default class VoiceController {
     }
 
     // Update user controls and UI
-    updateSelf() {
+    updateSelf(voiceSettings = null) {
         const voiceAction = document.getElementById("voice-join-action");
         const muteButton = document.getElementById("voice-self-mute");
         const deafButton = document.getElementById("voice-self-deaf");
@@ -390,6 +390,14 @@ export default class VoiceController {
                 deafButton.classList.remove('hidden');
                 webcamButton.classList.remove('hidden');
                 displayButton.classList.remove('hidden');
+                if(voiceSettings){
+                    if(voiceSettings.muted){
+                        muteButton.classList.add('red');
+                    }
+                    if(voiceSettings.deaf){
+                        deafButton.classList.add('red');
+                    }
+                }
                 break;
         }
     }
