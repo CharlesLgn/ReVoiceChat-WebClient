@@ -176,9 +176,7 @@ export default class VoiceCall {
     async addUser(userId) {
         if (userId && !this.#users[userId] && this.#socket && this.#socket.readyState === WebSocket.OPEN) {
             await this.#createUserDecoder(userId);
-            return true;
         }
-        return false;
     }
 
     async removeUser(userId) {
@@ -467,15 +465,16 @@ export default class VoiceCall {
                 this.#settings.users[userId] = { muted: false, volume: 1 };
             }
 
+            this.#users[userId].gainNode = this.#audioContext.createGain();
+            this.#users[userId].gainNode.gain.setValueAtTime(this.#settings.users[userId].volume, this.#audioContext.currentTime);
+
             this.#users[userId].decoder = new AudioDecoder({
                 output: (chunk) => { this.#playbackAudio(chunk, this.#audioContext, this.#users, userId) },
                 error: (error) => { throw new Error(`Decoder setup failed:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) },
             });
+            this.#users[userId].decoder.configure(this.#codecSettings);
 
-            this.#users[userId].decoder.configure(this.#codecSettings)
             this.#users[userId].playhead = 0;
-            this.#users[userId].gainNode = this.#audioContext.createGain();
-            this.#users[userId].gainNode.setValueAtTime(this.#settings.users[userId].volume, this.#audioContext.currentTime);
         }
     }
 

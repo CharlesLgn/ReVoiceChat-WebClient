@@ -424,10 +424,9 @@ export default class VoiceController {
         for (const user of connectedUser) {
             const userId = user.id;
 
-            this.#voiceCall.addUser(userId);
-
             // Not self
             if (this.#user.id !== userId) {
+                await this.#voiceCall.addUser(userId);
                 this.#updateUserControls(userId);
             }
         }
