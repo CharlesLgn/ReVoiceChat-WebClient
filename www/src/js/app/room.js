@@ -113,6 +113,8 @@ export default class Room {
             users.id = `voice-users-${room.id}`;
             users.className = "sidebar-room users";
             root.appendChild(users);
+
+            this.voiceController.showJoinedUsers(room.id);
         }
 
         return root;

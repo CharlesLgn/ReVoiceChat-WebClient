@@ -86,8 +86,6 @@ export default class VoiceController {
     async userJoining(data) {
         this.#updateUserCounter(data.roomId);
 
-        if (data.roomId !== this.#room.id) { return; }
-
         const userData = data.user;
         const voiceContent = document.getElementById(`voice-users-${data.roomId}`);
         voiceContent.appendChild(this.#createUserElement(userData));
@@ -103,8 +101,6 @@ export default class VoiceController {
     // <server.js> call this when a user leave the room
     async userLeaving(data) {
         this.#updateUserCounter(data.roomId);
-
-        if (data.roomId !== this.#room.id) { return; }
 
         const userId = data.userId;
 
@@ -122,8 +118,8 @@ export default class VoiceController {
     }
 
     // Show users in a room
-    async showJoinedUsers() {
-        const result = await this.#fetcher.fetchCore(`/room/${this.#room.id}/user`, 'GET');
+    async showJoinedUsers(roomId) {
+        const result = await this.#fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
 
         if (result.connectedUser === null) {
             console.debug("VOICE : No user in room");
@@ -136,7 +132,7 @@ export default class VoiceController {
             return a.displayName.localeCompare(b.displayName);
         });
 
-        const voiceContent = document.getElementById(`voice-users-${this.#room.id}`);
+        const voiceContent = document.getElementById(`voice-users-${roomId}`);
         voiceContent.innerHTML = "";
 
         for (const user of sortedByDisplayName) {
@@ -144,7 +140,7 @@ export default class VoiceController {
         }
 
         // Room is currently active
-        if (this.#activeRoom === this.#room.id) {
+        if (this.#activeRoom === roomId) {
             this.#updateJoinedUsers();
         }
     }
