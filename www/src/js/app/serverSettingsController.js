@@ -734,7 +734,7 @@ export default class ServerSettingsController {
 
             for (const invitation of result) {
                 if (invitation.status === 'CREATED') {
-                    list.appendChild(await this.#invitationCreateItem(invitation));
+                    list.appendChild(this.#invitationCreateItem(invitation));
                 }
             }
         }

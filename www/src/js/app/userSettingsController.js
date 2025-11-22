@@ -185,7 +185,6 @@ export default class UserSettingsController {
                 confirmButtonText: "OK",
                 allowOutsideClick: false,
             });
-            return;
         }
     }
 

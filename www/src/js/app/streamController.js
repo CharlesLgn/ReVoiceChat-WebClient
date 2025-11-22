@@ -50,7 +50,6 @@ export default class StreamController {
                 this.#stopStream("display");
                 button.classList.remove("green");
             }
-            return;
         }
     }
 
