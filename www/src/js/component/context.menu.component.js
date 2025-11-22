@@ -11,39 +11,19 @@ class VoiceContextMenu extends HTMLElement {
             <link href="src/css/themes.css" rel="stylesheet" />
             <style>
                 :host {
+                    display: none;
                     position: fixed;
                     z-index: 9999;
-                    display: none;
-                    min-width: 180px;
+                    width: 13rem;
                     background: var(--qua-bg-color);
                     color: white;
-                    border-radius: 8px;
-                    padding: 6px;
+                    border-radius: 10px;
+                    padding: 0.5rem;
                     font-family: sans-serif;
                     user-select: none;
                 }
 
-                ::slotted([role="menuitem"]) {
-                    padding: 10px 14px;
-                    cursor: pointer;
-                    border-radius: 6px;
-                    outline: none;
-                    display: block;
-                }
-
-                ::slotted([role="menuitem"]:hover),
-                ::slotted([role="menuitem"][data-active="true"]) {
-                    background: red;
-                }
-
-                ::slotted(hr[role="separator"]) {
-                    border: none;
-                    height: 1px;
-                    margin: 6px 0;
-                    background: yellow;
-                }
-
-                slot{
+                .menu{
                     flex: 1 1 0%;
                     overflow-y: auto;
                 }
@@ -73,7 +53,7 @@ class VoiceContextMenu extends HTMLElement {
                 }
             </style>
 
-            <slot>
+            <div class="menu">
                 <label class="item">Volume</label>
                 <input class="item" id="volume" type="range" min="0" max="2" step="0.01"></input>
 
@@ -140,21 +120,19 @@ class VoiceContextMenu extends HTMLElement {
     open(x, y) {
         this.style.display = "block";
 
-        requestAnimationFrame(() => {
-            const w = this.offsetWidth;
-            const h = this.offsetHeight;
-            const vw = innerWidth;
-            const vh = innerHeight;
+        const w = this.offsetWidth;
+        const h = this.offsetHeight;
+        const vw = innerWidth;
+        const vh = innerHeight;
 
-            // clamp inside viewport
-            const left = Math.min(x, vw - w - 8);
-            const top = Math.min(y, vh - h - 8);
+        // clamp inside viewport
+        const left = Math.min(x, vw - w - 8);
+        const top = Math.min(y, vh - h - 8);
 
-            this.style.left = left + "px";
-            this.style.top = top + "px";
+        this.style.left = left + "px";
+        this.style.top = top + "px";
 
-            document.addEventListener("pointerdown", this._onClickOutside, true);
-        });
+        document.addEventListener("pointerdown", this._onClickOutside, true);
     }
 
     close() {
