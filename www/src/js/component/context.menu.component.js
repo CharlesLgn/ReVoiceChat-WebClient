@@ -12,7 +12,7 @@ class VoiceContextMenu extends HTMLElement {
             <link href="src/js/component/context.menu.css" rel="stylesheet" />
 
             <div class="menu">
-                <div class="item slider">
+                <div class="item slider" id="volume-block">
                     <label id="volume-label">Volume</label>
                     <input id="volume" type="range" min="0" max="2" step="0.01"></input>
                 </div>
@@ -20,7 +20,7 @@ class VoiceContextMenu extends HTMLElement {
                 <button class="item" id="mute" title="Mute">
                     Mute <revoice-icon-speaker class="right"></revoice-icon-speaker>
                 </button>
-            </slot>
+            </div>
         `;
 
         this._onClickOutside = this._onClickOutside.bind(this);
@@ -59,6 +59,18 @@ class VoiceContextMenu extends HTMLElement {
         }
         volumeInput.onchange = () => {
             this.#saveSettings();
+        }
+
+        const volumeBlock = this.shadowRoot.getElementById("volume-block");
+        volumeBlock.ondblclick = () => {
+            volumeInput.title = "100%";
+            volumeLabel.innerText = `Volume ${volumeInput.title}`;
+            volumeInput.value = 1;
+            voiceSettings.volume = 1;
+            this.#saveSettings();
+            if (this.#voiceCall) {
+                this.#voiceCall.updateUserVolume(userId);
+            }
         }
 
         // Mute
