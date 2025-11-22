@@ -73,7 +73,7 @@ export default class VoiceController {
         await this.#updateJoinedUsers();
         this.#updateUserCounter(this.#activeRoom);
         this.#activeRoom = null;
-        
+
         // Update context menu
         this.#contextMenu.setVoiceCall(null);
 
@@ -338,7 +338,9 @@ export default class VoiceController {
 
             case VoiceCall.CLOSE:
                 // Set connect actions
-                document.getElementById(this.#activeRoom).classList.remove('active-voice');
+                if (this.#activeRoom) {
+                    document.getElementById(this.#activeRoom).classList.remove('active-voice');
+                }
                 voiceAction.className = "join";
                 voiceAction.classList.add('disconnected');
                 voiceAction.title = "Join the room";
