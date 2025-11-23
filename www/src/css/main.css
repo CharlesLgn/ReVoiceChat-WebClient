@@ -522,6 +522,7 @@ svg {
     margin-left: 0.5rem;
 }
 
+.voice-profile .extension,
 .room-title-extension {
     display: flex;
     margin-left: auto;

@@ -1,6 +1,7 @@
 
 class VoiceContextMenu extends HTMLElement {
     #voiceCall;
+    #voiceController;
     #userSettings;
 
     constructor() {
@@ -17,9 +18,7 @@ class VoiceContextMenu extends HTMLElement {
                     <input id="volume" type="range" min="0" max="2" step="0.01"></input>
                 </div>
                 
-                <button class="item" id="mute" title="Mute">
-                    Mute <revoice-icon-speaker class="right"></revoice-icon-speaker>
-                </button>
+                <button class="item" id="mute" title="Mute"></button>
             </div>
         `;
 
@@ -34,12 +33,13 @@ class VoiceContextMenu extends HTMLElement {
         this.#userSettings.save();
     }
 
-    setVoiceCall(voiceCall){
+    setVoiceCall(voiceCall) {
         this.#voiceCall = voiceCall;
     }
 
-    load(userSettings, userId) {
-        this.#userSettings = userSettings
+    load(userSettings, userId, voiceController) {
+        this.#userSettings = userSettings;
+        this.#voiceController = voiceController;
         const voiceSettings = userSettings.voice.users[userId];
 
         // Volume
@@ -75,21 +75,27 @@ class VoiceContextMenu extends HTMLElement {
 
         // Mute
         const muteButton = this.shadowRoot.getElementById("mute");
+        muteButton.innerHTML = this.#getMuteHTML(voiceSettings);
+
         muteButton.onclick = async () => {
             voiceSettings.muted = !voiceSettings.muted;
-
-            if (voiceSettings.muted) {
-                muteButton.innerHTML = `Unmute <revoice-icon-speaker-x class="right red"></revoice-icon-speaker-x>`;
-            }
-            else {
-                muteButton.innerHTML = `Mute <revoice-icon-speaker  class="right"></revoice-icon-speaker>`;
-            }
+            muteButton.innerHTML = this.#getMuteHTML(voiceSettings);
 
             if (this.#voiceCall) {
                 await this.#voiceCall.updateUserMute(userId);
             }
 
+            this.#voiceController.updateUserExtension(userId);
             this.#saveSettings();
+        }
+    }
+
+    #getMuteHTML(voiceSettings) {
+        if (voiceSettings.muted) {
+            return `Unmute <revoice-icon-speaker-x class="right red"></revoice-icon-speaker-x>`;
+        }
+        else {
+            return `Mute <revoice-icon-speaker  class="right"></revoice-icon-speaker>`;
         }
     }
 

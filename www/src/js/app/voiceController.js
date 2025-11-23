@@ -68,8 +68,8 @@ export default class VoiceController {
     // <user> call this to leave a call in a room
     async leave() {
         this.#voiceCall.close();
-        this.updateSelf();
         this.streamController.stopAll();
+        this.updateSelf();
         await this.#updateJoinedUsers();
         this.#updateUserCounter(this.#activeRoom);
         this.#activeRoom = null;
@@ -174,12 +174,22 @@ export default class VoiceController {
     // Create DOM Element / HTML for a given user
     #createUserElement(userData) {
         const userId = userData.id;
+        const profilePicture = `${this.#mediaUrl}/profiles/${userId}`;
+
+        const extension = document.createElement('div');
+        extension.className = "extension";
+        extension.id = `voice-user-extension-${userId}`;
+
+        if(this.#user.settings.voice.users[userId]?.muted){
+            const userMuted = document.createElement("div");
+            userMuted.innerHTML = "<revoice-icon-speaker-x></revoice-icon-speaker-x>";
+            userMuted.className = "red";
+            extension.appendChild(userMuted);
+        }
+
         const DIV = document.createElement('div');
         DIV.id = `voice-${userId}`;
         DIV.className = "voice-profile";
-
-        const profilePicture = `${this.#mediaUrl}/profiles/${userId}`;
-
         DIV.innerHTML = `
             <div class='block-user gate' id='voice-gate-${userId}'>
                 <div class='relative'>
@@ -191,10 +201,13 @@ export default class VoiceController {
             </div>
         `;
 
+        DIV.appendChild(extension);
+
+        // Context menu
         if (userId !== this.#user.id) {
             DIV.addEventListener('contextmenu', (event) => {
                 event.preventDefault();
-                this.#contextMenu.load(this.#user.settings, userId);
+                this.#contextMenu.load(this.#user.settings, userId, this);
                 this.#contextMenu.open(event.clientX, event.clientY);
             }, false);
         }
@@ -226,6 +239,20 @@ export default class VoiceController {
 
                 break;
             }
+        }
+    }
+
+    updateUserExtension(userId){
+        const userExtension = document.getElementById(`voice-user-extension-${userId}`);
+        userExtension.innerHTML = "";
+        
+        // User muted
+        if(this.#user.settings.voice.users[userId]?.muted){
+            const userMuted = document.createElement("div");
+            userMuted.name = "extension-mute";
+            userMuted.innerHTML = "<revoice-icon-speaker-x></revoice-icon-speaker-x>";
+            userMuted.className = "red";
+            userExtension.appendChild(userMuted);
         }
     }
 
@@ -345,7 +372,7 @@ export default class VoiceController {
                 voiceAction.classList.add('disconnected');
                 voiceAction.title = "Join the room";
                 voiceAction.innerHTML = `<revoice-icon-phone></revoice-icon-phone>`;
-                voiceAction.onclick = () => this.join(this.#activeRoom);
+                voiceAction.onclick = () => this.join(this.#room.id);
                 muteButton.classList.add('hidden');
                 deafButton.classList.add('hidden');
                 webcamButton.classList.add('hidden');
@@ -374,6 +401,12 @@ export default class VoiceController {
                 this.#updateSelfDeaf(false);
                 this.#updateSelfMute(false);
                 break;
+        }
+    }
+
+    updateJoinButton(roomId) {
+        if (!this.#activeRoom) {
+            document.getElementById("voice-join-action").onclick = () => this.join(roomId);
         }
     }
 
@@ -411,6 +444,7 @@ export default class VoiceController {
             if (this.#user.id !== userId) {
                 await this.#voiceCall.addUser(userId);
                 this.#updateUserControls(userId);
+                this.updateUserExtension(userId);
             }
         }
     }
