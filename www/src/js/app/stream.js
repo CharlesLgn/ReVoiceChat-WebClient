@@ -22,12 +22,13 @@ export default class Stream {
     #videoItem;
     #context;
     #canvas;
+    #keyframeCounter = 0;
     #codecConfig = {
         codec: "vp8",
         framerate: 30,
         width: 1280,
         height: 720,
-        bitrate: 2_000_000
+        bitrate: 4_000_000
     }
     #displayMediaOptions = {
         video: {
@@ -73,18 +74,19 @@ export default class Stream {
 
         this.#state = Stream.CONNECTING;
 
+        // Setup encoder and transmitter 
+        // First so we don't open socket for no reason
+        const supported = await VideoEncoder.isConfigSupported(this.#codecConfig);
+        if (!supported.supported) {
+            throw new Error("Encoder Codec not supported");
+        }
+
         // Create WebSocket
         this.#socket = new WebSocket(`${this.#streamUrl}/${this.#user.id}/${streamName}`, ["Bearer." + this.#token]);
         this.#socket.binaryType = "arraybuffer";
 
         // Setup packet sender
         this.#packetSender = new PacketSender(this.#socket);
-
-        // Setup encoder and transmitter
-        const supported = await VideoEncoder.isConfigSupported(this.#codecConfig);
-        if (!supported.supported) {
-            throw new Error("Encoder Codec not supported");
-        }
 
         // Setup Encoder
         this.#encoder = new VideoEncoder({
@@ -114,7 +116,7 @@ export default class Stream {
         // Video item (box)
         this.#videoItem = document.createElement('div');
         this.#videoItem.className = "stream item";
-        this.#videoItem.onclick = () => {this.focus(this.#videoItem)}
+        this.#videoItem.onclick = () => { this.focus(this.#videoItem) }
         this.#videoItem.appendChild(this.#videoPlayer);
 
         // Stream container
@@ -142,9 +144,10 @@ export default class Stream {
             this.#encoderInterval = setInterval(async () => {
                 const result = await reader.read();
                 const frame = result.value;
-
-                this.#encoder.encode(frame, { keyFrame: true });
-                frame.close();
+                if (this.#encoder) {
+                    this.#encoder.encode(frame, { keyFrame: this.#isKeyframe() });
+                }
+                await frame.close();
             }, 1000 / this.#codecConfig.framerate)
         }
         else {
@@ -152,7 +155,9 @@ export default class Stream {
             this.#encoderInterval = setInterval(async () => {
                 const frame = new VideoFrame(this.#videoPlayer, { timestamp: performance.now() * 1000 });;
                 this.#reconfigureEncoderResolution(frame);
-                this.#encoder.encode(frame, { keyFrame: true });
+                if (this.#encoder) {
+                    this.#encoder.encode(frame, { keyFrame: this.#isKeyframe() });
+                }
                 frame.close();
             }, 1000 / this.#codecConfig.framerate)
         }
@@ -162,6 +167,15 @@ export default class Stream {
         this.#socket.onerror = async (e) => { console.error('Stream : WebSocket error:', e) };
 
         this.#state = Stream.OPEN;
+    }
+
+    #isKeyframe() {
+        this.#keyframeCounter++;
+        if (this.#keyframeCounter > this.#codecConfig.framerate) {
+            this.#keyframeCounter = 0;
+            return true;
+        }
+        return false
     }
 
     #reconfigureEncoderResolution(frame) {
@@ -229,7 +243,7 @@ export default class Stream {
                 // Video item (box)
                 this.#videoItem = document.createElement('div');
                 this.#videoItem.className = "stream item";
-                this.#videoItem.onclick = () => {this.focus(this.#videoItem)}
+                this.#videoItem.onclick = () => { this.focus(this.#videoItem) }
                 this.#videoItem.appendChild(this.#canvas);
 
                 // Stream container
@@ -277,21 +291,21 @@ export default class Stream {
         }
     }
 
-    focus(element){
-        for(const child of element.parentElement.children){
+    focus(element) {
+        for (const child of element.parentElement.children) {
             child.classList.add("hidden");
         }
         element.classList.remove("hidden");
         element.parentElement.style.display = "block";
-        element.onclick = () => {this.unfocus(element);}
+        element.onclick = () => { this.unfocus(element); }
     }
 
-    unfocus(element){
-        for(const child of element.parentElement.children){
+    unfocus(element) {
+        for (const child of element.parentElement.children) {
             child.classList.remove("hidden");
         }
         element.parentElement.style.display = "flex";
-        element.onclick = () => {this.focus(element);}
+        element.onclick = () => { this.focus(element); }
     }
 
     #decodeVideo(header, data) {
