@@ -252,12 +252,12 @@ export default class Stream {
 
                 this.#decoder = new VideoDecoder({
                     output: (frame) => {
-                        const ratio = frame.codedHeight / frame.codedWidth;
-                        const width = this.#videoItem.clientWidth;
-                        const height = width * ratio;
-                        this.#canvas.width = width;
-                        this.#canvas.height = height;
-                        this.#context.drawImage(frame, 0, 0, width, height);
+                        // TO DO : Optimise this
+                        const resolution = this.#determineResolution(frame, this.#videoItem);
+                        this.#canvas.width = resolution.width;
+                        this.#canvas.height = resolution.height;
+                        
+                        this.#context.drawImage(frame, 0, 0, this.#canvas.width, this.#canvas.height);
                         frame.close();
                     },
                     error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}\nCurrent codec :${this.#codecConfig.codec}`) }
@@ -267,6 +267,25 @@ export default class Stream {
             }
             return false;
         }
+    }
+
+    #determineResolution(frame, videoItem) {
+        let result = { width: 0, height: 0 };
+
+        if (true || frame.codedWidth > videoItem.clientWidth) {
+            // Clamp by width
+            const ratioHW = frame.codedHeight / frame.codedWidth;
+            result.width = videoItem.clientWidth;
+            result.height = result.width * ratioHW;
+        }
+        else {
+            // Clamp by height
+            const ratioWH = frame.codedWidth / frame.codedHeight;
+            result.height = videoItem.clientHeight;
+            result.width = result.height * ratioWH;
+        }
+
+        return result;
     }
 
     async leave() {
