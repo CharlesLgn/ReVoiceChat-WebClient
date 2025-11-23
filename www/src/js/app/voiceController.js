@@ -72,8 +72,8 @@ export default class VoiceController {
 
     // <user> call this to leave a call in a room
     async leave() {
-        this.#voiceCall.close();
-        this.streamController.stopAll();
+        await this.#voiceCall.close();
+        await this.streamController.stopAll();
         this.updateSelf();
         await this.#updateJoinedUsers();
         this.#updateUserCounter(this.#activeRoom);
