@@ -29,7 +29,7 @@ export default class Stream {
         width: 1280,
         height: 720,
         bitrate: 4_000_000,
-        hardwareAcceleration: "prefer-hardware",
+        //hardwareAcceleration: "prefer-hardware",
         latencyMode: "realtime",
     }
     #displayMediaOptions = {
