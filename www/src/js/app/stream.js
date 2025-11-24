@@ -28,7 +28,9 @@ export default class Stream {
         framerate: 30,
         width: 1280,
         height: 720,
-        bitrate: 4_000_000
+        bitrate: 4_000_000,
+        hardwareAcceleration: "prefer-hardware",
+        latencyMode: "realtime",
     }
     #displayMediaOptions = {
         video: {
