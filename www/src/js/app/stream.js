@@ -14,10 +14,8 @@ export default class Stream {
     #encoderConfig;
     #decoder;
     #packetSender;
-    #packetReceiver;
     #streamUrl;
     #token;
-    #roomId;
     #videoPlayer;
     #videoItem;
     #context;
@@ -46,7 +44,7 @@ export default class Stream {
         monitorTypeSurfaces: "include",
     }
 
-    constructor(streamUrl, user, token, roomId) {
+    constructor(streamUrl, user, token) {
         if (!streamUrl) {
             throw new Error('streamUrl is null or undefined');
         }
@@ -59,14 +57,9 @@ export default class Stream {
             throw new Error('token is null or undefined');
         }
 
-        if (!roomId) {
-            throw new Error('roomId is null or undefined');
-        }
-
         this.#user = user;
         this.#streamUrl = streamUrl;
         this.#token = token;
-        this.#roomId = roomId;
     }
 
     async start(streamName, type) {
@@ -235,7 +228,7 @@ export default class Stream {
                 this.#socket = new WebSocket(`${this.#streamUrl}/${userId}/${streamName}`, ["Bearer." + this.#token]);
                 this.#socket.binaryType = "arraybuffer";
 
-                this.#packetReceiver = new LargePacketReceiver(this.#socket, (rawData) => { this.#decodeVideo(new DecodedPacket(rawData)) });
+                new LargePacketReceiver(this.#socket, (rawData) => { this.#decodeVideo(new DecodedPacket(rawData)) });
 
                 // Video player
                 this.#canvas = document.createElement("canvas");

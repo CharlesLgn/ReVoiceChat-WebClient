@@ -55,7 +55,7 @@ export default class StreamController {
 
     async #startStream(type) {
         try {
-            this.#streamer[type] = new Stream(this.#streamUrl, this.#user, this.#token, this.#room.id);
+            this.#streamer[type] = new Stream(this.#streamUrl, this.#user, this.#token);
             await this.#streamer[type].start(type, type);
         }
         catch (error) {
@@ -71,7 +71,7 @@ export default class StreamController {
 
     async join(userId, streamName) {
         if (this.#room.voiceController.getActiveRoom() && userId != this.#user.id) {
-            this.#viewer[`${userId}-${streamName}`] = new Stream(this.#streamUrl, this.#user, this.#token, this.#room.id);
+            this.#viewer[`${userId}-${streamName}`] = new Stream(this.#streamUrl, this.#user, this.#token);
             await this.#viewer[`${userId}-${streamName}`].join(userId, streamName);
         }
     }
