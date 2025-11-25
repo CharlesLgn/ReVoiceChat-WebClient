@@ -64,6 +64,14 @@ export class PacketReceiver {
     }
 }
 
+/**
+ * This class represent a Large Packet Sender.
+ * With it, you can transmit larger data than websocket allow (i.e more than 64KB),
+ * by sclicing and sending those slices one at a time.
+ * Overhead is minimal (only 16 Bytes).
+ * Data size can be up to 4GB (limit of header using Uint32 to represent the size of data)
+ * @constructor Take a WebSocket as parameter
+ */
 export class LargePacketSender{
     static headerByteLength = 16;
     static maxPayloadByteLength = 64 * 1024 - 16; // 64KB - 16B (reserved for header)
