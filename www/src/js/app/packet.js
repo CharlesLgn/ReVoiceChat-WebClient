@@ -65,7 +65,8 @@ export class PacketReceiver {
 }
 
 export class BigPacketSender{
-    static chunkMaxSize = 52 * 1024; // 52KB data (12KB reserved for header)
+    static headerByteLength = 16;
+    static maxPayloadByteLength = 64 * 1024 - 16; // 64KB - 16B (reserved for header)
 
     #packetEncoder = new PacketEncoder();
     #socket;
@@ -76,20 +77,20 @@ export class BigPacketSender{
 
     send(header, data){
         if (this.#socket.readyState === WebSocket.OPEN) {
-            // Make a full packet
-            const fullPacket = this.#packetEncoder.encode(JSON.stringify(header), data);
-            const totalChunks = Math.ceil(fullPacket.byteLength / BigPacketSender.chunkMaxSize);
+            const fullPayload = this.#packetEncoder.encode(JSON.stringify(header), data);
+            const total = Math.ceil(fullPayload.byteLength / BigPacketSender.maxPayloadByteLength);
 
-            for(let i = 0; i < totalChunks; i++){
-                const start = i * BigPacketSender.chunkMaxSize;
-                const end = Math.min(start + BigPacketSender.chunkMaxSize, fullPacket.byteLength);
-                const chunk = fullPacket.slice(start, end);
+            for(let index = 0; index < total; index++){
+                const start = index * BigPacketSender.maxPayloadByteLength;
+                const end = Math.min(start + BigPacketSender.maxPayloadByteLength, fullPayload.byteLength);
+                const payload = fullPayload.slice(start, end);
 
-                // Header : index of chunk, total of chunk, total size
-                const header = new Uint32Array([fullPacket.byteLength, i, totalChunks]);
-                const packet = new Uint8Array(header.byteLength + chunk.byteLength);
+                // Header 16B (4x 4B) : fullPayload byte length | index of payload | total of payload | reserved 
+                const header = new Uint32Array([fullPayload.byteLength, index, total]);
+                const packet = new Uint8Array(BigPacketSender.headerByteLength + payload.byteLength);
+
                 packet.set(new Uint8Array(header.buffer), 0);
-                packet.set(new Uint8Array(chunk), header.byteLength);
+                packet.set(new Uint8Array(payload), BigPacketSender.headerByteLength);
 
                 this.#socket.send(packet);
             }
@@ -112,29 +113,30 @@ export class BigPacketReceiver{
         const array = new Uint8Array(data);
         const view = new DataView(array.buffer);
 
-        const byteLength = view.getUint32(0, true);
+        const fullPayloadByteLength = view.getUint32(0, true);
         const index = view.getUint32(4, true);
         const total = view.getUint32(8, true);
-        const chunkData = array.slice(12);
+        const chunkData = array.slice(BigPacketSender.headerByteLength);
 
         this.#buffer[index] = chunkData; 
         this.#received++;
 
         if(this.#received === total){
-            const fullPacket = new Uint8Array(byteLength);
+            const fullPayload = new Uint8Array(fullPayloadByteLength);
             
+            // Reconstruct full payload
             let offset = 0;
-            for(const chunk of this.#buffer){
-                fullPacket.set(new Uint8Array(chunk), offset);
-                offset += chunk.length;
+            for(const payload of this.#buffer){
+                fullPayload.set(new Uint8Array(payload), offset);
+                offset += payload.length;
             }
 
-            // Cleanup for next fullPacket
+            // Cleanup for next fullPayload
             this.#received = 0;
             this.#buffer = [];
 
             // Finally call the callback function
-            const decodedResult = this.#packetDecoder.decode(fullPacket.buffer);
+            const decodedResult = this.#packetDecoder.decode(fullPayload.buffer);
             callback(decodedResult.header, decodedResult.data);
         }
     }
