@@ -66,7 +66,7 @@ export class PacketReceiver {
 
 /**
  * This class represent a Large Packet Sender.
- * With it, you can transmit larger data than websocket allow (i.e more than 64KB),
+ * With this, you can transmit data larger than websocket allow (i.e more than 64KB),
  * by sclicing and sending those slices one at a time.
  * Overhead is minimal (only 16 Bytes).
  * Data size can be up to 4GB (limit of header using Uint32 to represent the size of data)
@@ -78,10 +78,18 @@ export class LargePacketSender{
 
     #socket;
     
+    /**
+     * 
+     * @param {WebSocket} socket WebSocket setup to send data to a LargePacketReceiver
+     */
     constructor(socket){
         this.#socket = socket;
     }
 
+    /**
+     * Send data through socket
+     * @param {*} rawData Any data
+     */
     send(rawData){
         if (this.#socket.readyState === WebSocket.OPEN) {
             const total = Math.ceil(rawData.byteLength / LargePacketSender.maxPayloadByteLength);
@@ -104,11 +112,21 @@ export class LargePacketSender{
     }
 }
 
+/**
+ * This class represent a Large Packet Receiver.
+ * With this, you can receive data larger than websocket allow (i.e more than 64KB),
+ * by receiveing slice of data and regrouping them.
+ * Use this with LargePacketSender
+ */
 export class LargePacketReceiver{
     #socket;
     #buffer = [];
     #received = 0;
     
+    /**
+     * @param {WebSocket} socket WebSocket setup to received data send from LargePacketSender
+     * @param {*} callback Function to call when all rawData as been received
+     */
     constructor(socket, callback){
         this.#socket = socket;
         this.#socket.onmessage = (message) => {this.#receive(message.data, callback)}
