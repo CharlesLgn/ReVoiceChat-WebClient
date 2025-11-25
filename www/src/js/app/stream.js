@@ -1,4 +1,4 @@
-import { LargePacketSender, LargePacketReceiver } from "./packet.js";
+import { LargePacketSender, LargePacketReceiver, PacketEncoder, PacketDecoder } from "./packet.js";
 
 export default class Stream {
     static CLOSE = 0;
@@ -13,7 +13,9 @@ export default class Stream {
     #encoderInterval;
     #encoderConfig;
     #decoder;
+    #packetEncoder;
     #packetSender;
+    #packetDecoder;
     #packetReceiver;
     #streamUrl;
     #token;
@@ -88,6 +90,7 @@ export default class Stream {
         this.#socket.binaryType = "arraybuffer";
 
         // Setup packet sender
+        this.#packetEncoder = new PacketEncoder();
         this.#packetSender = new LargePacketSender(this.#socket);
 
         // Setup Encoder
@@ -97,11 +100,11 @@ export default class Stream {
                     this.#encoderMetadata = metadata;
                 }
                 this.#packetSender.send(
-                    {
+                    this.#packetEncoder.encode({
                         timestamp: performance.now(),
                         encoderMetadata: this.#encoderMetadata,
                     },
-                    frame
+                        frame)
                 );
             },
             error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codecConfig.codec}`) },
@@ -236,7 +239,9 @@ export default class Stream {
                 // Create WebSocket
                 this.#socket = new WebSocket(`${this.#streamUrl}/${userId}/${streamName}`, ["Bearer." + this.#token]);
                 this.#socket.binaryType = "arraybuffer";
-                this.#packetReceiver = new LargePacketReceiver(this.#socket, (header, data) => this.#decodeVideo(header, data));
+
+                this.#packetDecoder = new PacketDecoder();
+                this.#packetReceiver = new LargePacketReceiver(this.#socket, (rawData) => { this.#decodeVideo(this.#packetDecoder.decode(rawData)) });
 
                 // Video player
                 this.#canvas = document.createElement("canvas");
@@ -258,7 +263,7 @@ export default class Stream {
                         const resolution = this.#determineResolution(frame, this.#videoItem);
                         this.#canvas.width = resolution.width;
                         this.#canvas.height = resolution.height;
-                        
+
                         this.#context.drawImage(frame, 0, 0, this.#canvas.width, this.#canvas.height);
                         frame.close();
                     },
@@ -329,7 +334,10 @@ export default class Stream {
         element.onclick = () => { this.focus(element); }
     }
 
-    #decodeVideo(header, data) {
+    #decodeVideo(decodedData) {
+        const header = decodedData.header;
+        const data = decodedData.data;
+
         const chunk = new EncodedVideoChunk({
             type: "key",
             timestamp: header.timestamp,
