@@ -187,8 +187,10 @@ export default class Stream {
 
         if (changed) {
             this.#encoder.configure(this.#encoderConfig);
-            this.#encoderMetadata.decoderMetadata.codedHeight = this.#encoderConfig.height;
-            this.#encoderMetadata.decoderMetadata.codedWidth = this.#encoderConfig.width;
+            if (this.#encoderMetadata) {
+                this.#encoderMetadata.decoderMetadata.codedHeight = this.#encoderConfig.height;
+                this.#encoderMetadata.decoderMetadata.codedWidth = this.#encoderConfig.width;
+            }
         }
     }
 

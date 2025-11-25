@@ -727,6 +727,7 @@ svg {
     justify-content: center;
     align-items: flex-start;
     width: 100%;
+    height: 100%;
 }
 
 .stream.item{
@@ -735,8 +736,9 @@ svg {
     border-color: var(--pri-bd-color);
     border-radius: 10px;
     border-width: 2px;
-    align-self: stretch;
     overflow: hidden;
+    min-width: 10rem;
+    min-height: 5rem;
 }
 
 .stream.item .content{
