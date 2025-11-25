@@ -76,6 +76,31 @@ export default class Stream {
             throw new Error("Encoder Codec not supported");
         }
 
+        // Video player
+        this.#videoPlayer = document.createElement('video');
+        this.#videoPlayer.className = "content";
+
+        // Video item (box)
+        this.#videoItem = document.createElement('div');
+        this.#videoItem.className = "stream item";
+        this.#videoItem.onclick = () => { this.focus(this.#videoItem) }
+        this.#videoItem.appendChild(this.#videoPlayer);
+
+        // Stream container
+        const streamContainter = document.getElementById('stream-container')
+        streamContainter.appendChild(this.#videoItem);
+
+        switch (type) {
+            case "webcam":
+                this.#videoPlayer.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
+                break;
+            case "display":
+                this.#videoPlayer.srcObject = await navigator.mediaDevices.getDisplayMedia(this.#displayMediaOptions);
+                break;
+        }
+
+        await this.#videoPlayer.play();
+
         // Create WebSocket
         this.#socket = new WebSocket(`${this.#streamUrl}/${this.#user.id}/${streamName}`, ["Bearer." + this.#token]);
         this.#socket.binaryType = "arraybuffer";
@@ -101,31 +126,6 @@ export default class Stream {
         // Encoder
         this.#encoderConfig = structuredClone(this.#codecConfig);
         this.#encoder.configure(this.#encoderConfig);
-
-        // Video player
-        this.#videoPlayer = document.createElement('video');
-        this.#videoPlayer.className = "content";
-
-        // Video item (box)
-        this.#videoItem = document.createElement('div');
-        this.#videoItem.className = "stream item";
-        this.#videoItem.onclick = () => { this.focus(this.#videoItem) }
-        this.#videoItem.appendChild(this.#videoPlayer);
-
-        // Stream container
-        const streamContainter = document.getElementById('stream-container')
-        streamContainter.appendChild(this.#videoItem);
-
-        switch (type) {
-            case "webcam":
-                this.#videoPlayer.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
-                break;
-            case "display":
-                this.#videoPlayer.srcObject = await navigator.mediaDevices.getDisplayMedia(this.#displayMediaOptions);
-                break;
-        }
-
-        await this.#videoPlayer.play();
 
         if (window.MediaStreamTrackProcessor) {
             // Faster but not available everywhere
