@@ -175,7 +175,7 @@ export default class VoiceCall {
     }
 
     async removeUser(userId) {
-        if (userId) {
+        if (userId && this.#users[userId]) {
             const user = this.#users[userId];
             await user.decoder.flush();
             await user.decoder.close();
