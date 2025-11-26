@@ -739,10 +739,10 @@ svg {
     overflow: hidden;
     min-width: 10rem;
     min-height: 5rem;
+    background-color: black;
 }
 
 .stream.item .content{
-    background-color: black;
     height: 100%;
     width: 100%;
 }
@@ -769,6 +769,15 @@ svg {
     border-width: 0px;
     overflow: hidden;
 }
+
+.stream.container.fullscreen canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
 
 /* STATUS */
 
