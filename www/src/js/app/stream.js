@@ -137,20 +137,25 @@ export default class Stream {
             this.#encoderInterval = setInterval(async () => {
                 const result = await reader.read();
                 const frame = result.value;
-                this.#reconfigureEncoderResolution(frame);
-                if (this.#encoder) {
-                    this.#encoder.encode(frame, { keyFrame: this.#isKeyframe() });
+                if (frame) {
+                    await this.#reconfigureEncoderResolution(frame);
+                    if (this.#encoder) {
+                        await this.#encoder.encode(frame, { keyFrame: this.#isKeyframe() });
+                    }
+                    await frame.close();
                 }
-                await frame.close();
+                else{
+                    this.close();
+                }
             }, 1000 / this.#codecConfig.framerate)
         }
         else {
             // Fallback
             this.#encoderInterval = setInterval(async () => {
                 const frame = new VideoFrame(this.#videoPlayer, { timestamp: performance.now() * 1000 });;
-                this.#reconfigureEncoderResolution(frame);
+                await this.#reconfigureEncoderResolution(frame);
                 if (this.#encoder) {
-                    this.#encoder.encode(frame, { keyFrame: this.#isKeyframe() });
+                    await this.#encoder.encode(frame, { keyFrame: this.#isKeyframe() });
                 }
                 frame.close();
             }, 1000 / this.#codecConfig.framerate)
@@ -172,25 +177,35 @@ export default class Stream {
         return false
     }
 
-    #reconfigureEncoderResolution(frame) {
-        let changed = false;
-
-        if (frame.codedHeight && frame.codedHeight != this.#encoderConfig.height && frame.codedHeight <= this.#codecConfig.height) {
-            this.#encoderConfig.height = frame.codedHeight;
-            changed = true;
+    async #reconfigureEncoderResolution(frame) {
+        if(frame.codedHeight === this.#encoderConfig.height && frame.codedWidth === this.#encoderConfig.width){
+            // Captured frame and encoderCondig already match in width and height
+            return;
         }
 
-        if (frame.codedWidth && frame.codedWidth != this.#encoderConfig.width && frame.codedWidth <= this.#codecConfig.width) {
-            this.#encoderConfig.width = frame.codedWidth;
-            changed = true;
+        // Frame H & W are smaller than Max Codec H & W
+        if (frame.codedHeight < this.#codecConfig.height && frame.codedWidth < this.#codecConfig.width) {
+            await this.#setEncoderResolution(frame.codedHeight, frame.codedWidth);
+            return;
         }
 
-        if (changed) {
-            this.#encoder.configure(this.#encoderConfig);
-            if (this.#encoderMetadata) {
-                this.#encoderMetadata.decoderMetadata.codedHeight = this.#encoderConfig.height;
-                this.#encoderMetadata.decoderMetadata.codedWidth = this.#encoderConfig.width;
-            }
+        const ratio = Math.min((this.#codecConfig.height / frame.codedHeight), (this.#codecConfig.width / frame.codedWidth));
+        const height = frame.codedHeight * ratio;
+        const width = frame.codedWidth * ratio;
+        await this.#setEncoderResolution(height, width);
+    }
+
+    async #setEncoderResolution(height, width) {
+        this.#encoderConfig.height = height;
+        this.#encoderConfig.width = width;
+
+        if (this.#encoderMetadata && this.#encoderMetadata.decoderMetadata) {
+            this.#encoderMetadata.decoderMetadata.codedHeight = height;
+            this.#encoderMetadata.decoderMetadata.codedWidth = width;
+        }
+
+        if (this.#encoder) {
+            await this.#encoder.configure(this.#encoderConfig);
         }
     }
 
@@ -255,7 +270,6 @@ export default class Stream {
                         const resolution = this.#determineResolution(frame, this.#videoItem);
                         this.#canvas.width = resolution.width;
                         this.#canvas.height = resolution.height;
-
                         this.#context.drawImage(frame, 0, 0, this.#canvas.width, this.#canvas.height);
                         frame.close();
                     },
