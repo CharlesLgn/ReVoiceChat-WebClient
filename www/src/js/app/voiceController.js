@@ -146,7 +146,7 @@ export default class VoiceController {
         voiceContent.innerHTML = "";
 
         for (const connectedUser of sortedByDisplayName) {
-            voiceContent.appendChild(this.#createUserElement(connectedUser.user));
+            voiceContent.appendChild(this.#createUserElement(connectedUser));
         }
 
         // Room is currently active
