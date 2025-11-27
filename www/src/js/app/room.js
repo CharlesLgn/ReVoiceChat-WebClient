@@ -25,7 +25,7 @@ export default class Room {
                 rooms[room.id] = room;
             }
 
-            const roomList = document.getElementById("sidebar-room-container");
+            const roomList = document.getElementById("rooms");
             roomList.innerHTML = "";
             await this.#create(roomList, rooms, structResult.items);
 
@@ -85,21 +85,21 @@ export default class Room {
         root.appendChild(DIV);
 
         DIV.id = room.id;
-        DIV.className = "sidebar-room element";
+        DIV.className = "element";
         DIV.onclick = () => this.#select(room.id, room.name, room.type);
 
         const title = document.createElement('h3');
-        title.className = "room-title";
+        title.className = "title";
         title.innerHTML = this.#icon(room.type);
         DIV.appendChild(title);
 
         const name = document.createElement('div');
-        name.className = "room-title-name";
+        name.className = "title name";
         name.innerText = room.name;
         title.appendChild(name);
 
         const extension = document.createElement('div');
-        extension.className = "room-title-extension";
+        extension.className = "title extension";
         extension.id = `room-extension-${room.id}`;
         title.appendChild(extension);
 
@@ -111,7 +111,7 @@ export default class Room {
 
             const users = document.createElement('div');
             users.id = `voice-users-${room.id}`;
-            users.className = "sidebar-room users";
+            users.className = "users";
             root.appendChild(users);
 
             this.voiceController.showJoinedUsers(room.id);
@@ -182,8 +182,8 @@ export default class Room {
 
     #roomCreateSeparator(data) {
         const DIV = document.createElement('div');
-        DIV.className = "sidebar-room separator";
-        DIV.innerHTML = `<h3 class="room-title">${data.name.toUpperCase()}</h3>`;
+        DIV.className = "separator";
+        DIV.innerHTML = `<h3 class="title">${data.name.toUpperCase()}</h3>`;
         return DIV;
     }
 

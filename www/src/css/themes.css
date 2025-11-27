@@ -174,25 +174,26 @@ body {
     border-color: var(--pri-bd-color);
 }
 
-/* Room */
-.sidebar-room.separator,
-.sidebar-room.element {
+/* Rooms */
+.rooms .separator,
+.rooms .element {
     border-color: var(--pri-bd-color);
 }
 
-.sidebar-room.separator {
+.rooms .separator {
     font-weight: 600;
 }
 
-.sidebar-room.element:hover {
+.rooms .element:hover {
     background-color: var(--pri-hover-color);
 }
 
-.sidebar-room.active {
+.rooms .active {
     background-color: var(--pri-active-color);
     font-weight: 600;
 }
 
+/* Room */
 .room {
     border-color: var(--pri-bd-color);
 }
