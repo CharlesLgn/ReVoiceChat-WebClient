@@ -322,7 +322,7 @@ svg {
     height: 1.5rem;
 }
 
-.block-right {
+.pull-right {
     margin-right: 0;
     margin-left: auto;
 }

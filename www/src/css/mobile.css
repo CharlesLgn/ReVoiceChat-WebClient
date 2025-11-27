@@ -1,8 +1,7 @@
 /* Mobile responsive */
 @media (max-width: 768px) {
 
-    .sidebar,
-    .sidebar-right {
+    .sidebar {
         position: fixed;
         left: -100%;
         top: 0;
@@ -16,13 +15,13 @@
         left: 0;
     }
 
-    .sidebar-right {
+    .sidebar .right {
         left: auto;
         right: -100%;
         transition: right 0.3s;
     }
 
-    .sidebar-right.show {
+    .sidebar .right.show {
         right: 0;
     }
 
