@@ -9,6 +9,7 @@ class I18n {
         this.translations = {};
         this.currentLang = 'en';
         this.translationDir = translationDir;
+        this.observers = new Map(); // Store MutationObservers for dynamic values
     }
 
     /**
@@ -55,7 +56,7 @@ class I18n {
             // If file doesn't exist and it's not English, fallback to English
             if (lang !== 'en') {
                 console.warn(`Language ${lang} not found, falling back to English`);
-                const response = await fetch('i18n_en.properties');
+                const response = await fetch(`${this.translationDir}/i18n_en.properties`);
                 const content = await response.text();
                 return this.parseProperties(content);
             }
@@ -64,26 +65,101 @@ class I18n {
     }
 
     /**
+     * Replace placeholders in translation string
+     * @param {string} template - Translation string with {0}, {1}, etc.
+     * @param {Array|string} values - Values to replace placeholders
+     * @returns {string} Formatted string
+     */
+    formatString(template, values) {
+        if (!template) return '';
+
+        // Convert single value to array
+        const valueArray = Array.isArray(values) ? values : [values];
+
+        // Replace {0}, {1}, {2}, etc.
+        return template.replace(/\{(\d+)\}/g, (match, index) => {
+            const idx = parseInt(index);
+            return valueArray[idx] !== undefined ? valueArray[idx] : match;
+        });
+    }
+
+    /**
+     * Translate an element with dynamic values
+     * @param {HTMLElement} element - Element to translate
+     */
+    translateElement(element) {
+        const key = element.getAttribute('data-i18n');
+        const valueAttr = element.getAttribute('data-i18n-value');
+        const translation = this.translations[key];
+
+        if (!translation) {
+            console.warn(`Missing translation for key: ${key}`);
+            return;
+        }
+
+        // If there's a value attribute, parse and format
+        if (valueAttr) {
+            try {
+                // Parse value (can be a single value or JSON array)
+                const values = valueAttr.startsWith('[')
+                    ? JSON.parse(valueAttr)
+                    : valueAttr;
+
+                element.textContent = this.formatString(translation, values);
+            } catch (error) {
+                console.error(`Error parsing data-i18n-value for key ${key}:`, error);
+                element.textContent = translation;
+            }
+        } else {
+            element.textContent = translation;
+        }
+    }
+
+    /**
+     * Setup observer for dynamic value changes
+     * @param {HTMLElement} element - Element to observe
+     */
+    observeElement(element) {
+        // If already observing, disconnect first
+        if (this.observers.has(element)) {
+            this.observers.get(element).disconnect();
+        }
+
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-i18n-value') {
+                    this.translateElement(element);
+                }
+            }
+        });
+
+        observer.observe(element, {
+            attributes: true,
+            attributeFilter: ['data-i18n-value']
+        });
+
+        this.observers.set(element, observer);
+    }
+
+    /**
      * Translate all elements with the data-i18n attribute
      * @param {Document|HTMLElement} doc
      */
     translatePage(doc = document) {
-        // Translate text content
+        // Translate text content with dynamic values support
         const elements = doc.querySelectorAll('[data-i18n]');
-        elements.forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const translation = this.translations[key];
+        for (const element of elements) {
+            this.translateElement(element);
 
-            if (translation) {
-                element.textContent = translation;
-            } else {
-                console.warn(`Missing translation for key: ${key}`);
+            // Setup observer if element has data-i18n-value
+            if (element.hasAttribute('data-i18n-value')) {
+                this.observeElement(element);
             }
-        });
+        }
 
         // Translate title attributes (tooltips)
         const titledElements = doc.querySelectorAll('[data-i18n-title]');
-        titledElements.forEach(element => {
+        for (const element of titledElements) {
             const key = element.getAttribute('data-i18n-title');
             const translation = this.translations[key];
 
@@ -92,12 +168,12 @@ class I18n {
             } else {
                 console.warn(`Missing translation for title key: ${key}`);
             }
-        });
+        }
 
         // Translate placeholder attributes
         const placeholderElements = doc.querySelectorAll('[data-i18n-placeholder]');
-        placeholderElements.forEach(element => {
-            const key = element.getAttribute('data-i18n-placeholder');
+        for (const element of placeholderElements) {
+            const key = element.dataset.i18nPlaceholder
             const translation = this.translations[key];
 
             if (translation) {
@@ -105,7 +181,7 @@ class I18n {
             } else {
                 console.warn(`Missing translation for placeholder key: ${key}`);
             }
-        });
+        }
     }
 
     /**
@@ -126,16 +202,56 @@ class I18n {
     /**
      * Get a translation by key (useful for dynamic JS)
      * @param {string} key - Translation key
+     * @param {Array|string} values - Optional values for placeholders
      * @returns {string} Translation or the key if not found
      */
-    t(key) {
-        return this.translations[key] || key;
+    translateOne(key, values = null) {
+        const translation = this.translations[key] || key;
+
+        if (values !== null) {
+            return this.formatString(translation, values);
+        }
+
+        return translation;
+    }
+
+    /**
+     * Update the value of an element and trigger re-translation
+     * @param {string|HTMLElement} elementOrId - Element or element ID
+     * @param {string|Array} value - New value(s) for translation
+     */
+    updateValue(elementOrId, value) {
+        const element = typeof elementOrId === 'string'
+            ? document.getElementById(elementOrId)
+            : elementOrId;
+
+        if (typeof elementOrId === 'string' && !element) {
+            console.warn(`Element not found: ${elementOrId}`);
+            return;
+        }
+
+        // Set the new value
+        element.dataset.i18nValue = Array.isArray(value) ? JSON.stringify(value) : String(value);
+
+        // The MutationObserver will automatically trigger re-translation
+    }
+
+    /**
+     * Cleanup all observers
+     */
+    destroy() {
+        for (const observer of this.observers) {
+            observer.disconnect();
+        }
+        this.observers.clear();
     }
 }
 
 // Export for usage
 const i18n = new I18n("src/i18n");
 
-// Usage example:
+// Usage examples:
 // i18n.translate('fr');
 // i18n.translate('en');
+// i18n.t('audio.volume.label', '75'); // Returns: "Volume 75%"
+// i18n.updateValue('input-volume-label', '80'); // Updates element value and re-translates

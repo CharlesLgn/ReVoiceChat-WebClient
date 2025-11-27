@@ -299,36 +299,35 @@ export default class UserSettingsController {
     #audioInputUpdateUI(param, element) {
         switch (param) {
             case 'input-volume':
-                document.getElementById('input-volume-label').innerText = `Volume ${Number.parseInt(element.value * 100)}%`;
+                i18n.updateValue('input-volume-label', (element.value * 100).toString());
                 break;
             case 'gate-attack':
-                document.getElementById('gate-attack-label').innerText = `Attack : ${element.value * 1000}ms`;
+                i18n.updateValue('gate-attack-label', (element.value * 1000).toString());
                 break;
             case 'gate-release':
-                document.getElementById('gate-release-label').innerText = `Release : ${element.value * 1000}ms`;
+                i18n.updateValue('gate-release-label', (element.value * 1000).toString());
                 break;
             case 'gate-threshold': {
-                if (this.#inputAdvanced) {
-                    document.getElementById('gate-threshold-label').innerText = `Threshold : ${element.value}dB`;
-                } else {
-                    document.getElementById('gate-threshold-label').innerText = `Sensitivity ${element.value}dB`;
-                }
+                document.getElementById('gate-threshold-label').dataset.i18n = this.#inputAdvanced
+                    ? 'voice.threshold'
+                    : 'voice.sensitivity.label';
+                i18n.updateValue('gate-threshold-label', (element.value).toString());
                 break;
             }
             case 'compressor-attack':
-                document.getElementById('compressor-attack-label').innerText = `Attack : ${element.value * 1000}ms`;
+                i18n.updateValue('compressor-attack-label', (element.value * 1000).toString());
                 break;
             case 'compressor-ratio':
-                document.getElementById('compressor-ratio-label').innerText = `Ratio : ${element.value}`;
+                i18n.updateValue('compressor-ratio-label', (element.value).toString());
                 break;
             case 'compressor-reduction':
-                document.getElementById('compressor-reduction-label').innerText = `Reduction : ${element.value}dB`;
+                i18n.updateValue('compressor-reduction-label', (element.value).toString());
                 break;
             case 'compressor-release':
-                document.getElementById('compressor-release-label').innerText = `Release : ${element.value * 1000}ms`;
+                i18n.updateValue('compressor-release-label', (element.value * 1000).toString());
                 break;
             case 'compressor-threshold':
-                document.getElementById('compressor-threshold-label').innerText = `Threshold : ${element.value}dB`;
+                i18n.updateValue('compressor-threshold-label', (element.value).toString());
                 break;
         }
     }
