@@ -7,6 +7,7 @@
     <meta name="robots" content="noindex" />
 
     <link href="src/css/main.css" rel="stylesheet" />
+    <link href="src/css/mobile.css" rel="stylesheet" />
     <link href="src/css/emoji.css" rel="stylesheet" />
     <link href="src/css/themes.css" rel="stylesheet" />
     <link rel="shortcut icon" type="image/png" href="src/img/favicon.png" />
@@ -33,28 +34,28 @@
             <div class="rooms scrollbar" id="rooms"></div>
 
             <!-- Voice control -->
-            <div class="voice-control-panel hidden" id="voice-control-panel">
-                <div class="voice-control">
-                    <button id="stream-webcam" title="Enable your camera" class="voice-button" data-i18n-title="voice.camera.enable">
+            <div class="voice-control hidden" id="voice-control-panel">
+                <div class="element">
+                    <button id="stream-webcam" title="Enable your camera" data-i18n-title="voice.camera.enable">
                         <revoice-icon-camera></revoice-icon-camera>
                     </button>
                 </div>
-                <div class="voice-control">
-                    <button id="stream-display" title="Share your screen" class="voice-button" data-i18n-title="voice.screen.share">
+                <div class="element">
+                    <button id="stream-display" title="Share your screen" data-i18n-title="voice.screen.share">
                         <revoice-icon-display></revoice-icon-display>
                     </button>
                 </div>
-                <div class="voice-control">
-                    <button id="voice-self-mute" title="Mute" class="voice-button" data-i18n-title="voice.mute">
+                <div class="element">
+                    <button id="voice-self-mute" title="Mute" data-i18n-title="voice.mute">
                         <revoice-icon-microphone></revoice-icon-microphone>
                     </button>
                 </div>
-                <div class="voice-control">
-                    <button id="voice-self-deaf" title="Deaf" class="voice-button" data-i18n-title="voice.deaf">
+                <div class="element">
+                    <button id="voice-self-deaf" title="Deaf" data-i18n-title="voice.deaf">
                         <revoice-icon-speaker></revoice-icon-speaker>
                     </button>
                 </div>
-                <div class="voice-control">
+                <div class="element">
                     <button id="voice-join-action" class="connect join">[JOIN]</button>
                 </div>
             </div>

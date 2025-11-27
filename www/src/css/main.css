@@ -570,7 +570,7 @@ svg {
 }
 
 /* VOICE */
-.voice-control-panel {
+.voice-control {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -579,13 +579,13 @@ svg {
     border-top-width: 1px;
 }
 
-.voice-control {
+.voice-control .element {
     margin-left: 0.5rem;
     height: 3rem;
 }
 
-.voice-control button,
-.voice-control input {
+.voice-control .element button,
+.voice-control .element input {
     display: block;
     cursor: pointer;
     margin-top: 0.25rem;

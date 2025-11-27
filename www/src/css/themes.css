@@ -154,6 +154,14 @@ body {
     color: var(--pri-text-color);
 }
 
+.red {
+    color: #ff0000;
+}
+
+.green{
+    color: #22c55e;
+}
+
 /* Element */
 .app button:hover {
     background-color: var(--sec-button-hover-color);
@@ -237,28 +245,29 @@ body {
     color: var(--pri-placeholder-color);
 }
 
-.voice-control-panel {
+/* Voice control */
+.voice-control {
     border-color: var(--pri-bd-color);
     background-color: var(--ter-bg-color);
 }
 
-.voice-control .disconnected {
+.voice-control .element .disconnected {
     background-color: #22c55e;
 }
 
-.voice-control .disconnected:hover {
+.voice-control .element .disconnected:hover {
     background-color: #189345;
 }
 
-.voice-control .waiting {
+.voice-control .element .waiting {
     background-color: #ffa500;
 }
 
-.voice-control .connected {
+.voice-control .element .connected {
     background-color: #ee3434;
 }
 
-.voice-control .connected:hover {
+.voice-control .element .connected:hover {
     background-color: #b62727;
 }
 
@@ -266,19 +275,9 @@ body {
     background-color: var(--sec-bg-color);
 }
 
-.voice-control .voice-button:hover,
-.voice-profile .voice-button:hover {
+.voice-control button:hover,
+.voice-profile button:hover {
     background-color: var(--sec-button-hover-color);
-}
-
-.voice-control .voice-button.active,
-.voice-button .red,
-.red {
-    color: #ff0000;
-}
-
-.voice-control .voice-button.green{
-    color: #22c55e;
 }
 
 .config-button.disabled {
