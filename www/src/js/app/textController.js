@@ -96,12 +96,14 @@ export default class TextController {
         const fileInput = document.getElementById("text-attachment");
         fileInput.click();
         document.getElementById("text-attachment-div").classList.remove('hidden');
+        document.getElementById("text-input").focus()
     }
 
     #removeAttachment() {
         const fileInput = document.getElementById("text-attachment");
         fileInput.value = "";
         document.getElementById("text-attachment-div").classList.add('hidden');
+        document.getElementById("text-input").focus()
     }
 
     async send() {
