@@ -753,22 +753,6 @@ svg {
     height: 1rem;
 }
 
-.user-dot-online {
-    background-color: rgb(74, 222, 81);
-}
-
-.user-dot-away {
-    background-color: rgb(251, 136, 60);
-}
-
-.user-dot-dnd {
-    background-color: rgb(220, 38, 38)
-}
-
-.user-dot-offline {
-    background-color: rgb(113, 113, 122)
-}
-
 .user-profile {
     display: flex;
     cursor: pointer;

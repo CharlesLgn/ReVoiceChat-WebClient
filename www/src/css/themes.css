@@ -154,12 +154,41 @@ body {
     color: var(--pri-text-color);
 }
 
-.red {
-    color: #ff0000;
+/* Fixed colors */
+.green{
+    color: #22c55e !important;
 }
 
-.green{
-    color: #22c55e;
+.red {
+    color: #ff0000 !important;
+}
+
+.background-green {
+    background-color: #22c55e !important;
+}
+
+.background-green:hover {
+    background-color: #1b8b44 !important;
+}
+
+.background-orange {
+    background-color: #fb883c !important;
+}
+
+.background-red {
+    background-color: #ff0000 !important;
+}
+
+.background-red:hover {
+    background-color: #9e0505 !important;
+}
+
+.background-gray {
+    background-color: #71717a !important;
+}
+
+.background-darkred:hover{
+    background-color: #9e0505 !important;
 }
 
 /* Element */
@@ -280,22 +309,6 @@ body {
     background-color: var(--sec-button-hover-color);
 }
 
-.config-button.disabled {
-    background-color: #ff0000;
-}
-
-.config-button.enabled {
-    background-color: #22c55e;
-}
-
-.config-button.disabled:hover {
-    background-color: #9e0505;
-}
-
-.config-button.enabled:hover {
-    background-color: #1b8b44;
-}
-
 /* Message */
 .message-container:hover {
     background-color: var(--pri-hover-color);
@@ -331,15 +344,6 @@ body {
 .config .sub-category.active {
     background-color: var(--pri-active-color);
     color: var(--pri-button-bg-color);
-}
-
-.config .sub-category.danger{
-    color: red;
-}
-
-.config .sub-category.danger:hover{
-    background-color: darkred;
-    color: #ff1f1f;
 }
 
 .config input,

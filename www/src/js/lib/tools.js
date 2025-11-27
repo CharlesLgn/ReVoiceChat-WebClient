@@ -198,14 +198,14 @@ function humanFileSize(bytes, si = false, dp = 1) {
 function statusToDotClassName(status) {
     switch (status) {
         case "ONLINE":
-            return "user-dot-online";
+            return "background-green";
         case "AWAY":
-            return "user-dot-away";
+            return "background-orange";
         case "DO_NOT_DISTURB":
-            return "user-dot-dnd";
+            return "background-red";
         case "INVISIBLE":
         default:
-            return "user-dot-offline";
+            return "background-gray";
     }
 }
 

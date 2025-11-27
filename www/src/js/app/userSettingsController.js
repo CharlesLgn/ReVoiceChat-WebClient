@@ -409,12 +409,12 @@ export default class UserSettingsController {
         const buttonEnabled = document.getElementById('compressor-enabled')
         if (this.voice.compressor.enabled) {
             buttonEnabled.innerText = "Enabled";
-            buttonEnabled.classList.remove("disabled");
-            buttonEnabled.classList.add("enabled");
+            buttonEnabled.classList.remove("background-red");
+            buttonEnabled.classList.add("background-green");
         } else {
             buttonEnabled.innerText = "Disabled";
-            buttonEnabled.classList.add("disabled");
-            buttonEnabled.classList.remove("enabled");
+            buttonEnabled.classList.add("background-red");
+            buttonEnabled.classList.remove("background-green");
         }
 
         document.getElementById('compressor-attack').value = this.voice.compressor.attack;

@@ -264,15 +264,15 @@ class ServerRolesWebComponent extends HTMLElement {
                                 <div class="risk-item">
                                     <div class="risk-name">${risk.title}</div>
                                     <div class="risk-toggle">
-                                        <button class="toggle-btn enabled ${this.#findRisk(role, risk)?.mode === 'ENABLE' ? 'active' : ''}" 
+                                        <button class="toggle-btn ${this.#findRisk(role, risk)?.mode === 'ENABLE' ? 'background-green' : ''}" 
                                                 data-role-id="${role.id}" data-risk="${risk.type}" data-status="ENABLE">
                                             Enabled
                                         </button>
-                                        <button class="toggle-btn disabled ${this.#findRisk(role, risk)?.mode === 'DISABLE' ? 'active' : ''}" 
+                                        <button class="toggle-btn ${this.#findRisk(role, risk)?.mode === 'DISABLE' ? 'background-red' : ''}" 
                                                 data-role-id="${role.id}" data-risk="${risk.type}" data-status="DISABLE">
                                             Disabled
                                         </button>
-                                        <button class="toggle-btn default ${(this.#findRisk(role, risk)?.mode === 'DEFAULT' || !this.#findRisk(role, risk)) ? 'active' : ''}" 
+                                        <button class="toggle-btn ${(this.#findRisk(role, risk)?.mode === 'DEFAULT' || !this.#findRisk(role, risk)) ? 'background-gray' : ''}" 
                                                 data-role-id="${role.id}" data-risk="${risk.type}" data-status="DEFAULT">
                                             Default
                                         </button>
