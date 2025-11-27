@@ -719,8 +719,7 @@ svg {
 
 
 /* STREAM */
-
-.stream.container{
+.stream{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -730,7 +729,13 @@ svg {
     height: 100%;
 }
 
-.stream.item{
+.stream.fullscreen{
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.stream .player{
     flex: 0 0 48%;
     margin: 0.5rem;
     border-color: var(--pri-bd-color);
@@ -743,38 +748,7 @@ svg {
     cursor: zoom-in;
 }
 
-.stream.item:has(> :last-child:nth-child(4)){
-    width: 20vw;
-    height: 20vh;
-}
-
-.stream.item .content{
-    height: 100%;
-    width: 100%;
-}
-
-.stream.item canvas{
-    height: 100%;
-    width: 100%;
-    object-fit: contain;
-    cursor: zoom-in;
-}
-
-.stream.item.join {
-    width: 10rem;
-    height: 5rem;
-    text-align: center;
-    align-content: center;
-    cursor: pointer;
-}
-
-.stream.container.fullscreen{
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-.stream.container.fullscreen .item{
+.stream.fullscreen .player{
     display: block;
     width: inherit;
     height: inherit;
@@ -785,15 +759,25 @@ svg {
     cursor: zoom-out;
 }
 
-.stream.container.fullscreen canvas {
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    cursor: zoom-out;
+.stream .player video,
+.stream .player canvas{
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
 }
 
+.stream .player.join {
+    width: 10rem;
+    height: 5rem;
+    text-align: center;
+    align-content: center;
+    cursor: pointer;
+}
+
+.stream .player:has(> :last-child:nth-child(4)){
+    width: 20vw;
+    height: 20vh;
+}
 
 /* STATUS */
 

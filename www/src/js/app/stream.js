@@ -81,9 +81,9 @@ export default class Stream {
         this.#videoPlayer = document.createElement('video');
         this.#videoPlayer.className = "content";
 
-        // Video item (box)
+        // Video player (box)
         this.#videoItem = document.createElement('div');
-        this.#videoItem.className = "stream item";
+        this.#videoItem.className = "player";
         this.#videoItem.onclick = () => { this.focus(this.#videoItem) }
         this.#videoItem.appendChild(this.#videoPlayer);
 
@@ -267,9 +267,9 @@ export default class Stream {
                 this.#canvas = document.createElement("canvas");
                 this.#context = this.#canvas.getContext("2d");
 
-                // Video item (box)
+                // Video player (box)
                 this.#videoItem = document.createElement('div');
-                this.#videoItem.className = "stream item";
+                this.#videoItem.className = "player";
                 this.#videoItem.onclick = () => { this.focus(this.#videoItem) }
                 this.#videoItem.appendChild(this.#canvas);
 
