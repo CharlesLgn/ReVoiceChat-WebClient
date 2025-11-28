@@ -37,7 +37,7 @@ function userLogin() {
     catch (e) {
         Swal.fire({
             icon: 'error',
-            title: `Unable to login`,
+            title: i18n.translateOne("login.error"),
             error: e,
             animation: false,
             customClass: SwalCustomClass,
@@ -84,7 +84,7 @@ async function login(loginData, host) {
         spinner.error()
         Swal.fire({
             icon: "error",
-            title: `Unable to connect to\n ${host}`,
+            title: i18n.translateOne("login.error.host", host),
             error: error,
             focusConfirm: false,
             allowOutsideClick: false,
@@ -146,7 +146,7 @@ function userRegister() {
     catch (e) {
         Swal.fire({
             icon: 'error',
-            title: `Unable to register`,
+            title: i18n.translateOne('login.register.error'),
             text: e,
             animation: false,
             customClass: SwalCustomClass,
@@ -175,7 +175,7 @@ async function register(loginData, host) {
 
         Swal.fire({
             icon: "success",
-            title: `You can now login to\n ${host}`,
+            title: i18n.translateOne('login.register.success', host),
             focusConfirm: false,
             allowOutsideClick: false,
             animation: false,
@@ -186,7 +186,7 @@ async function register(loginData, host) {
     catch (error) {
         Swal.fire({
             icon: "error",
-            title: `Unable to register to\n ${host}`,
+            title: i18n.translateOne('login.register.host.error', host),
             text: error,
             focusConfirm: false,
             allowOutsideClick: false,

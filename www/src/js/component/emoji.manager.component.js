@@ -80,10 +80,10 @@ class EmojiManager extends HTMLElement {
 
     validateName(name) {
         if (!name.trim()) {
-            return "Name is required";
+            return "emote.new.error.name.required";
         }
         if (/\s/.test(name)) {
-            return "Name must not contain spaces";
+            return "emote.new.error.name.no.space";
         }
         return null;
     }
@@ -98,20 +98,20 @@ class EmojiManager extends HTMLElement {
         this.shadowRoot.getElementById('nameError').textContent = '';
 
         // Validate
-        const nameError = this.validateName(nameInput.value);
+        const nameError = i18n.translateOne(this.validateName(nameInput.value));
         if (nameError) {
             this.shadowRoot.getElementById('nameError').textContent = nameError;
             return;
         }
 
         if (!fileInput.files[0]) {
-            this.shadowRoot.getElementById('fileError').textContent = "Please select an image";
+            this.shadowRoot.getElementById('fileError').textContent = i18n.translateOne("emote.new.error.picture");
             return;
         }
 
         // Check if name already exists
         if (this.emojis.some(e => e.name === nameInput.value.trim())) {
-            this.shadowRoot.getElementById('nameError').textContent = "This name already exists";
+            this.shadowRoot.getElementById('nameError').textContent = i18n.translateOne("emote.new.error.duplicate");
             return;
         }
 
@@ -159,13 +159,13 @@ class EmojiManager extends HTMLElement {
 
         } catch (error) {
             console.error('Error adding emoji:', error);
-            this.shadowRoot.getElementById('fileError').textContent = 'Failed to add emoji';
+            this.shadowRoot.getElementById('fileError').textContent = i18n.translateOne("emote.new.error");
         }
     }
 
     async deleteEmoji(id) {
         Swal.fire({
-            title: `Delete emote '${id}'`,
+            title: i18n.translateOne("emote.delete.popup", [id]),
             animation: false,
             customClass: {
                 title: "swalTitle",
@@ -214,27 +214,26 @@ class EmojiManager extends HTMLElement {
                 cancelButton: "swalCancel",
                 confirmButton: "swalConfirm",
                 input: "assigned-user-checkbox"
-
             },
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Add",
+            confirmButtonText: i18n.translateOne("emote.new.button"),
             allowOutsideClick: false,
             html: `
                 <form id="editForm">
-                    <div class="form-row-with-preview">
+                    <div id="update-emote-popup" class="form-row-with-preview">
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
                             <div class="emotes-form-group">
-                                <label for="editName">Name (no spaces)</label>
+                                <label for="editName" data-i18n="emote.new.name">Name (no spaces)</label>
                                 <input type="text" id="editName" required>
                                 <div class="error" id="editNameError"></div>
                             </div>
                             <div class="emotes-form-group">
-                                <label for="editKeywords">Keywords (comma-separated)</label>
+                                <label for="editKeywords" data-i18n="emote.new.keyword">Keywords (comma-separated)</label>
                                 <input type="text" id="editKeywords">
                             </div>
                             <div class="emotes-form-group">
-                                <label for="editEmojiFile">Change image</label>
+                                <label for="editEmojiFile" data-i18n="emote.new.picture">Change image</label>
                                 <input type="file" id="editEmojiFile" accept="image/*">
                             </div>
                         </div>
@@ -257,19 +256,20 @@ class EmojiManager extends HTMLElement {
                 editEmojiFile.addEventListener('change', (e) => {
                     this.handleFilePreview(e.target.files[0], editPreview);
                 });
+                i18n.translatePage(document.getElementById("update-emote-popup"))
             },
             preConfirm: () => {
                 const popup = Swal.getPopup();
                 const name = popup.querySelector('#editName').value;
                 const keywords = popup.querySelector('#editKeywords').value.split(",");
                 const files = popup.querySelector('#editEmojiFile').value;
-                const nameError = this.validateName(name);
+                const nameError = i18n.translateOne(this.validateName(name));
                 if (nameError) {
                     popup.querySelector('#editNameError').textContent = nameError;
                     return;
                 }
                 if (this.emojis.some(e => e.name === name.trim() && e.id !== this.currentEditId)) {
-                    popup.querySelector('#editNameError').textContent = "This name already exists";
+                    popup.querySelector('#editNameError').textContent = i18n.translateOne("emote.new.error.duplicate");
                     return;
                 }
 
@@ -357,8 +357,8 @@ class EmojiManager extends HTMLElement {
             grid.innerHTML = `
                 <div class="empty-state">
                     <revoice-icon-emoji></revoice-icon-emoji>
-                    <h3>No emojis yet</h3>
-                    <p>Add one above!</p>
+                    <h3 data-i18n="emote.empty.title">No emojis yet</h3>
+                    <p  data-i18n="emote.empty.body" >Add one above!</p>
                 </div>
             `;
             return;
@@ -377,10 +377,10 @@ class EmojiManager extends HTMLElement {
                 </div>
                 <div class="emoji-actions">
                     <button class="emote-list-button btn-secondary btn-small" data-action="edit" data-id="${emoji.id}">
-                        <revoice-icon-pencil></revoice-icon-pencil> Edit
+                        <revoice-icon-pencil></revoice-icon-pencil> <span data-i18n="emote.item.edit">Edit</span>
                     </button>
                     <button class="emote-list-button btn-danger btn-small" data-action="delete" data-id="${emoji.id}">
-                        <revoice-icon-trash></revoice-icon-trash> Delete
+                        <revoice-icon-trash></revoice-icon-trash> <span data-i18n="emote.item.delete">Delete</span>
                     </button>
                 </div>
             </div>
@@ -394,244 +394,14 @@ class EmojiManager extends HTMLElement {
         for (const btn of grid.querySelectorAll('button[data-action="delete"]')) {
             btn.addEventListener('click', () => this.deleteEmoji(btn.dataset.id));
         }
+        i18n.translatePage(grid)
     }
 
     render() {
         this.shadowRoot.innerHTML = `
             <link href="src/css/main.css" rel="stylesheet" />
             <link href="src/css/emoji.css" rel="stylesheet" />
-            <style>
-                * {
-                    font-family: sans-serif;
-                    user-select: none;
-                    box-sizing: border-box;
-                }
-
-                button {
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                    cursor: pointer;
-                    border-radius: 0.25rem;
-                    padding: 0.5rem 1rem;
-                    font-weight: 700;
-                    text-align: center;
-                    border: none;
-                }
-
-                .container {
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    color: var(--pri-text-color);
-                }
-
-                .add-section {
-                    background-color: var(--sec-bg-color);
-                    border: 1px solid var(--pri-bd-color);
-                    border-radius: 0.25rem;
-                    padding: 1.5rem;
-                    margin-bottom: 2rem;
-                }
-
-                .add-section h2 {
-                    font-size: 1rem;
-                    font-weight: 800;
-                    margin-bottom: 1rem;
-                }
-
-                .add-form {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                }
-
-                .form-row {
-                    display: flex;
-                    gap: 1rem;
-                    flex-wrap: wrap;
-                }
-
-                .preview-container {
-                    display: none;
-                    width: 6rem;
-                    height: 6rem;
-                    background-color: var(--qua-bg-color);
-                    border-radius: 0.25rem;
-                    align-items: center;
-                    justify-content: center;
-                    overflow: hidden;
-                    flex-shrink: 0;
-                    border: 2px solid var(--pri-bd-color);
-                }
-
-                .preview-container img {
-                    max-width: 100%;
-                    max-height: 100%;
-                    object-fit: contain;
-                }
-
-                .btn-primary {
-                    background-color: var(--pri-button-bg-color);
-                    color: var(--pri-button-text-color);
-                }
-
-                .btn-primary:hover {
-                    background-color: var(--pri-button-hover-color);
-                }
-
-                .btn-secondary {
-                    background-color: var(--sec-button-bg-color);
-                    color: var(--pri-text-color);
-                }
-
-                .btn-secondary:hover {
-                    background-color: var(--sec-button-hover-color);
-                }
-
-                .btn-danger {
-                    background-color: var(--ter-button-bg-color);
-                    color: var(--pri-text-color);
-                }
-
-                .btn-danger:hover {
-                    background-color: var(--ter-button-hover-color);
-                }
-
-                .btn-small {
-                    padding: 0.25rem 0.5rem;
-                    font-size: 0.75rem;
-                }
-
-                .error {
-                    color: var(--ter-button-bg-color);
-                    font-size: 0.75rem;
-                    margin-top: 0.25rem;
-                }
-
-                .emoji-list {
-                    background-color: var(--sec-bg-color);
-                    border: 1px solid var(--pri-bd-color);
-                    border-radius: 0.25rem;
-                    padding: 1.5rem;
-                }
-
-                .emoji-list h2 {
-                    font-size: 1rem;
-                    font-weight: 800;
-                    margin-bottom: 1rem;
-                }
-
-                .emoji-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                    gap: 1rem;
-                }
-
-                .config-item {
-                    display: flex;
-                    flex-direction: column;
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                    cursor: default;
-                    border-radius: 0.25rem;
-                    padding: 1rem;
-                    background-color: var(--ter-bg-color);
-                    border: 1px solid transparent;
-                    height: fit-content;
-                }
-
-                .config-item:hover {
-                    background-color: var(--pri-hover-color);
-                    border-color: var(--pri-bd-color);
-                }
-
-                .emoji-header {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 0.75rem;
-                }
-
-                .emoji-preview {
-                    width: 3rem;
-                    height: 3rem;
-                    background-color: var(--qua-bg-color);
-                    border-radius: 0.25rem;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    overflow: hidden;
-                    flex-shrink: 0;
-                }
-
-                .emoji-preview img {
-                    max-width: 100%;
-                    max-height: 100%;
-                    object-fit: contain;
-                }
-
-                .emoji-info {
-                    flex: 1;
-                    margin-left: 0.75rem;
-                    min-width: 0;
-                }
-
-                .emoji-name {
-                    font-weight: 800;
-                    font-size: 1rem;
-                    word-break: break-word;
-                    margin-bottom: 0.25rem;
-                }
-
-                .emoji-keywords {
-                    font-size: 0.75rem;
-                    color: var(--pri-placeholder-color);
-                    min-height: 1rem;
-                }
-
-                .emoji-actions {
-                    display: flex;
-                    gap: 0.5rem;
-                    margin-top: 0.75rem;
-                }
-
-                .emoji-actions button {
-                    flex: 1;
-                }
-
-                .empty-state {
-                    text-align: center;
-                    padding: 3rem 2rem;
-                    color: var(--pri-placeholder-color);
-                    grid-column: 1 / -1;
-                }
-
-                .empty-state svg {
-                    width: 4rem;
-                    height: 4rem;
-                    margin-bottom: 1rem;
-                    opacity: 0.5;
-                }
-
-                .empty-state h3 {
-                    margin-bottom: 0.5rem;
-                    font-size: 1.25rem;
-                }
-
-                button svg {
-                    width: 1rem;
-                    height: 1rem;
-                }
-                
-                .emote-list-button {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    column-gap: 10px;
-                }
-
-                /* Hidden slot */
-                ::slotted(*) {
-                    display: none;
-                }
-            </style>
-
+            <link href="src/js/component/emoji.manager.component.css" rel="stylesheet" />
             <div class="container">
                 <slot name="emojis-data"></slot>
 
@@ -641,24 +411,24 @@ class EmojiManager extends HTMLElement {
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
                                 <div class="form-row">
                                     <div class="emotes-form-group">
-                                        <label for="emojiFile">Image</label>
+                                        <label for="emojiFile" data-i18n="emote.new.picture">Image</label>
                                         <input type="file" id="emojiFile" accept="image/*" required>
                                         <div class="error" id="fileError"></div>
                                     </div>
                                     <div class="emotes-form-group">
-                                        <label for="emojiName">Name (no spaces)</label>
-                                        <input type="text" id="emojiName" placeholder="e.g. super_emoji" required>
+                                        <label for="emojiName" data-i18n="emote.new.name">Name (no spaces)</label>
+                                        <input type="text" id="emojiName" data-i18n-placeholder="emote.new.name.placeholder" placeholder="e.g. super_emoji" required>
                                         <div class="error" id="nameError"></div>
                                     </div>
                                 </div>
                                 <div class="emotes-form-group">
-                                    <label for="emojiKeywords">Keywords (optional, comma-separated)</label>
-                                    <input type="text" id="emojiKeywords" placeholder="e.g. happy, smile, joy">
+                                    <label for="emojiKeywords" data-i18n="emote.new.keyword">Keywords (optional, comma-separated)</label>
+                                    <input type="text" id="emojiKeywords" data-i18n-placeholder="emote.new.keyword.placeholder" placeholder="e.g. happy, smile, joy">
                                 </div>
                             </div>
                             <div class="preview-container" id="addPreview"></div>
                         </div>
-                        <button type="submit" class="btn-primary">Add emote</button>
+                        <button type="submit" class="btn-primary" data-i18n="emote.new.button">Add emote</button>
                     </form>
                 </div>
 

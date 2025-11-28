@@ -28,7 +28,6 @@ async function initPicker() {
     pickerContainer.querySelector('#emoji-picker-content')?.remove();
     pickerContainer.appendChild(picker.create());
     const messageInput = document.getElementById('text-input');
-    // Sélection d'emoji
     picker.onEmojiSelect = (emoji) => {
         const cursorPos = messageInput.selectionStart;
         const textBefore = messageInput.value.substring(0, cursorPos);

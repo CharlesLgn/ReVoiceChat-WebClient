@@ -10,11 +10,11 @@ class VoiceContextMenu extends HTMLElement {
         this.shadowRoot.innerHTML = `
             <link href="src/css/main.css" rel="stylesheet" />
             <link href="src/css/themes.css" rel="stylesheet" />
-            <link href="src/js/component/context.menu.css" rel="stylesheet" />
+            <link href="src/js/component/context.menu.component.css" rel="stylesheet" />
 
             <div class="menu">
                 <div class="item slider" id="volume-block">
-                    <label id="volume-label">Volume</label>
+                    <label id="volume-label" data-i18n-value="0" data-i18n="voice.volume">Volume</label>
                     <input id="volume" type="range" min="0" max="2" step="0.01"></input>
                 </div>
                 
@@ -46,13 +46,8 @@ class VoiceContextMenu extends HTMLElement {
         const volumeInput = this.shadowRoot.getElementById("volume");
         const volumeLabel = this.shadowRoot.getElementById("volume-label");
 
-        volumeInput.value = voiceSettings.volume;
-        volumeInput.title = parseInt(voiceSettings.volume * 100) + "%";
-        volumeLabel.innerText = `Volume ${volumeInput.title}`;
+        volumeInput.dataset.i18nValue = parseInt(voiceSettings.volume * 100) + "%";
         volumeInput.oninput = () => {
-            volumeInput.title = parseInt(volumeInput.value * 100) + "%";
-            volumeLabel.innerText = `Volume ${volumeInput.title}`;
-            voiceSettings.volume = volumeInput.value;
             if (this.#voiceCall) {
                 this.#voiceCall.updateUserVolume(userId);
             }
@@ -64,7 +59,7 @@ class VoiceContextMenu extends HTMLElement {
         const volumeBlock = this.shadowRoot.getElementById("volume-block");
         volumeBlock.ondblclick = () => {
             volumeInput.title = "100%";
-            volumeLabel.innerText = `Volume ${volumeInput.title}`;
+            volumeLabel.dataset.i18nValue = volumeInput.title;
             volumeInput.value = 1;
             voiceSettings.volume = 1;
             this.#saveSettings();

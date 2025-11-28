@@ -23,7 +23,7 @@ const sanitizeString = (str) => str.substring(0, 2000).trim();
 /**
  * Is the date today
  * @param date Date to check
- * @returns True/False
+ * @returns boolean
  */
 function isToday(date) {
     const today = new Date();
@@ -33,7 +33,7 @@ function isToday(date) {
 /**
  * Convert UNIX timestamp to readable Date:Hour format
  * @param {*} timestamp 
- * @returns 
+ * @returns string
  */
 function timestampToText(timestamp) {
     // By default timestamp is UTC (shouldn't matter for this function)
@@ -49,8 +49,8 @@ function timestampToText(timestamp) {
 
 /**
  * Retrieve query variable from URL
- * @param variable Name of variable
- * @returns Value of variable
+ * @param {string} variable Name of variable
+ * @returns {string|null} Value of variable
  */
 function getQueryVariable(variable) {
     const query = window.location.search.substring(1);

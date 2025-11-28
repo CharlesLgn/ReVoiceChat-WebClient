@@ -41,7 +41,7 @@ class ServerRolesWebComponent extends HTMLElement {
             this.renderRoles();
         } catch (error) {
             console.error('Error loading data:', error);
-            this.showError('Failed to load data');
+            this.showError('server.roles.error.load');
         }
     }
 
@@ -70,123 +70,12 @@ class ServerRolesWebComponent extends HTMLElement {
             <link href="src/css/main.css" rel="stylesheet" />
             <link href="src/css/emoji.css" rel="stylesheet" />
             <link href="src/css/themes.css" rel="stylesheet" />
-            <style>
-                .role-settings-main {
-                    display: flex;
-                    width: max-content;
-                }
-
-                .role-settings-sidebar {
-                    display: flex;
-                    flex-direction: column;
-                    width: 15rem;
-                    height: -webkit-fill-available;
-                    background-color: var(--sec-bg-color);
-                }
-
-                .config-item {
-                    display: flex;
-                    cursor: pointer;
-                    align-items: center;
-                }
-                
-                .role-priority {
-                    font-size: 0.75rem;
-                    color: #95a5a6;
-                    padding-left: 0.75rem;
-                }
-
-                .room-container {
-                    padding-left: 2rem;
-                    width: 35rem;
-                }
-
-                .risk-category {
-                    margin-bottom: 2rem;
-                }
-
-                .risk-category-header {
-                    font-weight: 700;
-                    padding-bottom: 0.5rem;
-                }
-
-                .risk-container {
-                    display: grid;
-                    gap: 0.75rem;
-                }
-
-                .risk-item {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 1rem;
-                    background-color: var(--pri-bg-color);
-                    border-radius: 0.25rem;
-                    border-left: 4px solid;
-                    border-left-color: var(--pri-bd-color);
-                }
-
-                .risk-name {
-                    padding-right: 10px;
-                }
-
-                .risk-toggle {
-                    display: flex;
-                    gap: 0.5rem;
-                }
-
-                .detail-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                    margin-bottom: 2rem;
-                    padding-bottom: 1rem;
-                    border-bottom: 1px solid #43434d;
-                }
-
-                .icon {
-                    width: 3rem;
-                    height: 3rem;
-                    border-radius: 9999px;
-                }
-
-                .detail-header h2 { flex: 1;}
-
-                .detail-priority {
-                    font-size: 0.875rem;
-                    color: #95a5a6;
-                }
-
-                .error-message {
-                    background-color: rgb(220, 38, 38);
-                    color: white;
-                    padding: 1rem;
-                    border-radius: 0.25rem;
-                    margin: 1rem;
-                    text-align: center;
-                }
-
-                .tab button {
-                    background-color: inherit;
-                    float: left;
-                    border: none;
-                    outline: none;
-                    cursor: pointer;
-                    padding: 0.5rem;
-                    margin-right: 0.2rem;
-                }
-
-                .tab button.active {
-                    background-color: var(--pri-active-color);
-                    color: var(--pri-button-bg-color);
-                }
-            </style>
-
+            <link href="src/js/component/server.roles.component.css" rel="stylesheet" />
             <div class="config config-right">            
                 <div class="role-settings-main">
                     <div class="role-settings-sidebar">
                         <div class="config-buttons">
-                            <button id="createRoleBtn"><revoice-icon-circle-plus></revoice-icon-circle-plus> New</button>
+                            <button id="createRoleBtn"><revoice-icon-circle-plus></revoice-icon-circle-plus> <span data-i18n="server.roles.new">New</span></button>
                         </div>
                         <div class="sidebar-room-container" id="rolesList"></div>
                     </div>
@@ -194,8 +83,8 @@ class ServerRolesWebComponent extends HTMLElement {
                         <div class="room-container">
                             <div class="room-content" id="roleDetails">
                                 <div class="empty-state">
-                                    <h3>Select a role</h3>
-                                    <p>Choose a role from the list to view and manage its risks</p>
+                                    <h3 data-i18n="server.roles.select.title">Select a role</h3>
+                                    <p  data-i18n="server.roles.select.body" >Choose a role from the list to view and manage its risks</p>
                                 </div>
                             </div>
                         </div>
@@ -220,7 +109,7 @@ class ServerRolesWebComponent extends HTMLElement {
                     <div class="icon" style="background: ${role.color}"></div>
                     <div style="flex: 1;">
                         <div class="name">${role.name}</div>
-                        <div class="role-priority">Priority: ${role.priority}</div>
+                        <div class="role-priority"><span data-i18n="server.roles.priority">Priority:</span> ${role.priority}</div>
                     </div>
                 </div>
             `).join('');
@@ -232,6 +121,7 @@ class ServerRolesWebComponent extends HTMLElement {
                 this.selectRole(roleId);
             });
         }
+        i18n.translatePage(rolesList)
     }
 
     selectRole(roleId) {
@@ -250,8 +140,8 @@ class ServerRolesWebComponent extends HTMLElement {
                 <h2>${role.name}</h2>
 
                 <div class="tab">
-                    <button class="active" id="role-tab-auth">Authorizations</button>
-                    <button id="role-tab-members">Members</button>
+                    <button class="active" id="role-tab-auth" data-i18n="server.roles.authorizations">Authorizations</button>
+                    <button id="role-tab-members" data-i18n="server.roles.members">Members</button>
                 </div>
             </div>
 
@@ -265,15 +155,18 @@ class ServerRolesWebComponent extends HTMLElement {
                                     <div class="risk-name">${risk.title}</div>
                                     <div class="risk-toggle">
                                         <button class="toggle-btn ${this.#findRisk(role, risk)?.mode === 'ENABLE' ? 'background-green' : ''}" 
-                                                data-role-id="${role.id}" data-risk="${risk.type}" data-status="ENABLE">
+                                                data-role-id="${role.id}" data-risk="${risk.type}" data-status="ENABLE"
+                                                data-i18n="server.roles.risk.enable">
                                             Enabled
                                         </button>
                                         <button class="toggle-btn ${this.#findRisk(role, risk)?.mode === 'DISABLE' ? 'background-red' : ''}" 
-                                                data-role-id="${role.id}" data-risk="${risk.type}" data-status="DISABLE">
+                                                data-role-id="${role.id}" data-risk="${risk.type}" data-status="DISABLE"
+                                                data-i18n="server.roles.risk.disabled">
                                             Disabled
                                         </button>
                                         <button class="toggle-btn ${(this.#findRisk(role, risk)?.mode === 'DEFAULT' || !this.#findRisk(role, risk)) ? 'background-gray' : ''}" 
-                                                data-role-id="${role.id}" data-risk="${risk.type}" data-status="DEFAULT">
+                                                data-role-id="${role.id}" data-risk="${risk.type}" data-status="DEFAULT"
+                                                data-i18n="server.roles.risk.default">
                                             Default
                                         </button>
                                     </div>
@@ -285,7 +178,7 @@ class ServerRolesWebComponent extends HTMLElement {
             </div>
 
             <div class="config-section hidden" id="members-section">
-                <button id="role-member-add">Add</button>
+                <button id="role-member-add" data-i18n="server.roles.risk.default">Add</button>
                 <br/>
                 <div id="role-member-list" class="config-members-list"></div>
             </div >`;
@@ -388,7 +281,7 @@ class ServerRolesWebComponent extends HTMLElement {
             this.renderRoleDetails();
         } catch (error) {
             console.error('Error updating risk:', error);
-            this.showError('Failed to update risk');
+            this.showError('server.roles.error.update.risk');
         }
     }
 
@@ -409,20 +302,23 @@ class ServerRolesWebComponent extends HTMLElement {
             confirmButtonText: "Add",
             allowOutsideClick: false,
             html: `
-            <form class='popup'>
+            <form id="new-role-popup" class='popup'>
                 <div class="server-structure-form-group">
-                    <label for="roleName">Role Name</label>
-                    <input type="text" id="roleName" placeholder="Enter role name">
+                    <label for="roleName" data-i18n="server.roles.new.name">Role Name</label>
+                    <input type="text" id="roleName" data-i18n-placeholder="server.roles.new.name.placeholder" placeholder="Enter role name">
                 </div>
                 <div class="server-structure-form-group">
-                    <label for="roleColor">Color</label>
+                    <label for="roleColor" data-i18n="server.roles.new.color">Color</label>
                     <input style="height: 2.5rem; padding: 0" type="color" id="roleColor" value="#5e8c61">
                 </div>
                 <div class="server-structure-form-group">
-                    <label for="rolePriority">Priority</label>
+                    <label for="rolePriority" data-i18n="server.roles.new.priority">Priority</label>
                     <input type="number" id="rolePriority" placeholder="1" min="1">
                 </div>
             </form > `,
+            didOpen: () => {
+                i18n.translatePage(document.getElementById("new-role-popup"))
+            },
             preConfirm: () => {
                 const popup = Swal.getPopup();
                 const name = popup.querySelector('#roleName').value;
@@ -464,40 +360,9 @@ class ServerRolesWebComponent extends HTMLElement {
                 return users;
             },
             html: `
-            <style>
-                 .assigned-user-item {
-                    color: var(--pri-text-color);
-                    display: flex;
-                    align-items: center;
-                }
-                
-                .assigned-user-item.selected {
-                    background-color: var(--pri-bg-color);
-                    border-color: var(--pri-button-bg-color);
-                }
-            
-                .assigned-user-checkbox {
-                    margin-right: 0.75rem;
-                }
-            
-                .assigned-user-checkbox input[type="checkbox"] {
-                    width: 1.25rem;
-                    height: 1.25rem;
-                    cursor: pointer;
-                    accent-color: var(--pri-button-bg-color);
-                }
-                
-                .members-list {
-                    overflow-y: auto;
-                    max-height: 10rem;
-                }
-                
-                .assigned-user-item.hide {
-                    display: none;
-                }
-            </style>
-            <form class='popup'>
-                <h2>Add members :</h2>
+            <link href="src/js/component/server.roles.component.popup.css" rel="stylesheet" />
+            <form id="add-members-popup" class='popup'>
+                <h2 data-i18n="server.roles.add.members">Add members :</h2>
                 <input type="text" placeholder="Search..." id="add-members-search">
                 <div id="add-members-list" class="members-list">
                     ${this.availableUsers.filter(user => !role.members.includes(user.id)).map(user => this.#memberItem(role, user)).join('')}
@@ -518,6 +383,7 @@ class ServerRolesWebComponent extends HTMLElement {
                     const elt = document.querySelector("#add-members-list")
                     filterMemberList(elt, e.target.value)
                 });
+                i18n.translatePage(document.getElementById("add-members-popup"))
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
@@ -535,7 +401,7 @@ class ServerRolesWebComponent extends HTMLElement {
             this.#selectRoleTab("members-section");
         } catch (error) {
             console.error('Error updating user:', error);
-            this.showError('Failed to update user assignment');
+            this.showError('server.roles.error.update.user');
         }
     }
 
@@ -561,11 +427,12 @@ class ServerRolesWebComponent extends HTMLElement {
         return DIV;
     }
 
-    showError(message) {
+    /** @param {string} keyMessage */
+    showError(keyMessage) {
         const roleDetails = this.shadowRoot.getElementById('roleDetails');
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
+        errorDiv.textContent = i18n.translateOne(keyMessage);
         roleDetails.prepend(errorDiv);
         setTimeout(() => errorDiv.remove(), 3000);
     }
