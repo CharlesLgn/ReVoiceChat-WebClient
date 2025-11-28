@@ -78,7 +78,9 @@ export default class StreamController {
             const modal = document.createElement('div');
             modal.id = `stream-modal-${userId}-${streamName}`;
             modal.className = "stream item join";
-            modal.innerHTML = `Click to join "${displayName}" stream`
+            modal.dataset.i18n = "stream.join.button"
+            modal.dataset.i18nValue = displayName
+            modal.innerText = i18n.translateOne(modal.dataset.i18n, [displayName])
             modal.onclick = () => { modal.remove(); this.join(userId, streamName) }
             streamContainter.appendChild(modal);
         }

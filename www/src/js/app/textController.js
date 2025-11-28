@@ -132,8 +132,8 @@ export default class TextController {
                 else {
                     await Swal.fire({
                         icon: "error",
-                        title: "File too big",
-                        html: `"${element.name}" is too big<br/>Maximum size: ${humanFileSize(this.#attachmentMaxSize)}<br/>Your file: ${humanFileSize(element.size)}`,
+                        title: i18n.translateOne("attachement.error.size.title"),
+                        html: i18n.translateOne("attachement.error.size.body", [element.name, humanFileSize(this.#attachmentMaxSize), humanFileSize(element.size)]),
                         animation: true,
                         customClass: {
                             title: "swalTitle",
@@ -190,8 +190,8 @@ export default class TextController {
 
         Swal.fire({
             icon: 'error',
-            title: `Something went wrong`,
-            text: "Error while sending message",
+            title: i18n.translateOne("attachement.error.title"),
+            text: i18n.translateOne("attachement.error.body"),
             animation: false,
             customClass: SwalCustomClass,
             showCancelButton: false,
