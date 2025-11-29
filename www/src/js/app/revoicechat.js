@@ -77,7 +77,7 @@ export default class ReVoiceChat {
         document.addEventListener('DOMContentLoaded', () => this.#load());
     }
 
-    #load() {
+    async #load() {
         this.user.load();
         this.user.settings.load();
         this.state.load();
@@ -86,7 +86,7 @@ export default class ReVoiceChat {
         this.room.voiceController.attachEvents();
         this.alert.attachEvents();
         this.router.routeTo(getQueryVariable('r'));
-        i18n.translatePage()
+        await i18n.translate(this.user.settings.getLanguage());
     }
 
     // Token

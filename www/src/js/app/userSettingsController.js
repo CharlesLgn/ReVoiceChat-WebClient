@@ -79,8 +79,10 @@ export default class UserSettingsController {
         this.#compressorLoad();
         this.#inputVolumeLoad();
         this.#audioOutputLoad();
+    }
 
-        await i18n.loadTranslations(this.#lang)
+    getLanguage() {
+        return this.#lang;
     }
 
     select(name) {
