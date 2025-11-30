@@ -102,7 +102,6 @@ export default class VoiceController {
 
         // User joining this is NOT self and current user is connected to voice room
         if (userData.id !== this.#user.id && this.#voiceCall && this.#voiceCall.getState() === VoiceCall.OPEN) {
-            this.#voiceCall.addUser(userData.id);
             this.#updateUserControls(userData.id);
             this.#alert.play('voiceUserJoin');
         }
@@ -451,7 +450,6 @@ export default class VoiceController {
 
             // Not self
             if (this.#user.id !== userId) {
-                await this.#voiceCall.addUser(userId);
                 this.#updateUserControls(userId);
                 this.updateUserExtension(userId);
             }
