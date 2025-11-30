@@ -126,15 +126,15 @@ export default class ServerSettingsController {
             if (isAdmin || param.risks) {
                 if (isAdmin || flattenRisks.some(elem => param.risks.includes(elem))) {
                     button.classList.remove('hidden');
-                    button.addEventListener('click', () => this.#select(param.button));
+                    button.onclick = () => this.#select(param.button);
                 }
                 else {
                     button.classList.add('hidden');
-                    button.removeEventListener('click', null);
+                    button.onclick = null;
                 }
             } else {
                 button.classList.remove('hidden');
-                button.addEventListener('click', () => this.#select(param.button));
+                button.onclick = () => this.#select(param.button);
             }
         }
     }
@@ -152,14 +152,14 @@ export default class ServerSettingsController {
             document.getElementById('server-setting-overview-name-input').classList.add('hidden');
             const button = document.getElementById(`server-setting-overview-save`);
             button.classList.add('hidden');
-            button.removeEventListener('click', null);
+            button.onclick = null;
         }
         else {
             document.getElementById('server-setting-overview-name').classList.add('hidden');
             document.getElementById('server-setting-overview-name-input').classList.remove('hidden');
             const button = document.getElementById(`server-setting-overview-save`);
             button.classList.remove('hidden');
-            button.addEventListener('click', () => this.#overviewSave());
+            button.onclick = () => this.#overviewSave();
         }
     }
 
@@ -197,14 +197,14 @@ export default class ServerSettingsController {
     // ROOMS AND STRUCTURE
     #roomEventHandler(remove) {
         if (remove) {
-            document.getElementById(`server-setting-structure-save`).removeEventListener('click', null);
-            document.getElementById(`server-setting-room-add`).removeEventListener('click', null);
-            document.getElementById(`server-setting-category-add`).removeEventListener('click', null);
+            document.getElementById(`server-setting-structure-save`).onclick = null;
+            document.getElementById(`server-setting-room-add`).onclick = null;
+            document.getElementById(`server-setting-category-add`).onclick = null;
         }
         else {
-            document.getElementById(`server-setting-structure-save`).addEventListener('click', () => this.#structureSave());
-            document.getElementById(`server-setting-room-add`).addEventListener('click', () => this.#roomAdd());
-            document.getElementById(`server-setting-category-add`).addEventListener('click', () => this.#categoryAdd());
+            document.getElementById(`server-setting-structure-save`).onclick = () => this.#structureSave();
+            document.getElementById(`server-setting-room-add`).onclick = () => this.#roomAdd();
+            document.getElementById(`server-setting-category-add`).onclick = () => this.#categoryAdd();
         }
     }
 
@@ -720,10 +720,10 @@ export default class ServerSettingsController {
     // INVITATION
     #invitationEventHandler(remove) {
         if (remove) {
-            document.getElementById('server-setting-invitation-create').removeEventListener('click', null);
+            document.getElementById('server-setting-invitation-create').onclick = null;
         }
         else {
-            document.getElementById('server-setting-invitation-create').addEventListener('click', () => this.#invitationCreate());
+            document.getElementById('server-setting-invitation-create').onclick = () => this.#invitationCreate();
         }
     }
 
