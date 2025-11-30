@@ -1,4 +1,4 @@
-import {Streamer, Viewer} from "./stream.js";
+import { Streamer, Viewer } from "./stream.js";
 
 export default class StreamController {
     #streamUrl;
@@ -22,6 +22,7 @@ export default class StreamController {
     attachEvents() {
         document.getElementById("stream-webcam").addEventListener('click', () => this.#toggleStream("webcam"));
         document.getElementById("stream-display").addEventListener('click', () => this.#toggleStream("display"));
+        addEventListener("beforeunload", () => { this.stopAll() })
     }
 
     #toggleStream(type) {
