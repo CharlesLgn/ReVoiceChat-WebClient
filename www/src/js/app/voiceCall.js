@@ -104,7 +104,7 @@ export default class VoiceCall {
         await this.#encodeAudio();
 
         // Setup receiver and decoder
-        this.#socket.onmessage = (message) => { this.#decodeAudio(new DecodedPacket(message.data)) }
+        this.#socket.onmessage = async (message) => { await this.#decodeAudio(new DecodedPacket(message.data)) }
 
         // Setup main output gain
         this.#outputGain = this.#audioContext.createGain();
@@ -168,19 +168,13 @@ export default class VoiceCall {
         return this.#settings;
     }
 
-    async addUser(userId) {
-        if (userId && !this.#users[userId] && this.#socket && this.#socket.readyState === WebSocket.OPEN) {
-            await this.#createUserDecoder(userId);
-        }
-    }
-
     async removeUser(userId) {
         if (userId && this.#users[userId]) {
             const user = this.#users[userId];
             await user.decoder.flush();
             await user.decoder.close();
-            this.#users[userId] = null;
         }
+        this.#users[userId] = null;
     }
 
     async setUserMute(userId, enabled) {
@@ -418,34 +412,41 @@ export default class VoiceCall {
         }
     }
 
-    #decodeAudio(decodedPacket) {
+    async #decodeAudio(decodedPacket) {
         const header = decodedPacket.header;
         const data = decodedPacket.data;
 
-        if (this.#users[header.user]) {
-            const currentUser = this.#users[header.user];
-            // If user sending packet is muted OR we are deaf, we stop
-            if (currentUser.muted || this.#settings.self.deaf) {
-                this.#setUserGlow(header.user, false);
-                return;
-            }
+        // User has no settings yet
+        if (!this.#settings.users[header.user]) {
+            this.#settings.users[header.user] = { muted: false, volume: 1 };
+        }
 
-            // User gate open/close
-            this.#setUserGlow(header.user, header.gateState);
+        // User has no decoder yet
+        if (!this.#users[header.user]) {
+            await this.#createUserDecoder(header.user);
+        }
 
-            // Decode and read audio
-            const audioChunk = new EncodedAudioChunk({
+        const currentUser = this.#users[header.user];
+        // If user sending packet is muted OR we are deaf, we stop
+        if (currentUser.muted || this.#settings.self.deaf) {
+            this.#setUserGlow(header.user, false);
+            return;
+        }
+
+        // User gate open/close
+        this.#setUserGlow(header.user, header.gateState);
+
+        // Decode and read audio
+        if (currentUser.decoder !== null && currentUser.decoder.state === "configured") {
+            currentUser.decoder.decode(new EncodedAudioChunk({
                 type: "key",
                 timestamp: header.audioTimestamp * 1000,
                 data: new Uint8Array(data),
-            })
-
-            if (currentUser.decoder !== null && currentUser.decoder.state === "configured") {
-                currentUser.decoder.decode(audioChunk);
-            } else {
-                console.error(`User '${header.user}' has no decoder`);
-            }
+            }));
+        } else {
+            console.error(`User '${header.user}' has no decoder`);
         }
+
     }
 
     async #createUserDecoder(userId) {
@@ -453,22 +454,18 @@ export default class VoiceCall {
         if (isSupported.supported) {
             this.#users[userId] = { decoder: null, playhead: 0, muted: false, gainNode: null, source: null };
 
-            if (this.#settings.users[userId]) {
-                this.#users[userId].muted = this.#settings.users[userId].muted;
-            }
-            else {
-                this.#settings.users[userId] = { muted: false, volume: 1 };
-            }
-
+            // Set user state from settings
+            this.#users[userId].muted = this.#settings.users[userId].muted;
             this.#users[userId].gainNode = this.#audioContext.createGain();
             this.#users[userId].gainNode.gain.setValueAtTime(this.#settings.users[userId].volume, this.#audioContext.currentTime);
 
+            // Set user decoder
             this.#users[userId].decoder = new AudioDecoder({
                 output: (chunk) => { this.#playbackAudio(chunk, this.#audioContext, this.#users, userId) },
                 error: (error) => { throw new Error(`Decoder setup failed:\n${error.name}\nCurrent codec :${this.#codecSettings.codec}`) },
             });
-            this.#users[userId].decoder.configure(this.#codecSettings);
 
+            this.#users[userId].decoder.configure(this.#codecSettings);
             this.#users[userId].playhead = 0;
         }
     }
