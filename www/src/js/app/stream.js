@@ -24,7 +24,7 @@ export class Streamer {
         framerate: 30,
         width: 1280,
         height: 720,
-        bitrate: 4_000_000,
+        bitrate: 3_000_000,
         //hardwareAcceleration: "prefer-hardware",
         latencyMode: "realtime",
     }
@@ -181,10 +181,11 @@ export class Streamer {
 
             const audioStream = this.#audioContext.createMediaStreamSource(this.#player.srcObject);
 
-            this.#audioCollector = new AudioWorkletNode(this.#audioContext, "StereoCollector");
-            this.#audioCollector.channelCountMode = "explicit";
-            this.#audioCollector.channelInterpretation = "discrete";
-            this.#audioCollector.channelCount = 2;
+            this.#audioCollector = new AudioWorkletNode(this.#audioContext, "StereoCollector", {
+                channelCount: 2,
+                channelCountMode: "explicit",
+                channelInterpretation: "discrete"
+            });
 
             audioStream.connect(this.#audioCollector);
 
