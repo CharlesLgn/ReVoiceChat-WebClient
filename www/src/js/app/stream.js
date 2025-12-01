@@ -1,10 +1,17 @@
-import { LargePacketSender, LargePacketReceiver, EncodedPacket, DecodedPacket } from "./packet.js";
+import { LargePacketSender, LargePacketReceiver } from "./packet.js";
 
 export class Streamer {
     static CLOSE = 0;
     static CONNECTING = 1;
     static OPEN = 2;
-    static DEFAULT_CODEC = {
+    static DEFAULT_AUDIO_CODEC = {
+        codec: "opus",
+        sampleRate: 48000,
+        numberOfChannels: 2,
+        bitrate: 128_000,
+        bitrateMode: "variable"
+    }
+    static DEFAULT_VIDEO_CODEC = {
         codec: "vp8",
         framerate: 30,
         width: 1280,
@@ -21,12 +28,10 @@ export class Streamer {
     #streamUrl;
     #token;
     #multiplexer = new Multiplexer();
-    #codecConfig = structuredClone(Streamer.DEFAULT_CODEC);
+
     #displayMediaOptions = {
         video: true,
-        audio: {
-            suppressLocalAudioPlayback: true,
-        },
+        audio: true,
         preferCurrentTab: false,
         selfBrowserSurface: "include",
         systemAudio: "include",
@@ -39,13 +44,17 @@ export class Streamer {
     #playerDiv;
 
     // Audio Encoder
+    #audioCollector;
+    #audioContext;
+    #audioCodec = structuredClone(Streamer.DEFAULT_AUDIO_CODEC);
     #audioEncoder;
+    #audioTimestamp = 0;
 
     // Video Encoder
+    #videoCodec = structuredClone(Streamer.DEFAULT_VIDEO_CODEC);
     #videoMetadata;
     #videoEncoder;
     #videoEncoderInterval;
-    #videoEncoderConfig;
     #keyframeCounter = 0;
 
     constructor(streamUrl, user, token) {
@@ -73,26 +82,24 @@ export class Streamer {
 
         this.#state = Streamer.CONNECTING;
 
-        // Setup encoder and transmitter 
-        // First so we don't open socket for no reason
-        const supported = await VideoEncoder.isConfigSupported(this.#codecConfig);
-        if (!supported.supported) {
-            throw new Error("Encoder Codec not supported");
+        // Test if codecs are supported first, so we don't open a socket for no reason
+        const audioSupported = (await AudioEncoder.isConfigSupported(this.#audioCodec)).supported;
+        const videoSupported = (await VideoEncoder.isConfigSupported(this.#videoCodec)).supported;
+        if (!audioSupported || !videoSupported) {
+            throw new Error("Audio or Video Encoder Codec not supported");
         }
 
         // Video player
         this.#player = document.createElement('video');
         this.#player.className = "content";
+        this.#player.volume = 0; // IMPORTANT
 
         // Video player (box)
         this.#playerDiv = document.createElement('div');
         this.#playerDiv.className = "player";
         this.#playerDiv.appendChild(this.#player);
 
-        // Streamer container
-        const streamContainter = document.getElementById('stream-container')
-        streamContainter.appendChild(this.#playerDiv);
-
+        // Request capture
         try {
             switch (type) {
                 case "webcam":
@@ -108,16 +115,27 @@ export class Streamer {
             throw new Error(`MediaDevice setup failed:\n${error}`);
         }
 
+        // Attach player to stream-container after user allow capture
+        const streamContainter = document.getElementById('stream-container')
+        streamContainter.appendChild(this.#playerDiv);
         await this.#player.play();
 
-        // Create WebSocket
+        // Create WebSocket and LargePacketSender
         this.#socket = new WebSocket(`${this.#streamUrl}/${this.#user.id}/${streamName}`, ["Bearer." + this.#token]);
         this.#socket.binaryType = "arraybuffer";
-
-        // Setup packet sender
         this.#packetSender = new LargePacketSender(this.#socket);
 
-        // Setup Encoder
+        // Create Encoders
+        this.#audioEncoder = new AudioEncoder({
+            output: (frame) => {
+                const header = {
+                    timestamp: parseInt(this.#audioTimestamp / 1000),
+                }
+                this.#packetSender.send(this.#multiplexer.process(header, frame, Multiplexer.AUDIO));
+            },
+            error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#audioCodec.codec}`) },
+        })
+
         this.#videoEncoder = new VideoEncoder({
             output: (frame, metadata) => {
                 if (!this.#videoMetadata) {
@@ -132,14 +150,49 @@ export class Streamer {
             },
             error: (error) => {
                 this.stop();
-                throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codecConfig.codec}`);
+                throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#videoCodec.codec}`);
             },
         });
 
-        // Encoder
-        this.#videoEncoderConfig = structuredClone(this.#codecConfig);
-        this.#videoEncoder.configure(this.#videoEncoderConfig);
+        // Configure Encoders
+        this.#audioEncoder.configure(this.#audioCodec);
+        this.#videoEncoder.configure(this.#videoCodec);
 
+        // Process audio
+        const audioTracks = this.#player.srcObject.getAudioTracks();
+        if (audioTracks.length != 0) {
+            // Init AudioContext
+            this.#audioContext = new AudioContext({ sampleRate: this.#audioCodec.sampleRate });
+            await this.#audioContext.audioWorklet.addModule('src/js/app/audioProcessor.js');
+
+            const audioStream = this.#audioContext.createMediaStreamSource(this.#player.srcObject);
+
+            this.#audioCollector = new AudioWorkletNode(this.#audioContext, "StereoCollector");
+            audioStream.connect(this.#audioCollector);
+
+            this.#audioCollector.port.onmessage = (event) => {
+                const { samples, channels, frames } = event.data;
+
+                const audioFrame = new AudioData({
+                    format: "f32",
+                    sampleRate: this.#audioContext.sampleRate,
+                    numberOfFrames: frames,
+                    numberOfChannels: channels,
+                    timestamp: this.#audioTimestamp,
+                    data: samples
+                });
+
+                this.#audioEncoder.encode(audioFrame);
+                audioFrame.close();
+
+                this.#audioTimestamp += 20_000;
+            }
+        }
+        else {
+            console.warn("No audio track available");
+        }
+
+        // Process video
         if (window.MediaStreamTrackProcessor) {
             // Faster but not available everywhere
             const track = this.#player.srcObject.getVideoTracks()[0];
@@ -160,7 +213,7 @@ export class Streamer {
                 else {
                     this.stop();
                 }
-            }, 1000 / this.#codecConfig.framerate)
+            }, 1000 / this.#videoCodec.framerate)
         }
         else {
             // Fallback
@@ -171,7 +224,7 @@ export class Streamer {
                     await this.#videoEncoder.encode(frame, { keyFrame: this.#isKeyframe() });
                 }
                 frame.close();
-            }, 1000 / this.#codecConfig.framerate)
+            }, 1000 / this.#videoCodec.framerate)
         }
 
         // Socket states
@@ -184,7 +237,7 @@ export class Streamer {
 
     #isKeyframe() {
         this.#keyframeCounter++;
-        if (this.#keyframeCounter > this.#codecConfig.framerate) {
+        if (this.#keyframeCounter > this.#videoCodec.framerate) {
             this.#keyframeCounter = 0;
             return true;
         }
@@ -192,26 +245,26 @@ export class Streamer {
     }
 
     async #reconfigureEncoderResolution(frame) {
-        if (frame.codedHeight === this.#videoEncoderConfig.height && frame.codedWidth === this.#videoEncoderConfig.width) {
+        if (frame.codedHeight === this.#videoCodec.height && frame.codedWidth === this.#videoCodec.width) {
             // Captured frame and encoderCondig already match in width and height
             return;
         }
 
         // Frame H & W are smaller than Max Codec H & W
-        if (frame.codedHeight < this.#codecConfig.height && frame.codedWidth < this.#codecConfig.width) {
+        if (frame.codedHeight < this.#videoCodec.height && frame.codedWidth < this.#videoCodec.width) {
             await this.#setEncoderResolution(frame.codedHeight, frame.codedWidth);
             return;
         }
 
-        const ratio = Math.min((this.#codecConfig.height / frame.codedHeight), (this.#codecConfig.width / frame.codedWidth));
+        const ratio = Math.min((this.#videoCodec.height / frame.codedHeight), (this.#videoCodec.width / frame.codedWidth));
         const height = frame.codedHeight * ratio;
         const width = frame.codedWidth * ratio;
         await this.#setEncoderResolution(height, width);
     }
 
     async #setEncoderResolution(height, width) {
-        this.#videoEncoderConfig.height = height;
-        this.#videoEncoderConfig.width = width;
+        this.#videoCodec.height = height;
+        this.#videoCodec.width = width;
 
         if (this.#videoMetadata && this.#videoMetadata.decoderMetadata) {
             this.#videoMetadata.decoderMetadata.codedHeight = height;
@@ -219,7 +272,7 @@ export class Streamer {
         }
 
         if (this.#videoEncoder) {
-            await this.#videoEncoder.configure(this.#videoEncoderConfig);
+            await this.#videoEncoder.configure(this.#videoCodec);
         }
     }
 
@@ -259,7 +312,6 @@ export class Viewer {
     #demultiplexer;
     #streamUrl;
     #token;
-    #codecConfig = structuredClone(Streamer.DEFAULT_CODEC);
 
     // Local playback
     #playerDiv;
@@ -272,7 +324,13 @@ export class Viewer {
         codedHeight: 0
     }
 
+    // Audio decoder
+    #audioCodec = structuredClone(Streamer.DEFAULT_AUDIO_CODEC);
+    #audioContext;
+    #audioDecoder;
+
     // Video decoder
+    #videoCodec = structuredClone(Streamer.DEFAULT_VIDEO_CODEC);
     #videoDecoder;
     #videoDecoderKeyFrame = false;
 
@@ -291,41 +349,59 @@ export class Viewer {
 
     async join(userId, streamName) {
         if (userId && streamName) {
-            const isSupported = await VideoDecoder.isConfigSupported(this.#codecConfig);
+            const audioSupported = await AudioDecoder.isConfigSupported(this.#audioCodec);
+            const videoSupported = await VideoDecoder.isConfigSupported(this.#videoCodec);
 
-            if (isSupported.supported) {
-                // Create WebSocket
-                this.#socket = new WebSocket(`${this.#streamUrl}/${userId}/${streamName}`, ["Bearer." + this.#token]);
-                this.#socket.binaryType = "arraybuffer";
-
-                this.#demultiplexer = new Demultiplexer(null, (header, data) => { this.#decodeVideo(header, data) });
-                new LargePacketReceiver(this.#socket, (rawData) => { this.#demultiplexer.process(rawData) });
-
-                // Video player
-                this.#canvas = document.createElement("canvas");
-                this.#context = this.#canvas.getContext("2d");
-
-                // Video player (box)
-                this.#playerDiv = document.createElement('div');
-                this.#playerDiv.className = "player";
-                this.#playerDiv.appendChild(this.#canvas);
-
-                // Streamer container
-                const streamContainter = document.getElementById('stream-container')
-                streamContainter.appendChild(this.#playerDiv);
-
-                this.#videoDecoder = new VideoDecoder({
-                    output: (frame) => {
-                        this.#reconfigureCanvasResolution(frame, this.#playerDiv);
-                        this.#context.drawImage(frame, 0, 0, this.#canvas.width, this.#canvas.height);
-                        frame.close();
-                    },
-                    error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}\nCurrent codec :${this.#codecConfig.codec}`) }
-                });
-
-                return this.#playerDiv;
+            if (!audioSupported || !videoSupported) {
+                console.error("Audio or Video codec not supported");
+                return null;
             }
-            return null;
+
+            // Create WebSocket
+            this.#socket = new WebSocket(`${this.#streamUrl}/${userId}/${streamName}`, ["Bearer." + this.#token]);
+            this.#socket.binaryType = "arraybuffer";
+
+            this.#demultiplexer = new Demultiplexer(
+                (header, data) => { this.#decodeAudio(header, data) },
+                (header, data) => { this.#decodeVideo(header, data) }
+            );
+
+            new LargePacketReceiver(this.#socket, (rawData) => { this.#demultiplexer.process(rawData) });
+
+            // Video player
+            this.#canvas = document.createElement("canvas");
+            this.#context = this.#canvas.getContext("2d");
+
+            // Video player (box)
+            this.#playerDiv = document.createElement('div');
+            this.#playerDiv.className = "player";
+            this.#playerDiv.appendChild(this.#canvas);
+
+            // Streamer container
+            const streamContainter = document.getElementById('stream-container')
+            streamContainter.appendChild(this.#playerDiv);
+
+            // AudioContext
+            this.#audioContext = new AudioContext({ sampleRate: this.#audioCodec.sampleRate });
+
+            // Audio decoder
+            this.#audioDecoder = new AudioDecoder({
+                output: (chunk) => { this.#playbackAudio(chunk, this.#audioContext) },
+                error: (error) => { throw new Error(`AudioDecoder setup failed:\n${error.name}\nCurrent codec :${this.#audioCodec.codec}`) },
+            });
+            this.#audioDecoder.configure(this.#audioCodec);
+
+            // Video decoder
+            this.#videoDecoder = new VideoDecoder({
+                output: (frame) => {
+                    this.#reconfigureCanvasResolution(frame, this.#playerDiv);
+                    this.#context.drawImage(frame, 0, 0, this.#canvas.width, this.#canvas.height);
+                    frame.close();
+                },
+                error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}\nCurrent codec :${this.#videoCodec.codec}`) }
+            });
+
+            return this.#playerDiv;
         }
     }
 
@@ -344,19 +420,31 @@ export class Viewer {
     }
 
     async leave() {
-        // Close WebSocket
+        // WebSocket
         if (this.#socket && (this.#socket.readyState === WebSocket.OPEN || this.#socket.readyState === WebSocket.CONNECTING)) {
             await this.#socket.close();
             this.#socket = null;
         }
 
-        // Close decoder
+        // audioDecoder
+        if (this.#audioDecoder && this.#audioDecoder.state !== "closed") {
+            await this.#audioDecoder.close();
+            this.#audioDecoder = null;
+        }
+
+        // audioContext
+        if (this.#audioContext && this.#audioContext.state !== "closed") {
+            this.#audioContext.close();
+            this.#audioContext = null;
+        }
+
+        // videoDecoder
         if (this.#videoDecoder && this.#videoDecoder.state !== "closed") {
             await this.#videoDecoder.close();
             this.#videoDecoder = null;
         }
 
-        // Close playback
+        // video playback
         if (this.#playerDiv && this.#canvas && this.#context) {
             this.#playerDiv.remove();
             this.#playerDiv = null;
@@ -383,6 +471,47 @@ export class Viewer {
             timestamp: header.timestamp,
             data: new Uint8Array(data)
         }));
+    }
+
+    #decodeAudio(header, data) {
+        if (this.#audioDecoder !== null && this.#audioDecoder.state === "configured") {
+            this.#audioDecoder.decode(new EncodedAudioChunk({
+                type: "key",
+                timestamp: parseInt(header.timestamp * 1000),
+                data: new Uint8Array(data),
+            }));
+        } else {
+            console.error(`No AudioDecoder correctly configured found for this stream`);
+        }
+    }
+
+    #playbackAudio(audioData, audioContext) {
+        const buffer = audioContext.createBuffer(
+            audioData.numberOfChannels,
+            audioData.numberOfFrames,
+            audioData.sampleRate
+        );
+
+        const interleaved = new Float32Array(audioData.numberOfFrames * audioData.numberOfChannels);
+        audioData.copyTo(interleaved, { planeIndex: 0 });
+
+        // De-interleave into buffer channels
+        for (let ch = 0; ch < audioData.numberOfChannels; ch++) {
+            const channelData = new Float32Array(audioData.numberOfFrames);
+            for (let i = 0; i < audioData.numberOfFrames; i++) {
+                channelData[i] = interleaved[i * audioData.numberOfChannels + ch];
+            }
+            buffer.copyToChannel(channelData, ch);
+        }
+
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+
+        source.connect(audioContext.destination); // connect audio source to output
+
+        const playhead = audioContext.currentTime + buffer.duration;
+        source.start(playhead);
+        audioData.close();
     }
 }
 
