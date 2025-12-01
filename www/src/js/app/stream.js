@@ -191,10 +191,10 @@ export class Streamer {
                     const audioFrame = new AudioData({
                         format: "f32",
                         sampleRate: this.#audioContext.sampleRate,
-                        numberOfFrames: frames,
+                        numberOfFrames: frames.length,
                         numberOfChannels: channels,
                         timestamp: this.#audioTimestamp,
-                        data: samples
+                        data: new Float32Array(frame).buffer
                     });
 
                     if (this.#audioEncoder !== null && this.#audioEncoder.state === "configured") {
