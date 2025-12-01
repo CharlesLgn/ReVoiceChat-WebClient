@@ -32,7 +32,7 @@ export default class Alert {
 
         let audio = new Audio(this.#defaultSounds[type]);
         audio.volume = this.#userSettings.getNotificationVolume();
-        audio.play();
+        void audio.play();
     }
 
     #playTest(type) {
@@ -50,7 +50,6 @@ export default class Alert {
                 audio.volume = this.#userSettings.getVoiceVolume();
                 break;
         }
-
-        audio.play();
+        void audio.play();
     }
 }

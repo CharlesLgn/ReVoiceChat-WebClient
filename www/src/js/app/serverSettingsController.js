@@ -21,13 +21,13 @@ export default class ServerSettingsController {
     }
 
     load() {
-        this.#loadRisks().then();
+        void this.#loadRisks();
         this.#overviewLoad();
-        this.#memberLoad().then();
+        void this.#memberLoad();
     }
 
     riskModify() {
-        this.#loadRisks(false);
+        void this.#loadRisks(false);
     }
 
     async #loadRisks(select = true) {
@@ -39,7 +39,7 @@ export default class ServerSettingsController {
 
         this.#flattenRisks = flattenRisks;
         this.#selectEventHandler(flattenRisks, isAdmin);
-        this.#attachEventsFromRisks(flattenRisks, isAdmin);
+        void this.#attachEventsFromRisks(flattenRisks, isAdmin);
 
         if (select) {
             this.#select('overview');
@@ -57,7 +57,7 @@ export default class ServerSettingsController {
     #handleInvitationRisks(isAdmin, flattenRisks) {
         const invitationRisks = new Set(['SERVER_INVITATION_ADD', 'SERVER_INVITATION_FETCH']);
         if (isAdmin || flattenRisks.some(elem => invitationRisks.has(elem))) {
-            this.#invitationLoad().then();
+            void this.#invitationLoad();
             this.#invitationEventHandler();
         } else {
             this.#invitationEventHandler(true);
@@ -70,7 +70,7 @@ export default class ServerSettingsController {
     #handleEmoteRisks(isAdmin, flattenRisks) {
         const emoteRisks = new Set(['ADD_EMOTE', 'UPDATE_EMOTE', 'REMOVE_EMOTE']);
         if (isAdmin || flattenRisks.some(elem => emoteRisks.has(elem))) {
-            this.#emotesLoad().then();
+            void this.#emotesLoad();
         } else if (this.#currentTab === "emotes") {
             this.#select('overview');
         }
@@ -91,8 +91,8 @@ export default class ServerSettingsController {
     #handleRoomRisks(isAdmin, flattenRisks) {
         const roomRisks = new Set(['SERVER_ROOM_UPDATE', 'SERVER_ROOM_DELETE']);
         if (isAdmin || flattenRisks.some(elem => roomRisks.has(elem))) {
-            this.#structureLoad().then();
-            this.#roomLoad().then();
+            void this.#structureLoad();
+            void this.#roomLoad();
             this.#roomEventHandler();
         } else {
             this.#roomEventHandler(true);
@@ -579,7 +579,7 @@ export default class ServerSettingsController {
             e.stopPropagation();
             switch (item.type) {
                 case 'ROOM':
-                    this.#roomEdit(item);
+                    void this.#roomEdit(item);
                     break;
                 case 'CATEGORY':
                     this.#categoryEdit(item);
@@ -591,7 +591,7 @@ export default class ServerSettingsController {
             e.stopPropagation();
             switch (item.type) {
                 case 'ROOM':
-                    this.#roomDelete(item);
+                    void this.#roomDelete(item);
                     break;
                 case 'CATEGORY':
                     this.#categoryDelete(item, parentItems);
@@ -771,7 +771,7 @@ export default class ServerSettingsController {
         /** @type {InvitationRepresentation} */
         const result = await this.#fetcher.fetchCore(`/invitation/server/${serverId}`, 'POST');
         if (result.status === "CREATED") {
-            this.#invitationLoad();
+            void this.#invitationLoad();
             Swal.fire({
                 title: `New invitation`,
                 html: `<input class='swal-input' type='text' value='${result.id}' readonly>`,
@@ -822,13 +822,13 @@ export default class ServerSettingsController {
         }).then(async (result) => {
             if (result.value) {
                 await this.#fetcher.fetchCore(`/invitation/${data.id}`, 'DELETE');
-                this.#invitationLoad();
+                void this.#invitationLoad();
             }
         });
     }
 
     #invitationCopy(link) {
-        copyToClipboard(link);
+        void copyToClipboard(link);
     }
 
     #createContextMenuButton(className, innerHTML, onclick, title = "") {

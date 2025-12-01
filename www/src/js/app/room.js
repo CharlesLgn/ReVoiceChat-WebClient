@@ -15,7 +15,7 @@ export default class Room {
     /**
      * @param {Fetcher} fetcher
      * @param {Alert} alert
-     * @param {User} user
+     * @param {UserController} user
      * @param {string} voiceUrl
      * @param {string} token
      * @param {string} mediaUrl

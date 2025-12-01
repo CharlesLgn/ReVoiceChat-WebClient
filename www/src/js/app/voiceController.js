@@ -16,11 +16,11 @@ export default class VoiceController {
     #voiceCall;
     /** @type {string|null} */
     #activeRoom;
-    /** @type {User} */
+    /** @type {UserController} */
     #user;
     /** @type {Room} */
     #room;
-    /** @type {HTMLElement} */
+    /** @type {VoiceContextMenu} */
     #contextMenu;
     #lastStateSelfMute = false;
     /** @type {StreamController} */
@@ -29,7 +29,7 @@ export default class VoiceController {
     /**
      * @param {Fetcher} fetcher
      * @param {Alert} alert
-     * @param {User} user
+     * @param {UserController} user
      * @param {Room} room
      * @param {string} voiceURL
      * @param {string} token
@@ -60,7 +60,7 @@ export default class VoiceController {
 
     // <user> call this to join a call in a room
     async join(roomId) {
-        if (this.#activeRoom && this.#activeRoom != roomId) {
+        if (this.#activeRoom && this.#activeRoom !== roomId) {
             await this.leave(this.#activeRoom);
         }
 
@@ -77,13 +77,13 @@ export default class VoiceController {
             this.updateSelf(this.#user.settings.voice);
 
             // Update counter
-            this.#updateUserCounter(roomId);
+            void this.#updateUserCounter(roomId);
 
             // Update context menu
             this.#contextMenu.setVoiceCall(this.#voiceCall);
 
             // Check for available stream
-            this.streamController.availableStream(roomId);
+            void this.streamController.availableStream(roomId);
 
             // Audio alert
             this.#alert.play('voiceConnected');
@@ -100,7 +100,7 @@ export default class VoiceController {
         await this.streamController.stopAll();
         this.updateSelf();
         await this.#updateJoinedUsers();
-        this.#updateUserCounter(this.#activeRoom);
+        void this.#updateUserCounter(this.#activeRoom);
         this.#activeRoom = null;
 
         // Update context menu
@@ -116,7 +116,7 @@ export default class VoiceController {
      * @return {Promise<void>}
      */
     async userJoining(data) {
-        this.#updateUserCounter(data.roomId);
+        void this.#updateUserCounter(data.roomId);
 
         const userData = data.user;
         const voiceContent = document.getElementById(`voice-users-${data.roomId}`);
@@ -138,7 +138,7 @@ export default class VoiceController {
      * @return {Promise<void>}
      */
     async userLeaving(data) {
-        this.#updateUserCounter(data.roomId);
+        void this.#updateUserCounter(data.roomId);
 
         const userId = data.user;
 
@@ -153,7 +153,7 @@ export default class VoiceController {
 
         // User leaving is NOT self
         if (userId !== this.#user.id && this.#voiceCall && this.#voiceCall.getState() === VoiceCall.OPEN) {
-            this.#voiceCall.removeUser(userId);
+            void this.#voiceCall.removeUser(userId);
             this.#alert.play('voiceUserLeft');
         }
     }
@@ -182,7 +182,7 @@ export default class VoiceController {
 
         // Room is currently active
         if (this.#activeRoom === roomId) {
-            this.#updateJoinedUsers();
+            void this.#updateJoinedUsers();
         }
     }
 
@@ -240,15 +240,16 @@ export default class VoiceController {
         DIV.appendChild(extension);
 
         // Context menu
-        if (userId !== this.#user.id) {
+        if (userId === this.#user.id) {
+            DIV.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+            }, false);
+        } else {
             DIV.addEventListener('contextmenu', (event) => {
                 event.preventDefault();
                 this.#contextMenu.load(this.#user.settings, userId, this);
                 this.#contextMenu.open(event.clientX, event.clientY);
             }, false);
-        }
-        else {
-            DIV.addEventListener('contextmenu', (event) => { event.preventDefault(); }, false);
         }
 
         return DIV;
@@ -374,8 +375,7 @@ export default class VoiceController {
         if (this.#voiceCall) {
             this.#user.settings.voice = this.#voiceCall.getSettings();
         }
-
-        this.#user.settings.save();
+        void this.#user.settings.save();
     }
 
     updateGate() {
@@ -438,8 +438,8 @@ export default class VoiceController {
                         deafButton.classList.add('red');
                     }
                 }
-                this.#updateSelfDeaf(false);
-                this.#updateSelfMute(false);
+                void this.#updateSelfDeaf(false);
+                void this.#updateSelfMute(false);
                 break;
         }
     }
@@ -486,6 +486,6 @@ export default class VoiceController {
     }
 
     isCallActive() {
-        return (this.#activeRoom ? true : false);
+        return !!this.#activeRoom;
     }
 }

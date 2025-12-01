@@ -55,8 +55,8 @@ export default class Server {
         this.name = name;
         document.getElementById("server-name").innerText = name;
 
-        this.#usersLoad();
-        this.#room.load(id);
+        void this.#usersLoad();
+        void this.#room.load(id);
     }
 
     /** @param {ServerUpdateNotification} data */
@@ -79,7 +79,7 @@ export default class Server {
      */
     updateUserInServer(data) {
         if (this.id === data.server) {
-            this.#usersLoad().then(() => {/* do nothing */});
+            void this.#usersLoad();
         }
     }
 

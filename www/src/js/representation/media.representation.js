@@ -31,3 +31,8 @@ class EmoteRepresentation {
   /** @type {string[]} */
   keywords
 }
+
+class MediaSettings {
+  /** @type {number} */
+  maxFileSize
+}

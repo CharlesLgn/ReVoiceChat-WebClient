@@ -186,7 +186,7 @@ export default class UserSettingsController {
 
     async #overviewChangeName() {
         const displayName = document.getElementById("overview-displayname").value
-        if (displayName && displayName != "") {
+        if (displayName && displayName !== "") {
             const result = await this.#fetcher.fetchCore(`/user/me`, 'PATCH', { displayName: displayName });
             if (result) {
                 this.#user.displayName = result.displayName
@@ -372,7 +372,7 @@ export default class UserSettingsController {
 
     #inputVolumeUpdate(data) {
         this.voice.self.volume = Number.parseFloat(data.value)
-        this.save();
+        void this.save();
         this.#inputVolumeLoad();
         this.#room.voiceController.setSelfVolume();
     }
@@ -410,7 +410,7 @@ export default class UserSettingsController {
                 break;
         }
 
-        this.save();
+        void this.save();
         this.#gateLoad();
         this.#room.voiceController.updateGate();
     }
@@ -458,7 +458,7 @@ export default class UserSettingsController {
 
     #compressorEnabled() {
         this.voice.compressor.enabled = !this.voice.compressor.enabled;
-        this.save();
+        void this.save();
         this.#compressorLoad();
     }
 
@@ -484,13 +484,13 @@ export default class UserSettingsController {
                 break;
         }
 
-        this.save();
+        void this.save();
         this.#compressorLoad();
     }
 
     #compressorDefault() {
         this.voice.compressor = structuredClone(VoiceCall.DEFAULT_SETTINGS.compressor);
-        this.save();
+        void this.save();
         this.#compressorLoad();
     }
 

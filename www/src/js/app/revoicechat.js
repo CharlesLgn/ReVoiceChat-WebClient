@@ -2,7 +2,7 @@ import Fetcher from './fetcher.js';
 import State from './state.js';
 import Alert from './alert.js';
 import Router from './router.js';
-import User from './user.js';
+import UserController from './userController.js';
 import Room from './room.js';
 import Server from './server.js';
 import { reloadEmojis } from '../emoji.js';
@@ -15,7 +15,7 @@ export default class ReVoiceChat {
     router = new Router();
     /** @type {Fetcher} */
     fetcher;
-    /** @type {User} */
+    /** @type {UserController} */
     user;
     /** @type {Room} */
     room;
@@ -61,7 +61,7 @@ export default class ReVoiceChat {
 
         // Instantiate other classes
         this.fetcher = new Fetcher(this.#token, this.coreUrl, this.mediaUrl);
-        this.user = new User(this.fetcher, this.mediaUrl, this.coreUrl);
+        this.user = new UserController(this.fetcher, this.mediaUrl, this.coreUrl);
         this.alert = new Alert(this.user.settings);
         this.room = new Room(this.fetcher, this.alert, this.user, this.voiceUrl, this.#token, this.mediaUrl, this.streamUrl);
         this.server = new Server(this.fetcher, this.mediaUrl, this.room);

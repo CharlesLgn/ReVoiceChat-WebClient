@@ -1,13 +1,22 @@
 import UserSettingsController from "./userSettingsController.js";
 
-export default class User {
+export default class UserController {
+    /** @type {Fetcher} */
     #fetcher;
+    /** @type {string} */
     #mediaURL;
     /** @type {UserSettingsController} */
     settings;
+    /** @type {string} */
     id;
+    /** @type {string} */
     displayName;
 
+    /**
+     *
+     * @param {Fetcher} fetcher
+     * @param {string}  mediaURL
+     */
     constructor(fetcher, mediaURL) {
         this.#fetcher = fetcher;
         this.#mediaURL = mediaURL;

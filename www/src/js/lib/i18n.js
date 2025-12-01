@@ -77,9 +77,9 @@ class I18n {
         const valueArray = Array.isArray(values) ? values : [values];
 
         // Replace {0}, {1}, {2}, etc.
-        return template.replace(/\{(\d+)\}/g, (match, index) => {
-            const idx = parseInt(index);
-            return valueArray[idx] !== undefined ? valueArray[idx] : match;
+        return template.replaceAll(/\{(\d+)}/g, (match, index) => {
+            const idx = Number.parseInt(index);
+            return valueArray[idx] === undefined ? match : valueArray[idx];
         });
     }
 
@@ -88,8 +88,8 @@ class I18n {
      * @param {HTMLElement} element - Element to translate
      */
     translateElement(element) {
-        const key = element.getAttribute('data-i18n');
-        const valueAttr = element.getAttribute('data-i18n-value');
+        const key = element.dataset.i18n;
+        const valueAttr = element.dataset.i18nValue;
         const translation = this.translations[key];
 
         if (!translation) {
@@ -152,7 +152,7 @@ class I18n {
             this.translateElement(element);
 
             // Setup observer if element has data-i18n-value
-            if (element.hasAttribute('data-i18n-value')) {
+            if (Object.hasOwn(element.dataset, 'i18nValue')) {
                 this.observeElement(element);
             }
         }
@@ -160,7 +160,7 @@ class I18n {
         // Translate title attributes (tooltips)
         const titledElements = doc.querySelectorAll('[data-i18n-title]');
         for (const element of titledElements) {
-            const key = element.getAttribute('data-i18n-title');
+            const key = element.dataset.i18nTitle;
             const translation = this.translations[key];
 
             if (translation) {

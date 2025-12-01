@@ -6,7 +6,7 @@ export default class TextController {
 
     /** @type {Alert} */
     #alert;
-    /** @type {User} */
+    /** @type {UserController} */
     #user;
     /** @type {Fetcher} */
     #fetcher;
@@ -19,7 +19,7 @@ export default class TextController {
     /**
      * @param {Fetcher} fetcher
      * @param {Alert} alert
-     * @param {User} user
+     * @param {UserController} user
      * @param {Room} room
      */
     constructor(fetcher, alert, user, room) {
@@ -279,6 +279,10 @@ export default class TextController {
         await this.#fetcher.fetchCore(`/message/${id}`, 'DELETE');
     }
 
+    /**
+     * @param {MessageRepresentation} messageData
+     * @return {HTMLElement|null}
+     */
     #createContextMenu(messageData) {
         if (messageData.user.id != this.#user.id) {
             return null;
@@ -304,6 +308,7 @@ export default class TextController {
     }
 
     async #getAttachmentMaxSize() {
+        /** @type {MediaSettings} */
         const response = await this.#fetcher.fetchMedia('/maxfilesize');
         if (response) {
             this.#attachmentMaxSize = response.maxFileSize;

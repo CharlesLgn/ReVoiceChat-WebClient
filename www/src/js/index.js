@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.getElementById('register-invitation').value = getQueryVariable('register') ? getQueryVariable('register') : "";
         switchToRegister();
     }
-    i18n.translate("en").then(() => {/* do nothing */})
+    void i18n.translate("en");
 });
 
 document.getElementById("login-form").addEventListener('keydown', function (e) {
