@@ -79,7 +79,7 @@ export default class StreamController {
      */
     async joinModal(stream) {
         const userId = stream.user;
-        const streamName = stream.name;
+        const streamName = stream.streamName;
         if (this.#room.voiceController.getActiveRoom() && this.#user.id != userId) {
             const displayName = (await this.#fetcher.fetchCore(`/user/${userId}`)).displayName;
             const streamContainter = document.getElementById('stream-container');
