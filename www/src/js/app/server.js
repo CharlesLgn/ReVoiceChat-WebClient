@@ -16,6 +16,7 @@ export default class Server {
     }
 
     async #load() {
+        /** @type {ServerRepresentation[]} */
         const result = await this.#fetcher.fetchCore("/server", 'GET');
 
         if (result === null) {
@@ -71,6 +72,7 @@ export default class Server {
     }
 
     async #usersLoad() {
+        /** @type {UserRepresentation[]} */
         const result = await this.#fetcher.fetchCore(`/server/${this.id}/user`, 'GET');
 
         if (result !== null) {

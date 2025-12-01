@@ -12,6 +12,7 @@ export default class ServerSettingsController {
     #roomsData = [];
     #roomsNotRendered = [];
     #draggedElement = null;
+    /** @type {string[]} */
     #flattenRisks = [];
 
     constructor(server, fetcher, mediaUrl) {
@@ -29,8 +30,10 @@ export default class ServerSettingsController {
     }
 
     async #loadRisks(select = true) {
+        /** @type {UserRepresentation} */
         const me = await this.#fetcher.fetchCore(`/user/me`);
         const isAdmin = me.type === "ADMIN";
+        /** @type {string[]} */
         const flattenRisks = await this.#fetcher.fetchCore(`/user/server/${this.#server.id}/risks`);
 
         this.#flattenRisks = flattenRisks;
@@ -187,6 +190,7 @@ export default class ServerSettingsController {
             return;
         }
 
+        /** @type {ServerRepresentation} */
         const result = await this.#fetcher.fetchCore(`/server/${this.#server.id}`, 'PATCH', { name: serverName })
         if (result) {
             this.#server.name = result.name;
@@ -209,6 +213,7 @@ export default class ServerSettingsController {
     }
 
     async #roomLoad() {
+        /** @type {RoomRepresentation[]} */
         const roomResult = await this.#fetcher.fetchCore(`/server/${this.#server.id}/room`, 'GET');
         if (roomResult) {
             this.#roomsData = {};
@@ -220,6 +225,7 @@ export default class ServerSettingsController {
     }
 
     async #structureLoad() {
+        /** @type {ServerStructure} */
         const struct = await this.#fetcher.fetchCore(`/server/${this.#server.id}/structure`, 'GET');
         if (struct) {
             this.#structureData = struct;
@@ -665,6 +671,7 @@ export default class ServerSettingsController {
 
     // EMOTES
     async #emotesLoad() {
+        /** @type {EmoteRepresentation[]} */
         const response = await this.#fetcher.fetchCore(`/emote/server/${this.#server.id}`);
 
         const old_manager = document.getElementById("server-setting-emotes-form");
@@ -681,6 +688,7 @@ export default class ServerSettingsController {
 
     // MEMBERS
     async #memberLoad() {
+        /** @type {UserRepresentation[]} */
         const result = await this.#fetcher.fetchCore(`/server/${this.#server.id}/user`, 'GET');
 
         if (result) {
@@ -729,6 +737,7 @@ export default class ServerSettingsController {
 
     async #invitationLoad() {
         const serverId = this.#server.id;
+        /** @type {InvitationRepresentation[]} */
         const result = await this.#fetcher.fetchCore(`/invitation/server/${serverId}`, 'GET');
 
         if (result) {
@@ -745,6 +754,7 @@ export default class ServerSettingsController {
 
     async #invitationCreate() {
         const serverId = this.#server.id;
+        /** @type {InvitationRepresentation} */
         const result = await this.#fetcher.fetchCore(`/invitation/server/${serverId}`, 'POST');
         if (result.status === "CREATED") {
             this.#invitationLoad();

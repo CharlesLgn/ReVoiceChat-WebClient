@@ -18,10 +18,13 @@ export default class Room {
     }
 
     async load(serverId) {
+        /** @type {RoomRepresentation[]} */
         const roomResult = await this.#fetcher.fetchCore(`/server/${serverId}/room`, 'GET');
+        /** @type {ServerStructure} */
         const structResult = await this.#fetcher.fetchCore(`/server/${serverId}/structure`, 'GET');
 
         if (structResult?.items && roomResult) {
+            /** @type {RoomRepresentation[]} */
             const rooms = [];
             for (const room of roomResult) {
                 rooms[room.id] = room;
