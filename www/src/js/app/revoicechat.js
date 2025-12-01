@@ -156,7 +156,7 @@ class SSEHandlers {
         if (handler) {
             handler(data);
         } else {
-            console.error("SSE type unknown: ", type);
+            console.warn("SSE type unknown: ", type);
         }
     }
 }
