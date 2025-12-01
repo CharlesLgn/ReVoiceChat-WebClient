@@ -161,7 +161,7 @@ export default class StreamController {
         /** @type {RoomPresence} */
         const result = await this.#fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
 
-        if (result.connectedUser === null) {
+        if (result && result.connectedUser === null) {
             console.debug("Stream : No user in room");
             return;
         }
