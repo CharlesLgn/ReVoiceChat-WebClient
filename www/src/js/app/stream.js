@@ -52,6 +52,7 @@ export class Streamer {
     #playerDiv;
 
     // Audio Encoder
+    #audioBuffer;
     #audioCollector;
     #audioContext;
     #audioCodec = structuredClone(Streamer.DEFAULT_AUDIO_CODEC);
@@ -181,19 +182,27 @@ export class Streamer {
             this.#audioCollector.port.onmessage = (event) => {
                 const { samples, channels, frames } = event.data;
 
-                const audioFrame = new AudioData({
-                    format: "f32",
-                    sampleRate: this.#audioContext.sampleRate,
-                    numberOfFrames: frames,
-                    numberOfChannels: channels,
-                    timestamp: this.#audioTimestamp,
-                    data: samples
-                });
+                this.#audioBuffer.push(...samples);
 
-                this.#audioEncoder.encode(audioFrame);
-                audioFrame.close();
+                while (this.#audioBuffer.length >= 960) {
+                    const frame = this.#audioBuffer.slice(0, 960);
+                    this.#audioBuffer = this.#audioBuffer.slice(960);
 
-                this.#audioTimestamp += 20_000;
+                    const audioFrame = new AudioData({
+                        format: "f32",
+                        sampleRate: this.#audioContext.sampleRate,
+                        numberOfFrames: frames,
+                        numberOfChannels: channels,
+                        timestamp: this.#audioTimestamp,
+                        data: samples
+                    });
+
+                    if (this.#audioEncoder !== null && this.#audioEncoder.state === "configured") {
+                        this.#audioEncoder.encode(audioFrame);
+                    }
+                    audioFrame.close();
+                    this.#audioTimestamp += 20_000;
+                }
             }
         }
         else {
@@ -532,12 +541,12 @@ export class Viewer {
         audioData.close();
     }
 
-    setVolume(value){
+    setVolume(value) {
         this.#audioVolume = value;
         this.#audioGain.gain.setValueAtTime(this.#audioVolume, this.#audioContext.currentTime);
     }
 
-    getVolume(){
+    getVolume() {
         return this.#audioVolume;
     }
 }
