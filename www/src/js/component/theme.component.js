@@ -96,3 +96,5 @@ function getAllDeclaredDataThemes() {
     ...getDataThemesFromStylesheets()
   ])).sort((a, b) => a.localeCompare(b));
 }
+
+export {getAllDeclaredDataThemes}

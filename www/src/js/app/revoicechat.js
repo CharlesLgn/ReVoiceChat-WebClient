@@ -5,8 +5,9 @@ import Router from './router.js';
 import UserController from './userController.js';
 import Room from './room.js';
 import Server from './server.js';
-import { reloadEmojis } from '../emoji.js';
+import { reloadEmojis } from './emoji.js';
 import { Sse } from "./sse.js";
+import {getCookie, getQueryVariable} from "../lib/tools.js";
 
 export default class ReVoiceChat {
     /** @type {Alert} */
@@ -162,3 +163,5 @@ class SSEHandlers {
 }
 
 window.RVC = new ReVoiceChat();
+import '../component/components.js';
+import {i18n} from "../lib/i18n.js";

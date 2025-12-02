@@ -1,4 +1,5 @@
 import { Streamer, Viewer } from "./stream.js";
+import {i18n} from "../lib/i18n.js";
 
 export default class StreamController {
     #streamUrl;

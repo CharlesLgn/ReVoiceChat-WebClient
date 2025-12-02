@@ -1,4 +1,6 @@
 import Swal from '../lib/sweetalert2.esm.all.min.js';
+import {sanitizeString, SwalCustomClass, timestampToText, humanFileSize} from "../lib/tools.js";
+import {i18n} from "../lib/i18n.js";
 
 export default class TextController {
     static MODE_SEND = 0;

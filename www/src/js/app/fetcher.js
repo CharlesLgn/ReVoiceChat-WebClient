@@ -1,6 +1,7 @@
 /**
  * @typedef {"GET"|"POST"|"PATCH"|"PUT"|"DELETE"|"OPTION"} HTTPMethod
  */
+import {apiFetch} from "../lib/tools.js";
 
 export default class Fetcher {
     #coreURL;

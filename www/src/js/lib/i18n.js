@@ -281,6 +281,8 @@ class I18n {
 // Export for usage
 const i18n = new I18n("src/i18n");
 
+export { i18n }
+
 // Usage examples:
 // i18n.translate('fr');
 // i18n.translate('en');

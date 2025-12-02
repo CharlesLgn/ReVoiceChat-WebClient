@@ -1,4 +1,5 @@
 import UserSettingsController from "./userSettingsController.js";
+import {eraseCookie, statusToDotClassName} from "../lib/tools.js";
 
 export default class UserController {
     /** @type {Fetcher} */

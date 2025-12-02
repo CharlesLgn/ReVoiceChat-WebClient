@@ -1,5 +1,7 @@
 import Swal from '../lib/sweetalert2.esm.all.min.js';
 import {SpinnerOnButton} from "../component/button.spinner.component.js";
+import {SwalCustomClass} from "../lib/tools.js";
+import {i18n} from "../lib/i18n.js";
 
 export class ServerSettingsOverviewController {
 

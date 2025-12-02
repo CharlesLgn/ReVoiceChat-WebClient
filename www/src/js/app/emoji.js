@@ -1,19 +1,20 @@
-const picker = new EmojiPicker();
-picker.init().then(async () => initPicker())
-    .then(async () => {
-        const pickerContainer = document.getElementById('emoji-picker');
-        const emojiBtn = document.getElementById('emoji-picker-button');
-        emojiBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            pickerContainer.classList.toggle('show');
-        });
-        document.addEventListener('click', (e) => {
-            if (!pickerContainer.contains(e.target) && e.target !== emojiBtn) {
-                pickerContainer.classList.remove('show');
-            }
-        });
+import {EmojiPicker, initCustomGeneral, initCustomServer, initCustomUser} from "../component/emoji.component.js";
 
-    })
+const picker = new EmojiPicker();
+picker.init().then(async () => {
+  await initPicker()
+  const pickerContainer = document.getElementById('emoji-picker');
+  const emojiBtn = document.getElementById('emoji-picker-button');
+  emojiBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pickerContainer.classList.toggle('show');
+  });
+  document.addEventListener('click', (e) => {
+    if (!pickerContainer.contains(e.target) && e.target !== emojiBtn) {
+      pickerContainer.classList.remove('show');
+    }
+  });
+})
 
 async function reloadEmojis() {
     await picker.init()

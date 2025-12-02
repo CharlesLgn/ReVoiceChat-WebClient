@@ -1,4 +1,5 @@
 import Swal from '../lib/sweetalert2.esm.all.min.js';
+import {SwalCustomClass, copyToClipboard} from "../lib/tools.js";
 
 export class ServerSettingsInvitationController {
 

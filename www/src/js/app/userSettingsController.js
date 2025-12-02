@@ -2,6 +2,9 @@ import Swal from '../lib/sweetalert2.esm.all.min.js';
 import VoiceCall from "./voiceCall.js";
 import {LanguageController} from "./language.controller.js";
 import {SpinnerOnButton} from "../component/button.spinner.component.js";
+import {SwalCustomClass} from "../lib/tools.js";
+import {getAllDeclaredDataThemes} from "../component/theme.component.js";
+import {i18n} from "../lib/i18n.js";
 
 export default class UserSettingsController {
     #user;

@@ -1,0 +1,8 @@
+import './icon.component.js';
+import './emoji.component.js';
+import './emoji.manager.component.js';
+import './message.attachement.component.js';
+import './message.component.js';
+import './theme.component.js';
+import './server.roles.component.js';
+import './context.menu.component.js';

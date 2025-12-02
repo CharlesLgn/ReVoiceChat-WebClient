@@ -1,3 +1,5 @@
+import {apiFetch} from "../lib/tools.js";
+
 class EmojiPicker {
 
     async init() {
@@ -163,3 +165,5 @@ function initCustomEmojiCategory(picker, name, icon, emojis) {
     }
     picker.addCustomEmojiCategory(name, emojiCategory)
 }
+
+export {EmojiPicker, initCustomGeneral, initCustomServer, initCustomUser}
