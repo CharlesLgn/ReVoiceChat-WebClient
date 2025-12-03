@@ -6,8 +6,9 @@
 class I18n {
     /** @param {string} translationDir */
     constructor(translationDir) {
+        /** @type {boolean} */
+        this.translationsLoaded = false;
         this.translations = {};
-        this.currentLang = 'en';
         this.translationDir = translationDir;
         this.observers = new Map(); // Store MutationObservers for dynamic values
     }
@@ -61,6 +62,8 @@ class I18n {
                 return this.parseProperties(content);
             }
             throw error;
+        } finally {
+            this.translationsLoaded = true
         }
     }
 
@@ -146,6 +149,9 @@ class I18n {
      * @param {Document|HTMLElement} doc
      */
     translatePage(doc = document) {
+        if (!this.translationsLoaded) {
+            return
+        }
         // Translate text content with dynamic values support
         const elements = this.#querySelectorAllDeep('[data-i18n]', doc);
         for (const element of elements) {
@@ -222,7 +228,6 @@ class I18n {
     async translate(lang) {
         try {
             this.translations = await this.loadTranslations(lang);
-            this.currentLang = lang;
             this.translatePage();
             console.log(`Language changed to: ${lang}`);
         } catch (error) {
@@ -237,6 +242,9 @@ class I18n {
      * @returns {string} Translation or the key if not found
      */
     translateOne(key, values = null) {
+        if (!this.translationsLoaded) {
+            return key
+        }
         const translation = this.translations[key] || key;
 
         if (values !== null) {

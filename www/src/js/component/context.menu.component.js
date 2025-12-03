@@ -72,7 +72,6 @@ class VoiceContextMenu extends ContextMenu {
     }
 
     load(userSettings, userId, voiceController) {
-        //i18n.translatePage(this);
         this.#userSettings = userSettings;
         this.#voiceController = voiceController;
         const voiceSettings = userSettings.voice.users[userId];
@@ -84,7 +83,7 @@ class VoiceContextMenu extends ContextMenu {
         // Initial volume
         volumeInput.value = voiceSettings.volume;
         volumeInput.title = parseInt(voiceSettings.volume * 100) + "%";
-        volumeLabel.dataset.i18nValue = ${volumeInput.title};
+        volumeLabel.dataset.i18nValue = volumeInput.title;
 
         volumeInput.oninput = () => {
             volumeInput.title = parseInt(volumeInput.value * 100) + "%";
