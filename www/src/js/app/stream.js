@@ -359,7 +359,7 @@ export class Viewer {
     #videoDecoder;
     #videoDecoderKeyFrame = false;
 
-    constructor(streamUrl, token) {
+    constructor(streamUrl, token, userSettings) {
         if (!streamUrl) {
             throw new Error('streamUrl is null or undefined');
         }
@@ -370,6 +370,7 @@ export class Viewer {
 
         this.#streamUrl = streamUrl;
         this.#token = token;
+        this.#audioVolume = userSettings.getStreamVolume();
     }
 
     async join(userId, streamName) {

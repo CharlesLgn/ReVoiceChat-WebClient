@@ -123,7 +123,7 @@ export default class StreamController {
             const div = document.createElement('div');
 
             this.#viewer[`${userId}-${streamName}`] = {
-                stream: new Viewer(this.#streamUrl, this.#token),
+                stream: new Viewer(this.#streamUrl, this.#token, this.#user.settings),
                 div: div
             } 
 
