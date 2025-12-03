@@ -156,7 +156,7 @@ class StreamContextMenu extends ContextMenu {
             <link href="src/js/component/context.menu.component.css" rel="stylesheet" />
 
             <div class="menu">
-                <button class="item" id="stop" title="Mute">Stop watching <revoice-icon-stop></revoice-icon-stop></button>
+                <button class="item" id="stop">Stop watching <revoice-icon-arrow-out></revoice-icon-arrow-out></button>
 
                 <div class="item slider" id="volume-block">
                     <label id="volume-label" data-i18n-value="0" data-i18n="voice.volume">Volume</label>
