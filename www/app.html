@@ -389,7 +389,7 @@
                         <label for="compressor-release" data-i18n="compressor.release" data-i18n-value="0" id="compressor-release-label">[RELEASE]</label>
                         <input type="range" id="compressor-release" min="0" max="1" step="0.01">
 
-                        <label for="compressor-threshold" data-i18n="compressor.threshold"  data-i18n-value="0" id="compressor-threshold-label">[THRESHOLD]</label>
+                        <label for="compressor-threshold" data-i18n="compressor.threshold" data-i18n-value="0" id="compressor-threshold-label">[THRESHOLD]</label>
                         <input type="range" id="compressor-threshold" min="-100" max="0" step="1">
 
                         <div class="config-buttons">
@@ -408,12 +408,6 @@
                 <div class="hidden" id="user-setting-content-audio-output">
                     <h1 data-i18n="audio.output">Audio output</h1>
 
-                    <h2 data-i18n="audio.main">Main</h2>
-                    <form class="voice-settings">
-                        <label for="input-volume" data-i18n-value="0" id="output-main-label">[MAIN]</label>
-                        <input type="range" id="output-main-volume" min="0" max="1" step="0.01">
-                    </form>
-
                     <h2 data-i18n="audio.voice">Voice</h2>
                     <form class="voice-settings">
                         <label for="input-volume" data-i18n-value="0" id="output-voice-label">[VOICE]</label>
@@ -430,6 +424,15 @@
                     </form>
                     <div class="config-buttons">
                         <button class="config-button" type="button" id="audio-output-try-notification" data-i18n="audio.try.notification">Try out !</button>
+                    </div>
+
+                    <h2 data-i18n="audio.stream">Stream</h2>
+                    <form class="voice-settings">
+                        <label for="input-volume" data-i18n-value="0" id="output-stream-label">[STREAM]</label>
+                        <input type="range" id="output-stream-volume" min="0" max="1" step="0.01">
+                    </form>
+                    <div class="config-buttons">
+                        <button class="config-button" type="button" id="audio-output-try-stream" data-i18n="audio.try.stream">Try out !</button>
                     </div>
                 </div>
             </div>

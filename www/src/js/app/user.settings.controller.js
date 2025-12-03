@@ -1,10 +1,10 @@
 import Swal from '../lib/sweetalert2.esm.all.min.js';
 import VoiceCall from "./voice.js";
-import {LanguageController} from "./language.controller.js";
-import {SpinnerOnButton} from "../component/button.spinner.component.js";
-import {SwalCustomClass} from "../lib/tools.js";
-import {getAllDeclaredDataThemes} from "../component/theme.component.js";
-import {i18n} from "../lib/i18n.js";
+import { LanguageController } from "./language.controller.js";
+import { SpinnerOnButton } from "../component/button.spinner.component.js";
+import { SwalCustomClass } from "../lib/tools.js";
+import { getAllDeclaredDataThemes } from "../component/theme.component.js";
+import { i18n } from "../lib/i18n.js";
 
 export default class UserSettingsController {
     #user;
@@ -24,9 +24,9 @@ export default class UserSettingsController {
 
     voice = structuredClone(VoiceCall.DEFAULT_SETTINGS);
     #audioOutput = {
-        main: 1,
         notification: 0.25,
-        voice: 1
+        voice: 1,
+        stream: 0.5,
     }
 
     constructor(user, fetcher, mediaUrl) {
@@ -53,6 +53,7 @@ export default class UserSettingsController {
             inputAdvanced: this.#inputAdvanced,
             theme: this.#theme,
             lang: this.#lang,
+            audioOutput: this.#audioOutput,
         }
         await this.#fetcher.fetchCore(`/settings/me`, 'PATCH', settings);
     }
@@ -67,11 +68,15 @@ export default class UserSettingsController {
                 this.voice.gate = storedSettings.voice.gate ? storedSettings.voice.gate : defaultVoice.gate;
             }
 
-            if(storedSettings.theme) {
+            if (storedSettings.theme) {
                 this.#theme = storedSettings.theme;
             }
-            if(storedSettings.lang) {
+            if (storedSettings.lang) {
                 this.#lang = storedSettings.lang;
+            }
+
+            if(storedSettings.audioOutput){
+                this.#audioOutput = storedSettings.audioOutput;
             }
         }
 
@@ -501,18 +506,22 @@ export default class UserSettingsController {
 
     // Audio Output
     getNotificationVolume() {
-        return this.#audioOutput.main * this.#audioOutput.notification;
+        return this.#audioOutput.notification;
     }
 
     getVoiceVolume() {
-        return this.#audioOutput.main * this.#audioOutput.voice;
+        return this.#audioOutput.voice;
+    }
+
+    getStreamVolume() {
+        return this.#audioOutput.stream;
     }
 
     #audioOutputEventHandler() {
         const parameters = [
-            'output-main-volume',
             'output-notification-volume',
             'output-voice-volume',
+            'output-stream-volume',
         ]
 
         for (const param of parameters) {
@@ -523,43 +532,44 @@ export default class UserSettingsController {
     }
 
     #audioOutputLoad() {
-        document.getElementById('output-main-volume').value = this.#audioOutput.main;
-        this.#audioOutputUpdateUI('output-main-volume', this.#audioOutput.main);
-
         document.getElementById('output-notification-volume').value = this.#audioOutput.notification;
         this.#audioOutputUpdateUI('output-notification-volume', this.#audioOutput.notification);
 
         document.getElementById('output-voice-volume').value = this.#audioOutput.voice;
         this.#audioOutputUpdateUI('output-voice-volume', this.#audioOutput.voice);
+
+        document.getElementById('output-stream-volume').value = this.#audioOutput.stream;
+        this.#audioOutputUpdateUI('output-stream-volume', this.#audioOutput.stream);
     }
 
     #audioOutputUpdateUI(param, value) {
         switch (param) {
-            case 'output-main-volume':
-                document.getElementById('output-main-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
-                break;
             case 'output-notification-volume':
                 document.getElementById('output-notification-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
                 break;
             case 'output-voice-volume':
                 document.getElementById('output-voice-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
                 break;
+            case 'output-stream-volume':
+                document.getElementById('output-stream-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
+                break;
         }
     }
 
     #audioOutputApplyParameter(param, value) {
         switch (param) {
-            case 'output-main-volume':
-                this.#audioOutput.main = value;
-                break;
             case 'output-notification-volume':
                 this.#audioOutput.notification = value;
                 break;
             case 'output-voice-volume':
                 this.#audioOutput.voice = value;
                 break;
+            case 'output-stream-volume':
+                this.#audioOutput.stream = value;
+                break;
         }
 
+        this.save();
         this.#room.voiceController.setOutputVolume(this.getVoiceVolume());
     }
 }
