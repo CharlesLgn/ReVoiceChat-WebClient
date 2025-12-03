@@ -48,14 +48,14 @@ class NoiseGate extends AudioWorkletProcessor {
         return [
             { name: 'attack', defaultValue: 0.01 },   // seconds
             { name: 'release', defaultValue: 0.4 },   // seconds
-            { name: 'threshold', defaultValue: -50, minValue: -100, maxValue: 0 }, // dB
+            { name: 'threshold', defaultValue: -50, minValue: -80, maxValue: 0 }, // dB
         ];
     }
 
     constructor() {
         super();
         this.gain = 0;
-        this.gateFloor = this.dBToLinear(-100);
+        this.gateFloor = this.dBToLinear(-80);
     }
 
     dBToLinear(db) {
