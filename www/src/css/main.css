@@ -619,25 +619,6 @@ svg {
     height: 1.5rem;
 }
 
-.voice-profile .gate .icon {
-    border-color: var(--pri-bd-color);
-    border-width: 3px;
-}
-
-.voice-profile .user .name {
-    color: var(--pri-placeholder-color);
-}
-
-.voice-profile .gate.active .icon {
-    border-color: #22c55e;
-    border-width: 3px;
-}
-
-.voice-profile .gate.active .user .name {
-    color: var(--pri-text-color);
-}
-
-
 /* STREAM */
 .stream {
     display: flex;
@@ -956,8 +937,6 @@ textarea.config-item {
     user-select: text;
     cursor: default;
 }
-
-
 
 @keyframes voice-call {
     from {
