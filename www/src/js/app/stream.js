@@ -352,7 +352,6 @@ export class Viewer {
     #audioDecoder;
     #audioGain;
     #audioVolume = 0.5;
-    #audioSource;
     #audioPlayhead = 0;
 
     // Video decoder

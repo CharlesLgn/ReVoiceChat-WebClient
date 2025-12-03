@@ -23,6 +23,12 @@ class ContextMenu extends HTMLElement {
         this.style.top = top + "px";
 
         document.addEventListener("pointerdown", this.onClickOutside, true);
+
+        // Close
+        const btnClose = this.shadowRoot.getElementById("close")
+        if(btnClose){
+            btnClose.onclick = () => this.close();
+        }
     }
 
     close() {
@@ -54,6 +60,10 @@ class VoiceContextMenu extends ContextMenu {
                 </div>
                 
                 <button class="item" id="mute" title="Mute"></button>
+
+                <button class="item" id="close">
+                    <span data-i18n="common.exit">Exit</span> <revoice-icon-circle-x></revoice-icon-circle-x> 
+                </button>
             </div>
         `;
         i18n.translatePage(this);
@@ -150,8 +160,12 @@ class StreamContextMenu extends ContextMenu {
 
                 <div class="item slider" id="volume-block">
                     <label id="volume-label" data-i18n-value="0" data-i18n="voice.volume">Volume</label>
-                    <input id="volume" type="range" min="0" max="2" step="0.01"></input>
+                    <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></input>
                 </div>
+
+                <button class="item" id="close">
+                    <span data-i18n="common.exit">Exit</span> <revoice-icon-circle-x></revoice-icon-circle-x> 
+                </button>
             </div>
         `;
         i18n.translatePage(this);
@@ -171,11 +185,16 @@ class StreamContextMenu extends ContextMenu {
         const volumeInput = this.shadowRoot.getElementById("volume");
         const volumeLabel = this.shadowRoot.getElementById("volume-label");
 
-        if (this.#stream) {
-            volumeInput.dataset.i18nValue = parseInt(this.#stream.getVolume() * 100) + "%";
+        // Initial volume
+        if (stream) {
+            volumeInput.value = stream.getVolume();
+            volumeInput.title = parseInt(volumeInput.value * 100) + "%";;
+            volumeLabel.dataset.i18nValue = volumeInput.title;
         }
 
         volumeInput.oninput = () => {
+            volumeInput.title = parseInt(volumeInput.value * 100) + "%";
+            volumeLabel.innerText = `Volume ${volumeInput.title}`;
             if (this.#stream) {
                 this.#stream.setVolume(volumeInput.value);
             }
