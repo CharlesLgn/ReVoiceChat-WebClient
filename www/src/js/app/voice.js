@@ -179,17 +179,26 @@ export default class VoiceCall {
         if (this.#users[userId]) {
             this.#users[userId].setMute(enabled);
         }
+        else{
+            console.warn(`Unable to set user mute, ${userId} don't exist.`);
+        }
     }
 
     async updateUserMute(userId) {
         if (this.#users[userId] && this.#settings.users[userId]) {
             this.#users[userId].setMute(this.#settings.users[userId].muted);
         }
+        else{
+            console.warn(`Unable to update user mute, ${userId} don't exist.`);
+        }
     }
 
     updateUserVolume(userId) {
         if (this.#users[userId] && this.#settings.users[userId]) {
             this.#users[userId].setVolume(this.#settings.users[userId].volume);
+        }
+        else{
+            console.warn(`Unable to set user volume, ${userId} don't exist.`);
         }
     }
 
@@ -419,6 +428,8 @@ export default class VoiceCall {
             const isSupported = await AudioDecoder.isConfigSupported(this.#codec);
             if (isSupported.supported) {
                 this.#users[userId] = new Listener(userId, this.#setUserGlow, this.#codec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
+            } else {
+                throw new Error("Decoder Codec not supported");
             }
         }
 
