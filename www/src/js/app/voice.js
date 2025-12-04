@@ -1,4 +1,5 @@
 import { EncodedPacket, DecodedPacket } from "./packet.js";
+import Codec from "./codec.js";
 
 export default class VoiceCall {
     "use strict";
@@ -29,21 +30,7 @@ export default class VoiceCall {
         users: {}
     }
 
-    #codec = {
-        codec: "opus",
-        sampleRate: 48_000, // 48kHz
-        numberOfChannels: 1, // Mono
-        bitrate: 64_000, // 64kbits
-        bitrateMode: "variable",
-        opus: {
-            application: "voip",
-            complexity: 9,
-            signal: "voice",
-            usedtx: true,
-            frameDuration: 20_000, //20ms
-            useinbanddec: true,
-        },
-    }
+    #codec = structuredClone(Codec.DEFAULT_VOICE_USER);
     #socket;
     #encoder;
     #audioCollector;
@@ -179,7 +166,7 @@ export default class VoiceCall {
         if (this.#users[userId]) {
             this.#users[userId].setMute(enabled);
         }
-        else{
+        else {
             console.warn(`Unable to set user mute, ${userId} don't exist.`);
         }
     }
@@ -188,7 +175,7 @@ export default class VoiceCall {
         if (this.#users[userId] && this.#settings.users[userId]) {
             this.#users[userId].setMute(this.#settings.users[userId].muted);
         }
-        else{
+        else {
             console.warn(`Unable to update user mute, ${userId} don't exist.`);
         }
     }
@@ -197,7 +184,7 @@ export default class VoiceCall {
         if (this.#users[userId] && this.#settings.users[userId]) {
             this.#users[userId].setVolume(this.#settings.users[userId].volume);
         }
-        else{
+        else {
             console.warn(`Unable to set user volume, ${userId} don't exist.`);
         }
     }
@@ -425,8 +412,8 @@ export default class VoiceCall {
 
         // User has no Listener yet
         if (!this.#users[userId]) {
-            const isSupported = await AudioDecoder.isConfigSupported(this.#codec);
-            if (isSupported.supported) {
+            const isSupported = (await AudioDecoder.isConfigSupported(this.#codec)).supported;
+            if (isSupported) {
                 this.#users[userId] = new Listener(userId, this.#setUserGlow, this.#codec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
             } else {
                 throw new Error("Decoder Codec not supported");

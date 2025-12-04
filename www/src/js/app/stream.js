@@ -1,33 +1,10 @@
 import { LargePacketSender, LargePacketReceiver } from "./packet.js";
+import Codec from "./codec.js";
 
 export class Streamer {
     static CLOSE = 0;
     static CONNECTING = 1;
     static OPEN = 2;
-    static DEFAULT_AUDIO_CODEC = {
-        codec: "opus",
-        sampleRate: 48000,
-        numberOfChannels: 2,
-        bitrate: 128_000,
-        bitrateMode: "variable",
-        opus: {
-            application: "audio",
-            complexity: 9,
-            signal: "music",
-            usedtx: true,
-            frameDuration: 20_000, //20ms
-            useinbanddec: true,
-        }
-    }
-    static DEFAULT_VIDEO_CODEC = {
-        codec: "vp8",
-        framerate: 30,
-        width: 1280,
-        height: 720,
-        bitrate: 3_000_000,
-        //hardwareAcceleration: "prefer-hardware",
-        latencyMode: "realtime",
-    }
 
     #state;
     #socket;
@@ -51,7 +28,7 @@ export class Streamer {
     #player;
 
     // Audio Encoder
-    #audioCodec = structuredClone(Streamer.DEFAULT_AUDIO_CODEC);
+    #audioCodec = structuredClone(Codec.DEFAULT_AUDIO_CODEC);
     #audioBuffer = [];
     #audioBufferMaxLength = parseInt(this.#audioCodec.sampleRate * this.#audioCodec.numberOfChannels * (this.#audioCodec.opus.frameDuration / 1_000_000)); // 2ch x 48000Hz × 0.020 sec = 1920 samples
     #audioCollector;
@@ -60,7 +37,7 @@ export class Streamer {
     #audioTimestamp = 0;
 
     // Video Encoder
-    #videoCodec = structuredClone(Streamer.DEFAULT_VIDEO_CODEC);
+    #videoCodec = structuredClone(Codec.DEFAULT_VIDEO_CODEC);
     #videoMetadata;
     #videoEncoder;
     #videoEncoderInterval;
@@ -347,7 +324,7 @@ export class Viewer {
     }
 
     // Audio decoder
-    #audioCodec = structuredClone(Streamer.DEFAULT_AUDIO_CODEC);
+    #audioCodec = structuredClone(Codec.DEFAULT_AUDIO_CODEC);
     #audioContext;
     #audioDecoder;
     #audioGain;
@@ -355,7 +332,7 @@ export class Viewer {
     #audioPlayhead = 0;
 
     // Video decoder
-    #videoCodec = structuredClone(Streamer.DEFAULT_VIDEO_CODEC);
+    #videoCodec = structuredClone(Codec.DEFAULT_VIDEO_CODEC);
     #videoDecoder;
     #videoDecoderKeyFrame = false;
 
