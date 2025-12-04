@@ -271,6 +271,7 @@ export default class VoiceCall {
                     timestamp: parseInt(this.#audioTimestamp / 1000), // audioTimestamp is in µs but sending ms is enough
                     user: this.#user.id,
                     gateState: this.#gateState,
+                    type: "user",
                 }
                 if (this.#socket.readyState === WebSocket.OPEN) {
                     this.#socket.send(new EncodedPacket(header, chunk).data);
@@ -412,9 +413,10 @@ export default class VoiceCall {
 
         // User has no Listener yet
         if (!this.#users[userId]) {
-            const isSupported = (await AudioDecoder.isConfigSupported(this.#codec)).supported;
+            const listenerCodec = (header.type === "user" ? Codec.DEFAULT_VOICE_USER : Codec.DEFAULT_VOICE_MUSIC);
+            const isSupported = (await AudioDecoder.isConfigSupported(listenerCodec)).supported;
             if (isSupported) {
-                this.#users[userId] = new Listener(userId, this.#setUserGlow, this.#codec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
+                this.#users[userId] = new Listener(userId, this.#setUserGlow, listenerCodec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
             } else {
                 throw new Error("Decoder Codec not supported");
             }
