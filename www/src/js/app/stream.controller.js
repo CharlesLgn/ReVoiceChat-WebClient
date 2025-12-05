@@ -1,5 +1,7 @@
 import { Streamer, Viewer } from "./stream.js";
 import { i18n } from "../lib/i18n.js";
+import { SwalCustomClass } from "../lib/tools.js";
+import Swal from '../lib/sweetalert2.esm.all.min.js';
 
 export default class StreamController {
     #streamUrl;
@@ -78,25 +80,48 @@ export default class StreamController {
         }
         catch (error) {
             console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: i18n.translateOne("stream.start.error"),
+                animation: false,
+                customClass: SwalCustomClass,
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false,
+            });
         }
     }
 
     async #stopStream(type) {
-        if (this.#streamer[type]) {
-            await this.#streamer[type].stream.stop();
-            this.#streamer[type].div.remove();
-            this.#streamer[type] = null;
+        try {
+            if (this.#streamer[type]) {
+                await this.#streamer[type].stream.stop();
+                this.#streamer[type].div.remove();
+                this.#streamer[type] = null;
 
-            if (type === "webcam") {
-                this.#webcamEnabled = false;
-                document.getElementById("stream-webcam").classList.remove("green");
+                if (type === "webcam") {
+                    this.#webcamEnabled = false;
+                    document.getElementById("stream-webcam").classList.remove("green");
 
+                }
+
+                if (type === "display") {
+                    this.#displayEnabled = false;
+                    document.getElementById("stream-display").classList.remove("green");
+                }
             }
-
-            if (type === "display") {
-                this.#displayEnabled = false;
-                document.getElementById("stream-display").classList.remove("green");
-            }
+        }
+        catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: i18n.translateOne("stream.start.error"),
+                animation: false,
+                customClass: SwalCustomClass,
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false,
+            });
         }
     }
 
