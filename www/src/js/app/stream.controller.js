@@ -30,31 +30,21 @@ export default class StreamController {
 
     #toggleStream(type) {
         if (type == "webcam") {
-            this.#webcamEnabled = !this.#webcamEnabled;
-            const button = document.getElementById("stream-webcam");
-
             if (this.#webcamEnabled) {
-                this.#startStream("webcam");
-                button.classList.add("green");
+                this.#stopStream("webcam");
             }
             else {
-                this.#stopStream("webcam");
-                button.classList.remove("green");
+                this.#startStream("webcam");
             }
             return;
         }
 
         if (type == "display") {
-            this.#displayEnabled = !this.#displayEnabled;
-            const button = document.getElementById("stream-display");
-
             if (this.#displayEnabled) {
-                this.#startStream("display");
-                button.classList.add("green");
+                this.#stopStream("display");
             }
             else {
-                this.#stopStream("display");
-                button.classList.remove("green");
+                this.#startStream("display");
             }
         }
     }
@@ -73,8 +63,18 @@ export default class StreamController {
             div.appendChild(player);
             div.onclick = () => { this.focus(div) }
             div.oncontextmenu = (event) => { event.preventDefault(); }
-
             document.getElementById('stream-container').appendChild(div);
+
+            if (type === "webcam") {
+                this.#webcamEnabled = true;
+                document.getElementById("stream-webcam").classList.add("green");
+
+            }
+
+            if (type === "display") {
+                this.#displayEnabled = true;
+                document.getElementById("stream-display").classList.add("green");
+            }
         }
         catch (error) {
             console.error(error);
@@ -86,6 +86,17 @@ export default class StreamController {
             await this.#streamer[type].stream.stop();
             this.#streamer[type].div.remove();
             this.#streamer[type] = null;
+
+            if (type === "webcam") {
+                this.#webcamEnabled = false;
+                document.getElementById("stream-webcam").classList.remove("green");
+
+            }
+
+            if (type === "display") {
+                this.#displayEnabled = false;
+                document.getElementById("stream-display").classList.remove("green");
+            }
         }
     }
 
