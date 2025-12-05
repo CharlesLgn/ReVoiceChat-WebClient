@@ -793,10 +793,12 @@ svg {
     margin-right: 0.5rem;
 }
 
-.config .category h2 {
+.config-container-left h2 {
     min-height: 2.5rem;
     font-weight: 800;
     font-size: 1.25rem;
+    width: 100%;
+    text-align: right;
 }
 
 .config .category button {

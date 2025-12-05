@@ -134,10 +134,9 @@
     <!-- Config Containter -->
     <div class="main config hidden" id="route-server-settings">
         <div class="config-container-left">
+            <h2 data-i18n="server.settings">Server settings</h2>
             <div class="config-left">
                 <div class="category">
-                    <h2 data-i18n="server.settings">Server settings</h2>
-
                     <!-- Overview -->
                     <button class="sub-category" id="server-setting-tab-overview">
                         <revoice-icon-information></revoice-icon-information> <span data-i18n="server.overview">Overview</span>
@@ -249,10 +248,9 @@
     <!-- User Settings Container -->
     <div class="main config hidden" id="route-user-settings">
         <div class="config-container-left">
+            <h2 data-i18n="user.settings">User settings</h2>
             <div class="config-left">
                 <div class="category">
-                    <h2 data-i18n="user.settings">User settings</h2>
-
                     <!-- Overview -->
                     <button class="sub-category" id="user-setting-tab-overview">
                         <revoice-icon-information></revoice-icon-information> <span data-i18n="user.overview">Overview</span>
@@ -308,21 +306,21 @@
                     <h1 data-i18n="user.overview">Overview</h1>
                     <p><span data-i18n="user.id">User ID</span> : <span id="setting-user-uuid" class="selectable">[USER UUID]</span></p>
                     <br />
-                    <div class="sidebar-container">
-                        <input type="file" id="overview-picture-new" accept="image/webp,image/png,image/jpg,image/jpeg,image/gif" style="display:none;">
-                        <input type="hidden" id="overview-picture" name="imagePath">
-                        <img id="setting-user-picture" src="src/img/default-avatar.webp" alt="Preview PFP" class="icon large-icon ring-2">
-                        <span style="width: 10px"></span>
+                    <input type="file" id="overview-picture-new" accept="image/webp,image/png,image/jpg,image/jpeg,image/gif" style="display:none;">
+                    <input type="hidden" id="overview-picture" name="imagePath">
+                    <img id="setting-user-picture" src="src/img/default-avatar.webp" alt="Preview PFP" class="icon large-icon ring-2">
+
+                    <br/>
+                    <div class="config-buttons">
                         <button class="button" id="overview-select-picture" data-i18n="user.picture.upload">Upload a profile picture</button>
                     </div>
+
                     <h2 data-i18n="user.displayname">Display name</h2>
                     <input type="text" id="overview-displayname" value="[DISPLAYNAME]">
 
                     <br />
-                    <br />
-                    <div class="sidebar-container">
+                    <div class="config-buttons">
                         <button class="button" id="overview-change-password" data-i18n="user.password.change">Change password</button>
-                        <span style="width: 10px"></span>
                         <button id="overview-save" class="button" data-i18n="user.save">Save Settings</button>
                     </div>
                 </div>
