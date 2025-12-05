@@ -125,7 +125,7 @@ export default class StreamController {
             this.#viewer[`${userId}-${streamName}`] = {
                 stream: new Viewer(this.#streamUrl, this.#token, this.#user.settings),
                 div: div
-            } 
+            }
 
             const stream = this.#viewer[`${userId}-${streamName}`].stream;
             const video = await stream.join(userId, streamName);
@@ -140,7 +140,7 @@ export default class StreamController {
             }
 
             // Streamer container
-            document.getElementById('stream-container').appendChild(div); 
+            document.getElementById('stream-container').appendChild(div);
         }
     }
 
@@ -177,17 +177,23 @@ export default class StreamController {
 
         // Stop watching
         for (const key of Object.keys(this.#viewer)) {
-            await this.#viewer[key].stream.leave();
-            this.#viewer[key].div.remove();
-            this.#viewer[key] = null;
+            if (this.#viewer[key]) {
+                await this.#viewer[key].stream.leave();
+                this.#viewer[key].div.remove();
+                this.#viewer[key] = null;
+            }
         }
+    }
+
+    async removeAll() {
+        document.getElementById('stream-container').innerHTML = "";
     }
 
     async availableStream(roomId) {
         /** @type {RoomPresence} */
         const result = await this.#fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
 
-        if (result && result.connectedUser === null) {
+        if (!result || !result.connectedUser) {
             console.debug("Stream : No user in room");
             return;
         }
