@@ -310,7 +310,7 @@ body {
 }
 
 .voice-profile .gate .icon {
-    border-color: var(--pri-bd-color);
+    border-color: #00000000;
     border-width: 3px;
 }
 
