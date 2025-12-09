@@ -44,7 +44,7 @@ function userLogin() {
     // Validate URL
     try {
         const inputHost = new URL(FORM.host.value);
-        login(LOGIN, tauriActive ? inputHost.href : inputHost.origin);
+        login(LOGIN, inputHost.origin);
     }
     catch (e) {
         Swal.fire({

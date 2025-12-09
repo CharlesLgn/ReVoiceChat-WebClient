@@ -1,5 +1,7 @@
 import { Streamer, Viewer } from "./stream.js";
 import { i18n } from "../lib/i18n.js";
+import { SwalCustomClass } from "../lib/tools.js";
+import Swal from '../lib/sweetalert2.esm.all.min.js';
 
 export default class StreamController {
     #streamUrl;
@@ -30,31 +32,21 @@ export default class StreamController {
 
     #toggleStream(type) {
         if (type == "webcam") {
-            this.#webcamEnabled = !this.#webcamEnabled;
-            const button = document.getElementById("stream-webcam");
-
             if (this.#webcamEnabled) {
-                this.#startStream("webcam");
-                button.classList.add("green");
+                this.#stopStream("webcam");
             }
             else {
-                this.#stopStream("webcam");
-                button.classList.remove("green");
+                this.#startStream("webcam");
             }
             return;
         }
 
         if (type == "display") {
-            this.#displayEnabled = !this.#displayEnabled;
-            const button = document.getElementById("stream-display");
-
             if (this.#displayEnabled) {
-                this.#startStream("display");
-                button.classList.add("green");
+                this.#stopStream("display");
             }
             else {
-                this.#stopStream("display");
-                button.classList.remove("green");
+                this.#startStream("display");
             }
         }
     }
@@ -73,19 +65,63 @@ export default class StreamController {
             div.appendChild(player);
             div.onclick = () => { this.focus(div) }
             div.oncontextmenu = (event) => { event.preventDefault(); }
-
             document.getElementById('stream-container').appendChild(div);
+
+            if (type === "webcam") {
+                this.#webcamEnabled = true;
+                document.getElementById("stream-webcam").classList.add("green");
+
+            }
+
+            if (type === "display") {
+                this.#displayEnabled = true;
+                document.getElementById("stream-display").classList.add("green");
+            }
         }
         catch (error) {
             console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: i18n.translateOne("stream.start.error"),
+                animation: false,
+                customClass: SwalCustomClass,
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false,
+            });
         }
     }
 
     async #stopStream(type) {
-        if (this.#streamer[type]) {
-            await this.#streamer[type].stream.stop();
-            this.#streamer[type].div.remove();
-            this.#streamer[type] = null;
+        try {
+            if (this.#streamer[type]) {
+                await this.#streamer[type].stream.stop();
+                this.#streamer[type].div.remove();
+                this.#streamer[type] = null;
+
+                if (type === "webcam") {
+                    this.#webcamEnabled = false;
+                    document.getElementById("stream-webcam").classList.remove("green");
+
+                }
+
+                if (type === "display") {
+                    this.#displayEnabled = false;
+                    document.getElementById("stream-display").classList.remove("green");
+                }
+            }
+        }
+        catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: i18n.translateOne("stream.start.error"),
+                animation: false,
+                customClass: SwalCustomClass,
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false,
+            });
         }
     }
 
@@ -125,7 +161,7 @@ export default class StreamController {
             this.#viewer[`${userId}-${streamName}`] = {
                 stream: new Viewer(this.#streamUrl, this.#token, this.#user.settings),
                 div: div
-            } 
+            }
 
             const stream = this.#viewer[`${userId}-${streamName}`].stream;
             const video = await stream.join(userId, streamName);
@@ -140,7 +176,7 @@ export default class StreamController {
             }
 
             // Streamer container
-            document.getElementById('stream-container').appendChild(div); 
+            document.getElementById('stream-container').appendChild(div);
         }
     }
 
@@ -177,17 +213,23 @@ export default class StreamController {
 
         // Stop watching
         for (const key of Object.keys(this.#viewer)) {
-            await this.#viewer[key].stream.leave();
-            this.#viewer[key].div.remove();
-            this.#viewer[key] = null;
+            if (this.#viewer[key]) {
+                await this.#viewer[key].stream.leave();
+                this.#viewer[key].div.remove();
+                this.#viewer[key] = null;
+            }
         }
+    }
+
+    async removeAll() {
+        document.getElementById('stream-container').innerHTML = "";
     }
 
     async availableStream(roomId) {
         /** @type {RoomPresence} */
         const result = await this.#fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
 
-        if (result && result.connectedUser === null) {
+        if (!result || !result.connectedUser) {
             console.debug("Stream : No user in room");
             return;
         }

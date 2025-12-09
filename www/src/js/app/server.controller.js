@@ -52,12 +52,15 @@ export default class ServerController {
             return;
         }
 
+        this.#updateServerName(id, name);
+        void this.#usersLoad();
+        void this.room.load(id);
+    }
+
+    #updateServerName(id, name) {
         this.id = id;
         this.name = name;
         document.getElementById("server-name").innerText = name;
-
-        void this.#usersLoad();
-        void this.room.load(id);
     }
 
     /** @param {ServerUpdateNotification} data */
@@ -67,11 +70,15 @@ export default class ServerController {
             break;
           case "REMOVE":
             break;
-          case "MODIFY":
-                this.room.load(this.id);
-                return;
-            default:
-                return;
+          case "MODIFY": {
+              if (data.server.id === this.id) {
+                  this.#updateServerName(this.id, data.server.name);
+                  void this.room.load(this.id);
+              }
+              return;
+          }
+          default:
+              return;
         }
     }
 
