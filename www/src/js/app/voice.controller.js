@@ -1,5 +1,7 @@
 import VoiceCall from "./voice.js";
 import StreamController from './stream.controller.js';
+import Swal from '../lib/sweetalert2.esm.all.min.js';
+import { SwalCustomClass } from "../lib/tools.js";
 
 export default class VoiceController {
     /** @type {Alert} */
@@ -89,13 +91,22 @@ export default class VoiceController {
             this.#alert.play('voiceConnected');
         }
         catch (error) {
-            console.error(error);
-            this.#activeRoom = null;
+            Swal.fire({
+                icon: 'error',
+                title: "Can't join voicechat",
+                text: error,
+                animation: false,
+                customClass: SwalCustomClass,
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false
+            });
+            this.leave(false);
         }
     }
 
     // <user> call this to leave a call in a room
-    async leave() {
+    async leave(playAlert = true) {
         await this.#voiceCall.close();
         await this.streamController.stopAll();
         this.streamController.removeAll();
@@ -108,7 +119,9 @@ export default class VoiceController {
         this.#contextMenu.setVoiceCall(null);
 
         // Audio alert
-        this.#alert.play('voiceDisconnected');
+        if (playAlert) {
+            this.#alert.play('voiceDisconnected');
+        }
     }
 
     /**
