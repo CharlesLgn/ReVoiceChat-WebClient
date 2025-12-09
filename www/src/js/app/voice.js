@@ -354,7 +354,7 @@ export default class VoiceCall {
 
         this.#audioCollector.port.onmessage = (event) => {
             // We don't do anything if we are self muted
-            if (this.#settings.self.muted) {
+            if (this.#settings.self.muted || !this.#audioContext) {
                 return;
             }
 
