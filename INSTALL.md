@@ -56,9 +56,19 @@ Enable **VirtualHost**
 ```sh
 sudo a2ensite rvc_client.conf
 ```
-
 ```sh
 sudo systemctl reload apache2
 ```
 
 You can now access this app in your favorite browser
+
+### Troubleshooting
+
+If you get apache2 default page, you need to disable the default config
+
+```sh
+sudo a2dissite 000-default.conf
+```
+```sh
+sudo systemctl reload apache2
+```
