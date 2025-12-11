@@ -28,13 +28,17 @@ describe('theme.component', () => {
       expect(themes).toEqual([]);
     });
 
-    test("getDataThemesFromDOM", () => {
-      document.body.innerHTML = `<div data-theme="green">test 1</div><div data-theme="red">test 2</div>`;
+    test("data themes from DOM", () => {
+      document.body.innerHTML = `<div data-theme="green">test 1</div>
+                                 <div data-theme="">     test 2</div>
+                                 <div data-theme>        test 3</div>
+                                 <div data-not-theme>    test 4</div>
+                                 <div data-theme="red">  test 5</div>`;
       const values = getAllDeclaredDataThemes();
       expect(values).toEqual(["green", "red"]);
     })
 
-    test("getDataThemesFromStylesheets", () => {
+    test("data themes from stylesheets", () => {
       addStyleSheet(`
       [data-theme="darker"] { color: black; }
       [data-theme="lighter"] { color: white; }
@@ -43,7 +47,60 @@ describe('theme.component', () => {
       expect(values).toEqual(["darker", "lighter"]);
     })
 
-    test("getDataThemesFromStylesheets with error", () => {
+    test("data themes from stylesheets with empty rules", () => {
+      addStyleSheet("");
+      const values = getAllDeclaredDataThemes();
+      expect(values).toEqual([]);
+    })
+
+    test("data themes from stylesheets with no rules", () => {
+      const mockSheet = {
+        get cssRules() {
+          return null;
+        }
+      };
+      const originalStyleSheets = document.styleSheets;
+      Object.defineProperty(document, 'styleSheets', {
+        value: [mockSheet],
+        configurable: true
+      });
+      const values = getAllDeclaredDataThemes();
+      expect(values).toEqual([]);
+
+      Object.defineProperty(document, 'styleSheets', {
+        value: originalStyleSheets,
+        configurable: true
+      });
+    })
+
+    test("data themes from stylesheets with rule with no selector", () => {
+      const mockSheet = {
+        get cssRules() {
+          return [
+            {
+              selectorText: null,
+              cssRules: [{
+                selectorText: null
+              }]
+            }
+          ];
+        }
+      };
+      const originalStyleSheets = document.styleSheets;
+      Object.defineProperty(document, 'styleSheets', {
+        value: [mockSheet],
+        configurable: true
+      });
+      const values = getAllDeclaredDataThemes();
+      expect(values).toEqual([]);
+
+      Object.defineProperty(document, 'styleSheets', {
+        value: originalStyleSheets,
+        configurable: true
+      });
+    })
+
+    test("data themes from stylesheets with error", () => {
       const mockSheet = {
         get cssRules() {
           throw new Error('Cross-origin');
@@ -63,7 +120,7 @@ describe('theme.component', () => {
       });
     });
 
-    test("getDataThemesFromStylesheets", () => {
+    test("data themes from stylesheets and DOM", () => {
       document.body.innerHTML = `<div data-theme="purple">test 1</div>`;
       addStyleSheet(`
           [data-theme="orange"] { color: black; }
@@ -83,7 +140,7 @@ describe('theme.component', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    afterEach(()  => document.body.innerHTML = '');
+    afterEach(() => document.body.innerHTML = '');
 
     test("test", () => {
       const divs = document.querySelectorAll('revoice-theme-preview');

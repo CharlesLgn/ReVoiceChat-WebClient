@@ -8,6 +8,10 @@ describe('containsOnlyEmotes', () => {
     expect(containsOnlyEmotes('😁✅🥜', acceptedWords)).toBe(true);
   });
 
+  test('no custom emote', () => {
+    expect(containsOnlyEmotes(':test: :smile:', [])).toBe(false);
+  });
+
   test('only custom emote', () => {
     expect(containsOnlyEmotes(':test: :smile:', acceptedWords)).toBe(true);
   });
