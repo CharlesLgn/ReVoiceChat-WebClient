@@ -4,10 +4,11 @@
  */
 
 class I18n {
+    translationsLoaded = false;
+
     /** @param {string} translationDir */
     constructor(translationDir) {
-        /** @type {boolean} */
-        this.translationsLoaded = false;
+        /** @type {Object} */
         this.translations = {};
         this.translationDir = translationDir;
         this.observers = new Map(); // Store MutationObservers for dynamic values
@@ -198,6 +199,7 @@ class I18n {
     #querySelectorAllDeep(selector, root) {
         const results = [];
 
+        /** @param {Document|HTMLElement|ShadowRoot} node */
         function search(node) {
             // 1. Normal DOM elements
             if (node.querySelectorAll) {
@@ -280,7 +282,7 @@ class I18n {
      */
     destroy() {
         for (const observer of this.observers) {
-            observer.disconnect();
+            observer[1].disconnect();
         }
         this.observers.clear();
     }
@@ -289,7 +291,7 @@ class I18n {
 // Export for usage
 const i18n = new I18n("src/i18n");
 
-export { i18n }
+export { I18n, i18n }
 
 // Usage examples:
 // i18n.translate('fr');
