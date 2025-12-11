@@ -17,3 +17,5 @@ sudo a2ensite rvc_client.conf
 echo "Enabling Apache2 ..."
 sudo systemctl enable apache2
 sudo systemctl restart apache2
+
+echo "Done."
