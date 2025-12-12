@@ -297,7 +297,10 @@ async function getHostSettings() {
         const result = await response.json();
 
         // Show / Hide invitation input
-        if (result["global.app-only-accessible-by-invitation"]) {
+        if (result["global.app-only-accessible-by-invitation"] == "true") {
+            document.getElementById("register-invitation-div").classList.remove("hidden");
+        }
+        else{
             document.getElementById("register-invitation-div").classList.add("hidden");
         }
 
