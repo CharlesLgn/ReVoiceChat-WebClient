@@ -30,6 +30,12 @@
     align-items: center;
 }
 
+button:hover:disabled,
+button:disabled {
+    background-color: grey !important;
+    cursor: not-allowed;
+}
+
 .login-form button:hover {
     background-color: var(--pri-button-hover-color);
 }
@@ -71,4 +77,12 @@
     border-color: #ffffff;
     background-color: #43434d;
     color: #ffffff;
+}
+
+.password-reject {
+    border-color: red !important;
+}
+
+.password-accept {
+    border-color: green !important;
 }

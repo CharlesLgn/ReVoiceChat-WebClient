@@ -1,31 +1,41 @@
 import Swal from './lib/sweetalert2.esm.all.min.js';
-import {SpinnerOnButton} from './component/button.spinner.component.js';
-import {apiFetch, getCookie, getQueryVariable, setCookie, SwalCustomClass, tauriActive} from "./lib/tools.js";
-
+import { SpinnerOnButton } from './component/button.spinner.component.js';
+import { apiFetch, getCookie, getQueryVariable, setCookie, SwalCustomClass, tauriActive } from "./lib/tools.js";
 import './component/icon.component.js';
-import {i18n} from "./lib/i18n.js";
+import { i18n } from "./lib/i18n.js";
+
+let passwordRegex = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
+    // Clean lastState
     sessionStorage.removeItem('lastState');
+
+    // Attempt auto login
     await autoLogin();
-    autoHost();
 
     // Last login
     if (localStorage.getItem("lastUsername")) {
         document.getElementById("username").value = localStorage.getItem("lastUsername");
     }
 
+    // Last host
+    lastHost();
+
     // Got here from invitation link
     if (getQueryVariable('register')) {
         document.getElementById('register-invitation').value = getQueryVariable('register') ? getQueryVariable('register') : "";
         switchToRegister();
     }
+
     void i18n.translate("en");
 
+    document.getElementById("register-host").onchange = () => { getHostSettings() }
     document.getElementById("login-button").onclick = userLogin
     document.getElementById("switch-to-register-button").onclick = switchToRegister
     document.getElementById("user-register-button").onclick = userRegister
     document.getElementById("switch-to-login-button").onclick = switchToLogin
+    document.getElementById("register-password").oninput = () => { passwordValidator(document.getElementById("register-password"), false); }
+    document.getElementById("register-password-confirm").oninput = () => { passwordValidator(document.getElementById("register-password-confirm"), true); }
 });
 
 document.getElementById("login-form").addEventListener('keydown', function (e) {
@@ -111,23 +121,18 @@ async function login(loginData, host) {
     }
 }
 
-function autoHost() {
-    switch (document.location.origin) {
-        case "https://dev.revoicechat.fr":
-            document.getElementById("login-form").host.value = "https://dev.revoicechat.fr";
-            document.getElementById("register-form").host.value = "https://dev.revoicechat.fr";
-            break;
-
-        case "https://app.revoicechat.fr":
-            document.getElementById("login-form").host.value = "https://app.revoicechat.fr";
-            document.getElementById("register-form").host.value = "https://app.revoicechat.fr";
-            break;
-        default:
-            if (localStorage.getItem("lastHost")) {
-                document.getElementById("login-form").host.value = localStorage.getItem("lastHost");
-                document.getElementById("register-form").host.value = localStorage.getItem("lastHost");
-            }
-            break;
+function lastHost() {
+    if (localStorage.getItem("lastHost")) {
+        document.getElementById("login-form").host.value = localStorage.getItem("lastHost");
+        document.getElementById("register-form").host.value = localStorage.getItem("lastHost");
+        getHostSettings();
+    }
+    else {
+        if (document.location.hostname !== "localhost") {
+            document.getElementById("login-form").host.value = document.location.origin;
+            document.getElementById("register-form").host.value = document.location.origin;
+            getHostSettings();
+        }
     }
 }
 
@@ -143,6 +148,33 @@ function switchToLogin() {
 
 function userRegister() {
     const FORM = document.getElementById("register-form");
+
+    if (!FORM.username.value) {
+        Swal.fire({
+            icon: 'error',
+            title: i18n.translateOne('login.register.username.error'),
+            animation: false,
+            customClass: SwalCustomClass,
+            showCancelButton: false,
+            confirmButtonText: "OK",
+            allowOutsideClick: false,
+        });
+        return;
+    }
+
+    if (FORM.password.value !== FORM.passwordConfirm.value) {
+        Swal.fire({
+            icon: 'error',
+            title: i18n.translateOne('login.register.password.match.error'),
+            animation: false,
+            customClass: SwalCustomClass,
+            showCancelButton: false,
+            confirmButtonText: "OK",
+            allowOutsideClick: false,
+        });
+        return;
+    }
+
     const REGISTER = {
         'username': FORM.username.value,
         'password': FORM.password.value,
@@ -207,6 +239,24 @@ async function register(loginData, host) {
     }
 }
 
+function passwordValidator(element, udpateButton) {
+    const button = document.getElementById('user-register-button');
+    if (passwordRegex && passwordRegex.test(element.value)) {
+        element.classList.remove('password-reject');
+        element.classList.add('password-accept');
+        if (udpateButton) {
+            button.disabled = false;
+        }
+    }
+    else {
+        element.classList.remove('password-accept');
+        element.classList.add('password-reject');
+        if (udpateButton) {
+            button.disabled = true;
+        }
+    }
+}
+
 async function autoLogin() {
     const storedToken = getCookie('jwtToken');
     const storedCoreUrl = localStorage.getItem("lastHost");
@@ -229,5 +279,38 @@ async function autoLogin() {
         catch (error) {
             console.error(error);
         }
+    }
+}
+
+async function getHostSettings() {
+    try {
+        const host = new URL(document.getElementById("register-host").value);
+        const response = await apiFetch(`${host.origin}/api/settings`, {
+            cache: "no-store",
+            signal: AbortSignal.timeout(5000),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            method: 'GET',
+        });
+
+        const result = await response.json();
+
+        // Show / Hide invitation input
+        if (result["global.app-only-accessible-by-invitation"]) {
+            document.getElementById("register-invitation-div").classList.add("hidden");
+        }
+
+        // Build password Regex
+        let pattern = "";
+        pattern += `(?=.*[!@#$%^&.*]{${result["global.password.min-special-char"]},})`;
+        pattern += `(?=.*[0-9]{${result["global.password.min-number"]},})`;
+        pattern += `(?=.*[A-Z]{${result["global.password.min-uppercase"]},})`;
+        pattern += `(?=.*[a-z]{${result["global.password.min-lowercase"]},})`;
+        pattern += `[a-zA-Z0-9!@#$%^&.*]{${result["global.password.min-length"]},}$`;
+        passwordRegex = new RegExp(pattern);
+    }
+    catch (error) {
+        console.error(error);
     }
 }

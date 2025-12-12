@@ -41,19 +41,23 @@
                     <label for="register-host" data-i18n="login.host">Host</label>
                     <input type="text" name="host" id="register-host">
                 </div>
-                <div class="login-element">
+                <div class="login-element" id="register-invitation-div">
                     <label for="register-invitation" data-i18n="login.invitation">Invitation code</label>
-                    <input type="text" name="invitation" id="register-invitation" placeholder="May not be require for this host">
+                    <input type="text" name="invitation" id="register-invitation" placeholder="Required for this host">
                 </div>
                 <div class="login-element">
                     <label for="register-username" data-i18n="login.username">Username</label>
-                    <input type="text" name="username" id="register-username" placeholder="Your super username !">
+                    <input type="text" name="username" id="register-username">
                 </div>
                 <div class="login-element">
                     <label for="register-password" data-i18n="login.password">Password</label>
-                    <input type="password" name="password" id="register-password" placeholder="Your super secure password" title="At least 8 characters with 1 capital and 1 special character">
+                    <input type="password" name="password" id="register-password" title="At least 8 characters with 1 capital and 1 special character">
                 </div>
-                <button type="button" id="user-register-button" data-i18n="login.register">Register</button>
+                <div class="login-element">
+                    <label for="register-password-confirm" data-i18n="login.password.confirm">Confirm password</label>
+                    <input type="password" name="passwordConfirm" id="register-password-confirm" title="At least 8 characters with 1 capital and 1 special character">
+                </div>
+                <button type="button" id="user-register-button" data-i18n="login.register" disabled>Register</button>
                 <button type="button" id="switch-to-login-button" class='switch' data-i18n="login.login.go.to.page">Login instead ?</button>
             </form>
         </div>
