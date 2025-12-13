@@ -390,6 +390,22 @@ svg {
     height: 2rem;
 }
 
+.message-container .icon {
+    border-radius: 9999px;
+    width: 3rem;
+    height: 3rem;
+    margin-left: 0.5rem;
+}
+
+.message-container-message {
+    width: -webkit-fill-available;
+}
+
+.message-container {
+    display: flex;
+    align-items: center;
+}
+
 /* ROOMS (list) */
 .rooms {
     overflow-y: auto;

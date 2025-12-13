@@ -227,7 +227,7 @@ export default class TextController {
     #create(messageData) {
         const CONTAINER = document.createElement('div');
         CONTAINER.id = `container-${messageData.id}`;
-        CONTAINER.className = "message-container";
+        CONTAINER.className = `message-container-message`;
 
         const HEADER = document.createElement('div');
         HEADER.className = "message-header";
@@ -241,7 +241,22 @@ export default class TextController {
         CONTAINER.appendChild(HEADER);
 
         CONTAINER.appendChild(this.#createContent(messageData));
-        return CONTAINER;
+        const MESSAGE = document.createElement('div');
+        MESSAGE.className = "message-container";
+        if (RVC.userSettings().messageSetting.showPicture) {
+            this.#addPicture(messageData, MESSAGE);
+        }
+        MESSAGE.appendChild(CONTAINER);
+        return MESSAGE;
+    }
+
+    #addPicture(messageData, MESSAGE) {
+        const picture = document.createElement('img');
+        picture.src = `${RVC.mediaUrl}/profiles/${messageData.user.id}`
+        picture.alt = "PFP"
+        picture.className = "icon ring-2"
+        picture.name = `user-picture-${messageData.user.id}`
+        MESSAGE.appendChild(picture);
     }
 
     /** @param {MessageRepresentation} messageData */

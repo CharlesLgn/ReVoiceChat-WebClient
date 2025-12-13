@@ -28,6 +28,9 @@ export default class UserSettingsController {
         voice: 1,
         stream: 0.5,
     }
+    messageSetting = {
+        showPicture: true
+    }
 
     constructor(user, fetcher, mediaUrl) {
         this.#user = user;
@@ -54,6 +57,7 @@ export default class UserSettingsController {
             theme: this.#theme,
             lang: this.#lang,
             audioOutput: this.#audioOutput,
+            messageSetting: this.messageSetting,
         }
         await this.#fetcher.fetchCore(`/settings/me`, 'PATCH', settings);
     }
@@ -77,6 +81,9 @@ export default class UserSettingsController {
 
             if(storedSettings.audioOutput){
                 this.#audioOutput = storedSettings.audioOutput;
+            }
+            if (storedSettings.messageSetting) {
+                this.messageSetting = storedSettings.messageSetting;
             }
         }
 
