@@ -1,7 +1,7 @@
 import Alert from './utils/alert.js';
 import Swal from '../lib/sweetalert2.esm.all.min.js';
 import {sanitizeString, SwalCustomClass, timestampToText, humanFileSize} from "../lib/tools.js";
-import {i18n} from "../lib/i18n.js";
+import {I18n, i18n} from "../lib/i18n.js";
 
 export default class TextController {
     static MODE_SEND = 0;
@@ -94,6 +94,7 @@ export default class TextController {
                 break;
             case "MODIFY":
                 document.getElementById(message.id).replaceWith(this.#createContent(message));
+                document.getElementById(`header-message-${message.id}`).replaceWith(this.#createHeader(message));
                 break;
             case "REMOVE":
                 document.getElementById(`container-${message.id}`).remove();
@@ -227,18 +228,7 @@ export default class TextController {
     #create(messageData) {
         const CONTAINER = document.createElement('div');
         CONTAINER.className = `message-container-message`;
-
-        const HEADER = document.createElement('div');
-        HEADER.className = "message-header";
-        HEADER.innerHTML = `<h3 class="message-owner">${messageData.user.displayName} <span class="message-timestamp">${timestampToText(messageData.createdDate)}</span></h3>`;
-
-        const CONTEXT_MENU = this.#createContextMenu(messageData)
-        if (CONTEXT_MENU) {
-            HEADER.appendChild(CONTEXT_MENU);
-        }
-
-        CONTAINER.appendChild(HEADER);
-
+        CONTAINER.appendChild(this.#createHeader(messageData));
         CONTAINER.appendChild(this.#createContent(messageData));
         const MESSAGE = document.createElement('div');
         MESSAGE.id = `container-${messageData.id}`;
@@ -248,6 +238,24 @@ export default class TextController {
         }
         MESSAGE.appendChild(CONTAINER);
         return MESSAGE;
+    }
+
+    #createHeader(messageData) {
+        const header = document.createElement('div');
+        header.className = "message-header";
+        header.id = `header-message-${messageData.id}`;
+        const title = document.createElement('h3')
+        title.className = "message-owner"
+        title.innerHTML = `<span>${messageData.user.displayName}</span>
+                           <span class="message-timestamp">${timestampToText(messageData.createdDate)}</span>
+                           ${messageData.updatedDate ? '<span class="message-timestamp" data-i18n="message.edit">(edit)</span>' : ''}`;
+        header.appendChild(title);
+        const CONTEXT_MENU = this.#createContextMenu(messageData)
+        if (CONTEXT_MENU) {
+            header.appendChild(CONTEXT_MENU);
+        }
+        i18n.translatePage(header);
+        return header
     }
 
     #addPicture(messageData, MESSAGE) {

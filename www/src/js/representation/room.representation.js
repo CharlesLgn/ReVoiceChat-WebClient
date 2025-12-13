@@ -33,6 +33,7 @@ class MessageRepresentation {
   /** @type {UserNotificationRepresentation} */
   user
   createdDate
+  updatedDate
   /** @type {MediaDataRepresentation[]} */
   medias
   /** @type {EmoteRepresentation[]} */
