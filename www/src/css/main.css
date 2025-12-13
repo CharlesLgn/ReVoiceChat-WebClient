@@ -394,6 +394,7 @@ svg {
     border-radius: 9999px;
     width: 3rem;
     height: 3rem;
+    margin-top: 0.5rem;
     margin-left: 0.5rem;
 }
 
@@ -403,7 +404,6 @@ svg {
 
 .message-container {
     display: flex;
-    align-items: center;
 }
 
 /* ROOMS (list) */

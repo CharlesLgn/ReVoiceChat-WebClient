@@ -226,7 +226,6 @@ export default class TextController {
     /** @param {MessageRepresentation} messageData */
     #create(messageData) {
         const CONTAINER = document.createElement('div');
-        CONTAINER.id = `container-${messageData.id}`;
         CONTAINER.className = `message-container-message`;
 
         const HEADER = document.createElement('div');
@@ -242,6 +241,7 @@ export default class TextController {
 
         CONTAINER.appendChild(this.#createContent(messageData));
         const MESSAGE = document.createElement('div');
+        MESSAGE.id = `container-${messageData.id}`;
         MESSAGE.className = "message-container";
         if (RVC.userSettings().messageSetting.showPicture) {
             this.#addPicture(messageData, MESSAGE);
