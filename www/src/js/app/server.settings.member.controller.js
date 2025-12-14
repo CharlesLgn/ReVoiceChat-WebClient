@@ -1,18 +1,17 @@
 import MediaServer from "./media/media.server.js";
+import CoreServer from "./core/core.server.js";
 
 export class ServerSettingsMemberController {
 
     /**
      * @param {ServerSettingsController} serverSettings
-     * @param {Fetcher} fetcher
      */
-    constructor(serverSettings, fetcher) {
+    constructor(serverSettings) {
         this.serverSettings = serverSettings
-        this.fetcher = fetcher
     }
 
     load() {
-        this.fetcher.fetchCore(`/server/${this.serverSettings.server.id}/user`, 'GET')
+        CoreServer.fetch(`/server/${this.serverSettings.server.id}/user`, 'GET')
             .then(result => {
                 if (result) {
                     const sortedByDisplayName = [.../** @type {UserRepresentation[]} */(result)].sort((a, b) => {

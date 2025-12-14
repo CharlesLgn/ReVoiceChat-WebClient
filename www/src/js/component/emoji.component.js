@@ -1,5 +1,6 @@
 import {apiFetch} from "../lib/tools.js";
 import MediaServer from "../app/media/media.server.js";
+import CoreServer from "../app/core/core.server.js";
 
 class EmojiPicker {
 
@@ -101,7 +102,7 @@ class EmojiPicker {
 
 async function initCustomGeneral(picker) {
     /** @type {EmoteRepresentation[]} */
-    const emojis = await RVC.fetcher.fetchCore(`/emote/global`);
+    const emojis = await CoreServer.fetch(`/emote/global`);
     initCustomEmojiCategory(picker,
         '03. custom_general',
         '<img src="src/img/favicon.png" alt="revoice"/>',
@@ -118,7 +119,7 @@ async function initCustomGeneral(picker) {
 
 async function initCustomServer(picker) {
     /** @type {EmoteRepresentation[]} */
-    const emojis = await RVC.fetcher.fetchCore(`/emote/server/${RVC.server.id}`);
+    const emojis = await CoreServer.fetch(`/emote/server/${RVC.server.id}`);
     initCustomEmojiCategory(picker, '02. custom_server',
         '🏠',
         Array.from(emojis).map(emoji => {
@@ -134,7 +135,7 @@ async function initCustomServer(picker) {
 
 async function initCustomUser(picker) {
     /** @type {EmoteRepresentation[]} */
-    const emojis = await RVC.fetcher.fetchCore(`/emote/me`);
+    const emojis = await CoreServer.fetch(`/emote/me`);
     initCustomEmojiCategory(picker, '01. custom_perso',
         `<img class="emoji ${RVC.user.id}"
                    src="${MediaServer.profiles(RVC.user.id)}"

@@ -6,10 +6,10 @@ import {SwalCustomClass} from "../lib/tools.js";
 import {getAllDeclaredDataThemes} from "../component/theme.component.js";
 import {i18n} from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
+import CoreServer from "./core/core.server.js";
 
 export default class UserSettingsController {
     #user;
-    #fetcher;
     #room;
     #inputAdvanced = false;
     #currentTab;
@@ -32,9 +32,8 @@ export default class UserSettingsController {
         showPicture: true
     }
 
-    constructor(user, fetcher) {
+    constructor(user) {
         this.#user = user;
-        this.#fetcher = fetcher;
 
         // Add events
         this.#selectEventHandler();
@@ -58,11 +57,11 @@ export default class UserSettingsController {
             audioOutput: this.#audioOutput,
             messageSetting: this.messageSetting,
         }
-        await this.#fetcher.fetchCore(`/settings/me`, 'PATCH', settings);
+        await CoreServer.fetch(`/settings/me`, 'PATCH', settings);
     }
 
     async load() {
-        const storedSettings = await this.#fetcher.fetchCore(`/settings/me`, 'GET');
+        const storedSettings = await CoreServer.fetch(`/settings/me`, 'GET');
         if (storedSettings !== null) {
             if (storedSettings.voice) {
                 this.voice.self = storedSettings.voice.self ? storedSettings.voice.self : defaultVoice.self;
@@ -186,7 +185,7 @@ export default class UserSettingsController {
             ,
         }).then(async (result) => {
             if (result.value) {
-                await this.#fetcher.fetchCore(`/user/me`, 'PATCH', { password: this.#password });
+                await CoreServer.fetch(`/user/me`, 'PATCH', { password: this.#password });
 
             }
         });
@@ -203,7 +202,7 @@ export default class UserSettingsController {
     async #overviewChangeName() {
         const displayName = document.getElementById("overview-displayname").value
         if (displayName && displayName !== "") {
-            const result = await this.#fetcher.fetchCore(`/user/me`, 'PATCH', { displayName: displayName });
+            const result = await CoreServer.fetch(`/user/me`, 'PATCH', { displayName: displayName });
             if (result) {
                 this.#user.displayName = result.displayName
                 document.getElementById('overview-displayname').value = result.displayName;
@@ -262,7 +261,7 @@ export default class UserSettingsController {
     }
 
     #emoteLoad() {
-        this.#fetcher.fetchCore(`/emote/me`).then(response => {
+        CoreServer.fetch(`/emote/me`).then(response => {
             const emoteForm = document.getElementById("user-setting-emotes-form");
             emoteForm.innerHTML = `
             <script type="application/json" slot="emojis-data">

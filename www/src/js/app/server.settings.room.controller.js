@@ -2,6 +2,7 @@ import Swal from '../lib/sweetalert2.esm.all.min.js';
 import { SpinnerOnButton } from "../component/button.spinner.component.js";
 import { SwalCustomClass } from "../lib/tools.js";
 import { i18n } from "../lib/i18n.js";
+import CoreServer from "./core/core.server.js";
 
 export class ServerSettingsRoomController {
 
@@ -18,16 +19,14 @@ export class ServerSettingsRoomController {
 
     /**
      * @param {ServerSettingsController} serverSettings
-     * @param {Fetcher} fetcher
      */
-    constructor(serverSettings, fetcher) {
+    constructor(serverSettings) {
         this.serverSettings = serverSettings
-        this.fetcher = fetcher
     }
 
     async roomLoad() {
         /** @type {RoomRepresentation[]} */
-        const roomResult = await this.fetcher.fetchCore(`/server/${this.serverSettings.server.id}/room`, 'GET');
+        const roomResult = await CoreServer.fetch(`/server/${this.serverSettings.server.id}/room`, 'GET');
         if (roomResult) {
             this.#roomsData = {};
             for (const room of roomResult) {
@@ -69,7 +68,7 @@ export class ServerSettingsRoomController {
 
     async #structureLoad() {
         /** @type {ServerStructure} */
-        const struct = await this.fetcher.fetchCore(`/server/${this.serverSettings.server.id}/structure`, 'GET');
+        const struct = await CoreServer.fetch(`/server/${this.serverSettings.server.id}/structure`, 'GET');
         if (struct) {
             this.#structureData = struct;
             this.#render();
@@ -107,7 +106,7 @@ export class ServerSettingsRoomController {
             }
         }).then(async (result) => {
             if (result.value) {
-                await this.fetcher.fetchCore(`/server/${this.serverSettings.server.id}/room`, 'PUT', this.#popupData);
+                await CoreServer.fetch(`/server/${this.serverSettings.server.id}/room`, 'PUT', this.#popupData);
                 await this.roomLoad();
             }
         });
@@ -140,7 +139,7 @@ export class ServerSettingsRoomController {
             }
         }).then(async (result) => {
             if (result.value) {
-                await this.fetcher.fetchCore(`/room/${data.id}`, 'PATCH', this.#popupData);
+                await CoreServer.fetch(`/room/${data.id}`, 'PATCH', this.#popupData);
                 await this.roomLoad();
             }
         });
@@ -167,7 +166,7 @@ export class ServerSettingsRoomController {
             allowOutsideClick: false,
         }).then(async (result) => {
             if (result.value) {
-                await this.fetcher.fetchCore(`/room/${data.id}`, 'DELETE');
+                await CoreServer.fetch(`/room/${data.id}`, 'DELETE');
                 await this.roomLoad();
             }
         });
@@ -255,7 +254,7 @@ export class ServerSettingsRoomController {
         this.#structureClean(this.#structureData.items);
 
         try {
-            await this.fetcher.fetchCore(`/server/${this.serverSettings.server.id}/structure`, 'PATCH', this.#structureData);
+            await CoreServer.fetch(`/server/${this.serverSettings.server.id}/structure`, 'PATCH', this.#structureData);
             spinner.success()
         }
         catch (error) {

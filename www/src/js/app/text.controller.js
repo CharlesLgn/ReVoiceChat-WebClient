@@ -3,6 +3,7 @@ import Swal from '../lib/sweetalert2.esm.all.min.js';
 import {sanitizeString, SwalCustomClass, timestampToText, humanFileSize} from "../lib/tools.js";
 import {I18n, i18n} from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
+import CoreServer from "./core/core.server.js";
 
 export default class TextController {
     static MODE_SEND = 0;
@@ -12,8 +13,6 @@ export default class TextController {
 
     /** @type {UserController} */
     #user;
-    /** @type {Fetcher} */
-    #fetcher;
     /** @type {Room} */
     #room;
     /** @type {string|null} */
@@ -21,12 +20,10 @@ export default class TextController {
     #attachmentMaxSize = 0;
 
     /**
-     * @param {Fetcher} fetcher
      * @param {UserController} user
      * @param {Room} room
      */
-    constructor(fetcher, user, room) {
-        this.#fetcher = fetcher;
+    constructor(user, room) {
         this.#user = user;
         this.#room = room;
         this.#getAttachmentMaxSize();
@@ -59,7 +56,7 @@ export default class TextController {
 
     async getAllFrom(roomId) {
         /** @type {PageResult<MessageRepresentation>} */
-        const result = await this.#fetcher.fetchCore(`/room/${roomId}/message`, 'GET');
+        const result = await CoreServer.fetch(`/room/${roomId}/message`, 'GET');
 
         if (result !== null) {
             const ROOM = document.getElementById("text-content");
@@ -167,11 +164,11 @@ export default class TextController {
 
         switch (this.mode) {
             case TextController.MODE_SEND:
-                result = await this.#fetcher.fetchCore(`/room/${this.#room.id}/message`, 'PUT', data);
+                result = await CoreServer.fetch(`/room/${this.#room.id}/message`, 'PUT', data);
                 break;
 
             case TextController.MODE_EDIT:
-                result = await this.#fetcher.fetchCore(`/message/${this.#editId}`, 'PATCH', data);
+                result = await CoreServer.fetch(`/message/${this.#editId}`, 'PATCH', data);
                 break;
 
             default:
@@ -287,7 +284,7 @@ export default class TextController {
     }
 
     async #edit(id) {
-        const result = await this.#fetcher.fetchCore(`/message/${id}`, 'GET');
+        const result = await CoreServer.fetch(`/message/${id}`, 'GET');
 
         if (result) {
             const textarea = document.getElementById("text-input");
@@ -301,7 +298,7 @@ export default class TextController {
     }
 
     async #delete(id) {
-        await this.#fetcher.fetchCore(`/message/${id}`, 'DELETE');
+        await CoreServer.fetch(`/message/${id}`, 'DELETE');
     }
 
     /**

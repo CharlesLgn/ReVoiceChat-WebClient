@@ -1,10 +1,9 @@
 import ServerSettingsController from "./server.settings.controller.js";
 import {statusToDotClassName} from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
+import CoreServer from "./core/core.server.js";
 
 export default class ServerController {
-    /** @type {Fetcher} */
-    #fetcher;
     /** @type {Room} */
     room;
     /** @type {string} */
@@ -15,18 +14,16 @@ export default class ServerController {
     settings;
 
     /**
-     * @param {Fetcher} fetcher
      * @param {Room} room
      */
-    constructor(fetcher, room) {
-        this.#fetcher = fetcher;
+    constructor(room) {
         this.room = room;
         void this.#load();
     }
 
     async #load() {
         /** @type {ServerRepresentation[]} */
-        const result = await this.#fetcher.fetchCore("/server", 'GET');
+        const result = await CoreServer.fetch("/server", 'GET');
 
         if (result === null) {
             return;
@@ -39,7 +36,7 @@ export default class ServerController {
             this.select(server.id, server.name);
         }
 
-        this.settings = new ServerSettingsController(this, this.#fetcher);
+        this.settings = new ServerSettingsController(this);
         this.settings.load()
     }
 
@@ -88,7 +85,7 @@ export default class ServerController {
 
     async #usersLoad() {
         /** @type {UserRepresentation[]} */
-        const result = await this.#fetcher.fetchCore(`/server/${this.id}/user`, 'GET');
+        const result = await CoreServer.fetch(`/server/${this.id}/user`, 'GET');
 
         if (result !== null) {
             const sortedByDisplayName = [...result].sort((a, b) => {

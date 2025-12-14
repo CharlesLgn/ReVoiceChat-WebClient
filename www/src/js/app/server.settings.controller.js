@@ -4,28 +4,25 @@ import { ServerSettingsEmoteController } from "./server.settings.emote.controlle
 import { ServerSettingsInvitationController } from "./server.settings.invitation.controller.js";
 import { ServerSettingsRoleController } from "./server.settings.role.controller.js";
 import { ServerSettingsMemberController } from "./server.settings.member.controller.js";
+import CoreServer from "./core/core.server.js";
 
 export default class ServerSettingsController {
     /** @type {ServerController} */
     server;
-    /** @type {Fetcher} */
-    #fetcher;
     currentTab;
     /** @type {string[]} */
     flattenRisks = [];
 
     /**
      * @param {ServerController} server
-     * @param {Fetcher} fetcher
      */
-    constructor(server, fetcher) {
+    constructor(server) {
         this.server = server;
-        this.#fetcher = fetcher;
-        this.overview = new ServerSettingsOverviewController(this, fetcher)
-        this.member = new ServerSettingsMemberController(this, fetcher)
-        this.room = new ServerSettingsRoomController(this, fetcher)
-        this.emote = new ServerSettingsEmoteController(this, fetcher)
-        this.invitation = new ServerSettingsInvitationController(this, fetcher)
+        this.overview = new ServerSettingsOverviewController(this)
+        this.member = new ServerSettingsMemberController(this)
+        this.room = new ServerSettingsRoomController(this)
+        this.emote = new ServerSettingsEmoteController(this)
+        this.invitation = new ServerSettingsInvitationController(this)
         this.role = new ServerSettingsRoleController(this)
     }
 
@@ -46,10 +43,10 @@ export default class ServerSettingsController {
      */
     async #loadRisks(select = true) {
         /** @type {UserRepresentation} */
-        const me = await this.#fetcher.fetchCore(`/user/me`);
+        const me = await CoreServer.fetch(`/user/me`);
         const isAdmin = me.type === "ADMIN";
         /** @type {string[]} */
-        const flattenRisks = await this.#fetcher.fetchCore(`/user/server/${this.server.id}/risks`);
+        const flattenRisks = await CoreServer.fetch(`/user/server/${this.server.id}/risks`);
 
         this.flattenRisks = flattenRisks;
         this.#selectEventHandler(flattenRisks, isAdmin);

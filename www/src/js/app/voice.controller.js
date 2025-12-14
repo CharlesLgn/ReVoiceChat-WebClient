@@ -4,14 +4,10 @@ import StreamController from './stream.controller.js';
 import Swal from '../lib/sweetalert2.esm.all.min.js';
 import { SwalCustomClass } from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
+import CoreServer from "./core/core.server.js";
+import ReVoiceChat from "./revoicechat.js";
 
 export default class VoiceController {
-    /** @type {Fetcher} */
-    #fetcher;
-    /** @type {string} */
-    #voiceURL;
-    /** @type {string} */
-    #token;
     /** @type {VoiceCall|null} */
     #voiceCall;
     /** @type {string|null} */
@@ -27,20 +23,13 @@ export default class VoiceController {
     streamController;
 
     /**
-     * @param {Fetcher} fetcher
      * @param {UserController} user
      * @param {Room} room
-     * @param {string} voiceURL
-     * @param {string} token
-     * @param {string} streamUrl
      */
-    constructor(fetcher, user, room, token, voiceURL, streamUrl) {
-        this.#fetcher = fetcher;
-        this.#voiceURL = voiceURL;
-        this.#token = token;
+    constructor(user, room) {
         this.#user = user;
         this.#room = room;
-        this.streamController = new StreamController(fetcher, user, room, token, streamUrl);
+        this.streamController = new StreamController(user, room);
         this.#contextMenu = document.getElementById('voice-context-menu');
     }
 
@@ -64,7 +53,7 @@ export default class VoiceController {
 
         try {
             this.#voiceCall = new VoiceCall(this.#user);
-            await this.#voiceCall.open(this.#voiceURL, roomId, this.#token, this.#setUserGlow, this.#setSelfGlow);
+            await this.#voiceCall.open(CoreServer.voiceUrl(), roomId, ReVoiceChat.getToken(), this.#setUserGlow, this.#setSelfGlow);
 
             // Update users in room
             await this.#updateJoinedUsers();
@@ -168,7 +157,7 @@ export default class VoiceController {
 
     // Show users in a room
     async showJoinedUsers(roomId) {
-        const result = await this.#fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
+        const result = await CoreServer.fetch(`/room/${roomId}/user`, 'GET');
 
         if (result.connectedUser === null) {
             console.debug("VOICE : No user in room");
@@ -460,7 +449,7 @@ export default class VoiceController {
 
     // Count user in room
     async usersCount(roomId) {
-        const result = await this.#fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
+        const result = await CoreServer.fetch(`/room/${roomId}/user`, 'GET');
         return result.connectedUser ? result.connectedUser.length : 0;
     }
 
@@ -473,7 +462,7 @@ export default class VoiceController {
 
     // Add or remove controls on users in room
     async #updateJoinedUsers() {
-        const result = await this.#fetcher.fetchCore(`/room/${this.#room.id}/user`, 'GET');
+        const result = await CoreServer.fetch(`/room/${this.#room.id}/user`, 'GET');
 
         if (result === null) {
             console.debug("VOICE : No user in room");

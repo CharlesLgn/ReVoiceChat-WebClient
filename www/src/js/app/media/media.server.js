@@ -1,4 +1,5 @@
 import {apiFetch} from "../../lib/tools.js";
+import ReVoiceChat from "../revoicechat.js";
 
 export default class MediaServer {
     /** @type {MediaServer} */
@@ -61,7 +62,7 @@ export default class MediaServer {
                 method: method,
                 signal: signal,
                 headers: {
-                    'Authorization': `Bearer ${RVC.getToken()}`
+                    'Authorization': `Bearer ${ReVoiceChat.getToken()}`
                 },
                 body: rawData
             });

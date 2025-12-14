@@ -1,9 +1,8 @@
 import TextController from './text.controller.js';
 import VoiceController  from './voice.controller.js';
+import CoreServer from "./core/core.server.js";
 
 export default class Room {
-    /** @type {Fetcher} */
-    #fetcher;
     /** @type {TextController} */
     textController;
     /** @type {VoiceController} */
@@ -13,16 +12,11 @@ export default class Room {
     type;
 
     /**
-     * @param {Fetcher} fetcher
      * @param {UserController} user
-     * @param {string} voiceUrl
-     * @param {string} token
-     * @param {string} streamUrl
      */
-    constructor(fetcher, user, voiceUrl, token, streamUrl) {
-        this.#fetcher = fetcher;
-        this.textController = new TextController(fetcher, user, this);
-        this.voiceController = new VoiceController(fetcher, user, this, token, voiceUrl, streamUrl);
+    constructor(user) {
+        this.textController = new TextController(user, this);
+        this.voiceController = new VoiceController(user, this);
     }
 
     /**
@@ -31,9 +25,9 @@ export default class Room {
      */
     async load(serverId) {
         /** @type {RoomRepresentation[]} */
-        const roomResult = await this.#fetcher.fetchCore(`/server/${serverId}/room`, 'GET');
+        const roomResult = await CoreServer.fetch(`/server/${serverId}/room`, 'GET');
         /** @type {ServerStructure} */
-        const structResult = await this.#fetcher.fetchCore(`/server/${serverId}/structure`, 'GET');
+        const structResult = await CoreServer.fetch(`/server/${serverId}/structure`, 'GET');
 
         if (structResult?.items && roomResult) {
             /** @type {Record<string, RoomRepresentation>} */

@@ -2,6 +2,7 @@ import Swal from '../lib/sweetalert2.esm.all.min.js';
 import {apiFetch} from "../lib/tools.js";
 import {i18n} from "../lib/i18n.js";
 import MediaServer from "../app/media/media.server.js";
+import CoreServer from "../app/core/core.server.js";
 
 class EmojiManager extends HTMLElement {
     constructor() {
@@ -129,7 +130,7 @@ class EmojiManager extends HTMLElement {
 
         try {
             /** @type {EmoteRepresentation} */
-            const emojiData = await RVC.fetcher.fetchCore(`/emote/${this.path}`, 'PUT', {
+            const emojiData = await CoreServer.fetch(`/emote/${this.path}`, 'PUT', {
                     fileName: file.name,
                     content: nameInput.value.trim(),
                     keywords: keywords
@@ -186,7 +187,7 @@ class EmojiManager extends HTMLElement {
         }).then(async (result) => {
             if (result.value) {
                 try {
-                    await RVC.fetcher.fetchCore(`/emote/${id}`, 'DELETE');
+                    await CoreServer.fetch(`/emote/${id}`, 'DELETE');
 
                     // Temporary: Delete locally until API is integrated
                     const emoji = this.emojis.find((e) => e.id === id);
@@ -301,7 +302,7 @@ class EmojiManager extends HTMLElement {
 
             const updateEmoji = async () => {
                 try {
-                    await RVC.fetcher.fetchCore(`/emote/${this.currentEditId}`, 'PATCH', {
+                    await CoreServer.fetch(`/emote/${this.currentEditId}`, 'PATCH', {
                         fileName: result.file?.name,
                         content: result.name.trim(),
                         keywords: keywords
@@ -314,14 +315,7 @@ class EmojiManager extends HTMLElement {
                     if (result.file) {
                         const formData = new FormData();
                         formData.append('file', result.file);
-                        await apiFetch(MediaServer.emote(this.currentEditId), {
-                            method: "POST",
-                            signal: AbortSignal.timeout(5000),
-                            headers: {
-                                'Authorization': `Bearer ${RVC.getToken()}`
-                            },
-                            body: formData
-                        });
+                        await MediaServer.fetch(`/emote/${this.currentEditId}`, "POST", formData);
 
                         // Temporary: Store image locally until API is integrated
                         const reader = new FileReader();

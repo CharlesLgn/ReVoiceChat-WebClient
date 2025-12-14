@@ -1,6 +1,7 @@
 import Swal from '../lib/sweetalert2.esm.all.min.js';
 import { i18n } from "../lib/i18n.js";
 import MediaServer from "../app/media/media.server.js";
+import CoreServer from "../app/core/core.server.js";
 
 class ServerRolesWebComponent extends HTMLElement {
 
@@ -50,23 +51,23 @@ class ServerRolesWebComponent extends HTMLElement {
     }
 
     async fetchRoles() {
-        this.roles = await RVC.fetcher.fetchCore(`/server/${this.serverId}/role`);
+        this.roles = await CoreServer.fetch(`/server/${this.serverId}/role`);
     }
 
     async fetchUsers() {
-        this.availableUsers = await RVC.fetcher.fetchCore(`/server/${this.serverId}/user`);
+        this.availableUsers = await CoreServer.fetch(`/server/${this.serverId}/user`);
     }
 
     async fetchRisks() {
-        this.availableRisks = await RVC.fetcher.fetchCore('/risk');
+        this.availableRisks = await CoreServer.fetch('/risk');
     }
 
     async createRoleAPI(roleData) {
-        return await RVC.fetcher.fetchCore(`/server/${this.serverId}/role`, 'PUT', roleData);
+        return await CoreServer.fetch(`/server/${this.serverId}/role`, 'PUT', roleData);
     }
 
     async updateRoleRisk(roleId, riskName, status) {
-        await RVC.fetcher.fetchCore(`/role/${roleId}/risk/${riskName}`, 'PATCH', status.toUpperCase());
+        await CoreServer.fetch(`/role/${roleId}/risk/${riskName}`, 'PATCH', status.toUpperCase());
     }
 
     render() {
@@ -402,7 +403,7 @@ class ServerRolesWebComponent extends HTMLElement {
 
     async #updateRoleOfMember(roleId, user, type) {
         try {
-            await RVC.fetcher.fetchCore(`/role/${roleId}/user`, type, user)
+            await CoreServer.fetch(`/role/${roleId}/user`, type, user)
             await this.fetchRoles();
             this.renderRoleDetails();
             this.#selectRoleTab("members-section");

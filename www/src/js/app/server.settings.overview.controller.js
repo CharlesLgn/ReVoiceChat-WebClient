@@ -2,16 +2,15 @@ import Swal from '../lib/sweetalert2.esm.all.min.js';
 import { SpinnerOnButton } from "../component/button.spinner.component.js";
 import { SwalCustomClass } from "../lib/tools.js";
 import { i18n } from "../lib/i18n.js";
+import CoreServer from "./core/core.server.js";
 
 export class ServerSettingsOverviewController {
 
     /**
      * @param {ServerSettingsController} serverSettings
-     * @param {Fetcher} fetcher
      */
-    constructor(serverSettings, fetcher) {
+    constructor(serverSettings) {
         this.serverSettings = serverSettings
-        this.fetcher = fetcher
     }
 
     load() {
@@ -74,7 +73,7 @@ export class ServerSettingsOverviewController {
         }
 
         /** @type {ServerRepresentation} */
-        const result = await this.fetcher.fetchCore(`/server/${this.serverSettings.server.id}`, 'PATCH', { name: serverName })
+        const result = await CoreServer.fetch(`/server/${this.serverSettings.server.id}`, 'PATCH', { name: serverName })
         if (result) {
             this.serverSettings.server.name = result.name;
             this.load();

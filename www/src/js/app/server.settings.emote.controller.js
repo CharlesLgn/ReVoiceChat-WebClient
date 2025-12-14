@@ -1,12 +1,12 @@
+import CoreServer from "./core/core.server.js";
+
 export class ServerSettingsEmoteController {
 
     /**
      * @param {ServerSettingsController} serverSettings
-     * @param {Fetcher} fetcher
      */
-    constructor(serverSettings, fetcher) {
+    constructor(serverSettings) {
         this.serverSettings = serverSettings
-        this.fetcher = fetcher
     }
 
     /**
@@ -24,7 +24,7 @@ export class ServerSettingsEmoteController {
 
     async #emotesLoad() {
         /** @type {EmoteRepresentation[]} */
-        const response = await this.fetcher.fetchCore(`/emote/server/${this.serverSettings.server.id}`);
+        const response = await CoreServer.fetch(`/emote/server/${this.serverSettings.server.id}`);
 
         const oldManager = document.getElementById("server-setting-emotes-form");
         if (oldManager) {

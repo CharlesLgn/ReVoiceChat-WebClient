@@ -1,14 +1,13 @@
 import Swal from '../lib/sweetalert2.esm.all.min.js';
 import { SwalCustomClass, copyToClipboard } from "../lib/tools.js";
+import CoreServer from "./core/core.server.js";
 
 export class ServerSettingsInvitationController {
     /**
      * @param {ServerSettingsController} serverSettings
-     * @param {Fetcher} fetcher
      */
-    constructor(serverSettings, fetcher) {
+    constructor(serverSettings) {
         this.serverSettings = serverSettings
-        this.fetcher = fetcher
     }
 
     /**
@@ -32,7 +31,7 @@ export class ServerSettingsInvitationController {
         const serverId = this.serverSettings.server.id;
 
         /** @type {InvitationRepresentation[]} */
-        const result = await this.fetcher.fetchCore(`/invitation/server/${serverId}`, 'GET');
+        const result = await CoreServer.fetch(`/invitation/server/${serverId}`, 'GET');
 
         if (result) {
             const list = document.getElementById("server-setting-invitation");
@@ -50,7 +49,7 @@ export class ServerSettingsInvitationController {
         const serverId = this.serverSettings.server.id;
 
         /** @type {InvitationRepresentation} */
-        const result = await this.fetcher.fetchCore(`/invitation/server/${serverId}`, 'POST');
+        const result = await CoreServer.fetch(`/invitation/server/${serverId}`, 'POST');
         
         if (result.status === "CREATED") {
             void this.#invitationLoad();
@@ -108,7 +107,7 @@ export class ServerSettingsInvitationController {
             allowOutsideClick: false,
         }).then(async (result) => {
             if (result.value) {
-                await this.fetcher.fetchCore(`/invitation/${data.id}`, 'DELETE');
+                await CoreServer.fetch(`/invitation/${data.id}`, 'DELETE');
                 void this.#invitationLoad();
             }
         });

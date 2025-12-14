@@ -1,10 +1,9 @@
 import UserSettingsController from "./user.settings.controller.js";
 import {eraseCookie, statusToDotClassName} from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
+import CoreServer from "./core/core.server.js";
 
 export default class UserController {
-    /** @type {Fetcher} */
-    #fetcher;
     /** @type {UserSettingsController} */
     settings;
     /** @type {string} */
@@ -12,15 +11,13 @@ export default class UserController {
     /** @type {string} */
     displayName;
 
-    /** @param {Fetcher} fetcher */
-    constructor(fetcher) {
-        this.#fetcher = fetcher;
-        this.settings = new UserSettingsController(this, this.#fetcher);
+    constructor() {
+        this.settings = new UserSettingsController(this);
     }
 
     async load() {
         /** @type {UserRepresentation} */
-        const result = await this.#fetcher.fetchCore(`/user/me`, 'GET');
+        const result = await CoreServer.fetch(`/user/me`, 'GET');
 
         if (result !== null) {
             this.id = result.id;
@@ -78,7 +75,7 @@ export default class UserController {
     }
 
     logout(){
-        this.#fetcher.fetchCore(`/auth/logout`, 'GET').then(() => {
+        CoreServer.fetch(`/auth/logout`, 'GET').then(() => {
             sessionStorage.removeItem('lastState');
             localStorage.removeItem('userSettings');
             eraseCookie('jwtToken');

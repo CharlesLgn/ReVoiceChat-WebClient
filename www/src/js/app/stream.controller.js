@@ -2,23 +2,19 @@ import { Streamer, Viewer } from "./stream.js";
 import { i18n } from "../lib/i18n.js";
 import { SwalCustomClass } from "../lib/tools.js";
 import Swal from '../lib/sweetalert2.esm.all.min.js';
+import CoreServer from "./core/core.server.js";
+import ReVoiceChat from "./revoicechat.js";
 
 export default class StreamController {
-    #streamUrl;
-    #token;
     #streamer = {};
     #viewer = [];
     #room;
     #user;
     #webcamEnabled = false;
     #displayEnabled = false;
-    #fetcher;
     #contextMenu;
 
-    constructor(fetcher, user, room, token, streamUrl) {
-        this.#fetcher = fetcher;
-        this.#streamUrl = streamUrl;
-        this.#token = token;
+    constructor(user, room) {
         this.#room = room;
         this.#user = user;
         this.#contextMenu = document.getElementById('stream-context-menu');
@@ -55,7 +51,7 @@ export default class StreamController {
         try {
             const div = document.createElement('div');
             this.#streamer[type] = {
-                stream: new Streamer(this.#streamUrl, this.#user, this.#token),
+                stream: new Streamer(CoreServer.streamUrl(), this.#user, ReVoiceChat.getToken()),
                 div: div
             }
 
@@ -134,7 +130,7 @@ export default class StreamController {
         const streamName = stream.streamName;
 
         if (this.#room.voiceController.getActiveRoom() && this.#user.id != userId && !this.#viewer[`${userId}-${streamName}`]) {
-            const displayName = (await this.#fetcher.fetchCore(`/user/${userId}`)).displayName;
+            const displayName = (await CoreServer.fetch(`/user/${userId}`)).displayName;
             const streamContainter = document.getElementById('stream-container');
             const modal = document.createElement('div');
             modal.id = `stream-modal-${userId}-${streamName}`;
@@ -159,7 +155,7 @@ export default class StreamController {
             const div = document.createElement('div');
 
             this.#viewer[`${userId}-${streamName}`] = {
-                stream: new Viewer(this.#streamUrl, this.#token, this.#user.settings),
+                stream: new Viewer(CoreServer.streamUrl(), ReVoiceChat.getToken(), this.#user.settings),
                 div: div
             }
 
@@ -237,7 +233,7 @@ export default class StreamController {
 
     async availableStream(roomId) {
         /** @type {RoomPresence} */
-        const result = await this.#fetcher.fetchCore(`/room/${roomId}/user`, 'GET');
+        const result = await CoreServer.fetch(`/room/${roomId}/user`, 'GET');
 
         if (!result || !result.connectedUser) {
             console.debug("Stream : No user in room");
