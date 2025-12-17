@@ -70,7 +70,7 @@ export default class TextController {
                 this.#page = Math.min(result.pageNumber + 1, result.totalPages);
 
                 const ROOM = document.getElementById("text-content");
-    
+
                 const invertedSortedResult = [...result.content].sort((a, b) => {
                     return new Date(a.createdDate) + new Date(b.createdDate);
                 });
@@ -150,7 +150,10 @@ export default class TextController {
         document.getElementById("text-input").focus()
     }
 
-    #addFileToInput(file) {
+    #pasteHandler(event) {
+        const items = event.clipboardData?.items;
+        if (!items) return;
+
         const fileInput = document.getElementById("text-attachment");
         const dataTransfer = new DataTransfer();
 
@@ -159,27 +162,27 @@ export default class TextController {
             dataTransfer.items.add(existingFile);
         }
 
-        // Add new file
-        dataTransfer.items.add(file);
-
-        fileInput.files = dataTransfer.files;
-    }
-
-    #pasteHandler(event) {
-        const items = event.clipboardData?.items;
-        if (!items) return;
-
         let hasFile = false
         for (const item of items) {
             // Handle images or files
             if (item.kind === "file") {
                 const file = item.getAsFile();
                 if (file) {
-                    this.#addFileToInput(file);
+                    if (file.name === "image.png") { // it's a screenshot, rename needed
+                        const copy = new File([file], `screenshot-${Date.now()}.png`, {
+                            type: file.type,
+                            lastModified: file.lastModified
+                        });
+                        dataTransfer.items.add(copy);
+                    } else {
+                        dataTransfer.items.add(file);
+                    }
                     hasFile = true;
                 }
             }
         }
+
+        fileInput.files = dataTransfer.files;
 
         // Prevent default paste if files were detected
         if (hasFile) {
