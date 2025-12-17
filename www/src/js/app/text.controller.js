@@ -1,7 +1,7 @@
 import Alert from './utils/alert.js';
 import Swal from '../lib/sweetalert2.esm.all.min.js';
-import {sanitizeString, SwalCustomClass, timestampToText, humanFileSize} from "../lib/tools.js";
-import {I18n, i18n} from "../lib/i18n.js";
+import { sanitizeString, SwalCustomClass, timestampToText, humanFileSize } from "../lib/tools.js";
+import { i18n } from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 
@@ -33,6 +33,7 @@ export default class TextController {
         const textInput = document.getElementById("text-input");
         textInput.addEventListener('keydown', async (event) => await this.#eventHandler(event));
         textInput.addEventListener('oninput', () => this.oninput(textInput));
+        textInput.addEventListener('paste', (event) => this.#pasteHandler(event));
 
         document.getElementById("attachment-button-add").addEventListener('click', () => this.#addAttachment());
         document.getElementById("attachment-button-remove").addEventListener('click', () => this.#removeAttachment());
@@ -117,6 +118,44 @@ export default class TextController {
         fileInput.value = "";
         document.getElementById("text-attachment-div").classList.add('hidden');
         document.getElementById("text-input").focus()
+    }
+
+    #addFileToInput(file) {
+        const fileInput = document.getElementById("text-attachment");
+        const dataTransfer = new DataTransfer();
+
+        // Keep existing files
+        for (const existingFile of fileInput.files) {
+            dataTransfer.items.add(existingFile);
+        }
+
+        // Add new file
+        dataTransfer.items.add(file);
+
+        fileInput.files = dataTransfer.files;
+    }
+
+    #pasteHandler(event) {
+        const items = event.clipboardData?.items;
+        if (!items) return;
+
+        let hasFile = false
+        for (const item of items) {
+            // Handle images or files
+            if (item.kind === "file") {
+                const file = item.getAsFile();
+                if (file) {
+                    this.#addFileToInput(file);
+                    hasFile = true;
+                }
+            }
+        }
+
+        // Prevent default paste if files were detected
+        if (hasFile) {
+            document.getElementById("text-attachment-div").classList.remove('hidden');
+            event.preventDefault();
+        }
     }
 
     async send() {
