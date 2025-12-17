@@ -188,7 +188,7 @@ export default class Room {
             document.getElementById("voice-control-panel").classList.add('hidden');
         }
 
-        void this.textController.getAllFrom(this.id);
+        void this.textController.getLatestFrom(this.id);
     }
 
     #selectWebRtc() {

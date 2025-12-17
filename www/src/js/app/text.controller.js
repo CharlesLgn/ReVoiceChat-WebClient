@@ -18,6 +18,8 @@ export default class TextController {
     /** @type {string|null} */
     #editId;
     #attachmentMaxSize = 0;
+    #page = 1;
+    #totalPages = 1;
 
     /**
      * @param {UserController} user
@@ -37,6 +39,9 @@ export default class TextController {
 
         document.getElementById("attachment-button-add").addEventListener('click', () => this.#addAttachment());
         document.getElementById("attachment-button-remove").addEventListener('click', () => this.#removeAttachment());
+
+        const textContent = document.getElementById("text-content")
+        textContent.addEventListener("scroll", (event) => { this.#loadMore(textContent) });
     }
 
     async #eventHandler(event) {
@@ -55,7 +60,31 @@ export default class TextController {
         }
     }
 
-    async getAllFrom(roomId) {
+    async #loadMore(element) {
+        if (element.scrollTop === 0 && this.#page !== this.#totalPages) {
+            let lastScrollHeight = element.scrollHeight;
+
+            /** @type {PageResult<MessageRepresentation>} */
+            const result = await CoreServer.fetch(`/room/${this.#room.id}/message?page=${this.#page}`, 'GET');
+            if (result !== null) {
+                this.#page = Math.min(result.pageNumber + 1, result.totalPages);
+
+                const ROOM = document.getElementById("text-content");
+    
+                const invertedSortedResult = [...result.content].sort((a, b) => {
+                    return new Date(a.createdDate) + new Date(b.createdDate);
+                });
+
+                for (const message of invertedSortedResult) {
+                    ROOM.prepend(this.#create(message));
+                }
+
+                element.scrollTop = element.scrollHeight - lastScrollHeight;
+            }
+        }
+    }
+
+    async getLatestFrom(roomId) {
         /** @type {PageResult<MessageRepresentation>} */
         const result = await CoreServer.fetch(`/room/${roomId}/message`, 'GET');
 
@@ -72,6 +101,7 @@ export default class TextController {
             }
 
             ROOM.scrollTop = ROOM.scrollHeight;
+            this.#totalPages = result.totalPages;
         }
     }
 
