@@ -5,23 +5,23 @@
  * @returns {boolean} True if the message contains only emotes, false otherwise
  */
 export function containsOnlyEmotes(message, acceptedEmoteWords = []) {
-  const trimmed = message.trim();
+    const trimmed = message.trim();
 
-  if (trimmed.length === 0) return false;
+    if (trimmed.length === 0) return false;
 
-  const emojiPattern = /[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier}\p{Emoji_Component}]/gu;
+    const emojiPattern = /[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier}\p{Emoji_Component}]/gu;
 
-  const customEmotePattern = acceptedEmoteWords.length > 0
-      ? new RegExp(`:(?:${acceptedEmoteWords.join('|')}):`, 'g')
-      : null;
+    const customEmotePattern = acceptedEmoteWords.length > 0
+        ? new RegExp(`:(?:${acceptedEmoteWords.join('|')}):`, 'g')
+        : null;
 
-  let remaining = trimmed.replaceAll(emojiPattern, '');
+    let remaining = trimmed.replaceAll(emojiPattern, '');
 
-  if (customEmotePattern) {
-    remaining = remaining.replace(customEmotePattern, '');
-  }
+    if (customEmotePattern) {
+        remaining = remaining.replace(customEmotePattern, '');
+    }
 
-  remaining = remaining.replaceAll(/\s+/g, '');
+    remaining = remaining.replaceAll(/\s+/g, '');
 
-  return remaining.length === 0;
+    return remaining.length === 0;
 }
