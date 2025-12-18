@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { containsOnlyEmotes } from "./emote.utils.js";
 
 describe('containsOnlyEmotes', () => {
-    const acceptedWords = ['test', 'smile', 'heart', 'fire'];
+    const acceptedWords = ['test', 'smile', 'heart', 'fire', "123"];
 
     test('only UTF-8 emojis', () => {
         expect(containsOnlyEmotes('😁✅🥜', acceptedWords)).toBe(true);
@@ -44,4 +44,7 @@ describe('containsOnlyEmotes', () => {
         expect(containsOnlyEmotes('123', acceptedWords)).toBe(false);
     });
 
+  test('custom emote only numbers', () => {
+    expect(containsOnlyEmotes(':123:', acceptedWords)).toBe(true);
+  });
 })

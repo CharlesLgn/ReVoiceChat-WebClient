@@ -9,7 +9,7 @@ export function containsOnlyEmotes(message, acceptedEmoteWords = []) {
 
     if (trimmed.length === 0) return false;
 
-    const emojiPattern = /[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier}\p{Emoji_Component}]/gu;
+    const emojiPattern = /(?![\d#*])[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier}\p{Emoji_Component}]/gu;
 
     const customEmotePattern = acceptedEmoteWords.length > 0
         ? new RegExp(`:(?:${acceptedEmoteWords.join('|')}):`, 'g')
