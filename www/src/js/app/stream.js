@@ -16,7 +16,13 @@ export class Streamer {
 
     #displayMediaOptions = {
         video: true,
-        audio: true,
+        audio: {
+            channelCount: 2,
+            sampleRate: 48000,
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false
+        },
         preferCurrentTab: false,
         selfBrowserSurface: "include",
         systemAudio: "include",
@@ -146,7 +152,7 @@ export class Streamer {
             console.warn("No audio track available");
         } else {
             // Init AudioContext
-            this.#audioContext = new AudioContext({sampleRate: this.#audioCodec.sampleRate});
+            this.#audioContext = new AudioContext({ sampleRate: this.#audioCodec.sampleRate });
             this.#audioContext.channelCountMode = "explicit";
             this.#audioContext.channelInterpretation = "discrete";
             this.#audioContext.channelCount = 2;
@@ -164,7 +170,7 @@ export class Streamer {
             audioStream.connect(this.#audioCollector);
 
             this.#audioCollector.port.onmessage = (event) => {
-                const {samples, channels} = event.data;
+                const { samples, channels } = event.data;
 
                 this.#audioBuffer.push(...samples);
 
