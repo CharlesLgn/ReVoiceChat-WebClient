@@ -13,7 +13,7 @@ class StereoCollector extends AudioWorkletProcessor {
         const input = inputs[0];
 
         // If there is no input data yet, continue
-        if (input.length === 0 || input[0].length === 0) return;
+        if (input.length === 0 || input[0].length === 0) return true; // DO NOT REMOVE
 
         const left = input[0];   // Float32Array
         const right = input[1];  // Float32Array (may be undefined if mono)
@@ -38,6 +38,8 @@ class StereoCollector extends AudioWorkletProcessor {
             samples: interleaved,
             channels: channels
         });
+
+        return true; // DO NOT REMOVE (SONAR IS WRONG ABOUT THIS BEING USELESS !!!)
     }
 }
 
