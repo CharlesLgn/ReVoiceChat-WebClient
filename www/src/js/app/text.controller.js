@@ -27,7 +27,6 @@ export default class TextController {
     constructor(user, room) {
         this.#user = user;
         this.#room = room;
-        this.#getAttachmentMaxSize();
     }
 
     attachEvents() {
@@ -360,7 +359,6 @@ export default class TextController {
         picture.src = MediaServer.profiles(messageData.user.id);
         picture.alt = "PFP"
         picture.className = "icon ring-2"
-        picture.name = `user-picture-${messageData.user.id}`
         MESSAGE.appendChild(picture);
     }
 
@@ -428,7 +426,7 @@ export default class TextController {
         return DIV
     }
 
-    async #getAttachmentMaxSize() {
+    async getAttachmentMaxSize() {
         /** @type {MediaSettings} */
         const response = await MediaServer.fetch('/maxfilesize');
         if (response) {

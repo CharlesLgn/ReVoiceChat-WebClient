@@ -27,14 +27,14 @@ export default class ServerSettingsController {
     }
 
     load() {
-        void this.#loadRisks();
+        this.#loadRisks();
         this.overview.load();
         this.member.load();
     }
 
     riskModify() {
-        void this.#loadRisks(false);
-        void this.server.room.load(this.server.id)
+        this.#loadRisks(false);
+        this.server.room.load(this.server.id)
     }
 
     /**

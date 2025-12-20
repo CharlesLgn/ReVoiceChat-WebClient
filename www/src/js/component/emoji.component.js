@@ -27,7 +27,9 @@ class EmojiPicker {
         picker.innerHTML = `
           <div class="emoji-picker-header">
             <div class="emoji-picker-categories">
-              ${Object.keys(this.categories).sort().map(key => `
+              ${Object.keys(this.categories)
+                      .sort((a, b) => a.localeCompare(b))
+                      .map(key => `
                 <button class="emoji-category-btn ${key === this.currentCategory ? 'active' : ''}"
                         data-category="${key}">
                   ${this.categories[key].icon}

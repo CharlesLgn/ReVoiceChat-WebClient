@@ -18,10 +18,9 @@ export default class ServerController {
      */
     constructor(room) {
         this.room = room;
-        void this.#load();
     }
 
-    async #load() {
+    async load() {
         /** @type {ServerRepresentation[]} */
         const result = await CoreServer.fetch("/server", 'GET');
 
@@ -47,8 +46,8 @@ export default class ServerController {
         }
 
         this.#updateServerName(id, name);
-        void this.#usersLoad();
-        void this.room.load(id);
+        this.#usersLoad();
+        this.room.load(id);
     }
 
     #updateServerName(id, name) {
@@ -67,7 +66,7 @@ export default class ServerController {
           case "MODIFY": {
               if (data.server.id === this.id) {
                   this.#updateServerName(this.id, data.server.name);
-                  void this.room.load(this.id);
+                  this.room.load(this.id);
               }
               return;
           }
@@ -79,7 +78,7 @@ export default class ServerController {
     /** @param {NewUserInServer} data */
     updateUserInServer(data) {
         if (this.id === data.server) {
-            void this.#usersLoad();
+            this.#usersLoad();
         }
     }
 

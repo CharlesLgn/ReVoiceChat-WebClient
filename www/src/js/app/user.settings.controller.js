@@ -332,7 +332,7 @@ export default class UserSettingsController {
     #audioInputUpdateUI(param, element) {
         switch (param) {
             case 'input-volume':
-                i18n.updateValue('input-volume-label', parseInt((element.value * 100)).toString());
+                i18n.updateValue('input-volume-label', Number.parseInt((element.value * 100)).toString());
                 break;
             case 'gate-attack':
                 i18n.updateValue('gate-attack-label', (element.value * 1000).toString());

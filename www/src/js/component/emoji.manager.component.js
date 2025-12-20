@@ -1,5 +1,4 @@
 import Swal from '../lib/sweetalert2.esm.all.min.js';
-import {apiFetch} from "../lib/tools.js";
 import {i18n} from "../lib/i18n.js";
 import MediaServer from "../app/media/media.server.js";
 import CoreServer from "../app/core/core.server.js";

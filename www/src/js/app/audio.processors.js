@@ -13,7 +13,7 @@ class StereoCollector extends AudioWorkletProcessor {
         const input = inputs[0];
 
         // If there is no input data yet, continue
-        if (input.length === 0 || input[0].length === 0) return true;
+        if (input.length === 0 || input[0].length === 0) return;
 
         const left = input[0];   // Float32Array
         const right = input[1];  // Float32Array (may be undefined if mono)
@@ -38,8 +38,6 @@ class StereoCollector extends AudioWorkletProcessor {
             samples: interleaved,
             channels: channels
         });
-
-        return true;
     }
 }
 
@@ -76,10 +74,10 @@ class NoiseGate extends AudioWorkletProcessor {
         const input = inputs[0][0];
         const output = outputs[0][0];
 
-        if (!inputs || !inputs[0] || !inputs[0][0]) {
+        if (!inputs?.[0]?.[0]) {
             // MUST output silence or Firefox may break the graph
             output.fill(0);
-            return true;
+            return;
         }
 
         const threshold = this.dBToLinear(parameters.threshold[0]);
@@ -114,8 +112,6 @@ class NoiseGate extends AudioWorkletProcessor {
             this.isOpen = openNow;
             this.port.postMessage({ open: this.isOpen });
         }
-
-        return true;
     }
 }
 

@@ -58,7 +58,7 @@ class AttachementMessageComponent extends HTMLElement {
     }
 
     #link(src, name, svgType) {
-        const handler = window.isTauri ? `onclick="__TAURI__.opener.openUrl('${src}');"` : '';
+        const handler = globalThis.isTauri ? `onclick="__TAURI__.opener.openUrl('${src}');"` : '';
         return `<a class='media file-type-link' href="${src}" ${handler}>
                     ${svgType}
                     <div>${name}</div>

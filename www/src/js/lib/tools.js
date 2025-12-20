@@ -1,4 +1,4 @@
-const tauriActive = window.isTauri;
+const tauriActive = globalThis.isTauri;
 let tauriFetch = null;
 if (tauriActive) {
     import('@tauri-apps/plugin-http')
@@ -57,7 +57,7 @@ function timestampToText(timestamp) {
  * @returns {string|null} Value of variable
  */
 function getQueryVariable(variable) {
-    const query = window.location.search.substring(1);
+    const query = globalThis.location.search.substring(1);
     const vars = query.split("&");
     for (const element of vars) {
         const pair = element.split("=");
@@ -155,7 +155,7 @@ async function copyToClipboard(data) {
             input.value = data;
             document.body.appendChild(input);
             document.getElementById('input-copy').select();
-            document.execCommand("copy");
+            document.execCommand("copy"); // NOSONAR - it is a fallback method
             input.remove();
         }
     } catch (err) {

@@ -4,6 +4,7 @@
     --sec-bg-color: #1a1a1e;
     --ter-bg-color: #202024;
     --qua-bg-color: #43434d;
+    --blockquote-bg-color: #FFFFFF10;
 
     /* Border */
     --pri-bd-color: #43434d;
@@ -42,6 +43,7 @@
     --sec-bg-color: #000000;
     --ter-bg-color: #000000;
     --qua-bg-color: #000000;
+    --blockquote-bg-color: #FFFFFF10;
 
     /* Border color */
     --pri-bd-color: #f5f5dc;
@@ -80,6 +82,7 @@
     --sec-bg-color: #ffffff;
     --ter-bg-color: #f1f8ff;
     --qua-bg-color: #dadada;
+    --blockquote-bg-color: #00000010;
 
     /* Border */
     --pri-bd-color: rgb(224, 224, 224);
@@ -118,6 +121,7 @@
     --sec-bg-color: #e6dde9;
     --ter-bg-color: #facec2;
     --qua-bg-color: #ff999c;
+    --blockquote-bg-color: #00000010;
 
     /* Border */
     --pri-bd-color: #c4d0e3;

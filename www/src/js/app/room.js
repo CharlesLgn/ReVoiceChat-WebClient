@@ -24,6 +24,8 @@ export default class Room {
      * @return {Promise<void>}
      */
     async load(serverId) {
+        await this.textController.getAttachmentMaxSize();
+
         /** @type {RoomRepresentation[]} */
         const roomResult = await CoreServer.fetch(`/server/${serverId}/room`, 'GET');
         /** @type {ServerStructure} */

@@ -6,7 +6,7 @@ export class Streamer {
     static CONNECTING = 1;
     static OPEN = 2;
 
-    #state;
+    #state; // NOSONAR - for debugging purpose
     #socket;
     #user;
     #packetSender;
@@ -30,7 +30,7 @@ export class Streamer {
     // Audio Encoder
     #audioCodec = structuredClone(Codec.DEFAULT_STREAM_AUDIO);
     #audioBuffer = [];
-    #audioBufferMaxLength = parseInt(this.#audioCodec.sampleRate * this.#audioCodec.numberOfChannels * (this.#audioCodec.opus.frameDuration / 1_000_000)); // 2ch x 48000Hz × 0.020 sec = 1920 samples
+    #audioBufferMaxLength = Number.parseInt(this.#audioCodec.sampleRate * this.#audioCodec.numberOfChannels * (this.#audioCodec.opus.frameDuration / 1_000_000)); // 2ch x 48000Hz × 0.020 sec = 1920 samples
     #audioCollector;
     #audioContext;
     #audioEncoder;
@@ -111,7 +111,7 @@ export class Streamer {
         this.#audioEncoder = new AudioEncoder({
             output: (frame) => {
                 const header = {
-                    timestamp: parseInt(this.#audioTimestamp / 1000),
+                    timestamp: Number.parseInt(this.#audioTimestamp / 1000),
                 }
                 this.#packetSender.send(this.#multiplexer.process(header, frame, Multiplexer.AUDIO));
             },
@@ -124,7 +124,7 @@ export class Streamer {
                     this.#videoMetadata = metadata.decoderConfig;
                 }
                 const header = {
-                    timestamp: parseInt(performance.now()),
+                    timestamp: Number.parseInt(performance.now()),
                     keyframe: frame.type === "key",
                     metadata: this.#videoMetadata,
                 }
@@ -142,9 +142,11 @@ export class Streamer {
 
         // Process audio
         const audioTracks = this.#player.srcObject.getAudioTracks();
-        if (audioTracks.length != 0) {
+        if (audioTracks.length === 0) {
+            console.warn("No audio track available");
+        } else {
             // Init AudioContext
-            this.#audioContext = new AudioContext({ sampleRate: this.#audioCodec.sampleRate });
+            this.#audioContext = new AudioContext({sampleRate: this.#audioCodec.sampleRate});
             this.#audioContext.channelCountMode = "explicit";
             this.#audioContext.channelInterpretation = "discrete";
             this.#audioContext.channelCount = 2;
@@ -162,13 +164,13 @@ export class Streamer {
             audioStream.connect(this.#audioCollector);
 
             this.#audioCollector.port.onmessage = (event) => {
-                const { samples, channels } = event.data;
+                const {samples, channels} = event.data;
 
                 this.#audioBuffer.push(...samples);
 
                 while (this.#audioBuffer.length >= this.#audioBufferMaxLength) {
                     const frames = this.#audioBuffer.slice(0, this.#audioBufferMaxLength);
-                    const numberOfFrames = parseInt(frames.length / channels);
+                    const numberOfFrames = Number.parseInt(frames.length / channels);
                     this.#audioBuffer = this.#audioBuffer.slice(this.#audioBufferMaxLength);
 
                     const audioFrame = new AudioData({
@@ -188,12 +190,9 @@ export class Streamer {
                 }
             }
         }
-        else {
-            console.warn("No audio track available");
-        }
 
         // Process video
-        if (window.MediaStreamTrackProcessor) {
+        if (globalThis.MediaStreamTrackProcessor) {
             // Faster but not available everywhere
             const track = this.#player.srcObject.getVideoTracks()[0];
             const processor = new MediaStreamTrackProcessor({ track });
@@ -479,7 +478,7 @@ export class Viewer {
         if (this.#audioDecoder !== null && this.#audioDecoder.state === "configured") {
             this.#audioDecoder.decode(new EncodedAudioChunk({
                 type: "key",
-                timestamp: parseInt(header.timestamp * 1000),
+                timestamp: Number.parseInt(header.timestamp * 1000),
                 data: new Uint8Array(data),
             }));
         } else {

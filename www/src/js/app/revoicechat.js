@@ -67,6 +67,7 @@ export default class ReVoiceChat {
     }
 
     async #load() {
+        await this.server.load();
         MobileController.load();
         await this.user.load();
         await this.user.settings.load();
@@ -151,4 +152,4 @@ class SSEHandlers {
     }
 }
 
-window.RVC = new ReVoiceChat();
+globalThis.RVC = new ReVoiceChat();

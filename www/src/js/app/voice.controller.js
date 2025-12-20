@@ -62,13 +62,13 @@ export default class VoiceController {
             this.updateSelf(this.#user.settings.voice);
 
             // Update counter
-            void this.#updateUserCounter(roomId);
+            this.#updateUserCounter(roomId);
 
             // Update context menu
             this.#contextMenu.setVoiceCall(this.#voiceCall);
 
             // Check for available stream
-            void this.streamController.availableStream(roomId);
+            this.streamController.availableStream(roomId);
 
             // Audio alert
             Alert.play('voiceConnected');
@@ -95,7 +95,7 @@ export default class VoiceController {
         this.streamController.removeAll();
         this.updateSelf();
         await this.#updateJoinedUsers();
-        void this.#updateUserCounter(this.#activeRoom);
+        this.#updateUserCounter(this.#activeRoom);
         this.#activeRoom = null;
 
         // Update context menu
@@ -118,7 +118,7 @@ export default class VoiceController {
      * @return {Promise<void>}
      */
     async userJoining(data) {
-        void this.#updateUserCounter(data.roomId);
+        this.#updateUserCounter(data.roomId);
 
         const userData = data.user;
         const voiceContent = document.getElementById(`voice-users-${data.roomId}`);
@@ -140,7 +140,7 @@ export default class VoiceController {
      * @return {Promise<void>}
      */
     async userLeaving(data) {
-        void this.#updateUserCounter(data.roomId);
+        this.#updateUserCounter(data.roomId);
 
         const userId = data.user;
 
@@ -155,7 +155,7 @@ export default class VoiceController {
 
         // User leaving is NOT self
         if (userId !== this.#user.id && this.#voiceCall && this.#voiceCall.getState() === VoiceCall.OPEN) {
-            void this.#voiceCall.removeUser(userId);
+            this.#voiceCall.removeUser(userId);
             Alert.play('voiceUserLeft');
         }
     }
@@ -184,7 +184,7 @@ export default class VoiceController {
 
         // Room is currently active
         if (this.#activeRoom === roomId) {
-            void this.#updateJoinedUsers();
+            this.#updateJoinedUsers();
         }
     }
 
@@ -377,7 +377,7 @@ export default class VoiceController {
         if (this.#voiceCall) {
             this.#user.settings.voice = this.#voiceCall.getSettings();
         }
-        void this.#user.settings.save();
+        this.#user.settings.save();
     }
 
     updateGate() {
@@ -440,8 +440,8 @@ export default class VoiceController {
                         deafButton.classList.add('red');
                     }
                 }
-                void this.#updateSelfDeaf(false);
-                void this.#updateSelfMute(false);
+                this.#updateSelfDeaf(false);
+                this.#updateSelfMute(false);
                 break;
         }
     }

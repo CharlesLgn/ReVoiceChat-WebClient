@@ -165,7 +165,7 @@ class MessageComponent extends HTMLElement {
     }
 
     #injectEmojis(inputText) {
-        return inputText.replace(/:([A-Za-z0-9\-_]+):/g, (_, emoji) => {
+        return inputText.replaceAll(/:([A-Za-z0-9\-_]+):/g, (_, emoji) => {
             if (this.emotes) {
                 const emote = Array.from(this.emotes).find(item => item.name === emoji);
                 if (emote) {

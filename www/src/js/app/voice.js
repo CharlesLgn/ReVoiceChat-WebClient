@@ -38,7 +38,7 @@ export default class VoiceCall {
     #audioTimestamp = 0;
     #compressorNode;
     #buffer = [];
-    #bufferMaxLength = parseInt(this.#codec.sampleRate * (this.#codec.opus.frameDuration / 1_000_000)); // 48000Hz × 0.020 sec = 960 samples
+    #bufferMaxLength = Number.parseInt(this.#codec.sampleRate * (this.#codec.opus.frameDuration / 1_000_000)); // 48000Hz × 0.020 sec = 960 samples
     #gainNode;
     #gateNode;
     #user;
@@ -128,7 +128,7 @@ export default class VoiceCall {
         // For all users
         for (const [userId, user] of Object.entries(this.#users)) {
             // Flush and close all decoders
-            if (user?.decoder && user.decoder.state === 'configured') {
+            if (user?.decoder?.state === 'configured') {
                 try {
                     await user.decoder.flush();
                     await user.decoder.close();
@@ -268,7 +268,7 @@ export default class VoiceCall {
         this.#encoder = new AudioEncoder({
             output: (chunk) => {
                 const header = {
-                    timestamp: parseInt(this.#audioTimestamp / 1000), // audioTimestamp is in µs but sending ms is enough
+                    timestamp: Number.parseInt(this.#audioTimestamp / 1000), // audioTimestamp is in µs but sending ms is enough
                     user: this.#user.id,
                     gateState: this.#gateState,
                     type: "user",
@@ -381,7 +381,7 @@ export default class VoiceCall {
 
             const samples = event.data;
 
-            if (!samples || samples.some(v => isNaN(v))) {
+            if (!samples || samples.some(v => Number.isNaN(v))) {
                 console.warn("Invalid samples", samples);
             }
 
@@ -530,7 +530,7 @@ class Listener {
         if (this.#decoder !== null && this.#decoder.state === "configured") {
             this.#decoder.decode(new EncodedAudioChunk({
                 type: "key",
-                timestamp: parseInt(header.timestamp * 1000),
+                timestamp: Number.parseInt(header.timestamp * 1000),
                 data: new Uint8Array(data),
             }));
         } else {

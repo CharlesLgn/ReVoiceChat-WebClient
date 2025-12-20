@@ -1,6 +1,6 @@
-import { Streamer, Viewer } from "./stream.js";
-import { i18n } from "../lib/i18n.js";
-import { SwalCustomClass } from "../lib/tools.js";
+import {Streamer, Viewer} from "./stream.js";
+import {i18n} from "../lib/i18n.js";
+import {SwalCustomClass} from "../lib/tools.js";
 import Swal from '../lib/sweetalert2.esm.all.min.js';
 import CoreServer from "./core/core.server.js";
 import ReVoiceChat from "./revoicechat.js";
@@ -23,15 +23,16 @@ export default class StreamController {
     attachEvents() {
         document.getElementById("stream-webcam").onclick = () => this.#toggleStream("webcam");
         document.getElementById("stream-display").onclick = () => this.#toggleStream("display");
-        window.addEventListener("beforeunload", async () => { await this.stopAll() })
+        window.addEventListener("beforeunload", async () => {
+            await this.stopAll()
+        })
     }
 
     #toggleStream(type) {
         if (type == "webcam") {
             if (this.#webcamEnabled) {
                 this.#stopStream("webcam");
-            }
-            else {
+            } else {
                 this.#startStream("webcam");
             }
             return;
@@ -40,8 +41,7 @@ export default class StreamController {
         if (type == "display") {
             if (this.#displayEnabled) {
                 this.#stopStream("display");
-            }
-            else {
+            } else {
                 this.#startStream("display");
             }
         }
@@ -59,8 +59,12 @@ export default class StreamController {
 
             div.className = "player";
             div.appendChild(player);
-            div.onclick = () => { this.focus(div) }
-            div.oncontextmenu = (event) => { event.preventDefault(); }
+            div.onclick = () => {
+                this.focus(div)
+            }
+            div.oncontextmenu = (event) => {
+                event.preventDefault();
+            }
             document.getElementById('stream-container').appendChild(div);
 
             if (type === "webcam") {
@@ -73,8 +77,7 @@ export default class StreamController {
                 this.#displayEnabled = true;
                 document.getElementById("stream-display").classList.add("green");
             }
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
             Swal.fire({
                 icon: 'error',
@@ -106,8 +109,7 @@ export default class StreamController {
                     document.getElementById("stream-display").classList.remove("green");
                 }
             }
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
             Swal.fire({
                 icon: 'error',
@@ -138,7 +140,10 @@ export default class StreamController {
             modal.dataset.i18n = "stream.join.button"
             modal.dataset.i18nValue = displayName
             modal.innerText = i18n.translateOne(modal.dataset.i18n, [displayName])
-            modal.onclick = () => { modal.remove(); this.join(userId, streamName) }
+            modal.onclick = () => {
+                modal.remove();
+                this.join(userId, streamName)
+            }
             streamContainter.appendChild(modal);
         }
     }
@@ -164,7 +169,9 @@ export default class StreamController {
 
             div.className = "player";
             div.appendChild(video);
-            div.onclick = () => { this.focus(div) }
+            div.onclick = () => {
+                this.focus(div)
+            }
             div.oncontextmenu = (event) => {
                 event.preventDefault();
                 this.#contextMenu.load(stream, this, userId, streamName);
@@ -189,8 +196,7 @@ export default class StreamController {
                 await this.#viewer[`${userId}-${streamName}`].stream.leave();
                 this.#viewer[`${userId}-${streamName}`].div.remove();
                 this.#viewer[`${userId}-${streamName}`] = null;
-            }
-            else {
+            } else {
                 this.removeModal(userId, streamName);
             }
         }
@@ -217,17 +223,16 @@ export default class StreamController {
         }
     }
 
-    removeAll(exceptWatching = false) {
-        if (exceptWatching) {
-            const children = document.getElementById('stream-container').childNodes;
-            for(const child of children){
-                if(child.className === "player join"){
-                    child.remove();
-                }
+    removeAll() {
+        document.getElementById('stream-container').innerHTML = "";
+    }
+
+    removeAllExceptWatching() {
+        const children = document.getElementById('stream-container').childNodes;
+        for (const child of children) {
+            if (child.className === "player join") {
+                child.remove();
             }
-        }
-        else {
-            document.getElementById('stream-container').innerHTML = "";
         }
     }
 
@@ -235,12 +240,12 @@ export default class StreamController {
         /** @type {RoomPresence} */
         const result = await CoreServer.fetch(`/room/${roomId}/user`, 'GET');
 
-        if (!result || !result.connectedUser) {
+        if (!result?.connectedUser) {
             console.debug("Stream : No user in room");
             return;
         }
 
-        this.removeAll(true);
+        this.removeAllExceptWatching();
 
         for (const user of result.connectedUser) {
             for (const stream of user.streams) {
@@ -255,7 +260,9 @@ export default class StreamController {
         }
         element.classList.remove("hidden");
         element.parentElement.classList.add("fullscreen");
-        element.onclick = () => { this.unfocus(element); }
+        element.onclick = () => {
+            this.unfocus(element);
+        }
     }
 
     unfocus(element) {
@@ -263,6 +270,8 @@ export default class StreamController {
             child.classList.remove("hidden");
         }
         element.parentElement.classList.remove("fullscreen");
-        element.onclick = () => { this.focus(element); }
+        element.onclick = () => {
+            this.focus(element);
+        }
     }
 }
