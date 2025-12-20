@@ -4,7 +4,7 @@ class MonoCollector extends AudioWorkletProcessor {
         if (input) {
             this.port.postMessage(new Float32Array(input));
         }
-        return true;
+        return true; // NOSONAR - DO NOT CHANGE OR REMOVE
     }
 }
 
@@ -13,7 +13,7 @@ class StereoCollector extends AudioWorkletProcessor {
         const input = inputs[0];
 
         // If there is no input data yet, continue
-        if (input.length === 0 || input[0].length === 0) return true; // DO NOT REMOVE
+        if (input.length === 0 || input[0].length === 0) return true; // NOSONAR - DO NOT CHANGE OR REMOVE
 
         const left = input[0];   // Float32Array
         const right = input[1];  // Float32Array (may be undefined if mono)
@@ -39,7 +39,7 @@ class StereoCollector extends AudioWorkletProcessor {
             channels: channels
         });
 
-        return true; // DO NOT REMOVE (SONAR IS WRONG ABOUT THIS BEING USELESS !!!)
+        return true; // NOSONAR - DO NOT CHANGE OR REMOVE
     }
 }
 
