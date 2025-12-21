@@ -16,7 +16,13 @@ export class Streamer {
 
     #displayMediaOptions = {
         video: true,
-        audio: true,
+        audio: {
+            channelCount: 2,
+            sampleRate: 48000,
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false
+        },
         preferCurrentTab: false,
         selfBrowserSurface: "include",
         systemAudio: "include",
@@ -28,7 +34,7 @@ export class Streamer {
     #player;
 
     // Audio Encoder
-    #audioCodec = structuredClone(Codec.DEFAULT_STREAM_AUDIO);
+    #audioCodec = structuredClone(Codec.STREAM_AUDIO);
     #audioBuffer = [];
     #audioBufferMaxLength = Number.parseInt(this.#audioCodec.sampleRate * this.#audioCodec.numberOfChannels * (this.#audioCodec.opus.frameDuration / 1_000_000)); // 2ch x 48000Hz × 0.020 sec = 1920 samples
     #audioCollector;
@@ -37,7 +43,7 @@ export class Streamer {
     #audioTimestamp = 0;
 
     // Video Encoder
-    #videoCodec = structuredClone(Codec.DEFAULT_STREAM_VIDEO);
+    #videoCodec;
     #videoMetadata;
     #videoEncoder;
     #videoEncoderInterval;
@@ -61,11 +67,16 @@ export class Streamer {
         this.#token = token;
     }
 
-    async start(streamName, type) {
-        if (!streamName) {
-            throw new Error('streamName is null or undefined');
+    async start(type, videoCodec) {
+        if (!type) {
+            throw new Error('type is null or undefined');
         }
 
+        if(!videoCodec){
+            throw new Error('videoCodec is null or undefined');
+        }
+
+        this.#videoCodec = videoCodec;
         this.#state = Streamer.CONNECTING;
 
         // Test if codecs are supported first, so we don't open a socket for no reason
@@ -99,7 +110,7 @@ export class Streamer {
         await this.#player.play();
 
         // Create WebSocket
-        this.#socket = new WebSocket(`${this.#streamUrl}/${this.#user.id}/${streamName}`, ["Bearer." + this.#token]);
+        this.#socket = new WebSocket(`${this.#streamUrl}/${this.#user.id}/${type}`, ["Bearer." + this.#token]);
         this.#socket.binaryType = "arraybuffer";
         this.#socket.onclose = async () => { await this.stop(); };
         this.#socket.onerror = async (e) => { await this.stop(); console.error('Streamer : WebSocket error:', e) };
@@ -146,7 +157,7 @@ export class Streamer {
             console.warn("No audio track available");
         } else {
             // Init AudioContext
-            this.#audioContext = new AudioContext({sampleRate: this.#audioCodec.sampleRate});
+            this.#audioContext = new AudioContext({ sampleRate: this.#audioCodec.sampleRate });
             this.#audioContext.channelCountMode = "explicit";
             this.#audioContext.channelInterpretation = "discrete";
             this.#audioContext.channelCount = 2;
@@ -164,7 +175,7 @@ export class Streamer {
             audioStream.connect(this.#audioCollector);
 
             this.#audioCollector.port.onmessage = (event) => {
-                const {samples, channels} = event.data;
+                const { samples, channels } = event.data;
 
                 this.#audioBuffer.push(...samples);
 
@@ -232,7 +243,7 @@ export class Streamer {
 
     #isKeyframe() {
         this.#keyframeCounter++;
-        if (this.#keyframeCounter > this.#videoCodec.framerate) {
+        if (this.#keyframeCounter >= this.#videoCodec.framerate) {
             this.#keyframeCounter = 0;
             return true;
         }
@@ -247,13 +258,13 @@ export class Streamer {
 
         // Frame H & W are smaller than Max Codec H & W
         if (frame.codedHeight < this.#videoCodec.height && frame.codedWidth < this.#videoCodec.width) {
-            await this.#setEncoderResolution(frame.codedHeight, frame.codedWidth);
+            await this.#setEncoderResolution(Number.parseInt(frame.codedHeight), Number.parseInt(frame.codedWidth));
             return;
         }
 
         const ratio = Math.min((this.#videoCodec.height / frame.codedHeight), (this.#videoCodec.width / frame.codedWidth));
-        const height = frame.codedHeight * ratio;
-        const width = frame.codedWidth * ratio;
+        const height = Number.parseInt(frame.codedHeight * ratio);
+        const width = Number.parseInt(frame.codedWidth * ratio);
         await this.#setEncoderResolution(height, width);
     }
 
@@ -323,7 +334,7 @@ export class Viewer {
     }
 
     // Audio decoder
-    #audioCodec = structuredClone(Codec.DEFAULT_STREAM_AUDIO);
+    #audioCodec = structuredClone(Codec.STREAM_AUDIO);
     #audioContext;
     #audioDecoder;
     #audioGain;
@@ -331,7 +342,6 @@ export class Viewer {
     #audioPlayhead = 0;
 
     // Video decoder
-    #videoCodec = structuredClone(Codec.DEFAULT_STREAM_VIDEO);
     #videoDecoder;
     #videoDecoderKeyFrame = false;
 
@@ -352,10 +362,9 @@ export class Viewer {
     async join(userId, streamName) {
         if (userId && streamName) {
             const audioSupported = await AudioDecoder.isConfigSupported(this.#audioCodec);
-            const videoSupported = await VideoDecoder.isConfigSupported(this.#videoCodec);
 
-            if (!audioSupported || !videoSupported) {
-                console.error("Audio or Video codec not supported");
+            if (!audioSupported) {
+                console.error("Audio codec not supported");
                 return null;
             }
 
@@ -401,7 +410,7 @@ export class Viewer {
                     this.#context.drawImage(frame, 0, 0, this.#canvas.width, this.#canvas.height);
                     frame.close();
                 },
-                error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}\nCurrent codec :${this.#videoCodec.codec}`) }
+                error: (error) => { throw new Error(`VideoDecoder error:\n${error.name}`) }
             });
 
             return this.#canvas;

@@ -67,17 +67,17 @@ export default class ReVoiceChat {
     }
 
     async #load() {
+        this.state.load();
         await this.server.load();
-        MobileController.load();
+        this.#sse.openSSE();
         await this.user.load();
         await this.user.settings.load();
-        this.state.load();
-        this.#sse.openSSE()
         this.room.textController.attachEvents();
         this.room.voiceController.attachEvents();
+        MobileController.load();
         Alert.attachEvents();
-        this.router.routeTo(getQueryVariable('r'));
         await i18n.translate(this.user.settings.getLanguage());
+        this.router.routeTo(getQueryVariable('r'));
     }
 
     /** @return {string} Token */
