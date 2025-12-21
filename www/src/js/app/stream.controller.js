@@ -1,9 +1,10 @@
-import {Streamer, Viewer} from "./stream.js";
-import {i18n} from "../lib/i18n.js";
-import {SwalCustomClass} from "../lib/tools.js";
+import { Streamer, Viewer } from "./stream.js";
+import { i18n } from "../lib/i18n.js";
+import { SwalCustomClass } from "../lib/tools.js";
 import Swal from '../lib/sweetalert2.esm.all.min.js';
 import CoreServer from "./core/core.server.js";
 import ReVoiceChat from "./revoicechat.js";
+import Codec from "./codec.js";
 
 export default class StreamController {
     #streamer = {};
@@ -55,27 +56,84 @@ export default class StreamController {
                 div: div
             }
 
-            const player = await this.#streamer[type].stream.start(type, type);
-
-            div.className = "player";
-            div.appendChild(player);
-            div.onclick = () => {
-                this.focus(div)
-            }
-            div.oncontextmenu = (event) => {
-                event.preventDefault();
-            }
-            document.getElementById('stream-container').appendChild(div);
-
             if (type === "webcam") {
+                const player = await this.#streamer[type].stream.start(type, type, await Codec.webcamConfig());
+
+                div.className = "player";
+                div.appendChild(player);
+                div.onclick = () => {
+                    this.focus(div)
+                }
+                div.oncontextmenu = (event) => {
+                    event.preventDefault();
+                }
+
+                document.getElementById('stream-container').appendChild(div);
                 this.#webcamEnabled = true;
                 document.getElementById("stream-webcam").classList.add("green");
-
             }
 
             if (type === "display") {
-                this.#displayEnabled = true;
-                document.getElementById("stream-display").classList.add("green");
+                let resolution = 'HD';
+                let framerate = '30';
+                let codec = 'AUTO';
+                Swal.fire({
+                    title: i18n.translateOne("stream.modal.title"),
+                    animation: false,
+                    customClass: SwalCustomClass,
+                    showCancelButton: true,
+                    focusConfirm: false,
+                    confirmButtonText: i18n.translateOne("stream.modal.confirm"),
+                    cancelButtonText: i18n.translateOne("stream.modal.cancel"),
+                    allowOutsideClick: false,
+                    html: `
+                        <form class='popup' id='popup-stream'>
+                            <label data-i18n="stream.modal.resolution">Resolution</label>
+                            <select id='popup-resolution'>
+                                <option value='HD' selected>HD (720p)</option>
+                                <option value='FHD'>FullHD (1080p)</option>
+                                <option value='QHD'>QuadHD (1440p)</option>
+                                <option value='UHD'>UltraHD (2160p)</option>
+                            </select>
+
+                            <label data-i18n="stream.modal.framerate">Framerate</label>
+                            <select id='popup-framerate'>
+                                <option value='5'>5fps</option>
+                                <option value='30' selected>30fps</option>
+                                <option value='60'>60fps</option>
+                            </select>
+
+                            <label data-i18n="stream.modal.codec">Codec</label>
+                            <select id='popup-codec'>
+                                <option value='AUTO' selected>Auto</option>
+                                <option value='VP9'>VP9</option>
+                                <option value='AV1'>AV1</option>
+                            </select>
+                        </form>`,
+                    didOpen: () => {
+                        i18n.translatePage(document.getElementById("popup-stream"))
+                        document.getElementById('popup-resolution').oninput = () => { resolution = document.getElementById('popup-resolution').value };
+                        document.getElementById('popup-framerate').oninput = () => { framerate = document.getElementById('popup-framerate').value };
+                        document.getElementById('popup-codec').oninput = () => { codec = document.getElementById('popup-framerate').value };
+                    }
+                }).then(async (result) => {
+                    if (result.value) {
+                        const player = await this.#streamer[type].stream.start(type, type, await Codec.streamConfig(resolution, framerate, codec));
+
+                        div.className = "player";
+                        div.appendChild(player);
+                        div.onclick = () => {
+                            this.focus(div)
+                        }
+                        div.oncontextmenu = (event) => {
+                            event.preventDefault();
+                        }
+                        document.getElementById('stream-container').appendChild(div);
+
+                        this.#displayEnabled = true;
+                        document.getElementById("stream-display").classList.add("green");
+                    }
+                });
             }
         } catch (error) {
             console.error(error);

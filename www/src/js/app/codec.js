@@ -47,73 +47,90 @@ export default class Codec {
         }
     }
 
-    // 720p30 VP9
-    static STREAM_VIDEO_DEFAULT = {
+    // 1080p30 VP9
+    static STREAM_VIDEO_FHD_VP9 = {
         codec: "vp09.00.10.08",
         framerate: 30,
         width: 1280,
         height: 720,
-        bitrate: 2_000_000,
+        bitrate: 3_000_000,
         latencyMode: "realtime",
     }
 
-    // 1080p15 VP9
-    static STREAM_VIDEO_FHD_30_VP9 = {
-        codec: "vp09.00.10.08",
-        framerate: 5,
-        width: 1920,
-        height: 1080,
-        bitrate: 4_000_000,
-        latencyMode: "realtime",
-    }
-
-    // 1080p30 VP9
-    static STREAM_VIDEO_FHD_30_VP9 = {
-        codec: "vp09.00.10.08",
-        framerate: 30,
-        width: 1920,
-        height: 1080,
-        bitrate: 4_000_000,
-        latencyMode: "realtime",
-    }
-
-    // 1080p60 VP9
-    static STREAM_VIDEO_FHD_30_VP9 = {
-        codec: "vp09.00.10.08",
-        framerate: 60,
-        width: 1920,
-        height: 1080,
-        bitrate: 4_000_000,
-        latencyMode: "realtime",
-    }
-
-    // 1080p60 AV1
-    static STREAM_VIDEO_FHD_60_AV1 = {
-        codec: "av01.0.04M.08",
-        framerate: 60,
-        width: 1920,
-        height: 1080,
-        bitrate: 4_000_000,
-        latencyMode: "realtime",
-    }
-
-    // 1440p60 AV1
-    static STREAM_VIDEO_QHD_60_AV1 = {
-        codec: "av01.0.04M.08",
-        framerate: 60,
-        width: 2560,
-        height: 1440,
-        bitrate: 6_000_000,
-        latencyMode: "realtime",
-    }
-
-    // 2160p30 AV1
-    static STREAM_VIDEO_UHD_30_AV1 = {
+    // 1080p30 AV1
+    static STREAM_VIDEO_FHD_AV1 = {
         codec: "av01.0.04M.08",
         framerate: 30,
-        width: 3840,
-        height: 2160,
-        bitrate: 10_000_000,
+        width: 1920,
+        height: 1080,
+        bitrate: 3_000_000,
         latencyMode: "realtime",
+    }
+
+    static async webcamConfig(){
+        const isSupported = (await VideoEncoder.isConfigSupported(Codec.STREAM_VIDEO_FHD_AV1)).supported;
+        if(isSupported){
+            return Codec.STREAM_VIDEO_FHD_AV1;
+        }
+        else{
+            return Codec.STREAM_VIDEO_FHD_VP9;
+        }
+    }
+
+    static async streamConfig(inputResolution, inputFps, inputCodec) {
+        const codec = {
+            VP9: "vp09.00.10.08",
+            AV1: "av01.0.04M.08"
+        }
+
+        const resolution = {
+            HD: {
+                width: 1280,
+                height: 720,
+                bitrate: 3_000_000
+            },
+            FHD: {
+                width: 1920,
+                height: 1080,
+                bitrate: 4_000_000
+            },
+            QHD: {
+                width: 2560,
+                height: 1440,
+                bitrate: 6_000_000
+            },
+            UHD: {
+                width: 3840,
+                height: 2160,
+                bitrate: 10_000_000
+            }
+        }
+
+        let config = {
+            codec: null,
+            framerate: null,
+            width: null,
+            height: null,
+            bitrate: null,
+            latencyMode: "realtime",
+        }
+
+        config.width = resolution[inputResolution].width;
+        config.height = resolution[inputResolution].height;
+        config.bitrate = resolution[inputResolution].bitrate;
+        config.framerate = inputFps;
+
+        if (inputCodec === "AUTO") {
+            config.codec = codec.AV1;
+            const isSupported = (await VideoEncoder.isConfigSupported(config)).supported;
+            if(!isSupported){
+                config.codec = codec.VP9;
+            }
+        }
+        else{
+            config.codec = codec[inputCodec];
+        }
+
+        return config;
     }
 }

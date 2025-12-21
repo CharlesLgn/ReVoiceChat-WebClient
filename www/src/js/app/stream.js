@@ -43,7 +43,7 @@ export class Streamer {
     #audioTimestamp = 0;
 
     // Video Encoder
-    #videoCodec = structuredClone(Codec.STREAM_VIDEO_HD_30_VP9);
+    #videoCodec;
     #videoMetadata;
     #videoEncoder;
     #videoEncoderInterval;
@@ -67,11 +67,20 @@ export class Streamer {
         this.#token = token;
     }
 
-    async start(streamName, type) {
+    async start(streamName, type, videoCodec) {
         if (!streamName) {
             throw new Error('streamName is null or undefined');
         }
 
+        if (!type) {
+            throw new Error('type is null or undefined');
+        }
+
+        if(!videoCodec){
+            throw new Error('videoCodec is null or undefined');
+        }
+
+        this.#videoCodec = videoCodec;
         this.#state = Streamer.CONNECTING;
 
         // Test if codecs are supported first, so we don't open a socket for no reason
