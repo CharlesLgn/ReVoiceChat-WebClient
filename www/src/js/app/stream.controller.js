@@ -80,23 +80,23 @@ export default class StreamController {
 
                             <label data-i18n="stream.modal.framerate">Framerate</label>
                             <select id='popup-framerate'>
-                                <option value='5'>5fps</option>
-                                <option value='30' selected>30fps</option>
-                                <option value='60'>60fps</option>
+                                <option value='10'>10</option>
+                                <option value='30' selected>30 (default)</option>
+                                <option value='60'>60</option>
                             </select>
 
                             <label data-i18n="stream.modal.codec">Codec</label>
                             <select id='popup-codec'>
                                 <option value='AUTO' selected>Auto</option>
-                                <option value='VP9'>VP9</option>
-                                <option value='AV1'>AV1</option>
+                                <option value='VP9'>${i18n.translateOne("stream.modal.vp9")}</option>
+                                <option value='AV1'>${i18n.translateOne("stream.modal.av1")}</option>
                             </select>
                         </form>`,
                 didOpen: () => {
                     i18n.translatePage(document.getElementById("popup-stream"))
                     document.getElementById('popup-resolution').oninput = () => { resolution = document.getElementById('popup-resolution').value };
                     document.getElementById('popup-framerate').oninput = () => { framerate = document.getElementById('popup-framerate').value };
-                    document.getElementById('popup-codec').oninput = () => { codec = document.getElementById('popup-framerate').value };
+                    document.getElementById('popup-codec').oninput = () => { codec = document.getElementById('popup-codec').value };
                 }
             }).then(async (result) => {
                 if (result.value) {
@@ -270,6 +270,12 @@ export default class StreamController {
                 await this.#viewer[`${userId}-${streamName}`].stream.leave();
                 this.#viewer[`${userId}-${streamName}`].div.remove();
                 this.#viewer[`${userId}-${streamName}`] = null;
+
+                const streamContainter = document.getElementById('stream-container');
+                streamContainter.className = "stream";
+                for (const child of streamContainter.childNodes) {
+                    child.classList.remove("hidden");
+                }
             } else {
                 this.removeModal(userId, streamName);
             }
