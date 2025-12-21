@@ -1,12 +1,13 @@
 import Swal from './lib/sweetalert2.esm.all.min.js';
 import { SpinnerOnButton } from './component/button.spinner.component.js';
-import { apiFetch, getCookie, getQueryVariable, setCookie, SwalCustomClass } from "./lib/tools.js";
+import {apiFetch, getCookie, getQueryVariable, initTools, setCookie, SwalCustomClass} from "./lib/tools.js";
 import './component/icon.component.js';
 import { i18n } from "./lib/i18n.js";
 
 let passwordRegex = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
+    initTools();
     // Clean lastState
     sessionStorage.removeItem('lastState');
 

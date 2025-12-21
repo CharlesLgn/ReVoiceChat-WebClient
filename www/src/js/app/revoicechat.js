@@ -8,7 +8,7 @@ import ServerController from './server.controller.js';
 import MobileController from "./utils/mobile.js";
 import { reloadEmojis } from './emoji.js';
 import { Sse } from "./core/sse.js";
-import { getCookie, getQueryVariable } from "../lib/tools.js";
+import {getCookie, getQueryVariable, initTools} from "../lib/tools.js";
 import '../component/components.js';
 import { i18n } from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
@@ -30,6 +30,7 @@ export default class ReVoiceChat {
     #sse;
 
     constructor() {
+        initTools();
         // Retrieve URL
         const storedCoreUrl = localStorage.getItem("lastHost");
         if (!storedCoreUrl) {
@@ -38,8 +39,8 @@ export default class ReVoiceChat {
 
         // Validate and store URL
         const core = new URL(storedCoreUrl);
-        MediaServer.init(core);
-        CoreServer.init(core);
+        MediaServer.init(core, ReVoiceChat.getToken());
+        CoreServer.init(core, ReVoiceChat.getToken());
 
         // Instantiate other classes
         this.user = new UserController();

@@ -2,17 +2,21 @@
  * @typedef {"GET"|"POST"|"PATCH"|"PUT"|"DELETE"|"OPTION"} HTTPMethod
  */
 import {apiFetch} from "../../lib/tools.js";
-import ReVoiceChat from "../revoicechat.js";
 import {Sse} from "./sse.js";
 
 export default class CoreServer {
 
     /** @type {CoreServer} */
     static instance
+    static #token
 
-    /** @param {URL} core */
-    static init(core) {
+    /**
+     * @param {URL} core
+     * @param {string} token
+     */
+    static init(core, token) {
         CoreServer.instance = new CoreServer(`${core.protocol}//${core.host}`);
+        CoreServer.#token = token;
     }
 
     /** @param {string} coreURL */
@@ -39,7 +43,7 @@ export default class CoreServer {
                 signal: AbortSignal.timeout(5000),
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${ReVoiceChat.getToken()}`
+                    'Authorization': `Bearer ${CoreServer.#token}`
                 },
                 body: data
             });
@@ -73,7 +77,7 @@ export default class CoreServer {
      */
     static sse(handleSSEMessage, handleSSEError) {
         return new Sse(
-            ReVoiceChat.getToken(),
+            CoreServer.#token,
             CoreServer.instance.url,
             handleSSEMessage,
             handleSSEError

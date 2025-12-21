@@ -1,13 +1,17 @@
 import {apiFetch} from "../../lib/tools.js";
-import ReVoiceChat from "../revoicechat.js";
 
 export default class MediaServer {
     /** @type {MediaServer} */
     static #instance
+    static #token
 
-    /** @param {URL} core */
-    static init(core) {
+    /**
+     * @param {URL} core
+     * @param {string} token
+     */
+    static init(core, token) {
         MediaServer.#instance = new MediaServer(core);
+        MediaServer.#token = token;
     }
 
     /** @param {URL} core */
@@ -17,26 +21,29 @@ export default class MediaServer {
 
     /**
      * @param {string} id
+     * @param {number} t
      * @return {string}
      */
-    static profiles(id) {
-        return `${MediaServer.#instance.url}/profiles/${id}?t=${Date.now()}`
+    static profiles(id, t = Date.now()) {
+        return `${MediaServer.#instance.url}/profiles/${id}?t=${t}`
     }
 
     /**
      * @param {string} id
+     * @param {number} t
      * @return {string}
      */
-    static emote(id) {
-        return `${MediaServer.#instance.url}/emote/${id}?t=${Date.now()}`
+    static emote(id, t = Date.now()) {
+        return `${MediaServer.#instance.url}/emote/${id}?t=${t}`
     }
 
     /**
      * @param {string} id
+     * @param {number} t
      * @return {string}
      */
-    static attachments(id) {
-        return `${MediaServer.#instance.url}/attachments/${id}?t=${Date.now()}`
+    static attachments(id, t = Date.now()) {
+        return `${MediaServer.#instance.url}/attachments/${id}?t=${t}`
     }
 
     /**
@@ -62,7 +69,7 @@ export default class MediaServer {
                 method: method,
                 signal: signal,
                 headers: {
-                    'Authorization': `Bearer ${ReVoiceChat.getToken()}`
+                    'Authorization': `Bearer ${MediaServer.#token}`
                 },
                 body: rawData
             });

@@ -28,18 +28,18 @@ export default class Alert {
 
         let audio = new Audio(this.#defaultSounds[type]);
         audio.volume = RVC.userSettings().getNotificationVolume();
-        void audio.play();
+        audio.play();
     }
 
     static #playVoiceChat() {
         let audio = new Audio(this.#testSounds['voiceChat']);
         audio.volume = RVC.userSettings().getVoiceVolume();
-        void audio.play();
+        audio.play();
     }
 
     static #playNotification() {
         let audio = new Audio(this.#testSounds['notification']);
         audio.volume = RVC.userSettings().getNotificationVolume();
-        void audio.play();
+        audio.play();
     }
 }

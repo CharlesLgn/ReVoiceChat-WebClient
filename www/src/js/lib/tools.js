@@ -1,13 +1,22 @@
 const tauriActive = globalThis.isTauri;
 let tauriFetch = null;
-if (tauriActive) {
-    import('@tauri-apps/plugin-http')
-        .then(module => {
-            tauriFetch = module.fetch;
-        })
-        .catch(() => {
-            console.warn('Tauri HTTP plugin not available, using standard fetch');
-        });
+
+function initTools() {
+    if (tauriActive && !import.meta.env?.VITEST) {
+        // Use string concatenation to hide the import from Vite's static analysis
+        const moduleName = '@tauri-apps/' + 'plugin-http';
+        import(/* @vite-ignore */ moduleName)
+            .then(module => {
+                tauriFetch = module.fetch;
+            })
+            .catch(() => {
+                console.warn('Tauri HTTP plugin not available, using standard fetch');
+                tauriFetch = globalThis.fetch;
+            });
+    } else {
+        // Use standard fetch in tests
+        tauriFetch = globalThis.fetch;
+    }
 }
 
 const SwalCustomClass = {
@@ -226,6 +235,7 @@ async function apiFetch(url, options = {}) {
 }
 
 export {
+    initTools,
     tauriActive,
     SwalCustomClass,
     sanitizeString,
