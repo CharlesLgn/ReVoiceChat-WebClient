@@ -43,7 +43,7 @@ export class Streamer {
     #audioTimestamp = 0;
 
     // Video Encoder
-    #videoCodec = structuredClone(Codec.STREAM_VIDEO_DEFAULT);
+    #videoCodec = structuredClone(Codec.STREAM_VIDEO_HD_30_VP9);
     #videoMetadata;
     #videoEncoder;
     #videoEncoderInterval;
