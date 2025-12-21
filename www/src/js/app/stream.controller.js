@@ -96,7 +96,7 @@ export default class StreamController {
                     i18n.translatePage(document.getElementById("popup-stream"))
                     document.getElementById('popup-resolution').oninput = () => { resolution = document.getElementById('popup-resolution').value };
                     document.getElementById('popup-framerate').oninput = () => { framerate = document.getElementById('popup-framerate').value };
-                    document.getElementById('popup-codec').oninput = () => { codec = document.getElementById('popup-framerate').value };
+                    document.getElementById('popup-codec').oninput = () => { codec = document.getElementById('popup-codec').value };
                 }
             }).then(async (result) => {
                 if (result.value) {
@@ -270,6 +270,12 @@ export default class StreamController {
                 await this.#viewer[`${userId}-${streamName}`].stream.leave();
                 this.#viewer[`${userId}-${streamName}`].div.remove();
                 this.#viewer[`${userId}-${streamName}`] = null;
+
+                const streamContainter = document.getElementById('stream-container');
+                streamContainter.className = "stream";
+                for (const child of streamContainter.childNodes) {
+                    child.classList.remove("hidden");
+                }
             } else {
                 this.removeModal(userId, streamName);
             }
