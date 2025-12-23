@@ -28,22 +28,9 @@
     font-size: 2rem;
 }
 
-.dialog-icon.error {
-    background: #f44336;
-    color: white;
-}
-
-.dialog-icon.error::before {
-    content: '✕';
-}
-
-.dialog-icon.success {
-    background: #4caf50;
-    color: white;
-}
-
-.dialog-icon.success::before {
-    content: '✓';
+.dialog-icon svg {
+    height: 4rem;
+    width:  4rem;
 }
 
 .dialog-title {

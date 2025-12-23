@@ -106,6 +106,11 @@ describe('IconComponent', () => {
         shouldRenderAnSVGElement();
     });
 
+    describe('CircleCheckIconComponent', () => {
+        setup('revoice-icon-circle-check');
+        shouldRenderAnSVGElement();
+    });
+
     describe('EnvelopeIconComponent', () => {
         setup('revoice-icon-envelope');
         shouldRenderAnSVGElement();
