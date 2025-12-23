@@ -1,11 +1,10 @@
 import Alert from "./utils/alert.js";
 import VoiceCall from "./voice.js";
 import StreamController from './stream.controller.js';
-import Swal from '../lib/sweetalert2.esm.all.min.js';
-import { SwalCustomClass } from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 import ReVoiceChat from "./revoicechat.js";
+import Modal from "../component/modal.component.js";
 
 export default class VoiceController {
     /** @type {VoiceCall|null} */
@@ -53,7 +52,7 @@ export default class VoiceController {
 
         try {
             this.#voiceCall = new VoiceCall(this.#user);
-            await this.#voiceCall.open(CoreServer.voiceUrl(), roomId, ReVoiceChat.getToken(), this.#setUserGlow, this.#setSelfGlow);
+            await this.#voiceCall.open(CoreServer.voiceUrl(), roomId, ReVoiceChat.getToken(), this.#setUserGlow, this.#setSelfGlow, (reason) => this.#voiceError(reason));
 
             // Update users in room
             await this.#updateJoinedUsers();
@@ -74,18 +73,23 @@ export default class VoiceController {
             Alert.play('voiceConnected');
         }
         catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: "Can't join voicechat",
-                text: error,
-                animation: false,
-                customClass: SwalCustomClass,
-                showCancelButton: false,
-                confirmButtonText: "OK",
-                allowOutsideClick: false
-            });
-            this.leave(false);
+            await this.#voiceError(error)
         }
+    }
+
+    /**
+     * @param {string} errorMessage
+     * @returns {Promise<void>}
+     */
+    async #voiceError(errorMessage) {
+        await Modal.toggle({
+            icon: 'error',
+            title: "Can't join voicechat",
+            text: errorMessage,
+            showCancelButton: false,
+            confirmButtonText: "OK"
+        });
+        await this.leave(false);
     }
 
     // <user> call this to leave a call in a room

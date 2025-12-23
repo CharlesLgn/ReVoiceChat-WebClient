@@ -65,7 +65,7 @@ export default class VoiceCall {
         }
     }
 
-    async open(voiceUrl, roomId, token, setUserGlow, setSelfGlow) {
+    async open(voiceUrl, roomId, token, setUserGlow, setSelfGlow, anormalClosureHandler) {
         if (!voiceUrl) {
             throw new Error('VoiceUrl is null or undefined');
         }
@@ -98,7 +98,13 @@ export default class VoiceCall {
         this.#outputGain.gain.setValueAtTime(this.#user.settings.getVoiceVolume(), this.#audioContext.currentTime);
 
         // Socket states
-        this.#socket.onclose = async () => { await this.close(); };
+        this.#socket.onclose = async (e) => {
+            await this.close();
+            if (e.code !== 1000) {
+                console.error('VoiceCall : anormal closure:', e)
+                anormalClosureHandler(e.reason);
+            }
+        };
         this.#socket.onerror = async (e) => { await this.close(); console.error('VoiceCall : WebSocket error:', e) };
 
         this.#state = VoiceCall.OPEN;

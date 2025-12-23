@@ -23,7 +23,7 @@ class ModalOptions {
   /** @type string */
   confirmButtonText;
   /** @type boolean */
-  allowOutsideClick = true
+  allowOutsideClick = false
 
   /**
    * @param {ModalOpt} options
@@ -37,7 +37,7 @@ class ModalOptions {
     modalOptions.html = options.html
     modalOptions.showCancelButton = options.showCancelButton
     modalOptions.confirmButtonText = options.confirmButtonText
-    modalOptions.allowOutsideClick = options.allowOutsideClick ?? true
+    modalOptions.allowOutsideClick = options.allowOutsideClick ?? false
     return modalOptions
   }
 }
