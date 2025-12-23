@@ -5,6 +5,7 @@
     --ter-bg-color: #202024;
     --qua-bg-color: #43434d;
     --blockquote-bg-color: #FFFFFF10;
+    --code-bg-color: #21262d;
 
     /* Border */
     --pri-bd-color: #43434d;
@@ -44,6 +45,7 @@
     --ter-bg-color: #000000;
     --qua-bg-color: #000000;
     --blockquote-bg-color: #FFFFFF10;
+    --code-bg-color: #21262d;
 
     /* Border color */
     --pri-bd-color: #f5f5dc;
@@ -83,6 +85,7 @@
     --ter-bg-color: #f1f8ff;
     --qua-bg-color: #dadada;
     --blockquote-bg-color: #00000010;
+    --code-bg-color: #d0dbea;
 
     /* Border */
     --pri-bd-color: rgb(224, 224, 224);
@@ -122,6 +125,7 @@
     --ter-bg-color: #facec2;
     --qua-bg-color: #ff999c;
     --blockquote-bg-color: #00000010;
+    --code-bg-color: var(--hljs-background);
 
     /* Border */
     --pri-bd-color: #c4d0e3;

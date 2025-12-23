@@ -292,6 +292,16 @@ export default class UserSettingsController {
         }
         this.#fakeMessage(holder, "Hello world 🦜");
         this.#fakeMessage(holder, "This is how message will be displayed");
+        this.#fakeMessage(holder, `
+Do not forget :
+ - message supports markdown
+ - you can you custom emotes with \`:my_custom_emote:\`
+you can also write code :
+\`\`\`js
+function test() {
+    console.log("hello world");
+}
+\`\`\``);
         this.#fakeMessage(holder, "🦜");
     }
 
