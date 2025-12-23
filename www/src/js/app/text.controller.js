@@ -90,12 +90,19 @@ export default class TextController {
                 });
 
                 for (const message of invertedSortedResult) {
-                    element.content.prepend(this.#create(message));
+                    element.content.prepend(this.create(message));
                 }
 
                 cachedRooms.scrollTop = cachedRooms.scrollHeight - lastScrollHeight;
             }
         }
+    }
+
+    clearCache() {
+        for (const [, room] of Object.entries(this.#cachedRooms)) {
+            room.content.remove();
+        }
+        this.#cachedRooms = {}
     }
 
     async load(roomId) {
@@ -117,7 +124,7 @@ export default class TextController {
 
                 element.content.innerHTML = "";
                 for (const message of sortedResult) {
-                    element.content.appendChild(this.#create(message));
+                    element.content.appendChild(this.create(message));
                 }
 
                 element.total = result.totalPages;
@@ -145,7 +152,7 @@ export default class TextController {
         const room = this.#getTextContentElement(data.message.roomId);
         switch (data.action) {
             case "ADD":
-                room.content.appendChild(this.#create(message));
+                room.content.appendChild(this.create(message));
                 break;
             case "MODIFY":
                 document.getElementById(message.id).replaceWith(this.#createContent(message));
@@ -317,7 +324,7 @@ export default class TextController {
     }
 
     /** @param {MessageRepresentation} messageData */
-    #create(messageData) {
+    create(messageData) {
         const CONTAINER = document.createElement('div');
         CONTAINER.className = `message-container-message`;
         CONTAINER.appendChild(this.#createHeader(messageData));
@@ -325,7 +332,7 @@ export default class TextController {
         const MESSAGE = document.createElement('div');
         MESSAGE.id = `container-${messageData.id}`;
         MESSAGE.className = "message-container";
-        if (RVC.userSettings().messageSetting.showPicture) {
+        if (RVC.userSettings().messageSetting === "default") {
             this.#addPicture(messageData, MESSAGE);
         }
         MESSAGE.appendChild(CONTAINER);

@@ -256,14 +256,9 @@
                         <revoice-icon-information></revoice-icon-information> <span data-i18n="user.overview">Overview</span>
                     </button>
 
-                    <!-- Language -->
-                    <button class="sub-category" id="user-setting-tab-language">
-                        <revoice-icon-language></revoice-icon-language> <span data-i18n="user.language">Language</span>
-                    </button>
-
-                    <!-- Themes -->
-                    <button class="sub-category" id="user-setting-tab-themes">
-                        <revoice-icon-swatch></revoice-icon-swatch> <span data-i18n="user.themes">Themes</span>
+                    <!-- Appearance -->
+                    <button class="sub-category" id="user-setting-tab-appearance">
+                        <revoice-icon-appearance></revoice-icon-appearance> <span data-i18n="user.appearance">Appearance</span>
                     </button>
 
                     <!-- Emotes -->
@@ -325,18 +320,29 @@
                     </div>
                 </div>
 
-                <!-- Language -->
-                <div class="hidden" id="user-setting-content-language">
-                    <h1 data-i18n="user.language">Language</h1>
-                    <form id="setting-language-form" class="theme-form">
-                        <select id="setting-language-selection"></select>
-                    </form>
-                </div>
-
-                <!-- Themes -->
-                <div class="hidden" id="user-setting-content-themes">
-                    <h1 data-i18n="user.themes">Themes</h1>
-                    <form id="setting-themes-form" class="theme-form"></form>
+                <div class="hidden" id="user-setting-content-appearance">
+                    <!-- Language -->
+                    <div id="user-setting-content-language">
+                        <h1 data-i18n="user.language">Language</h1>
+                        <form id="setting-language-form" class="theme-form">
+                            <select id="setting-language-selection"></select>
+                        </form>
+                    </div>
+                    <br />
+                    <!-- Themes -->
+                    <div id="user-setting-content-themes">
+                        <h1 data-i18n="user.themes">Themes</h1>
+                        <form id="setting-themes-form" class="theme-form"></form>
+                    </div>
+                    <br />
+                    <!-- Messages -->
+                    <div id="user-setting-content-message">
+                        <h1 data-i18n="user.message">Messages</h1>
+                        <form id="setting-message-form" class="theme-form">
+                            <select id="setting-message-selection"></select>
+                        </form>
+                        <div id="setting-message-exemple"></div>
+                    </div>
                 </div>
 
                 <!-- Emotes -->

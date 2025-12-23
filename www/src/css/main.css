@@ -1361,3 +1361,7 @@ input[type=file]::file-selector-button {
 .overlay.show {
     display: block;
 }
+
+#setting-message-exemple {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}

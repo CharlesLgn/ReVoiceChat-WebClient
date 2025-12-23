@@ -6,6 +6,8 @@ import {i18n} from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 import Modal from "../component/modal.component.js";
+import {UserNotificationRepresentation} from "../representation/user.representation.js";
+import {MessageRepresentation} from "../representation/room.representation.js";
 
 export default class UserSettingsController {
     #user;
@@ -14,6 +16,8 @@ export default class UserSettingsController {
     #currentTab;
     #theme = 'dark';
     #lang = 'en';
+    /** @type {"default"|"compact"}  */
+    messageSetting = 'default';
     #password = {
         password: '',
         newPassword: '',
@@ -26,9 +30,6 @@ export default class UserSettingsController {
         notification: 0.25,
         voice: 1,
         stream: 0.5,
-    }
-    messageSetting = {
-        showPicture: true
     }
 
     constructor(user) {
@@ -74,6 +75,7 @@ export default class UserSettingsController {
         // Load UI
         this.#overviewLoad();
         this.#themeLoadPreviews();
+        this.#messageSettingsLoad();
         this.#emoteLoad();
         this.#gateLoad();
         this.#compressorLoad();
@@ -120,6 +122,16 @@ export default class UserSettingsController {
         return this.#lang;
     }
 
+    /** @return {string} */
+    getMessageSetting() {
+        return this.messageSetting;
+    }
+
+    /** @param {string} messageSetting */
+    setMessageSetting(messageSetting) {
+        this.messageSetting = messageSetting;
+    }
+
     /** @param {string} lang */
     setLangage(lang) {
         this.#lang = lang
@@ -137,7 +149,7 @@ export default class UserSettingsController {
     }
 
     #selectEventHandler() {
-        const parameters = ['overview', 'language', 'themes', 'emotes', 'audio-input', 'audio-output'];
+        const parameters = ['overview', 'appearance', 'emotes', 'audio-input', 'audio-output'];
         for (const param of parameters) {
             document.getElementById(`user-setting-tab-${param}`).addEventListener('click', () => this.select(param));
         }
@@ -252,6 +264,57 @@ export default class UserSettingsController {
             button.innerHTML = `<revoice-theme-preview theme="${theme}"></revoice-theme-preview>`;
             themeForm.appendChild(button)
         }
+    }
+
+    #messageSettingsLoad() {
+        const select = document.getElementById("setting-message-selection");
+        for (const key of ["default", "compact"]) {
+            const option = document.createElement('option');
+            option.value     = key
+            option.innerText = key
+            option.selected  = (key === RVC.user.settings.getMessageSetting())
+            select.appendChild(option);
+        }
+        select.addEventListener("change", async (event) => {
+            const value = event.target.value;
+            RVC.user.settings.setMessageSetting(value);
+            await RVC.user.settings.save();
+            this.#buildMessageExemple();
+            await this.#reloadMessage();
+        });
+        this.#buildMessageExemple()
+    }
+
+    #buildMessageExemple() {
+        const holder = document.querySelector("#setting-message-exemple")
+        for (const elt of holder.querySelectorAll("div")) {
+            elt.remove();
+        }
+        this.#fakeMessage(holder, "Hello world 🦜");
+        this.#fakeMessage(holder, "This is message will be displayed");
+        this.#fakeMessage(holder, "🦜");
+    }
+
+    #fakeMessage(holder, text) {
+        const user = new UserNotificationRepresentation()
+        user.id = this.#user.id;
+        user.displayName = this.#user.displayName;
+        const message = new MessageRepresentation();
+        message.id = "setting-message-exemple-body";
+        message.text = text;
+        message.roomId = "test";
+        message.createdDate = "2025-12-23 24:00Z";
+        message.updatedDate = null;
+        message.medias = [];
+        message.emotes = [];
+        message.user = user;
+        holder.append(RVC.room.textController.create(message));
+    }
+
+
+    async #reloadMessage() {
+        RVC.room.textController.clearCache();
+        await RVC.room.textController.load(RVC.room.id);
     }
 
     #themeChange(theme) {

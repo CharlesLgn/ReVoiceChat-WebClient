@@ -70,7 +70,7 @@ class VoiceLeavingNotification {
 }
 
 
-class UserNotificationRepresentation {
+export class UserNotificationRepresentation {
   /** @type {string} */
   id
   /** @type {string} */

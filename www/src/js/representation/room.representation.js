@@ -23,7 +23,7 @@ class RoomNotification {
   action
 }
 
-class MessageRepresentation {
+export class MessageRepresentation {
   /** @type {string} */
   id
   /** @type {string} */
