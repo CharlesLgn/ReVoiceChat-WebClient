@@ -6,6 +6,7 @@
  *   showCancelButton: boolean,
  *   confirmButtonText: string,
  *   allowOutsideClick: boolean?
+ *   didOpen: () => void
  * }} ModalOpt
  */
 
@@ -22,8 +23,7 @@ class ModalOptions {
   showCancelButton;
   /** @type string */
   confirmButtonText;
-  /** @type boolean */
-  allowOutsideClick = false
+  didOpen = () => {}
 
   /**
    * @param {ModalOpt} options
@@ -37,7 +37,7 @@ class ModalOptions {
     modalOptions.html = options.html
     modalOptions.showCancelButton = options.showCancelButton
     modalOptions.confirmButtonText = options.confirmButtonText
-    modalOptions.allowOutsideClick = options.allowOutsideClick ?? false
+    modalOptions.didOpen = options.didOpen ?? (() => {})
     return modalOptions
   }
 }
@@ -51,7 +51,7 @@ export default class Modal {
    * @returns {Promise<unknown>}
    */
   static async toggle(options) {
-    await Modal.#instance.#fire(options);
+    return Modal.#instance.#fire(options);
   }
 
   constructor() {
@@ -143,27 +143,12 @@ export default class Modal {
         } else {
           resolve({isConfirmed: false, isDismissed: true});
         }
-      };
-
-      // Handle click outside
-      const handleClick = (e) => {
-        if (options.allowOutsideClick && e.target === this.dialog) {
-          const rect = this.dialog.getBoundingClientRect();
-          if (
-              e.clientX < rect.left ||
-              e.clientX > rect.right ||
-              e.clientY < rect.top ||
-              e.clientY > rect.bottom
-          ) {
-            this.dialog.close('cancel');
-          }
-        }
+        this.dialog.close();
       };
 
       this.dialog.addEventListener('close', handleClose, {once: true});
-      this.dialog.addEventListener('click', handleClick);
 
-      // Show modal using native showModal()
+      options.didOpen();
       this.dialog.showModal();
     });
   }

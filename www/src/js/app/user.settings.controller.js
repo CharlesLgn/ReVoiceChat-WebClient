@@ -1,12 +1,11 @@
-import Swal from '../lib/sweetalert2.esm.all.min.js';
 import VoiceCall from "./voice.js";
 import {LanguageController} from "./language.controller.js";
 import {SpinnerOnButton} from "../component/button.spinner.component.js";
-import {SwalCustomClass} from "../lib/tools.js";
 import {getAllDeclaredDataThemes} from "../component/theme.component.js";
 import {i18n} from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
+import Modal from "../component/modal.component.js";
 
 export default class UserSettingsController {
     #user;
@@ -63,26 +62,11 @@ export default class UserSettingsController {
     async load() {
         const storedSettings = await CoreServer.fetch(`/settings/me`, 'GET');
         if (storedSettings !== null) {
-            if (storedSettings.voice) {
-                this.voice.self = storedSettings.voice.self ? storedSettings.voice.self : defaultVoice.self;
-                this.voice.users = storedSettings.voice.users ? storedSettings.voice.users : {};
-                this.voice.compressor = storedSettings.voice.compressor ? storedSettings.voice.compressor : defaultVoice.compressor;
-                this.voice.gate = storedSettings.voice.gate ? storedSettings.voice.gate : defaultVoice.gate;
-            }
-
-            if (storedSettings.theme) {
-                this.#theme = storedSettings.theme;
-            }
-            if (storedSettings.lang) {
-                this.#lang = storedSettings.lang;
-            }
-
-            if(storedSettings.audioOutput){
-                this.#audioOutput = storedSettings.audioOutput;
-            }
-            if (storedSettings.messageSetting) {
-                this.messageSetting = storedSettings.messageSetting;
-            }
+            this.#loadVoiceSettings(storedSettings);
+            this.#loadAudioSettings(storedSettings);
+            this.#loadTheme(storedSettings);
+            this.#loadLang(storedSettings);
+            this.#loadMessageSettings(storedSettings);
         }
 
         document.documentElement.dataset.theme = this.#theme;
@@ -96,6 +80,39 @@ export default class UserSettingsController {
         this.#inputVolumeLoad();
         this.#audioOutputLoad();
         await LanguageController.loadAvailableLanguage();
+    }
+
+    #loadVoiceSettings(storedSettings) {
+        if (storedSettings.voice) {
+            this.voice.self = storedSettings.voice.self ? storedSettings.voice.self : defaultVoice.self;
+            this.voice.users = storedSettings.voice.users ? storedSettings.voice.users : {};
+            this.voice.compressor = storedSettings.voice.compressor ? storedSettings.voice.compressor : defaultVoice.compressor;
+            this.voice.gate = storedSettings.voice.gate ? storedSettings.voice.gate : defaultVoice.gate;
+        }
+    }
+
+    #loadAudioSettings(storedSettings) {
+        if (storedSettings.audioOutput) {
+            this.#audioOutput = storedSettings.audioOutput;
+        }
+    }
+
+    #loadTheme(storedSettings) {
+        if (storedSettings.theme) {
+            this.#theme = storedSettings.theme;
+        }
+    }
+
+    #loadLang(storedSettings) {
+        if (storedSettings.lang) {
+            this.#lang = storedSettings.lang;
+        }
+    }
+
+    #loadMessageSettings(storedSettings) {
+        if (storedSettings.messageSetting) {
+            this.messageSetting = storedSettings.messageSetting;
+        }
     }
 
     /** @return {string} */
@@ -155,16 +172,14 @@ export default class UserSettingsController {
     }
 
     #overviewChangePassword() {
-        Swal.fire({
+        Modal.toggle({
             title: `Change password`,
-            animation: false,
-            customClass: SwalCustomClass,
             showCancelButton: true,
             focusConfirm: false,
             confirmButtonText: "Change",
             allowOutsideClick: false,
             html: `
-            <form id="popup-new-password" class='popup'>
+            <form id="popup-new-password-form" class='popup'>
                 <label data-i18n="user.password.current">Current password</label>
                 <input type='password' id='popup-current-password'>
                 <br/>
@@ -184,9 +199,9 @@ export default class UserSettingsController {
             }
             ,
         }).then(async (result) => {
-            if (result.value) {
+            console.log(result)
+            if (result.isConfirmed) {
                 await CoreServer.fetch(`/user/me`, 'PATCH', { password: this.#password });
-
             }
         });
     }
@@ -209,11 +224,9 @@ export default class UserSettingsController {
             }
         }
         else {
-            Swal.fire({
+            await Modal.toggle({
                 icon: 'error',
                 title: i18n.translateOne("user.name.error"),
-                animation: false,
-                customClass: SwalCustomClass,
                 showCancelButton: false,
                 confirmButtonText: "OK",
                 allowOutsideClick: false,
