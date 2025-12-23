@@ -59,12 +59,7 @@ export class ServerSettingsOverviewController {
 
         if (!serverName) {
             spinner.error();
-            Modal.toggle({
-                icon: 'error',
-                title: i18n.translateOne("server.settings.name.error"),
-                showCancelButton: false,
-                confirmButtonText: "OK",
-            });
+            Modal.toggleError(i18n.translateOne("server.settings.name.error"));
             return;
         }
 

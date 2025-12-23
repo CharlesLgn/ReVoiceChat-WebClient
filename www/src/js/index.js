@@ -58,14 +58,7 @@ function userLogin() {
         login(LOGIN, inputHost.origin);
     }
     catch (e) {
-        Modal.toggle({
-            icon: 'error',
-            title: i18n.translateOne("login.error"),
-            text: e.message,
-            showCancelButton: false,
-            confirmButtonText: "OK",
-            allowOutsideClick: false,
-        });
+        Modal.toggleError(i18n.translateOne("login.error"), e.message);
     }
 }
 
@@ -139,13 +132,7 @@ function userRegister() {
     const FORM = document.getElementById("register-form");
 
     if (!FORM.username.value) {
-        Modal.toggle({
-            icon: 'error',
-            title: i18n.translateOne('login.register.username.error'),
-            showCancelButton: false,
-            confirmButtonText: "OK",
-            allowOutsideClick: false,
-        });
+        Modal.toggleError(i18n.translateOne('login.register.username.error'));
         return;
     }
 
@@ -154,8 +141,6 @@ function userRegister() {
             icon: 'error',
             title: i18n.translateOne('login.register.password.match.error'),
             showCancelButton: false,
-            confirmButtonText: "OK",
-            allowOutsideClick: false,
         });
         return;
     }
@@ -178,8 +163,6 @@ function userRegister() {
             title: i18n.translateOne('login.register.error'),
             text: e.message,
             showCancelButton: false,
-            confirmButtonText: "OK",
-            allowOutsideClick: false,
         });
     }
 }

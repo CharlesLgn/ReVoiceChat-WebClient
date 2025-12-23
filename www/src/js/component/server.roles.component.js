@@ -295,7 +295,7 @@ class ServerRolesWebComponent extends HTMLElement {
             title: 'Create New Role',
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Add",
+            confirmButtonText: i18n.translateOne("modal.add"),
             html: `
             <form id="new-role-popup" class='popup'>
                 <div class="server-structure-form-group">
@@ -335,7 +335,7 @@ class ServerRolesWebComponent extends HTMLElement {
             title: 'Members',
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Save",
+            confirmButtonText: i18n.translateOne("modal.save"),
             preConfirm: () => {
                 // Get form values
                 let users = Array.from(document.querySelectorAll('.assigned-user-item'));

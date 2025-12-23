@@ -96,8 +96,8 @@ export default class Modal {
                     <h2 class="dialog-title"></h2>
                     <p class="dialog-text"></p>
                     <form method="dialog" class="dialog-buttons">
-                        <button value="confirm" class="dialog-confirm">OK</button>
-                        <button value="cancel" class="dialog-cancel" style="display: none;">Cancel</button>
+                        <button value="confirm" class="dialog-confirm" data-i18n="modal.ok">OK</button>
+                        <button value="cancel" class="dialog-cancel" style="display: none;" data-i18n="modal.cancel">Cancel</button>
                     </form>
                 </div>
             </dialog>
@@ -168,7 +168,7 @@ export default class Modal {
       const confirmBtn = this.dialog.querySelector('.dialog-confirm');
       const cancelBtn = this.dialog.querySelector('.dialog-cancel');
 
-      confirmBtn.textContent = options.confirmButtonText || 'OK';
+      confirmBtn.textContent = options.confirmButtonText || i18n.translateOne("modal.ok");
       if (options.confirmButtonClass) {
         confirmBtn.classList.add(options.confirmButtonClass)
       } else {

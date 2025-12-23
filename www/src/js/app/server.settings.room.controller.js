@@ -82,7 +82,7 @@ export class ServerSettingsRoomController {
             title: i18n.translateOne("server.structure.room.add"),
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Add",
+            confirmButtonText: i18n.translateOne("modal.add"),
             html: `
             <form id="popup-new-room" class='popup'>
                 <label data-i18n="server.structure.room.name">Room name</label>
@@ -120,7 +120,7 @@ export class ServerSettingsRoomController {
             title: i18n.translateOne("server.structure.room.edit", [data.name]),
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Edit",
+            confirmButtonText: i18n.translateOne("modal.edit"),
             html: `
             <form id="popup-new-room" class='popup'>
                 <label data-i18n="server.structure.room.name">Room name</label>
@@ -184,7 +184,7 @@ export class ServerSettingsRoomController {
             title: i18n.translateOne("server.structure.category.edit", [item.name]),
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Edit",
+            confirmButtonText: i18n.translateOne("modal.edit"),
             html: `
             <form id="popup-new-category" class='popup'>
                 <label data-i18n="server.structure.category.name">Category name</label>

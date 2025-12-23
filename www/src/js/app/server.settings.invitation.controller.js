@@ -1,6 +1,7 @@
 import {copyToClipboard} from "../lib/tools.js";
 import CoreServer from "./core/core.server.js";
 import Modal from "../component/modal.component.js";
+import {i18n} from "../lib/i18n.js";
 
 export class ServerSettingsInvitationController {
     /**
@@ -56,10 +57,7 @@ export class ServerSettingsInvitationController {
             await Modal.toggle({
                 title: `New invitation`,
                 html: `<input class='modal-input' type='text' value='${result.id}' readonly>`,
-                animation: false,
                 showCancelButton: false,
-                confirmButtonText: "OK",
-                allowOutsideClick: false,
             })
         }
     }
@@ -95,7 +93,7 @@ export class ServerSettingsInvitationController {
             title: `Delete invitation '${data.id}'`,
             showCancelButton: true,
             focusCancel: true,
-            confirmButtonText: "Delete",
+            confirmButtonText: i18n.translateOne("modal.delete"),
             confirmButtonClass: "danger",
         }).then(async (result) => {
             if (result.isConfirmed) {

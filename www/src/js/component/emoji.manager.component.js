@@ -174,7 +174,7 @@ class EmojiManager extends HTMLElement {
             title: i18n.translateOne("emote.delete.popup", [id]),
             showCancelButton: true,
             focusCancel: true,
-            confirmButtonText: "Delete",
+            confirmButtonText: i18n.translateOne("modal.delete"),
             confirmButtonClass: "danger",
         }).then(async (result) => {
             if (result.isConfirmed) {

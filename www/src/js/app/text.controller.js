@@ -245,7 +245,6 @@ export default class TextController {
                         html: i18n.translateOne("attachement.error.size.body", [element.name, humanFileSize(this.#attachmentMaxSize), humanFileSize(element.size)]),
                         showCancelButton: false,
                         focusConfirm: false,
-                        confirmButtonText: "OK",
                     });
                     return;
                 }
@@ -270,13 +269,10 @@ export default class TextController {
             return;
         }
 
-        await Modal.toggle({
-            icon: 'error',
-            title: i18n.translateOne("attachement.error.title"),
-            text: i18n.translateOne("attachement.error.body"),
-            showCancelButton: false,
-            confirmButtonText: "OK",
-        });
+        await Modal.toggleError(
+            i18n.translateOne("attachement.error.title"),
+            i18n.translateOne("attachement.error.body")
+        );
     }
 
     /**

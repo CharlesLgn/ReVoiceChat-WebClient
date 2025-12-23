@@ -176,7 +176,7 @@ export default class UserSettingsController {
             title: `Change password`,
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Change",
+            confirmButtonText: i18n.translateOne("modal.save"),
             allowOutsideClick: false,
             html: `
             <form id="popup-new-password-form" class='popup'>
@@ -224,13 +224,7 @@ export default class UserSettingsController {
             }
         }
         else {
-            await Modal.toggle({
-                icon: 'error',
-                title: i18n.translateOne("user.name.error"),
-                showCancelButton: false,
-                confirmButtonText: "OK",
-                allowOutsideClick: false,
-            });
+            await Modal.toggleError(i18n.translateOne("user.name.error"));
         }
     }
 

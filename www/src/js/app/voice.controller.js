@@ -82,13 +82,7 @@ export default class VoiceController {
      * @returns {Promise<void>}
      */
     async #voiceError(errorMessage) {
-        await Modal.toggle({
-            icon: 'error',
-            title: "Can't join voicechat",
-            text: errorMessage,
-            showCancelButton: false,
-            confirmButtonText: "OK"
-        });
+        await Modal.toggleError("Can't join voicechat", errorMessage);
         await this.leave(false);
     }
 

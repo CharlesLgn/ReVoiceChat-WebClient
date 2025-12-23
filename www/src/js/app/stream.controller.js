@@ -63,7 +63,6 @@ export default class StreamController {
                 showCancelButton: true,
                 focusConfirm: false,
                 confirmButtonText: i18n.translateOne("stream.modal.confirm"),
-                cancelButtonText: i18n.translateOne("stream.modal.cancel"),
                 html: `
                         <form class='popup' id='popup-stream'>
                             <label data-i18n="stream.modal.resolution">Resolution</label>
