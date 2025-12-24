@@ -78,6 +78,7 @@ export default class ReVoiceChat {
         MobileController.load();
         Alert.attachEvents();
         await i18n.translate(this.user.settings.getLanguage());
+        this.user.settings.buildMessageExemple();
         this.router.routeTo(getQueryVariable('r'));
     }
 

@@ -17,8 +17,9 @@ export class LanguageController {
         select.addEventListener("change", (event) => {
             const value = event.target.value;
             RVC.user.settings.setLangage(value)
-            RVC.user.settings.save()
+            RVC.user.settings.save();
             i18n.translate(value);
+            RVC.user.settings.buildMessageExemple();
         });
     }
 }

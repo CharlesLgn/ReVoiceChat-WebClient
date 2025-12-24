@@ -76,7 +76,7 @@ class I18n {
      */
     formatString(template, values) {
         if (!template) return '';
-
+        template = template.replace(String.raw`\n`, "\n");
         // Convert single value to array
         const valueArray = Array.isArray(values) ? values : [values];
 
@@ -115,7 +115,7 @@ class I18n {
                 element.textContent = translation;
             }
         } else {
-            element.textContent = translation;
+            element.textContent = translation.replaceAll(String.raw`\n`, "\n");
         }
     }
 
@@ -253,7 +253,7 @@ class I18n {
             return this.formatString(translation, values);
         }
 
-        return translation;
+        return translation.replaceAll(String.raw`\n`, "\n");
     }
 
     /**

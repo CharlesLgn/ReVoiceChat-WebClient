@@ -279,33 +279,25 @@ export default class UserSettingsController {
             const value = event.target.value;
             RVC.user.settings.setMessageSetting(value);
             await RVC.user.settings.save();
-            this.#buildMessageExemple();
+            this.buildMessageExemple();
             await this.#reloadMessage();
         });
-        this.#buildMessageExemple()
     }
 
-    #buildMessageExemple() {
+    buildMessageExemple() {
         const holder = document.querySelector("#setting-message-exemple")
         for (const elt of holder.querySelectorAll("div")) {
             elt.remove();
         }
-        this.#fakeMessage(holder, "Hello world 🦜");
-        this.#fakeMessage(holder, "This is how message will be displayed");
-        this.#fakeMessage(holder, `
-Do not forget :
- - message supports markdown
- - you can you custom emotes with \`:my_custom_emote:\`
-you can also write code :
-\`\`\`js
-function test() {
-    console.log("hello world");
-}
-\`\`\``);
-        this.#fakeMessage(holder, "🦜");
+        holder.append(this.#fakeMessage("Hello world 🦜"));
+        const translatedMessage1 = this.#fakeMessage(i18n.translateOne("user.message.exemple1.body"));
+        const translatedMessage2 = this.#fakeMessage(i18n.translateOne("user.message.exemple2.body"));
+        holder.append(translatedMessage1);
+        holder.append(translatedMessage2);
+        holder.append(this.#fakeMessage("🦜"));
     }
 
-    #fakeMessage(holder, text) {
+    #fakeMessage(text) {
         const user = new UserNotificationRepresentation()
         user.id = this.#user.id;
         user.displayName = this.#user.displayName;
@@ -318,7 +310,7 @@ function test() {
         message.medias = [];
         message.emotes = [];
         message.user = user;
-        holder.append(RVC.room.textController.create(message));
+        return RVC.room.textController.create(message);
     }
 
 
