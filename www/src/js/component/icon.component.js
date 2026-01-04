@@ -20,6 +20,15 @@ class PencilIconComponent extends HTMLElement {
     }
 }
 
+class AnswerIconComponent extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `
+            <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"></path>
+            </svg>`
+    }
+}
+
 class ChatBubbleIconComponent extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
@@ -321,6 +330,7 @@ class ArrowPointingOut extends HTMLElement {
 
 customElements.define('revoice-icon-pencil', PencilIconComponent);
 customElements.define('revoice-icon-trash', TrashIconComponent);
+customElements.define('revoice-icon-answer', AnswerIconComponent);
 customElements.define('revoice-icon-chat-bubble', ChatBubbleIconComponent);
 customElements.define('revoice-icon-phone', PhoneIconComponent);
 customElements.define('revoice-icon-phone-x', PhoneXIconComponent);

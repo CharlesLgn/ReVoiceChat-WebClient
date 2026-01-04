@@ -19,6 +19,9 @@ export default class TextController {
     #editId;
     #attachmentMaxSize = 0;
     #cachedRooms = {};
+    /** @type {string|null} */
+    #repliedMessageId = null;
+
 
     /**
      * @param {UserController} user
@@ -234,6 +237,7 @@ export default class TextController {
 
         const data = {
             text: textInput,
+            answerTo: this.#repliedMessageId,
             medias: []
         }
 
@@ -264,6 +268,7 @@ export default class TextController {
 
             // Clean file input
             this.#removeAttachment();
+            this.#repliedMessageId = null;
 
             // Clean text input
             const textarea = document.getElementById("text-input");
@@ -383,6 +388,11 @@ export default class TextController {
         return CONTENT;
     }
 
+    /** @param {string} id */
+    #answer(id) {
+        this.#repliedMessageId = id;
+    }
+
     async #edit(id) {
         const result = await CoreServer.fetch(`/message/${id}`, 'GET');
 
@@ -413,6 +423,11 @@ export default class TextController {
         const DIV = document.createElement('div');
         DIV.className = "message-context-menu";
 
+        const ANSWER = document.createElement('div');
+        ANSWER.className = "icon";
+        ANSWER.innerHTML = "<revoice-icon-answer></revoice-icon-answer>";
+        ANSWER.onclick = () => this.#answer(messageData.id);
+
         const EDIT = document.createElement('div');
         EDIT.className = "icon";
         EDIT.innerHTML = "<revoice-icon-pencil></revoice-icon-pencil>";
@@ -423,6 +438,7 @@ export default class TextController {
         DELETE.innerHTML = "<revoice-icon-trash></revoice-icon-trash>";
         DELETE.onclick = () => this.#delete(messageData.id);
 
+        DIV.appendChild(ANSWER);
         DIV.appendChild(EDIT);
         DIV.appendChild(DELETE);
 

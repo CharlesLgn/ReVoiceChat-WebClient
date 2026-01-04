@@ -36,6 +36,11 @@ describe('IconComponent', () => {
         shouldRenderAnSVGElement();
     });
 
+    describe('AnswerIconComponent', () => {
+        setup('revoice-icon-answer');
+        shouldRenderAnSVGElement();
+    });
+
     describe('ChatBubbleIconComponent', () => {
         setup('revoice-icon-chat-bubble');
         shouldRenderAnSVGElement();
