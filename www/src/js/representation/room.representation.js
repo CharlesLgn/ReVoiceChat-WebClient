@@ -30,12 +30,27 @@ export class MessageRepresentation {
   text
   /** @type {string} */
   roomId
+  /** @type {MessageAnsweredRepresentation} */
+  answeredTo
   /** @type {UserNotificationRepresentation} */
   user
   createdDate
   updatedDate
   /** @type {MediaDataRepresentation[]} */
   medias
+  /** @type {EmoteRepresentation[]} */
+  emotes
+}
+
+class MessageAnsweredRepresentation {
+  /** @type {string} */
+  id
+  /** @type {string} */
+  text
+  /** @type {boolean} */
+  hasMedias
+  /** @type {string} */
+  userId
   /** @type {EmoteRepresentation[]} */
   emotes
 }

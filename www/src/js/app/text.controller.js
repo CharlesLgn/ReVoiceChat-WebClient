@@ -19,8 +19,10 @@ export default class TextController {
     #editId;
     #attachmentMaxSize = 0;
     #cachedRooms = {};
-    /** @type {string|null} */
-    #repliedMessageId = null;
+    /** @type {MessageRepresentation|null} */
+    #repliedMessage = null;
+    /** @type {MutationObserver|null} */
+    #observer = null;
 
 
     /**
@@ -30,6 +32,49 @@ export default class TextController {
     constructor(user, room) {
         this.#user = user;
         this.#room = room;
+        this.#observeReply();
+    }
+
+    /** Setup observer for replied container */
+    #observeReply() {
+        const element = document.getElementById("text-reply-message")
+        this.#observer?.disconnect();
+        this.#observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-message-id') {
+                    this.#showRepliedMessage(element);
+                }
+            }
+        });
+        this.#observer.observe(element, {attributes: true, attributeFilter: ['data-message-id']});
+    }
+
+    /** @param {HTMLElement} element */
+    #showRepliedMessage(element) {
+        element.innerHTML = ""
+        if (this.#repliedMessage) {
+            element.classList.remove("hidden");
+            const message = document.createElement("div");
+            message.innerHTML = `<span data-i18n="message.answer.to">Reply to</span>
+                                 <span> </span>
+                                 <span style="font-weight: bold">${this.#repliedMessage.user.displayName}</span>`;
+            message.style.width = "100%";
+            message.style.fontSize = "0.8rem";
+            i18n.translatePage(message)
+            const closeButton = document.createElement("div");
+            closeButton.innerHTML = "<button><revoice-icon-circle-x></revoice-icon-circle-x></button>";
+            closeButton.onclick = () => this.#removeRepliedMessage();
+            element.appendChild(message);
+            element.appendChild(closeButton);
+        } else {
+            element.classList.add("hidden");
+        }
+    }
+
+    #removeRepliedMessage() {
+        const element = document.getElementById("text-reply-message")
+        this.#repliedMessage = null;
+        element.dataset.messageId = "";
     }
 
     attachEvents() {
@@ -237,7 +282,7 @@ export default class TextController {
 
         const data = {
             text: textInput,
-            answerTo: this.#repliedMessageId,
+            answerTo: this.#repliedMessage?.id,
             medias: []
         }
 
@@ -268,7 +313,7 @@ export default class TextController {
 
             // Clean file input
             this.#removeAttachment();
-            this.#repliedMessageId = null;
+            this.#removeRepliedMessage();
 
             // Clean text input
             const textarea = document.getElementById("text-input");
@@ -328,11 +373,18 @@ export default class TextController {
         }
     }
 
-    /** @param {MessageRepresentation} messageData */
+    /**
+     * @param {MessageRepresentation} messageData
+     */
     create(messageData) {
         const CONTAINER = document.createElement('div');
         CONTAINER.className = `message-container-message`;
-        CONTAINER.appendChild(this.#createHeader(messageData));
+        if (messageData.answeredTo) {
+            CONTAINER.appendChild(this.#createAnswerHeader(messageData));
+            CONTAINER.appendChild(this.#createHeader(messageData, false));
+        } else {
+            CONTAINER.appendChild(this.#createHeader(messageData, true));
+        }
         CONTAINER.appendChild(this.#createContent(messageData));
         const MESSAGE = document.createElement('div');
         MESSAGE.id = `container-${messageData.id}`;
@@ -344,7 +396,73 @@ export default class TextController {
         return MESSAGE;
     }
 
-    #createHeader(messageData) {
+    /**
+     * Create a display for the answered message
+     * @param {MessageRepresentation} messageData
+     * @returns {HTMLElement}
+     */
+    #createAnswerHeader(messageData) {
+        const answeredTo = messageData.answeredTo;
+        const answerDiv = document.createElement('div');
+        answerDiv.className = "message-answer-to";
+
+        const icon = document.createElement('span');
+        icon.innerHTML = '<revoice-icon-answer></revoice-icon-answer>';
+        icon.style.marginRight = "4px";
+
+        const label = document.createElement('span');
+        label.dataset.i18n = 'message.answer.to';
+        label.textContent = 'Reply to';
+
+        const messagePreview = document.createElement('div');
+        messagePreview.className = "message-answer-preview";
+
+        // Truncate text if too long
+        messagePreview.textContent = answeredTo.text.length > 50
+          ? answeredTo.text.substring(0, 50) + '...'
+          : answeredTo.text;
+
+        if (answeredTo.hasMedias) {
+            const mediaIndicator = document.createElement('span');
+            mediaIndicator.innerHTML = ' 📎';
+            messagePreview.appendChild(mediaIndicator);
+        }
+
+        answerDiv.appendChild(icon);
+        answerDiv.appendChild(label);
+        answerDiv.appendChild(messagePreview);
+
+        // Click handler to scroll to original message
+        answerDiv.style.cursor = "pointer";
+        answerDiv.onclick = () => {
+            const originalMessage = document.getElementById(`container-${answeredTo.id}`);
+            if (originalMessage) {
+                originalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                originalMessage.style.backgroundColor = 'var(--highlight-color, rgba(59, 130, 246, 0.1))';
+                setTimeout(() => {
+                    originalMessage.style.backgroundColor = '';
+                }, 2000);
+            }
+        };
+
+        const answerHolder= document.createElement("div");
+        answerHolder.appendChild(answerDiv)
+        answerHolder.style.display = "flex";
+        answerHolder.style.alignContent = "certer";
+        const CONTEXT_MENU = this.#createContextMenu(messageData)
+        if (CONTEXT_MENU) {
+            answerHolder.appendChild(CONTEXT_MENU);
+        }
+
+        i18n.translatePage(answerHolder);
+        return answerHolder;
+    }
+
+    /**
+     * @param {MessageRepresentation} messageData
+     * @param {boolean} withButton
+     */
+    #createHeader(messageData, withButton = true) {
         const header = document.createElement('div');
         header.className = "message-header";
         header.id = `header-message-${messageData.id}`;
@@ -354,9 +472,11 @@ export default class TextController {
                            <span class="message-timestamp">${timestampToText(messageData.createdDate)}</span>
                            ${messageData.updatedDate ? '<span class="message-timestamp" data-i18n="message.edit">(edit)</span>' : ''}`;
         header.appendChild(title);
-        const CONTEXT_MENU = this.#createContextMenu(messageData)
-        if (CONTEXT_MENU) {
-            header.appendChild(CONTEXT_MENU);
+        if (withButton) {
+            const CONTEXT_MENU = this.#createContextMenu(messageData)
+            if (CONTEXT_MENU) {
+                header.appendChild(CONTEXT_MENU);
+            }
         }
         i18n.translatePage(header);
         return header
@@ -388,10 +508,11 @@ export default class TextController {
         return CONTENT;
     }
 
-    /** @param {string} id */
-    #answer(id) {
-        this.#repliedMessageId = id;
-        document.getElementById("text-input").focus()
+    /** @param {MessageRepresentation} repliedMessage */
+    #reply(repliedMessage) {
+        this.#repliedMessage = repliedMessage;
+        document.getElementById("text-reply-message").dataset.messageId = repliedMessage.id;
+        document.getElementById("text-input").focus();
     }
 
     async #edit(id) {
@@ -427,7 +548,7 @@ export default class TextController {
         const ANSWER = document.createElement('div');
         ANSWER.className = "icon";
         ANSWER.innerHTML = "<revoice-icon-answer></revoice-icon-answer>";
-        ANSWER.onclick = () => this.#answer(messageData.id);
+        ANSWER.onclick = () => this.#reply(messageData);
 
         const EDIT = document.createElement('div');
         EDIT.className = "icon";
