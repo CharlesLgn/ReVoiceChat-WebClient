@@ -1,4 +1,3 @@
-import { EncodedPacket, DecodedPacket } from "./packet.js";
 import Codec from "./codec.js";
 
 export default class VoiceCall {
@@ -91,7 +90,7 @@ export default class VoiceCall {
         await this.#encodeAudio();
 
         // Setup receiver and decoder
-        this.#socket.onmessage = async (message) => { await this.#decodeAudio(new DecodedPacket(message.data)) }
+        this.#socket.onmessage = async (message) => { await this.#decodeAudio(new DecodedVoice(message.data)) }
 
         // Setup main output gain
         this.#outputGain = this.#audioContext.createGain();
@@ -280,7 +279,7 @@ export default class VoiceCall {
                     type: "user",
                 }
                 if (this.#socket.readyState === WebSocket.OPEN) {
-                    this.#socket.send(new EncodedPacket(header, chunk).data);
+                    this.#socket.send(new EncodedVoice(header, chunk).data);
                 }
             },
             error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codec.codec}`) },
@@ -429,28 +428,26 @@ export default class VoiceCall {
     }
 
     async #decodeAudio(decodedPacket) {
-        const header = decodedPacket.header;
-        const data = decodedPacket.data;
-        const userId = decodedPacket.header.user;
+        const user = decodedPacket.user
 
         // User has no settings yet
-        if (!this.#settings.users[userId]) {
-            this.#settings.users[userId] = { muted: false, volume: 1 };
+        if (!this.#settings.users[user.id]) {
+            this.#settings.users[user.id] = { muted: false, volume: 1 };
         }
 
         // User has no Listener yet
-        if (!this.#users[userId]) {
-            const listenerCodec = (header.type === "music" ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER);
+        if (!this.#users[user.id]) {
+            const listenerCodec = (user.type === "music" ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER);
             const isSupported = (await AudioDecoder.isConfigSupported(listenerCodec)).supported;
             if (isSupported) {
-                this.#users[userId] = new Listener(userId, this.#setUserGlow, listenerCodec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
+                this.#users[user.id] = new Listener(user.id, this.#setUserGlow, listenerCodec, this.#settings.users[user.id], this.#audioContext, this.#outputGain);
             } else {
                 throw new Error("Decoder Codec not supported");
             }
         }
 
         // Decode audio through Listener
-        this.#users[userId].decodeAudio(header, data, this.#settings.self.deaf);
+        this.#users[user.id].decodeAudio(decodedPacket, this.#settings.self.deaf);
     }
 }
 
@@ -522,7 +519,12 @@ class Listener {
         this.#gainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
     }
 
-    decodeAudio(header, data, selfDeaf) {
+    decodeAudio(decodedVoice, selfDeaf) {
+        const timestamp = decodedVoice.timestamp;
+        const gateState = decodedVoice.user.state;
+        const data = decodedVoice.data;
+
+
         // If user sending packet is muted OR we are deaf, we stop
         if (this.#muted || selfDeaf) {
             this.#setUserGlow(this.#id, false);
@@ -530,17 +532,103 @@ class Listener {
         }
 
         // User gate open/close
-        this.#setUserGlow(this.#id, header.gateState);
+        this.#setUserGlow(this.#id, gateState);
 
         // Decode and read audio
         if (this.#decoder !== null && this.#decoder.state === "configured") {
             this.#decoder.decode(new EncodedAudioChunk({
                 type: "key",
-                timestamp: Number.parseInt(header.timestamp * 1000),
+                timestamp: Number.parseInt(timestamp * 1000),
                 data: new Uint8Array(data),
             }));
         } else {
             console.error(`User '${this.#id}' has no decoder`);
         }
+    }
+}
+
+/**
+ * Format :
+ * [  4 bytes ] Timestamp (uint32)
+ * [  1 byte  ] User type
+ * [  1 byte  ] User state
+ * [ 36 bytes ] User UUID
+ * [  4 bytes ] Payload length (uint32)
+ * [  X bytes ] Payload (voice)
+ */
+export class EncodedVoice {
+    static user = 0;
+    static music = 1;
+    
+    data;
+
+    constructor(timestamp, uuid, state, type, audioData){
+        const payload = new Uint8Array(data.byteLength);
+        const buffer = new ArrayBuffer(46 + payload.length);
+        const view = new DataView(buffer);
+        audioData.copyTo(payload);
+        let offset = 0;
+
+        // Timestamp
+        view.setUint32(offset, Number.parseInt(timestamp / 1000), true);
+        offset += 4;
+
+        // User type
+        view.setUint8(offset, type);
+        offset += 1;
+
+        // User state
+        view.setUint8(offset, state);
+        offset += 1;
+
+        // User UUID
+        new Uint8Array(buffer, offset, 36).set(new TextEncoder().encode(uuid))
+        offset += 36;
+
+        // Payload
+        view.setUint32(offset, payload.length, true);
+        offset += 4;
+        new Uint8Array(buffer, offset, payload.length).set(payload);        
+
+        this.data = buffer;
+    }
+}
+
+export class DecodedVoice {
+    timestamp = null;
+    user = {
+        id: null,
+        state: null,
+        type: null
+    }
+    data = null;
+
+    constructor(encodedPacket){
+        let offset = 0;
+        const buffer = encodedPacket;
+        const view = new DataView(encodedPacket);
+
+        // Timestamp
+        this.timestamp = view.getUint32(offset, true);
+        offset += 4;
+
+        // User type
+        this.user.type = view.getUint8(offset);
+        offset += 1;
+
+        // User state
+        this.user.state = view.getUint8(offset);
+        offset += 1;
+
+        // User ID
+        this.user.id = new TextDecoder().decode(
+            new Uint8Array(buffer, offset, 36)
+        );
+        offset += 36;
+
+        // Payload
+        const payloadLength = view.getUint32(offset, true);
+        offset += 4;
+        this.data = new Uint8Array(buffer, offset, payloadLength);
     }
 }
