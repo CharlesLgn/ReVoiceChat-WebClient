@@ -1,4 +1,6 @@
 import Codec from "./codec.js";
+import Listener from "./voice.listener.js";
+import { EncodedVoice, DecodedVoice } from "./voice.transport.js";
 
 export default class VoiceCall {
     "use strict";
@@ -272,14 +274,8 @@ export default class VoiceCall {
         // Setup Encoder
         this.#encoder = new AudioEncoder({
             output: (chunk) => {
-                const header = {
-                    timestamp: Number.parseInt(this.#audioTimestamp / 1000), // audioTimestamp is in µs but sending ms is enough
-                    user: this.#user.id,
-                    gateState: this.#gateState,
-                    type: "user",
-                }
                 if (this.#socket.readyState === WebSocket.OPEN) {
-                    this.#socket.send(new EncodedVoice(header, chunk).data);
+                    this.#socket.send(new EncodedVoice(Number.parseInt(this.#audioTimestamp / 1000), this.#user.id, this.#gateState, EncodedVoice.user, chunk).data);
                 }
             },
             error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codec.codec}`) },
@@ -427,208 +423,27 @@ export default class VoiceCall {
         }
     }
 
-    async #decodeAudio(decodedPacket) {
-        const user = decodedPacket.user
+    async #decodeAudio(decodedVoice) {
+        const userId = decodedVoice.user.id;
+        const userType = decodedVoice.user.type;
 
         // User has no settings yet
-        if (!this.#settings.users[user.id]) {
-            this.#settings.users[user.id] = { muted: false, volume: 1 };
+        if (!this.#settings.users[userId]) {
+            this.#settings.users[userId] = { muted: false, volume: 1 };
         }
 
         // User has no Listener yet
-        if (!this.#users[user.id]) {
-            const listenerCodec = (user.type === "music" ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER);
+        if (!this.#users[userId]) {
+            const listenerCodec = (userType === "music" ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER);
             const isSupported = (await AudioDecoder.isConfigSupported(listenerCodec)).supported;
             if (isSupported) {
-                this.#users[user.id] = new Listener(user.id, this.#setUserGlow, listenerCodec, this.#settings.users[user.id], this.#audioContext, this.#outputGain);
+                this.#users[userId] = new Listener(userId, this.#setUserGlow, listenerCodec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
             } else {
                 throw new Error("Decoder Codec not supported");
             }
         }
 
         // Decode audio through Listener
-        this.#users[user.id].decodeAudio(decodedPacket, this.#settings.self.deaf);
-    }
-}
-
-class Listener {
-    #id;
-    #decoder;
-    #playhead;
-    #muted;
-    #gainNode;
-    #outputGain;
-    #setUserGlow;
-    #audioContext;
-
-    constructor(id, setUserGlow, codec, settings, audioContext, outputGain) {
-        this.#id = id;
-        this.#setUserGlow = setUserGlow;
-        this.#audioContext = audioContext;
-
-        // Set user state from settings
-        this.#muted = settings.muted;
-        this.#gainNode = audioContext.createGain();
-        this.#gainNode.gain.setValueAtTime(settings.volume, audioContext.currentTime);
-
-        // Set user decoder
-        this.#decoder = new AudioDecoder({
-            output: (audioData) => { this.#playback(audioData) },
-            error: (error) => { throw new Error(`Decoder setup failed:\n${error.name}\nCurrent codec :${codec}`) },
-        });
-
-        this.#decoder.configure(codec);
-        this.#playhead = 0;
-        this.#outputGain = outputGain;
-    }
-
-    async close() {
-        await this.#decoder.flush();
-        this.#decoder.close();
-    }
-
-    #playback(audioData) {
-        const buffer = this.#audioContext.createBuffer(
-            audioData.numberOfChannels,
-            audioData.numberOfFrames,
-            audioData.sampleRate
-        );
-
-        const channelData = new Float32Array(audioData.numberOfFrames);
-        audioData.copyTo(channelData, { planeIndex: 0 });
-        buffer.copyToChannel(channelData, 0);
-
-        // Play the AudioBuffer
-        const source = this.#audioContext.createBufferSource();
-        source.buffer = buffer;
-
-        source.connect(this.#gainNode); // connect audio source to gain
-        this.#gainNode.connect(this.#outputGain); // connect user gain to main gain
-        this.#outputGain.connect(this.#audioContext.destination); // connect main gain to output
-
-        this.#playhead = Math.max(this.#playhead, this.#audioContext.currentTime) + buffer.duration;
-        source.start(this.#playhead);
-        audioData.close();
-    }
-
-    setMute(muted) {
-        this.#muted = muted;
-    }
-
-    setVolume(volume) {
-        this.#gainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
-    }
-
-    decodeAudio(decodedVoice, selfDeaf) {
-        const timestamp = decodedVoice.timestamp;
-        const gateState = decodedVoice.user.state;
-        const data = decodedVoice.data;
-
-
-        // If user sending packet is muted OR we are deaf, we stop
-        if (this.#muted || selfDeaf) {
-            this.#setUserGlow(this.#id, false);
-            return;
-        }
-
-        // User gate open/close
-        this.#setUserGlow(this.#id, gateState);
-
-        // Decode and read audio
-        if (this.#decoder !== null && this.#decoder.state === "configured") {
-            this.#decoder.decode(new EncodedAudioChunk({
-                type: "key",
-                timestamp: Number.parseInt(timestamp * 1000),
-                data: new Uint8Array(data),
-            }));
-        } else {
-            console.error(`User '${this.#id}' has no decoder`);
-        }
-    }
-}
-
-/**
- * Format :
- * [  4 bytes ] Timestamp (uint32)
- * [  1 byte  ] User type
- * [  1 byte  ] User state
- * [ 36 bytes ] User UUID
- * [  4 bytes ] Payload length (uint32)
- * [  X bytes ] Payload (voice)
- */
-export class EncodedVoice {
-    static user = 0;
-    static music = 1;
-    
-    data;
-
-    constructor(timestamp, uuid, state, type, audioData){
-        const payload = new Uint8Array(data.byteLength);
-        const buffer = new ArrayBuffer(46 + payload.length);
-        const view = new DataView(buffer);
-        audioData.copyTo(payload);
-        let offset = 0;
-
-        // Timestamp
-        view.setUint32(offset, Number.parseInt(timestamp / 1000), true);
-        offset += 4;
-
-        // User type
-        view.setUint8(offset, type);
-        offset += 1;
-
-        // User state
-        view.setUint8(offset, state);
-        offset += 1;
-
-        // User UUID
-        new Uint8Array(buffer, offset, 36).set(new TextEncoder().encode(uuid))
-        offset += 36;
-
-        // Payload
-        view.setUint32(offset, payload.length, true);
-        offset += 4;
-        new Uint8Array(buffer, offset, payload.length).set(payload);        
-
-        this.data = buffer;
-    }
-}
-
-export class DecodedVoice {
-    timestamp = null;
-    user = {
-        id: null,
-        state: null,
-        type: null
-    }
-    data = null;
-
-    constructor(encodedPacket){
-        let offset = 0;
-        const buffer = encodedPacket;
-        const view = new DataView(encodedPacket);
-
-        // Timestamp
-        this.timestamp = view.getUint32(offset, true);
-        offset += 4;
-
-        // User type
-        this.user.type = view.getUint8(offset);
-        offset += 1;
-
-        // User state
-        this.user.state = view.getUint8(offset);
-        offset += 1;
-
-        // User ID
-        this.user.id = new TextDecoder().decode(
-            new Uint8Array(buffer, offset, 36)
-        );
-        offset += 36;
-
-        // Payload
-        const payloadLength = view.getUint32(offset, true);
-        offset += 4;
-        this.data = new Uint8Array(buffer, offset, payloadLength);
+        this.#users[userId].decodeAudio(decodedVoice, this.#settings.self.deaf);
     }
 }
