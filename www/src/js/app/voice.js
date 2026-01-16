@@ -434,7 +434,7 @@ export default class VoiceCall {
 
         // User has no Listener yet
         if (!this.#users[userId]) {
-            const listenerCodec = (userType === "music" ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER);
+            const listenerCodec = (userType === EncodedVoice.music ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER);
             const isSupported = (await AudioDecoder.isConfigSupported(listenerCodec)).supported;
             if (isSupported) {
                 this.#users[userId] = new Listener(userId, this.#setUserGlow, listenerCodec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
