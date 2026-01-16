@@ -134,12 +134,21 @@ export class Streamer {
         this.#videoEncoder = new VideoEncoder({
             output: (frame, metadata) => {
                 if (!this.#videoMetadata) {
-                    this.#videoMetadata = metadata.decoderConfig;
+                    this.#videoMetadata = {
+                        "codec": null,
+                        "codedHeight": null,
+                        "codedWidth": null
+                    }
+
+                    this.#videoMetadata.codec = metadata.decoderConfig.codec;
+                    this.#videoMetadata.codedHeight = metadata.decoderConfig.codedHeight;
+                    this.#videoMetadata.codedWidth = metadata.decoderConfig.codedWidth;
                 }
+
                 const header = {
                     timestamp: Number.parseInt(performance.now()),
                     keyframe: frame.type === "key",
-                    metadata: this.#videoMetadata,
+                    decoderConfig: this.#videoMetadata,
                 }
                 this.#packetSender.send(this.#multiplexer.processVideo(header, frame));
             },
@@ -484,7 +493,7 @@ export class Viewer {
         }
 
         if (this.#videoDecoder.state === "unconfigured") {
-            this.#videoDecoder.configure(header.metadata);
+            this.#videoDecoder.configure(header.decoderConfig);
         }
 
         this.#videoDecoder.decode(new EncodedVideoChunk({

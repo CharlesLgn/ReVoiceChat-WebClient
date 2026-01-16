@@ -1,6 +1,7 @@
 export class Multiplexer {
     static VIDEO = 0;
     static AUDIO = 1;
+    static CODEC_VIDEO = ["vp8", "vp09.00.10.08", "av01.0.04M.08"];
 
     /** Audio packet format :
      * [ 1 byte  ] Type
@@ -9,8 +10,9 @@ export class Multiplexer {
      * [ X bytes ] Audio chunk 
     */
     processAudio(timestamp, chunk) {
+        const headerSize = 1 + 4 + 4;
         const payload = new Uint8Array(chunk.byteLength);
-        const buffer = new ArrayBuffer(9 + payload.length);
+        const buffer = new ArrayBuffer(headerSize + payload.length);
         const view = new DataView(buffer);
         chunk.copyTo(payload);
         let offset = 0;
@@ -29,34 +31,62 @@ export class Multiplexer {
 
         // Audio chunk
         new Uint8Array(buffer, offset, payload.length).set(payload);
- 
+
         return buffer;
     }
 
-    processVideo(header, chunk) {
-        const headerBytes = header ? new TextEncoder().encode(JSON.stringify(header)) : new Uint8Array(0);
-        const payload = new Uint8Array(chunk.byteLength);
-        chunk.copyTo(payload);
+    /**
+     * @param {*} header 
+     * @param {*} decoderConfig 
+     * @param {*} frame 
+     * 
+     * Video packet format:
+     * [ 1 byte  ] Type
+     * [ 4 bytes ] Timestamp (uint32)
+     * [ 1 byte  ] Keyframe (bool)
+     * [ 1 byte  ] Codec (0: VP8, 1: VP9, 2: AV1)
+     * [ 2 bytes ] Coded Height (max 65535)
+     * [ 2 bytes ] Coded Width (max 65535)
+     * [ 4 bytes ] Payload length
+     * [ X bytes ] Payload
+     */
 
-        const headerSize = 1 + 4 + headerBytes.length + 4;
+    processVideo(header, frame) {
+        const headerSize = 1 + 4 + 1 + 1 + 2 + 2 + 4;
+        const payload = new Uint8Array(frame.byteLength);
         const buffer = new ArrayBuffer(headerSize + payload.length);
         const view = new DataView(buffer);
+
+        frame.copyTo(payload);
         let offset = 0;
 
-        // Stream type (0 = video)
+        // Stream type
         view.setUint8(offset, Multiplexer.VIDEO);
         offset += 1;
 
-        // Header length
-        view.setUint32(offset, headerBytes.length, true);
+        // Timestamp
+        view.setUint32(offset, header.timestamp, true);
         offset += 4;
 
-        // Header
-        new Uint8Array(buffer, offset, headerBytes.length).set(headerBytes);
-        offset += headerBytes.length;
+        // Keyframe
+        view.setUint8(offset++, header.keyframe);
 
-        // Payload (chunk)
-        view.setUint32(offset, payload.length, true); offset += 4;
+        // decoderConfig : Codec
+        view.setUint8(offset++, Multiplexer.CODEC_VIDEO.indexOf(header.decoderConfig.codec));
+
+        // decoderConfig : Height
+        view.setUint16(offset, header.decoderConfig.codedHeight, true);
+        offset += 2;
+
+        // decoderConfig : Width
+        view.setUint16(offset, header.decoderConfig.codedWidth, true);
+        offset += 2;
+
+        // Payload length
+        view.setUint32(offset, payload.length, true);
+        offset += 4;
+
+        // Payload
         new Uint8Array(buffer, offset, payload.length).set(payload);
 
         return buffer;
@@ -79,50 +109,69 @@ export class Demultiplexer {
 
         const streamType = view.getUint8(offset);
 
-        if(streamType === Multiplexer.AUDIO){
+        if (streamType === Multiplexer.AUDIO) {
             this.#processAudio(buffer, view);
-        }else{
+        } else {
             this.#processVideo(buffer, view);
         }
     }
 
-    #processAudio(buffer, view){
+    #processAudio(buffer, view) {
         let offset = 1;
 
         // Timestamp
-        const timestamp = view.getUint32(offset, true); 
+        const timestamp = view.getUint32(offset, true);
         offset += 4;
 
         // Payload length
-        const payloadLength = view.getUint32(offset, true); 
+        const payloadLength = view.getUint32(offset, true);
         offset += 4;
 
         // Payload
         const payload = new Uint8Array(buffer, offset, payloadLength);
-        
+
         this.#audioCallback(timestamp, payload);
     }
 
     #processVideo(buffer, view) {
         let offset = 1;
 
-        const configLen = view.getUint32(offset, true);
-        offset += 4;
-
-        let header = null;
-        if (configLen > 0) {
-            const configJson = new TextDecoder().decode(
-                new Uint8Array(buffer, offset, configLen)
-            );
-            header = JSON.parse(configJson);
+        const header = {
+            timestamp: null,
+            keyframe: null,
+            decoderConfig: {
+                codec: null,
+                codedHeight: null,
+                codedWidth: null
+            },
         }
-        offset += configLen;
 
-        const payloadLen = view.getUint32(offset, true);
+        // Timestamp
+        header.timestamp = view.getUint32(offset, true);
         offset += 4;
 
-        const payload = new Uint8Array(buffer, offset, payloadLen);
+        // Keyframe
+        header.keyframe = view.getUint8(offset++);
 
+        // decoderConfig : Codec
+        header.decoderConfig.codec = Multiplexer.CODEC_VIDEO[view.getUint8(offset++)];
+
+        // decoderConfig : Height
+        header.decoderConfig.codedHeight = view.getUint16(offset, true);
+        offset += 2;
+
+        // decoderConfig : Width
+        header.decoderConfig.codedWidth = view.getUint16(offset, true);
+        offset += 2;
+
+        // Payload length
+        const payloadLength = view.getUint32(offset, true);
+        offset += 4;
+
+        // Payload
+        const payload = new Uint8Array(buffer, offset, payloadLength);
+
+        console.log(header);
         this.#videoCallback(header, payload);
     }
 }
