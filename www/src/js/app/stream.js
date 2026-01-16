@@ -125,10 +125,7 @@ export class Streamer {
         // Create Encoders
         this.#audioEncoder = new AudioEncoder({
             output: (frame) => {
-                const header = {
-                    timestamp: Number.parseInt(this.#audioTimestamp / 1000),
-                }
-                this.#packetSender.send(this.#multiplexer.process(header, frame, Multiplexer.AUDIO));
+                this.#packetSender.send(this.#multiplexer.processAudio(this.#audioTimestamp, frame));
             },
             error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#audioCodec.codec}`) },
         })
@@ -143,7 +140,7 @@ export class Streamer {
                     keyframe: frame.type === "key",
                     metadata: this.#videoMetadata,
                 }
-                this.#packetSender.send(this.#multiplexer.process(header, frame, Multiplexer.VIDEO));
+                this.#packetSender.send(this.#multiplexer.processVideo(header, frame));
             },
             error: (error) => {
                 this.stop();
@@ -388,7 +385,7 @@ export class Viewer {
             this.#socket.onerror = async (e) => { await this.leave(); console.error('Streamer : WebSocket error:', e) };
 
             this.#demultiplexer = new Demultiplexer(
-                (header, data) => { this.#decodeAudio(header, data) },
+                (timestamp, data) => { this.#decodeAudio(timestamp, data) },
                 (header, data) => { this.#decodeVideo(header, data) }
             );
 
@@ -496,11 +493,11 @@ export class Viewer {
         }));
     }
 
-    #decodeAudio(header, data) {
+    #decodeAudio(timestamp, data) {
         if (this.#audioDecoder !== null && this.#audioDecoder.state === "configured") {
             this.#audioDecoder.decode(new EncodedAudioChunk({
                 type: "key",
-                timestamp: Number.parseInt(header.timestamp * 1000),
+                timestamp: timestamp * 1000,
                 data: new Uint8Array(data),
             }));
         } else {
@@ -552,20 +549,42 @@ export class Viewer {
     }
 }
 
-/**
- * Multiplexer / Demultiplexer frame structure 
- * [ 1 byte  ] Stream type (0 = video, 1 = audio)
- * [ 4 bytes ] Header length (Uint32)
- * [ X bytes ] Header (optional)
- * [ 4 bytes ] Payload length (Uint32)
- * [ Y bytes ] Encoded payload (video or audio chunk)
- */
-
 class Multiplexer {
     static VIDEO = 0;
     static AUDIO = 1;
 
-    process(header, chunk, streamType) {
+    /** Audio packet format :
+     * [ 1 byte  ] Type
+     * [ 4 bytes ] Timestamp (uint32)
+     * [ 4 bytes ] Audio chunk length
+     * [ X bytes ] Audio chunk 
+    */
+    processAudio(timestamp, chunk) {
+        const payload = new Uint8Array(chunk.byteLength);
+        const buffer = new ArrayBuffer(9 + payload.length);
+        const view = new DataView(buffer);
+        chunk.copyTo(payload);
+        let offset = 0;
+
+        // Stream type
+        view.setUint8(offset, Multiplexer.AUDIO);
+        offset += 1;
+
+        // Timestamp
+        view.setUint32(offset, Number.parseInt(timestamp / 1000), true);
+        offset += 4;
+
+        // Audio chunk length
+        view.setUint32(offset, payload.length, true);
+        offset += 4;
+
+        // Audio chunk
+        new Uint8Array(buffer, offset, payload.length).set(payload);
+ 
+        return buffer;
+    }
+
+    processVideo(header, chunk) {
         const headerBytes = header ? new TextEncoder().encode(JSON.stringify(header)) : new Uint8Array(0);
         const payload = new Uint8Array(chunk.byteLength);
         chunk.copyTo(payload);
@@ -576,7 +595,7 @@ class Multiplexer {
         let offset = 0;
 
         // Stream type (0 = video)
-        view.setUint8(offset, streamType);
+        view.setUint8(offset, Multiplexer.VIDEO);
         offset += 1;
 
         // Header length
@@ -610,7 +629,33 @@ class Demultiplexer {
         let offset = 0;
 
         const streamType = view.getUint8(offset);
-        offset += 1;  // 0=video, 1=audio
+
+        if(streamType === Multiplexer.AUDIO){
+            this.#processAudio(buffer, view);
+        }else{
+            this.#processVideo(buffer, view);
+        }
+    }
+
+    #processAudio(buffer, view){
+        let offset = 1;
+
+        // Timestamp
+        const timestamp = view.getUint32(offset, true); 
+        offset += 4;
+
+        // Payload length
+        const payloadLength = view.getUint32(offset, true); 
+        offset += 4;
+
+        // Payload
+        const payload = new Uint8Array(buffer, offset, payloadLength);
+        
+        this.#audioCallback(timestamp, payload);
+    }
+
+    #processVideo(buffer, view) {
+        let offset = 1;
 
         const configLen = view.getUint32(offset, true);
         offset += 4;
@@ -629,12 +674,6 @@ class Demultiplexer {
 
         const payload = new Uint8Array(buffer, offset, payloadLen);
 
-        if (streamType === Multiplexer.VIDEO) {
-            // Video
-            this.#videoCallback(header, payload);
-        } else {
-            // Audio
-            this.#audioCallback(header, payload);
-        }
+        this.#videoCallback(header, payload);
     }
 }
