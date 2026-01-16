@@ -1,4 +1,5 @@
-import {Streamer, Viewer} from "./stream.js";
+import Streamer from "./stream.streamer.js";
+import Viewer from "./stream.viewer.js";
 import {i18n} from "../lib/i18n.js";
 import CoreServer from "./core/core.server.js";
 import ReVoiceChat from "./revoicechat.js";

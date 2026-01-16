@@ -171,7 +171,6 @@ export class Demultiplexer {
         // Payload
         const payload = new Uint8Array(buffer, offset, payloadLength);
 
-        console.log(header);
         this.#videoCallback(header, payload);
     }
 }
