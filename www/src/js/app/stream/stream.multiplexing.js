@@ -11,10 +11,8 @@ export class Multiplexer {
     */
     processAudio(timestamp, chunk) {
         const headerSize = 1 + 4 + 4;
-        const payload = new Uint8Array(chunk.byteLength);
-        const buffer = new ArrayBuffer(headerSize + payload.length);
+        const buffer = new ArrayBuffer(headerSize + chunk.byteLength);
         const view = new DataView(buffer);
-        chunk.copyTo(payload);
         let offset = 0;
 
         // Stream type
@@ -26,11 +24,12 @@ export class Multiplexer {
         offset += 4;
 
         // Audio chunk length
-        view.setUint32(offset, payload.length, true);
+        view.setUint32(offset, chunk.byteLength, true);
         offset += 4;
 
         // Audio chunk
-        new Uint8Array(buffer, offset, payload.length).set(payload);
+        const payload = new Uint8Array(buffer, offset, chunk.byteLength);
+        chunk.copyTo(payload);
 
         return buffer;
     }
@@ -53,11 +52,8 @@ export class Multiplexer {
 
     processVideo(header, frame) {
         const headerSize = 1 + 4 + 1 + 1 + 2 + 2 + 4;
-        const payload = new Uint8Array(frame.byteLength);
-        const buffer = new ArrayBuffer(headerSize + payload.length);
+        const buffer = new ArrayBuffer(headerSize + frame.byteLength);
         const view = new DataView(buffer);
-
-        frame.copyTo(payload);
         let offset = 0;
 
         // Stream type
@@ -83,11 +79,12 @@ export class Multiplexer {
         offset += 2;
 
         // Payload length
-        view.setUint32(offset, payload.length, true);
+        view.setUint32(offset, frame.byteLength, true);
         offset += 4;
 
         // Payload
-        new Uint8Array(buffer, offset, payload.length).set(payload);
+        const payload = new Uint8Array(buffer, offset, frame.byteLength);
+        frame.copyTo(payload);
 
         return buffer;
     }
