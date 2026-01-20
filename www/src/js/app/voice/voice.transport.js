@@ -14,13 +14,10 @@ export class EncodedVoice {
     
     data;
 
-    constructor(timestamp, userId, gateState, type, audioData){
+    constructor(timestamp, userId, userGateState, userType, audioData){
         const headerSize = 4 + 1 + 1 + 36 + 4;
-        const payload = new Uint8Array(audioData.byteLength);
-        const buffer = new ArrayBuffer(headerSize + payload.length);
+        const buffer = new ArrayBuffer(headerSize + audioData.byteLength);
         const view = new DataView(buffer);
-
-        audioData.copyTo(payload);
         let offset = 0;
 
         // Timestamp
@@ -28,19 +25,22 @@ export class EncodedVoice {
         offset += 4;
 
         // User type
-        view.setUint8(offset++, type);
+        view.setUint8(offset++, userType);
 
         // User gate
-        view.setUint8(offset++, gateState);
+        view.setUint8(offset++, userGateState);
 
         // User ID
-        new Uint8Array(buffer, offset, headerSize).set(new TextEncoder().encode(userId))
+        new Uint8Array(buffer, offset, 36).set(new TextEncoder().encode(userId))
         offset += 36;
 
-        // Payload
-        view.setUint32(offset, payload.length, true);
+        // Payload length
+        view.setUint32(offset, audioData.byteLength, true);
         offset += 4;
-        new Uint8Array(buffer, offset, payload.length).set(payload);        
+
+        // Payload
+        const payload = new Uint8Array(buffer, offset, audioData.byteLength);
+        audioData.copyTo(payload);        
 
         this.data = buffer;
     }
