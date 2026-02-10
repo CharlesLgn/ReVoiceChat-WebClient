@@ -10,17 +10,9 @@ export default class VoiceCall {
     static OPEN = 2;
     static DEFAULT_SETTINGS = {
         compressor: {
-            enabled: true,
-            attack: 0,
-            knee: 40,
-            ratio: 12,
-            release: 0.25,
-            reduction: 0,
-            threshold: -50,
+             enabled: true
         },
         gate: {
-            attack: 0.01,
-            release: 0.4,
             threshold: -60,
         },
         self: {
@@ -29,6 +21,19 @@ export default class VoiceCall {
             volume: 1,
         },
         users: {}
+    }
+    static COMPRESSOR_SETTINGS = {
+        attack: 0,
+        knee: 40,
+        ratio: 12,
+        release: 0.25,
+        reduction: 0,
+        threshold: -50,
+    }
+    static GATE_SETTINGS = {
+        attack: 0.01,
+        release: 0.4,
+        threshold: -60
     }
 
     #codec = structuredClone(Codec.DEFAULT_VOICE_USER);
@@ -242,8 +247,6 @@ export default class VoiceCall {
 
     setGate(gateSettings) {
         this.#settings.gate = gateSettings;
-        this.#gateNode.parameters.get("attack").setValueAtTime(this.#settings.gate.attack, this.#audioContext.currentTime);
-        this.#gateNode.parameters.get("release").setValueAtTime(this.#settings.gate.release, this.#audioContext.currentTime);
         this.#gateNode.parameters.get("threshold").setValueAtTime(this.#settings.gate.threshold, this.#audioContext.currentTime);
     }
 
@@ -254,15 +257,7 @@ export default class VoiceCall {
     }
 
     setCompressor(compressorSetting) {
-        this.#settings.compressor = compressorSetting;
-
-        if (this.#compressorNode) {
-            this.#compressorNode.attack.setValueAtTime(this.#settings.compressor.attack, this.#audioContext.currentTime);
-            this.#compressorNode.knee.setValueAtTime(this.#settings.compressor.knee, this.#audioContext.currentTime);
-            this.#compressorNode.ratio.setValueAtTime(this.#settings.compressor.ratio, this.#audioContext.currentTime);
-            this.#compressorNode.release.setValueAtTime(this.#settings.compressor.release, this.#audioContext.currentTime);
-            this.#compressorNode.threshold.setValueAtTime(this.#settings.compressor.threshold, this.#audioContext.currentTime);
-        }
+        console.warn("Changing compressor settings as no effect");
     }
 
     async #encodeAudio() {
@@ -326,8 +321,8 @@ export default class VoiceCall {
         // Create Gate
         this.#gateNode = new AudioWorkletNode(this.#audioContext, "NoiseGate", {
             parameterData: {
-                attack: this.#settings.gate.attack,
-                release: this.#settings.gate.release,
+                attack: VoiceCall.GATE_SETTINGS.attack,
+                release: VoiceCall.GATE_SETTINGS.release,
                 threshold: this.#settings.gate.threshold
             }
         });
@@ -358,11 +353,11 @@ export default class VoiceCall {
         // Create compressor if enabled
         if (this.#settings.compressor.enabled) {
             this.#compressorNode = this.#audioContext.createDynamicsCompressor();
-            this.#compressorNode.attack.setValueAtTime(this.#settings.compressor.attack, this.#audioContext.currentTime);
-            this.#compressorNode.knee.setValueAtTime(this.#settings.compressor.knee, this.#audioContext.currentTime);
-            this.#compressorNode.ratio.setValueAtTime(this.#settings.compressor.ratio, this.#audioContext.currentTime);
-            this.#compressorNode.release.setValueAtTime(this.#settings.compressor.release, this.#audioContext.currentTime);
-            this.#compressorNode.threshold.setValueAtTime(this.#settings.compressor.threshold, this.#audioContext.currentTime);
+            this.#compressorNode.attack.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.attack, this.#audioContext.currentTime);
+            this.#compressorNode.knee.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.knee, this.#audioContext.currentTime);
+            this.#compressorNode.ratio.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.ratio, this.#audioContext.currentTime);
+            this.#compressorNode.release.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.release, this.#audioContext.currentTime);
+            this.#compressorNode.threshold.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.threshold, this.#audioContext.currentTime);
 
             // Connect gate to compressor
             this.#gateNode.connect(this.#compressorNode);

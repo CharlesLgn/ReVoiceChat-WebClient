@@ -73,7 +73,8 @@ export default class VoiceController {
             Alert.play('voiceConnected');
         }
         catch (error) {
-            await this.#voiceError(error)
+            console.error(error);
+            await this.#voiceError(error);
         }
     }
 
