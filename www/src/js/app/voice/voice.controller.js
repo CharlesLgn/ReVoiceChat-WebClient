@@ -95,6 +95,7 @@ export default class VoiceController {
         await this.#updateJoinedUsers();
         this.#updateUserCounter(this.#activeRoom);
         this.#activeRoom = null;
+        this.#voiceCall = null;
 
         // Update context menu
         this.#contextMenu.setVoiceCall(null);
