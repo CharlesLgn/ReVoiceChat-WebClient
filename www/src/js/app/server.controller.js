@@ -1,5 +1,5 @@
 import ServerSettingsController from "./server.settings.controller.js";
-import {statusToDotClassName} from "../lib/tools.js";
+import { statusToDotClassName } from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 
@@ -28,6 +28,16 @@ export default class ServerController {
             return;
         }
 
+        // Create instances list
+        const instancesList = document.getElementById('instances');
+        for (const instance of result) {
+            const element = await this.#createInstanceElement(instance);
+            if (element) {
+                instancesList.appendChild(element);
+            }
+        }
+
+        // Select default server
         if (this.id) {
             this.select(this.id, this.name);
         } else {
@@ -39,11 +49,38 @@ export default class ServerController {
         this.settings.load()
     }
 
+    async #createInstanceElement(instance) {
+        if (instance === undefined || instance === null) {
+            return;
+        }
+
+        const BUTTON = document.createElement('button');
+
+        BUTTON.id = instance.id;
+        BUTTON.className = "element";
+        BUTTON.title = instance.name;
+        BUTTON.onclick = () => this.select(instance.id, instance.name);
+
+        const IMG = document.createElement('img');
+        IMG.src = MediaServer.profiles(instance.id);
+        IMG.className = "icon";
+        BUTTON.appendChild(IMG);
+
+        return BUTTON;
+    }
+
     select(id, name) {
         if (!id || !name) {
             console.error("Server id or name is null or undefined");
             return;
         }
+
+        const currentInstance = document.getElementById(this.id);
+        if (currentInstance){
+            currentInstance.classList.remove('active');
+        }
+
+        document.getElementById(id).classList.add('active');
 
         this.#updateServerName(id, name);
         this.#usersLoad();
@@ -59,19 +96,19 @@ export default class ServerController {
     /** @param {ServerUpdateNotification} data */
     update(data) {
         switch (data.action) {
-          case "ADD":
-            break;
-          case "REMOVE":
-            break;
-          case "MODIFY": {
-              if (data.server.id === this.id) {
-                  this.#updateServerName(this.id, data.server.name);
-                  this.room.load(this.id);
-              }
-              return;
-          }
-          default:
-              return;
+            case "ADD":
+                break;
+            case "REMOVE":
+                break;
+            case "MODIFY": {
+                if (data.server.id === this.id) {
+                    this.#updateServerName(this.id, data.server.name);
+                    this.room.load(this.id);
+                }
+                return;
+            }
+            default:
+                return;
         }
     }
 

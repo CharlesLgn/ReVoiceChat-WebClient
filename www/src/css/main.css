@@ -342,41 +342,64 @@ svg {
     align-items: center;
 }
 
-/* SIDEBAR LEFT */
-.sidebar.left {
+/* SIDEBAR INSTANCES */
+.sidebar.instances-list {
+    border-right-width: 1px;
+}
+
+.sidebar.instances-list .header img {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* INSTANCE (list) */
+.instances {
+    overflow-y: auto;
+    display: flex;
+    position: relative;
+    flex: 1 1 0%;
+    flex-direction: column;
+    padding: 0.5rem;
+}
+
+.instances .element img{
+    width: 2rem;
+    height: 2rem;
+}
+
+/* SIDEBAR SERVER */
+.sidebar.server {
     border-right-width: 1px;
     width: 19rem;
 }
 
-.sidebar.left .header h2{
+.sidebar.server .header h2 {
     font-weight: 600;
     margin-left: 0.75rem;
 }
 
-.sidebar.left .header img {
-    border-radius: 9999px;
+.sidebar.server .header img {
     width: 2.5rem;
     height: 2.5rem;
 }
 
-
-/* SIDEBAR RIGHT */
-.sidebar.right {
+/* SIDEBAR USER */
+.sidebar.users {
     border-left-width: 1px;
 }
 
-.sidebar.right .header h2{
+.sidebar.users .header h2 {
     font-weight: 600;
 }
 
-.sidebar.right svg {
+.sidebar.users svg {
     display: block;
     margin: 0.5rem;
     width: 1.5rem;
     height: 1.5rem;
 }
 
-.sidebar.right .content {
+.sidebar.users .content {
     display: flex;
     flex-direction: column;
     padding-top: 0.5rem;
@@ -384,7 +407,7 @@ svg {
     height: 100%;
 }
 
-.sidebar.right .content .icon {
+.sidebar.users .content .icon {
     border-radius: 9999px;
     width: 2rem;
     height: 2rem;
@@ -408,14 +431,14 @@ svg {
     display: flex;
     position: relative;
     flex: 1 1 0%;
-    cursor: pointer;
     flex-direction: column;
 }
 
 .rooms .element {
     padding: 0.3rem;
     margin: 0.15rem;
-    border-radius: 5px
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .rooms .separator {
@@ -744,7 +767,7 @@ svg {
 
 
 .voice-profile .user,
-.sidebar.right .content .user,
+.sidebar.users .content .user,
 .status-bloc-1 .user {
     padding-left: 0.75rem;
 }
@@ -753,12 +776,12 @@ svg {
     font-weight: 600;
 }
 
-.sidebar.right .content .user .name {
+.sidebar.users .content .user .name {
     padding-top: 0.25rem;
     font-weight: 500;
 }
 
-.sidebar.right .content .user .status,
+.sidebar.users .content .user .status,
 .status-bloc-1 .user .status {
     font-size: 0.75rem;
     line-height: 1rem;
@@ -1385,5 +1408,5 @@ input[type=file]::file-selector-button {
 }
 
 #setting-message-exemple {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }

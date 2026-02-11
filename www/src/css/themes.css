@@ -205,18 +205,23 @@ body {
 }
 
 /* Sidebars */
-.sidebar.left {
+.sidebar.instances-list ,
+.sidebar.server {
     border-color: var(--pri-bd-color);
     background-color: var(--pri-bg-color);
 }
 
-.sidebar.right {
+.sidebar.users {
     border-color: var(--pri-bd-color);
     background-color: var(--sec-bg-color);
 }
 
 .sidebar .header {
     border-color: var(--pri-bd-color);
+}
+
+.instances .element.active {
+    background-color: var(--pri-active-color);
 }
 
 /* Rooms */
