@@ -154,8 +154,9 @@ export default class Room {
             return;
         }
 
-        if (this.id && document.getElementById(this.id) !== undefined) {
-            document.getElementById(this.id).classList.remove("active");
+        const lastRoom = document.getElementById(this.id);
+        if (this.id && lastRoom) {
+            lastRoom.classList.remove("active");
         }
 
         this.id = id;
