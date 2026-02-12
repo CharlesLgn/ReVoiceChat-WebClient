@@ -63,6 +63,7 @@ export default class ServerController {
         const IMG = document.createElement('img');
         IMG.src = MediaServer.profiles(instance.id);
         IMG.className = "icon";
+        IMG.dataset.id = instance.id;
         BUTTON.appendChild(IMG);
 
         return BUTTON;
@@ -165,7 +166,7 @@ export default class ServerController {
         DIV.className = `${id} user-profile`
         DIV.innerHTML = `
             <div class="relative">
-                <img src="${profilePicture}" alt="PFP" class="icon ring-2" name="user-picture-${id}" />
+                <img src="${profilePicture}" alt="PFP" class="icon ring-2" data-id="${id}" name="user-picture-${id}" />
                 <div id="dot-${id}" class="user-dot ${statusToDotClassName(status)}"></div>
             </div>
             <div class="user">

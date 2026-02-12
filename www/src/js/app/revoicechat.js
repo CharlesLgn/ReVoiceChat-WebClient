@@ -114,6 +114,13 @@ export default class ReVoiceChat {
     userSettings() {
         return this.user.settings
     }
+
+    /** @param {import('./types.js').ProfilPictureUpdate} data */
+    updateAllPicture(data) {
+        for (const picture of document.querySelectorAll(`img[data-id="${data.id}"]`)) {
+            picture.src = MediaServer.profiles(data.id);
+        }
+    }
 }
 
 class SSEHandlers {
@@ -138,7 +145,8 @@ class SSEHandlers {
             'EMOTE_UPDATE': () => reloadEmojis(),
             'RISK_MANAGEMENT': () => this.server.settings.riskModify(),
             'STREAM_START': (data) => this.room.voiceController?.streamController?.joinModal(data),
-            'STREAM_STOP': (data) => this.room.voiceController?.streamController?.leave(data)
+            'STREAM_STOP': (data) => this.room.voiceController?.streamController?.leave(data),
+            'PROFIL_PICTURE_UPDATE': (data) => this.context.updateAllPicture(data)
         };
     }
 

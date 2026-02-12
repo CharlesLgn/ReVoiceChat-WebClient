@@ -42,7 +42,7 @@ export class ServerSettingsMemberController {
 
         DIV.innerHTML = `
             <div class="relative">
-                <img src="${profilePicture}" alt="PFP" class="icon ring-2" />
+                <img src="${profilePicture}" alt="PFP" class="icon ring-2" data-id="${data.id}" />
             </div>
             <div class="user">
                 <div class="name" id="user-name">${data.displayName}<div>

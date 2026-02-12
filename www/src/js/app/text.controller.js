@@ -487,6 +487,7 @@ export default class TextController {
         picture.src = MediaServer.profiles(messageData.user.id);
         picture.alt = "PFP"
         picture.className = "icon ring-2"
+        picture.dataset.id = messageData.user.id
         MESSAGE.appendChild(picture);
     }
 

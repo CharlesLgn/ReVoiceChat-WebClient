@@ -159,6 +159,7 @@ export default class UserSettingsController {
         document.getElementById("setting-user-uuid").innerText = this.#user.id;
         document.getElementById("overview-displayname").value = this.#user.displayName;
         document.getElementById("setting-user-picture").src = MediaServer.profiles(this.#user.id);
+        document.getElementById("setting-user-picture").dataset.id = this.#user.id;
 
         const settingUserPictureNewPath = document.getElementById("overview-picture");
         const settingUserPictureNewFile = document.getElementById("overview-picture-new");

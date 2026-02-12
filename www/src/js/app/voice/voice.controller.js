@@ -237,7 +237,7 @@ export default class VoiceController {
         DIV.innerHTML = `
             <div class='block-user gate' id='voice-gate-${userId}'>
                 <div class='relative'>
-                    <img src='${profilePicture}' alt='PFP' class='icon' name='user-picture-${userId}'/>
+                    <img src='${profilePicture}' alt='PFP' class='icon' data-id="${userId}" name='user-picture-${userId}'/>
                 </div>
                 <div class='user'>
                     <div class='name' name='user-name-${userId}'>${userData.displayName}</div>

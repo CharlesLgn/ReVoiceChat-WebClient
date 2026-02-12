@@ -141,6 +141,7 @@ async function initCustomUser(picker) {
     initCustomEmojiCategory(picker, '01. custom_perso',
         `<img class="emoji ${RVC.user.id}"
                    src="${MediaServer.profiles(RVC.user.id)}"
+                   data-id="${RVC.user.id}"
                    style="border-radius: 9999px;"
                    alt="user-emote"/>`,
         Array.from(emojis).map(emoji => {

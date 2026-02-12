@@ -28,6 +28,7 @@ export default class UserController {
             document.getElementById("user-status").innerText = result.status;
             document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
             document.getElementById("user-picture").src = MediaServer.profiles(result.id);
+            document.getElementById("user-picture").dataset.id = result.id;
         }
     }
 
