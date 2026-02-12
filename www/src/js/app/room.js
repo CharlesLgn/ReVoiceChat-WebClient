@@ -46,9 +46,21 @@ export default class Room {
                 this.#select(this.id, this.name, this.type);
             }
             else {
-                const key = Object.keys(rooms)[0];
-                const room = rooms[key];
+                const firstRoomId = this.#firstRoomInStructure(structResult.items);
+                const room = rooms[firstRoomId];
                 this.#select(room.id, room.name, room.type);
+            }
+        }
+    }
+
+    #firstRoomInStructure(structure){
+        for (const item of structure) {
+            if (item.type === 'CATEGORY') {
+                return this.#firstRoomInStructure(item.items);
+            }
+
+            if (item.type === 'ROOM') {
+                return item.id;
             }
         }
     }
