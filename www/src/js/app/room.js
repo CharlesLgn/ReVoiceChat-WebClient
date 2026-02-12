@@ -75,8 +75,14 @@ export default class Room {
         for (const item of data) {
             if (item.type === 'CATEGORY') {
                 const category = /** @type {ServerCategory} */ (item)
-                roomList.appendChild(this.#roomCreateSeparator(category));
-                await this.#create(roomList, roomData, category.items)
+
+                const DETAILS = document.createElement('details');
+                DETAILS.open = true;
+                const SUMMARY = document.createElement('summary');
+                SUMMARY.innerText = category.name;
+                DETAILS.appendChild(SUMMARY);
+                await this.#create(DETAILS, roomData, category.items)
+                roomList.appendChild(DETAILS);
             }
 
             if (item.type === 'ROOM') {
