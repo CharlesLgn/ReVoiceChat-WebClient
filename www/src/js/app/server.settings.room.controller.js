@@ -139,6 +139,23 @@ export class ServerSettingsRoomController {
     }
 
     /**
+     * @param {string} idi
+     * @return {Promise<void>}
+     */
+    async #roomRisksEdit(id) {
+        const data = this.#roomsData[id];
+        this.#popupData.name = data.name;
+
+        Modal.toggle({
+            title: i18n.translateOne("server.structure.room.edit", [data.name]),
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: i18n.translateOne("modal.edit"),
+            html: `<revoice-server-roles server-id="${this.serverSettings.server.id}" entity="${id}"></revoice-server-roles>`
+        }).then(async () => {/* do nothing */});
+    }
+
+    /**
      * @param {ServerRoom} item
      * @return {Promise<void>}
      */
@@ -374,6 +391,7 @@ export class ServerSettingsRoomController {
                     <span class="server-structure-item-id">${room.id}</span>
                 </div>
                 <div class="server-structure-item-actions">
+                    <button class="server-structure-btn btn-edit-risks ${updateHidden}" data-item='${JSON.stringify(item)}'><revoice-icon-role class="size-smaller"></revoice-icon-role></button>
                     <button class="server-structure-btn btn-edit ${updateHidden}" data-item='${JSON.stringify(item)}'><revoice-icon-pencil class="size-smaller"></revoice-icon-pencil></button>
                     <button class="server-structure-btn btn-delete ${deleteHidden}" data-item='${JSON.stringify(item)}' data-parent='${JSON.stringify(parentItems)}'><revoice-icon-trash class="size-smaller"></revoice-icon-trash></button>
                 </div>`;
@@ -396,9 +414,13 @@ export class ServerSettingsRoomController {
         }
 
         const editBtn = headerDiv.querySelector('.btn-edit');
+        const editRisksBtn = headerDiv.querySelector('.btn-edit-risks');
         const deleteBtn = headerDiv.querySelector('.btn-delete');
 
         editBtn.onclick = (e) => this.#editServerItem(e, item);
+        if (editRisksBtn) {
+            editRisksBtn.onclick = (e) => this.#editRisks(e, item);
+        }
         deleteBtn.onclick = (e) => this.#deleteServerItem(e, item, parentItems);
 
         if (item.type === 'CATEGORY') {
@@ -474,6 +496,20 @@ export class ServerSettingsRoomController {
                 const serverCategory = /** @type {ServerCategory} */ (item)
                 this.#categoryEdit(serverCategory);
                 break;
+            }
+        }
+    }
+
+    #editRisks(e, item) {
+        e.stopPropagation();
+        switch (item.type) {
+            case 'ROOM': {
+                const serverRoom = /** @type {ServerRoom} */ (item)
+                void this.#roomRisksEdit(serverRoom.id);
+                break;
+            }
+            case 'CATEGORY': {
+                throw new Error("category has currently no risks")
             }
         }
     }

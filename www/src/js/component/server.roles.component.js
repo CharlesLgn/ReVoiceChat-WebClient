@@ -1,4 +1,4 @@
-import { i18n } from "../lib/i18n.js";
+import {i18n} from "../lib/i18n.js";
 import MediaServer from "../app/media/media.server.js";
 import CoreServer from "../app/core/core.server.js";
 import Modal from "./modal.component.js";
@@ -7,7 +7,7 @@ class ServerRolesWebComponent extends HTMLElement {
 
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
+        this.attachShadow({mode: 'open'});
         this.serverId = null
     }
 
@@ -68,7 +68,10 @@ class ServerRolesWebComponent extends HTMLElement {
     }
 
     async updateRoleRisk(roleId, riskName, status) {
-        await CoreServer.fetch(`/role/${roleId}/risk/${riskName}`, 'PATCH', status.toUpperCase());
+        await CoreServer.fetch(`/role/${roleId}/risk/${riskName}`, 'PATCH', {
+            mode: status.toUpperCase(),
+            entity: this.#entity
+        });
     }
 
     render() {
@@ -77,7 +80,7 @@ class ServerRolesWebComponent extends HTMLElement {
             <link href="src/css/emoji.css" rel="stylesheet" />
             <link href="src/css/themes.css" rel="stylesheet" />
             <link href="src/js/component/server.roles.component.css" rel="stylesheet" />
-            <div class="config config-right">            
+            <div class="config">            
                 <div class="role-settings-main">
                     <div class="role-settings-sidebar">
                         <div class="config-buttons">
@@ -152,10 +155,8 @@ class ServerRolesWebComponent extends HTMLElement {
             </div>
 
             <div class="config-section" id="auth-section">
-                <div class="risk-big-category-header">Risk specific for server</div>
-                ${this.availableServerRisks.map(category => this.#renderRisk(category, role)).join('')}
-                <div class="risk-big-category-header">Risk specific for room</div>
-                ${this.availableRoomRisks.map(category => this.#renderRisk(category, role)).join('')}
+                ${this.#renderServerCategory(role)}
+                ${this.#renderRoomCategory(role)}
             </div>
 
             <div class="config-section hidden" id="members-section">
@@ -203,6 +204,20 @@ class ServerRolesWebComponent extends HTMLElement {
             const member = users[memberId]
             memberList.appendChild(this.#memberItemList(member, role.id));
         }
+    }
+
+    #renderServerCategory(role) {
+        if (this.#entity === null) {
+            return `<div class="risk-big-category-header">Risk specific for server</div>
+                    ${this.availableServerRisks.map(category => this.#renderRisk(category, role)).join('')}`;
+        } else {
+            return ""
+        }
+    }
+
+    #renderRoomCategory(role) {
+        return `<div class="risk-big-category-header">Risk specific for room</div>
+                ${this.availableRoomRisks.map(category => this.#renderRisk(category, role)).join('')}`;
     }
 
     #renderRisk(category, role) {
@@ -324,7 +339,7 @@ class ServerRolesWebComponent extends HTMLElement {
                 const name = document.getElementById('roleName').value;
                 const color = document.getElementById('roleColor').value;
                 const priority = document.getElementById('rolePriority').value;
-                return { name: name, color: color, priority: Number.parseInt(priority) };
+                return {name: name, color: color, priority: Number.parseInt(priority)};
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
@@ -428,6 +443,14 @@ class ServerRolesWebComponent extends HTMLElement {
         errorDiv.textContent = i18n.translateOne(keyMessage);
         roleDetails.prepend(errorDiv);
         setTimeout(() => errorDiv.remove(), 3000);
+    }
+
+    get #entity() {
+        const entity = this.getAttribute("entity");
+        if (entity === "") {
+            return null;
+        }
+        return entity;
     }
 }
 
