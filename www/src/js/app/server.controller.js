@@ -1,5 +1,5 @@
 import ServerSettingsController from "./server.settings.controller.js";
-import { statusToDotClassName } from "../lib/tools.js";
+import { statusToColor } from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 
@@ -168,7 +168,7 @@ export default class ServerController {
         DIV.innerHTML = `
             <div class="relative">
                 <img src="${profilePicture}" alt="PFP" class="icon ring-2" data-id="${id}" name="user-picture-${id}" />
-                <div id="dot-${id}" class="user-dot ${statusToDotClassName(status)}"></div>
+                <revoice-dot name="dot-${id}" type="status" color="${statusToColor(status)}"></revoice-dot>
             </div>
             <div class="user">
                 <h2 class="name" name="user-name-${id}">${name}</h2>

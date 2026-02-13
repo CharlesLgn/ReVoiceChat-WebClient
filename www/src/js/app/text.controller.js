@@ -201,6 +201,9 @@ export default class TextController {
         switch (data.action) {
             case "ADD":
                 room.content.appendChild(this.create(message));
+                if (!document.getElementById(data.message.roomId).classList.contains('active')) {
+                    document.getElementById(`room-extension-dot-${data.message.roomId}`).classList.remove('hidden');
+                }
                 break;
             case "MODIFY":
                 document.getElementById(message.id).replaceWith(this.#createContent(message));

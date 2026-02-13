@@ -161,6 +161,12 @@ export default class Room {
             root.appendChild(users);
 
             void this.voiceController.showJoinedUsers(room.id);
+        } else if (room.type === "TEXT") {
+            extension.innerHTML = `<revoice-dot id="room-extension-dot-${room.id}"
+                                                type="notification"
+                                                class="hidden"
+                                                style="margin: auto;">
+                                   </revoice-dot>`;
         }
 
         return root;
@@ -204,6 +210,7 @@ export default class Room {
         document.getElementById("text-container").classList.remove('hidden');
         document.getElementById("text-input").placeholder = `Send a message in ${this.name}`;
         document.getElementById("text-input").focus();
+        document.getElementById(`room-extension-dot-${this.id}`).classList.add('hidden');
 
         // Keep voice controls if voiceCall is active
         if(!this.voiceController.isCallActive()){

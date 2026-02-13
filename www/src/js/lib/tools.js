@@ -199,17 +199,17 @@ function humanFileSize(bytes, si = false, dp = 1) {
  * @param {string} status User status
  * @returns {"background-green"|"background-orange"|"background-red"|"background-gray"} Corresponding className
  */
-function statusToDotClassName(status) {
+function statusToColor(status) {
     switch (status) {
         case "ONLINE":
-            return "background-green";
+            return "green";
         case "AWAY":
-            return "background-orange";
+            return "orange";
         case "DO_NOT_DISTURB":
-            return "background-red";
+            return "red";
         case "INVISIBLE":
         default:
-            return "background-gray";
+            return "gray";
     }
 }
 
@@ -237,6 +237,6 @@ export {
     eraseCookie,
     copyToClipboard,
     humanFileSize,
-    statusToDotClassName,
+    statusToColor,
     apiFetch,
 };

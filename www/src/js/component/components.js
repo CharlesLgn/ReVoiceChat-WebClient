@@ -1,3 +1,4 @@
+import './dot.component.js';
 import './icon.component.js';
 import './emoji.component.js';
 import './emoji.manager.component.js';

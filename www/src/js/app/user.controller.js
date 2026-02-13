@@ -1,5 +1,5 @@
 import UserSettingsController from "./user.settings.controller.js";
-import {eraseCookie, statusToDotClassName} from "../lib/tools.js";
+import {eraseCookie, statusToColor} from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 
@@ -26,7 +26,7 @@ export default class UserController {
             document.getElementById("status-container").classList.add(result.id);
             document.getElementById("user-name").innerText = result.displayName;
             document.getElementById("user-status").innerText = result.status;
-            document.getElementById("user-dot").className = `user-dot ${statusToDotClassName(result.status)}`;
+            document.getElementById('user-dot').setAttribute('color', statusToColor(result.status));
             document.getElementById("user-picture").src = MediaServer.profiles(result.id);
             document.getElementById("user-picture").dataset.id = result.id;
         }
@@ -62,16 +62,16 @@ export default class UserController {
         const id = data.userId;
         const status = data.status;
 
-        const className = `user-dot ${statusToDotClassName(status)}`;
+        const color = statusToColor(status);
 
         // Static elements for self
         if(this.id === id){
-            document.getElementById('user-dot').className = className;
+            document.getElementById('user-dot').setAttribute('color', color);
         }
 
         // Dynamic elements
-        for(const dot of document.getElementsByName(`user-dot-${id}`)){
-            dot.className = className;
+        for(const dot of document.getElementsByName(`dot-${id}`)){
+            dot.setAttribute('color', color);
         }
     }
 
