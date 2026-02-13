@@ -225,13 +225,17 @@ body {
 }
 
 /* Rooms */
-.rooms .separator,
+.rooms summary,
 .rooms .element {
     border-color: var(--pri-bd-color);
 }
 
-.rooms .separator {
+.rooms summary {
     font-weight: 600;
+}
+
+.rooms summary:hover {
+    color: var(--pri-text-color);
 }
 
 .rooms .element:hover {

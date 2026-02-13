@@ -441,9 +441,10 @@ svg {
     cursor: pointer;
 }
 
-.rooms .separator {
+.rooms summary {
     padding: 0.5rem;
     min-width: 0;
+    cursor: pointer;
 }
 
 .rooms .users {
