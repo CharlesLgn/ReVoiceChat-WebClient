@@ -46,8 +46,6 @@ export default class ServerController {
         instancesList.appendChild(this.#currentJoinInstanceElement());
         instancesList.appendChild(this.#createDiscorverInstanceElement());
 
-        console.log(this.user)
-        console.log(this.user.isAdmin())
         if (this.user.isAdmin()) {
             instancesList.appendChild(this.#createCreateInstanceElement());
         }
