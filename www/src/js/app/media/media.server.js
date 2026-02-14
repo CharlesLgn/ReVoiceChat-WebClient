@@ -33,6 +33,15 @@ export default class MediaServer {
      * @param {number} t
      * @return {string}
      */
+    static serverProfiles(id, t = Date.now()) {
+        return `${MediaServer.#instance.url}/profiles/server/${id}?t=${t}`
+    }
+
+    /**
+     * @param {string} id
+     * @param {number} t
+     * @return {string}
+     */
     static emote(id, t = Date.now()) {
         return `${MediaServer.#instance.url}/emote/${id}?t=${t}`
     }
