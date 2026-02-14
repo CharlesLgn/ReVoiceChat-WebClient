@@ -1,5 +1,5 @@
 import TextController from './text.controller.js';
-import VoiceController  from './voice/voice.controller.js';
+import VoiceController from './voice/voice.controller.js';
 import CoreServer from "./core/core.server.js";
 
 export default class Room {
@@ -48,12 +48,14 @@ export default class Room {
             else {
                 const firstRoomId = this.#firstRoomInStructure(structResult.items);
                 const room = rooms[firstRoomId];
-                this.#select(room.id, room.name, room.type);
+                if (room) {
+                    this.#select(room.id, room.name, room.type);
+                }
             }
         }
     }
 
-    #firstRoomInStructure(structure){
+    #firstRoomInStructure(structure) {
         for (const item of structure) {
             if (item.type === 'CATEGORY') {
                 return this.#firstRoomInStructure(item.items);
@@ -213,7 +215,7 @@ export default class Room {
         document.getElementById(`room-extension-dot-${this.id}`).classList.add('hidden');
 
         // Keep voice controls if voiceCall is active
-        if(!this.voiceController.isCallActive()){
+        if (!this.voiceController.isCallActive()) {
             document.getElementById("voice-control-panel").classList.add('hidden');
         }
 
