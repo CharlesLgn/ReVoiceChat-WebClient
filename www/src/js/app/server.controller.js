@@ -38,16 +38,16 @@ export default class ServerController {
         // Create instances list
         const instancesList = document.getElementById('instances');
         for (const instance of result) {
-            const element = await this.#createInstanceElement(instance);
+            const element = await this.#instanceElement(instance);
             if (element) {
                 instancesList.appendChild(element);
             }
         }
-        instancesList.appendChild(this.#currentJoinInstanceElement());
-        instancesList.appendChild(this.#createDiscorverInstanceElement());
+        instancesList.appendChild(this.#joinInstanceElement());
+        instancesList.appendChild(this.#discorverInstanceElement());
 
         if (this.user.isAdmin()) {
-            instancesList.appendChild(this.#createCreateInstanceElement());
+            instancesList.appendChild(this.#createInstanceElement());
         }
 
         // Select default server
@@ -68,7 +68,7 @@ export default class ServerController {
         }
     }
 
-    async #createInstanceElement(instance) {
+    async #instanceElement(instance) {
         if (instance === undefined || instance === null) {
             return;
         }
@@ -89,7 +89,7 @@ export default class ServerController {
         return BUTTON;
     }
 
-    #currentJoinInstanceElement() {
+    #joinInstanceElement() {
         const BUTTON = document.createElement('button');
 
         BUTTON.className = "element";
@@ -103,7 +103,7 @@ export default class ServerController {
         return BUTTON;
     }
 
-    #createDiscorverInstanceElement() {
+    #discorverInstanceElement() {
         const BUTTON = document.createElement('button');
 
         BUTTON.className = "element";
@@ -117,7 +117,7 @@ export default class ServerController {
         return BUTTON;
     }
 
-    #createCreateInstanceElement() {
+    #createInstanceElement() {
         const BUTTON = document.createElement('button');
 
         BUTTON.className = "element";
