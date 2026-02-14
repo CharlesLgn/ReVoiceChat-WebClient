@@ -169,7 +169,7 @@ export default class ServerController {
             <form class='popup'>
                 <div>
                     <select id='modal-serverId'>
-                        <option value=null selected disabled> - Select a server - </option>
+                        <option value='' selected disabled>${i18n.translateOne("server.join.select")}</option>
                     </select>
                 </div>
             </form>`,
@@ -186,7 +186,7 @@ export default class ServerController {
                 }
             }
         }).then(async (result) => {
-            if (result.isConfirmed) {
+            if (result.isConfirmed && this.#popupData) {
                 await CoreServer.fetch(`/server/${this.#popupData}/join/`, 'POST');
             }
         });
