@@ -189,6 +189,7 @@ export default class UserSettingsController {
             focusConfirm: false,
             confirmButtonText: i18n.translateOne("modal.save"),
             allowOutsideClick: false,
+            width: "30rem",
             html: `
             <form id="popup-new-password-form" class='popup'>
                 <label data-i18n="user.password.current">Current password</label>

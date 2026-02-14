@@ -3,6 +3,7 @@
  *   title: string,
  *   text: string,
  *   html: string,
+ *   width: string,
  *   showCancelButton: boolean,
  *   confirmButtonText: string,
  *   confirmButtonClass: string,
@@ -22,6 +23,8 @@ class ModalOptions {
     text;
     /** @type string */
     html;
+    /** @type string */
+    width;
     /** @type boolean */
     showCancelButton;
     /** @type string */
@@ -46,6 +49,7 @@ class ModalOptions {
         modalOptions.title = options.title
         modalOptions.text = options.text
         modalOptions.html = options.html
+        modalOptions.width = options.width
         modalOptions.showCancelButton = options.showCancelButton
         modalOptions.confirmButtonText = options.confirmButtonText
         modalOptions.confirmButtonClass = options.confirmButtonClass
@@ -146,6 +150,14 @@ export default class Modal {
                 }
             } else {
                 iconEl.style.display = 'none';
+            }
+
+            // Set width
+            if (options.width) {
+                this.dialog.querySelector('.dialog-content').style.width = options.width;
+            }
+            else{
+                this.dialog.querySelector('.dialog-content').style.width = "auto";
             }
 
             // Set title

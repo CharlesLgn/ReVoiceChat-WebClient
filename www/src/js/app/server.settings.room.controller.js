@@ -85,6 +85,7 @@ export class ServerSettingsRoomController {
             showCancelButton: true,
             focusConfirm: false,
             confirmButtonText: i18n.translateOne("modal.add"),
+            width: "30rem",
             html: `
             <form id="popup-new-room" class='popup'>
                 <label data-i18n="server.structure.room.name">Room name</label>
@@ -123,6 +124,7 @@ export class ServerSettingsRoomController {
             showCancelButton: true,
             focusConfirm: false,
             confirmButtonText: i18n.translateOne("modal.edit"),
+            width: "30rem",
             html: `
             <form id="popup-new-room" class='popup'>
                 <label data-i18n="server.structure.room.name">Room name</label>

@@ -95,7 +95,7 @@ export default class ServerController {
             confirmButtonText: i18n.translateOne("server.join.confirm"),
             showCancelButton: true,
             cancelButtonText: i18n.translateOne("server.join.cancel"),
-            width: "10rem",
+            width: "30rem",
             html: `
             <form class='popup'>
                 <div>
