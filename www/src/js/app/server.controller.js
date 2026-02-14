@@ -228,7 +228,7 @@ export default class ServerController {
                 }
                 const result = await CoreServer.fetch(`/server/`, 'PUT', this.#popupData);
                 if(result){
-                    this.load();
+                    await this.load();
                 }
             }
         });
@@ -245,7 +245,11 @@ export default class ServerController {
             width: "30rem",
         }).then(async (result) => {
             if (result.isConfirmed) {
-                await CoreServer.fetch(`/server/${this.id}`, 'DELETE');
+                if(await CoreServer.fetch(`/server/${this.id}`, 'DELETE')){
+                    this.id = null;
+                    await this.load();
+                    this.router.routeTo('app');
+                }
             }
         });
     }
