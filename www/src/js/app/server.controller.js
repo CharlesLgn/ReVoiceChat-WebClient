@@ -61,6 +61,13 @@ export default class ServerController {
         }
 
         this.settings = new ServerSettingsController(this);
+
+        // Delete button
+        if (this.user.isAdmin()) {
+            const deleteButton = document.getElementById('server-delete');
+            deleteButton.addEventListener('click', () => this.#delete());
+            deleteButton.classList.remove('hidden');
+        }
     }
 
     async #createInstanceElement(instance) {
@@ -216,11 +223,27 @@ export default class ServerController {
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
-                if(!this.#popupData.name){
+                if (!this.#popupData.name) {
                     Modal.toggleError(i18n.translateOne("server.create.error.name"));
                     return;
                 }
                 await CoreServer.fetch(`/server/`, 'PUT', this.#popupData);
+            }
+        });
+    }
+
+    #delete() {
+        Modal.toggle({
+            title: i18n.translateOne("server.delete.title"),
+            focusConfirm: false,
+            confirmButtonText: i18n.translateOne("server.delete.confirm"),
+            confirmButtonClass: "background-red",
+            showCancelButton: true,
+            cancelButtonText: i18n.translateOne("server.create.cancel"),
+            width: "30rem",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await CoreServer.fetch(`/server/${this.id}`, 'DELETE');
             }
         });
     }

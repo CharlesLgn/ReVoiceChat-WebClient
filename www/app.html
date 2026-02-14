@@ -201,7 +201,7 @@
         <stream-context-menu id="stream-context-menu"></stream-context-menu>
     </div>
 
-    <!-- Config Containter -->
+    <!-- Server Settings Containter -->
     <div class="main config hidden" id="route-server-settings">
         <div class="config-container-left">
             <h2 data-i18n="server.settings">Server settings</h2>
@@ -242,6 +242,13 @@
                 <div class="category">
                     <button class="sub-category" id="server-setting-close">
                         <revoice-icon-circle-x></revoice-icon-circle-x> <span data-i18n="common.exit">Exit</span>
+                    </button>
+                </div>
+
+                <!-- Delete -->
+                <div class="category">
+                    <button class="sub-category red background-darkred hidden" id="server-delete">
+                        <revoice-icon-trash></revoice-icon-trash> <span data-i18n="server.delete">Delete</span>
                     </button>
                 </div>
             </div>
