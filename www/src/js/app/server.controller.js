@@ -88,7 +88,7 @@ export default class ServerController {
         const BUTTON = document.createElement('button');
 
         BUTTON.className = "element";
-        BUTTON.title = i18n.translateOne("server.join.title");
+        BUTTON.dataset.i18nTitle = "server.join.title";
         BUTTON.onclick = () => this.#join();
 
         const IMG = document.createElement('revoice-icon-circle-plus');
@@ -102,7 +102,7 @@ export default class ServerController {
         const BUTTON = document.createElement('button');
 
         BUTTON.className = "element";
-        BUTTON.title = i18n.translateOne("server.discover.title");
+        BUTTON.dataset.i18nTitle = "server.discover.title";
         BUTTON.onclick = () => this.#discover();
 
         const IMG = document.createElement('revoice-icon-telescope');
@@ -116,7 +116,7 @@ export default class ServerController {
         const BUTTON = document.createElement('button');
 
         BUTTON.className = "element";
-        BUTTON.title = i18n.translateOne("server.create.title");
+        BUTTON.dataset.i18nTitle = "server.create.title";
         BUTTON.onclick = () => this.#create();
 
         const IMG = document.createElement('revoice-icon-square-plus');
