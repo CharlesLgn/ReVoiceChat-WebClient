@@ -1,6 +1,6 @@
 import Streamer from "./stream.streamer.js";
 import Viewer from "./stream.viewer.js";
-import {i18n} from "../../lib/i18n.js";
+import { i18n } from "../../lib/i18n.js";
 import CoreServer from "../core/core.server.js";
 import ReVoiceChat from "../revoicechat.js";
 import Codec from "../utils/codec.js";
@@ -177,6 +177,16 @@ export default class StreamController {
         const userId = stream.user;
         const streamName = stream.streamName;
 
+        const userExtension = document.getElementById(`voice-user-extension-${userId}`);
+        if (userExtension) {
+            if (streamName === "webcam") {
+                document.getElementById(`voice-user-extension-webcam-${userId}`).classList = "green";
+            }
+            if (streamName === "display") {
+                document.getElementById(`voice-user-extension-display-${userId}`).classList = "green";
+            }
+        }
+
         if (this.#room.voiceController.getActiveRoom() && this.#user.id != userId && !this.#viewer[`${userId}-${streamName}`]) {
             const displayName = (await CoreServer.fetch(`/user/${userId}`)).displayName;
             const streamContainter = document.getElementById('stream-container');
@@ -236,6 +246,16 @@ export default class StreamController {
     async leave(stream) {
         const userId = stream.user;
         const streamName = stream.name;
+
+        const userExtension = document.getElementById(`voice-user-extension-${userId}`);
+        if (userExtension) {
+            if (streamName === "webcam") {
+                document.getElementById(`voice-user-extension-webcam-${userId}`).classList = "hidden";
+            }
+            if (streamName === "display") {
+                document.getElementById(`voice-user-extension-display-${userId}`).classList = "hidden";
+            }
+        }
 
         if (this.#room.voiceController.getActiveRoom() && userId != this.#user.id) {
             if (this.#viewer[`${userId}-${streamName}`]) {

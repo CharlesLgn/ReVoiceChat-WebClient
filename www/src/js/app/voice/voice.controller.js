@@ -5,6 +5,7 @@ import MediaServer from "../media/media.server.js";
 import CoreServer from "../core/core.server.js";
 import ReVoiceChat from "../revoicechat.js";
 import Modal from "../../component/modal.component.js";
+import { i18n } from "../../lib/i18n.js";
 
 export default class VoiceController {
     /** @type {VoiceCall|null} */
@@ -221,15 +222,33 @@ export default class VoiceController {
         const userId = userData.id;
         const profilePicture = MediaServer.profiles(userId);
 
+        // Extension
         const extension = document.createElement('div');
         extension.className = "extension";
         extension.id = `voice-user-extension-${userId}`;
 
+        // Extension : Webcam
+        const extensionWebcam = document.createElement('revoice-icon-camera');
+        extensionWebcam.id = `voice-user-extension-webcam-${userId}`;
+        extensionWebcam.className = "hidden";
+        extensionWebcam.dataset.i18nTitle = "voice.extention.webcam";
+        extension.appendChild(extensionWebcam);
+
+        // Extension : Display
+        const extensionDisplay = document.createElement('revoice-icon-display');
+        extensionDisplay.id = `voice-user-extension-display-${userId}`;
+        extensionDisplay.className = "hidden";
+        extensionWebcam.dataset.i18nTitle = "voice.extention.display"
+        extension.appendChild(extensionDisplay);
+
+        // Extension : Mute
+        const extensionMute = document.createElement('revoice-icon-speaker-x');
+        extensionMute.id = `voice-user-extension-mute-${userId}`;
+        extensionMute.className = "hidden";
+        extensionWebcam.dataset.i18nTitle = "voice.extention.mute"
+        extension.appendChild(extensionMute);
         if (this.#user.settings.voice.users[userId]?.muted) {
-            const userMuted = document.createElement("div");
-            userMuted.innerHTML = "<revoice-icon-speaker-x></revoice-icon-speaker-x>";
-            userMuted.className = "red";
-            extension.appendChild(userMuted);
+            extensionMute.className = "red";
         }
 
         const DIV = document.createElement('div');
@@ -291,15 +310,12 @@ export default class VoiceController {
     updateUserExtension(userId) {
         const userExtension = document.getElementById(`voice-user-extension-${userId}`);
         if (userExtension) {
-            userExtension.innerHTML = "";
-
             // User muted
             if (this.#user.settings.voice.users[userId]?.muted) {
-                const userMuted = document.createElement("div");
-                userMuted.name = "extension-mute";
-                userMuted.innerHTML = "<revoice-icon-speaker-x></revoice-icon-speaker-x>";
-                userMuted.className = "red";
-                userExtension.appendChild(userMuted);
+                document.getElementById(`voice-user-extension-mute-${userId}`).classList = "red";
+            }
+            else{
+                document.getElementById(`voice-user-extension-mute-${userId}`).classList = "hidden";
             }
         }
     }
