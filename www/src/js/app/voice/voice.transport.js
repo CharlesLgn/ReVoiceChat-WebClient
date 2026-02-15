@@ -2,8 +2,7 @@
  * Voice Transport
  * Structure :
  * [  4 bytes ] Timestamp (uint32)
- * [  1 byte  ] User type
- * [  1 byte  ] User gate
+ * [  1 byte  ] User info ([1]Type; [2]Gate)
  * [ 36 bytes ] User ID
  * [  4 bytes ] Payload length (uint32)
  * [  X bytes ] Payload (voice)
@@ -15,7 +14,7 @@ export class EncodedVoice {
     data;
 
     constructor(timestamp, userId, userGateState, userType, audioData){
-        const headerSize = 4 + 1 + 1 + 36 + 4;
+        const headerSize = 4 + 1 + 36 + 4;
         const buffer = new ArrayBuffer(headerSize + audioData.byteLength);
         const view = new DataView(buffer);
         let offset = 0;
@@ -24,11 +23,11 @@ export class EncodedVoice {
         view.setUint32(offset, Number.parseInt(timestamp / 1000), true);
         offset += 4;
 
-        // User type
-        view.setUint8(offset++, userType);
-
-        // User gate
-        view.setUint8(offset++, userGateState);
+        // User info
+        let userInfo = 0;
+        userInfo += userType ? 1 : 0;
+        userInfo += userGateState ? 2 : 0;
+        view.setUint8(offset++, userInfo);
 
         // User ID
         new Uint8Array(buffer, offset, 36).set(new TextEncoder().encode(userId))
@@ -64,11 +63,10 @@ export class DecodedVoice {
         this.timestamp = view.getUint32(offset, true);
         offset += 4;
 
-        // User type
-        this.user.type = view.getUint8(offset++);
-
-        // User gate
-        this.user.gateState = view.getUint8(offset++);
+        // User info
+        const userInfo = view.getUint8(offset++);
+        this.user.type = (userInfo & 1) == 1;
+        this.user.gateState = (userInfo & 2) == 2;
 
         // User ID
         this.user.id = new TextDecoder().decode(
