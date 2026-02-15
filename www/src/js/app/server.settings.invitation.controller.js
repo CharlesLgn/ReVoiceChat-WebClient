@@ -42,6 +42,9 @@ export class ServerSettingsInvitationController {
                 if (invitation.status === 'CREATED') {
                     list.appendChild(this.#invitationCreateItem(invitation));
                 }
+                if (invitation.status === 'PERMANENT') {
+                    list.appendChild(this.#invitationCreateItem(invitation, "(PERMANENT)"));
+                }
             }
         }
     }
@@ -49,24 +52,40 @@ export class ServerSettingsInvitationController {
     async #invitationCreate() {
         const serverId = this.serverSettings.server.id;
 
-        /** @type {InvitationRepresentation} */
-        const result = await CoreServer.fetch(`/invitation/server/${serverId}`, 'POST');
-        
-        if (result.status === "CREATED") {
-            void this.#invitationLoad();
-            await Modal.toggle({
-                title: `New invitation`,
-                html: `<input class='modal-input' type='text' value='${result.id}' readonly>`,
-                showCancelButton: false,
-            })
-        }
+        let invitationCategory = 'UNIQUE'
+        Modal.toggle({
+            title: i18n.translateOne("server.invitation.new"),
+            focusConfirm: false,
+            confirmButtonText: i18n.translateOne("server.join.confirm"),
+            showCancelButton: true,
+            cancelButtonText: i18n.translateOne("server.join.cancel"),
+            width: "30rem",
+            html: `
+            <form class='popup'>
+                <select id='modal-serverId'>
+                    <option value='UNIQUE'    data-i18n="server.invitation.category.unique" selected>unique</option>
+                    <option value='PERMANENT' data-i18n="server.invitation.category.permanent">permanent</option>
+                </select>
+            </form>`,
+            didOpen: async () => {
+                const select = document.getElementById('modal-serverId');
+                select.oninput = () => { invitationCategory = select.value };
+                i18n.translatePage(document.getElementById("modal-serverId"))
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await CoreServer.fetch(`/invitation/server/${serverId}?category=${invitationCategory}`, 'POST');
+                void this.#invitationLoad();
+            }
+        });
     }
 
     /**
      * @param {InvitationRepresentation} data
+     * @param {string} additional
      * @return {HTMLDivElement}
      */
-    #invitationCreateItem(data) {
+    #invitationCreateItem(data, additional = "") {
         const DIV = document.createElement('div');
         DIV.id = data.id;
         DIV.className = "config-item";
@@ -74,7 +93,7 @@ export class ServerSettingsInvitationController {
         // Name
         const DIV_NAME = document.createElement('div');
         DIV_NAME.className = "name invitation";
-        DIV_NAME.innerText = `${data.id}`;
+        DIV_NAME.innerText = `${data.id} ${additional}`;
         DIV.appendChild(DIV_NAME);
 
         // Context menu
