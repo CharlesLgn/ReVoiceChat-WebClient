@@ -1,4 +1,4 @@
-import {i18n} from "../lib/i18n.js";
+import { i18n } from "../lib/i18n.js";
 import MediaServer from "../app/media/media.server.js";
 import CoreServer from "../app/core/core.server.js";
 import Modal from "./modal.component.js";
@@ -103,10 +103,13 @@ class EmojiManager extends HTMLElement {
         this.shadowRoot.getElementById('nameError').textContent = '';
 
         // Validate
-        const nameError = i18n.translateOne(this.validateName(nameInput.value));
-        if (nameError) {
-            this.shadowRoot.getElementById('nameError').textContent = nameError;
-            return;
+        const validate = this.validateName(nameInput.value);
+        if (validate) {
+            const nameError = i18n.translateOne(validate);
+            if (nameError) {
+                this.shadowRoot.getElementById('nameError').textContent = nameError;
+                return;
+            }
         }
 
         if (!fileInput.files[0]) {
@@ -130,10 +133,10 @@ class EmojiManager extends HTMLElement {
         try {
             /** @type {EmoteRepresentation} */
             const emojiData = await CoreServer.fetch(`/emote/${this.path}`, 'PUT', {
-                    fileName: file.name,
-                    content: nameInput.value.trim(),
-                    keywords: keywords
-                }
+                fileName: file.name,
+                content: nameInput.value.trim(),
+                keywords: keywords
+            }
             );
             const formData = new FormData();
             formData.append('file', file);
