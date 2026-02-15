@@ -25,14 +25,14 @@ export default class ServerSettingsController {
         this.emote = new ServerSettingsEmoteController(this)
         this.invitation = new ServerSettingsInvitationController(this)
         this.role = new ServerSettingsRoleController(this)
-        document.getElementById('server-setting-open').addEventListener('click', () => this.load());
+        document.getElementById('server-setting-open').addEventListener('click', async () => await this.load());
         if (Router.getState() === Router.SERVER_SETTINGS) {
             this.load()
         }
     }
 
-    load() {
-        this.#loadRisks();
+    async load() {
+        await this.#loadRisks();
         this.overview.load();
         this.member.load();
     }

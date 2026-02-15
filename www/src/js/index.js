@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         switchToRegister();
     }
 
-    void i18n.translate("en");
+    await i18n.translate("en");
 
     document.getElementById("register-host").onchange = () => { getHostSettings() }
     document.getElementById("login-button").onclick = userLogin
