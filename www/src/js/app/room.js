@@ -19,6 +19,11 @@ export default class Room {
         this.voiceController = new VoiceController(user, this);
     }
 
+    attachEvents(){
+        this.textController.attachEvents();
+        this.voiceController.attachEvents();
+    }
+
     /**
      * @param {string} serverId
      * @return {Promise<void>}

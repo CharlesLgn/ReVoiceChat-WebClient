@@ -33,6 +33,8 @@ export default class UserController {
             document.getElementById("user-picture").src = MediaServer.profiles(result.id);
             document.getElementById("user-picture").dataset.id = result.id;
         }
+
+        await this.settings.load();
     }
 
     /** @param {UserRepresentation} data */
