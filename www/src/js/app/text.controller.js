@@ -153,13 +153,13 @@ export default class TextController {
         this.#cachedRooms = {}
     }
 
-    async load(roomId) {
+    async load(roomId, reload = false) {
         for (const [, room] of Object.entries(this.#cachedRooms)) {
             room.content.classList.add('hidden');
         }
 
         // Room not loaded in cache yet
-        if (!this.#cachedRooms[roomId]) {
+        if (!this.#cachedRooms[roomId] || reload) {
             /** @type {PageResult<MessageRepresentation>} */
             const result = await CoreServer.fetch(`/room/${roomId}/message`, 'GET');
 
