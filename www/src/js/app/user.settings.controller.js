@@ -69,10 +69,9 @@ export default class UserSettingsController {
             this.#loadLang(storedSettings);
             this.#loadMessageSettings(storedSettings);
         }
-
         document.documentElement.dataset.theme = this.#theme;
 
-        // Load UI
+        // UI
         this.#overviewLoad();
         this.#themeLoadPreviews();
         this.#messageSettingsLoad();
@@ -81,6 +80,7 @@ export default class UserSettingsController {
         this.#audioOutputLoad();
         await LanguageController.loadAvailableLanguage();
     }
+
 
     #loadVoiceSettings(storedSettings) {
         if (storedSettings.voice) {
@@ -309,6 +309,7 @@ export default class UserSettingsController {
         message.updatedDate = null;
         message.medias = [];
         message.emotes = [];
+        message.reactions = [];
         message.user = user;
         return RVC.room.textController.create(message);
     }
