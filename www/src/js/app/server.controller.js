@@ -155,7 +155,9 @@ export default class ServerController {
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
-                await CoreServer.fetch(`/server/join/${this.#popupData}`, 'POST');
+                if(await CoreServer.fetch(`/server/join/${this.#popupData}`, 'POST')){
+                    await this.load();
+                }
             }
         });
     }
@@ -190,7 +192,9 @@ export default class ServerController {
             }
         }).then(async (result) => {
             if (result.isConfirmed && this.#popupData) {
-                await CoreServer.fetch(`/server/${this.#popupData}/join/`, 'POST');
+                if (await CoreServer.fetch(`/server/${this.#popupData}/join/`, 'POST')) {
+                    await this.load();
+                }
             }
         });
     }
@@ -228,8 +232,7 @@ export default class ServerController {
                     Modal.toggleError(i18n.translateOne("server.create.error.name"));
                     return;
                 }
-                const result = await CoreServer.fetch(`/server/`, 'PUT', this.#popupData);
-                if (result) {
+                if (await CoreServer.fetch(`/server/`, 'PUT', this.#popupData)) {
                     await this.load();
                 }
             }
