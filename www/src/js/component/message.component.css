@@ -96,9 +96,18 @@
     font-weight: bold;
 }
 
-.emoji {
+.only-emoji {
+    font-size: 2rem;
+}
+
+.only-emoji .emoji {
     width: 2rem;
     height: 2rem;
+}
+
+.emoji {
+    width: 1rem;
+    height: 1rem;
 }
 
 a.media {
@@ -133,4 +142,39 @@ video.media {
 svg {
     max-height: 24px;
     height: 24px;
+}
+
+.message-reactions {
+    display: flex;
+    column-gap: 0.5rem;
+}
+
+.message-reaction {
+    display: flex;
+    column-gap: 0.5rem;
+    align-items: center;
+    border-radius: 0.6rem;
+    border: var(--pri-bd-color) 1px solid;
+    padding: 0.1rem 0.3rem;
+    font-size: 1rem;
+}
+
+.message-reaction img {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.message-reaction:hover {
+    cursor: pointer;
+    background-color: var(--pri-bg-color);
+}
+
+.message-reaction.self {
+    background-color: var(--pri-bg-color);
+    border-color: var(--pri-button-bg-color);
+    color: var(--pri-button-bg-color);
+}
+
+.message-reaction.self:hover {
+    background-color: var(--pri-button-hover-color);
 }

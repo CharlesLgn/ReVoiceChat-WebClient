@@ -1,4 +1,4 @@
-import { apiFetch } from "../lib/tools.js";
+import {apiFetch} from "../lib/tools.js";
 import MediaServer from "../app/media/media.server.js";
 import CoreServer from "../app/core/core.server.js";
 
@@ -73,12 +73,13 @@ class EmojiPicker {
         }
 
         grid.innerHTML = emojis.map(emoji => {
-            const data = emoji.data ? emoji.data : emoji.content;
-            return `<button class="emoji-item" data-emoji="${data}">${emoji.content}</button>`
+            const data = emoji.data || emoji.content;
+            const emojiId = emoji.id || emoji.content;
+            return `<button class="emoji-item" data-id="${emojiId}" data-emoji="${data}">${emoji.content}</button>`
         }).join('');
 
         for (const item of grid.querySelectorAll('.emoji-item')) {
-            item.onclick = () => this.onEmojiSelect(item.dataset.emoji);
+            item.onclick = () => this.onEmojiSelect(item);
         }
     }
 
@@ -99,6 +100,25 @@ class EmojiPicker {
         searchInput.addEventListener('input', (e) => {
             this.renderEmojis(e.target.value);
         });
+    }
+
+    show(x = 0, y = 0) {
+        const pickerContainer = document.getElementById('emoji-picker');
+        pickerContainer.classList.toggle('show');
+        const w = pickerContainer.offsetWidth;
+        const h = pickerContainer.offsetHeight;
+        const vw = innerWidth;
+        const vh = innerHeight;
+        const left = Math.min(x, vw - w);
+        const top = Math.min(y - 10, vh - h);
+        pickerContainer.style.left = (left - 100) + "px";
+        pickerContainer.style.top = (top - 50) + "px";
+    }
+
+    hide() {
+        const pickerContainer = document.getElementById('emoji-picker');
+        this.onEmojiSelect = null;
+        pickerContainer.classList.remove('show');
     }
 }
 
@@ -165,9 +185,10 @@ function initCustomEmojiCategory(picker, name, icon, emojis) {
     for (const emote of emojis) {
         emojiCategory.emojis.push({
             content: `<img class="emoji" src="${MediaServer.emote(emote.link)}" alt="${emote.content}" title=":${emote.content}:"/>`,
-            data: `:${emote.content}:`,
             description: emote.description,
-            names: emote.names
+            names: emote.names,
+            id: emote.link,
+            data: `:${emote.content}:`
         })
     }
     picker.addCustomEmojiCategory(name, emojiCategory)

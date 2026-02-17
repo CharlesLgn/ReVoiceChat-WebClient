@@ -1,17 +1,22 @@
 import {containsOnlyEmotes} from "../lib/emote.utils.js";
 import MediaServer from "../app/media/media.server.js";
+import CoreServer from "../app/core/core.server.js";
+import {isUUID} from "../lib/string.utils.js";
 
 class MessageComponent extends HTMLElement {
     /** @type string */
     markdown
     /** @type EmoteRepresentation[] */
     emotes
+    /** @type MessageReaction[] */
+    reactions
 
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
+        this.attachShadow({mode: 'open'});
         this.markdown = '';
-        this.emotes   = []
+        this.emotes = []
+        this.reactions = []
     }
 
     static get observedAttributes() {
@@ -44,6 +49,7 @@ class MessageComponent extends HTMLElement {
                         <slot name="medias" style="display: none;"></slot>
                         <slot name="content" style="display: none;"></slot>
                         <slot name="emotes" style="display: none;"></slot>
+                        <slot name="reactions" style="display: none;"></slot>
                     </div>
                 `;
 
@@ -57,6 +63,9 @@ class MessageComponent extends HTMLElement {
             }
             if (e.target.name === 'emotes') {
                 this.#handleSlottedEmotes();
+            }
+            if (e.target.name === 'reactions') {
+                this.#handleSlottedReaction();
             }
         });
     }
@@ -100,6 +109,17 @@ class MessageComponent extends HTMLElement {
         }
     }
 
+    #handleSlottedReaction() {
+        const reactionsSlot = this.shadowRoot.querySelector('slot[name="reactions"]');
+        const slottedElements = reactionsSlot.assignedElements();
+        for (const element of slottedElements) {
+            if (element.tagName === 'SCRIPT' && element.type === 'application/json') {
+                this.reactions = JSON.parse(element.textContent)
+                break;
+            }
+        }
+    }
+
     #hideSlots() {
         this.shadowRoot.querySelector('.container').className = 'container';
     }
@@ -123,6 +143,7 @@ class MessageComponent extends HTMLElement {
         }
         this.#handleSlottedMedias();
         this.#handleSlottedEmotes();
+        this.#handleSlottedReaction();
 
         if (typeof marked === 'undefined') {
             contentDiv.innerHTML = '<p style="color: #ff6b6b;">marked.js library not loaded</p>';
@@ -137,17 +158,19 @@ class MessageComponent extends HTMLElement {
             if (this.markdown) {
                 if (containsOnlyEmotes(this.markdown, this.#emotesNames())) {
                     contentDiv.innerHTML = this.#injectEmojis(this.#removeTags(this.markdown))
-                    contentDiv.style.fontSize = "2rem"
+                    contentDiv.classList.add('only-emoji')
                 } else {
                     contentDiv.innerHTML += this.#injectEmojis(marked.parse(this.#removeTags(this.markdown)));
                 }
             }
 
             this.#renderCodeTemplate(contentDiv);
+
         } catch (error) {
             console.error('Markdown parsing error:', error);
             contentDiv.innerHTML = `<p style="color: #ff6b6b;">Error parsing markdown: ${error.message}</p>`;
         }
+        this.#renderReactions(contentDiv)
     }
 
     #renderCodeTemplate(contentDiv) {
@@ -178,7 +201,7 @@ class MessageComponent extends HTMLElement {
 
     #setupMarked() {
         const renderer = new marked.Renderer();
-        renderer.heading = function ({ tokens: e, depth: t }) {
+        renderer.heading = function ({tokens: e, depth: t}) {
             const text = this.parser.parse(e);
             const DIV = document.createElement('div');
             DIV.innerHTML = text
@@ -186,7 +209,7 @@ class MessageComponent extends HTMLElement {
             p.innerHTML = '#'.repeat(t) + " " + p.innerHTML;
             return p.innerHTML;
         }
-        renderer.link = function ({ href: e, title: t, tokens: n }) {
+        renderer.link = function ({href: e, title: t, tokens: n}) {
             // Allow only http(s), www, or IP-style links
             if (/^(https?:\/\/|www\.|(\d{1,3}\.){3}\d{1,3})/.test(e)) {
                 return `<a href="${e}" target="_blank" rel="noopener noreferrer">${e}</a>`;
@@ -194,7 +217,7 @@ class MessageComponent extends HTMLElement {
             return this.parser.parse(n);
         }
 
-        marked.use({ renderer })
+        marked.use({renderer})
         marked.use({
             breaks: true,
             gfm: true
@@ -216,6 +239,51 @@ class MessageComponent extends HTMLElement {
     /** @return {string[]} */
     #emotesNames() {
         return Array.from(this.emotes).map(item => item.name)
+    }
+
+    #renderReactions(contentDiv) {
+        if (this.reactions.length === 0) {
+            return
+        }
+        const REACTIONS = document.createElement("div")
+        REACTIONS.className = "message-reactions"
+        const printReaction = (element, emoji, number) => {
+            if (number <= 0) {
+                element.remove()
+            } else {
+                element.appendChild(isUUID(emoji) ? this.#emoji(emoji) : this.#span(emoji))
+                element.appendChild(this.#span(number))
+            }
+
+        }
+        for (const reaction of this.reactions) {
+            const self = reaction.users.includes(RVC.user.id);
+            const emoji = document.createElement("div");
+            printReaction(emoji, reaction.emoji, reaction.users.length)
+            emoji.className = `message-reaction ${self ? 'self' : ''}`
+            emoji.onclick = () => {
+                void CoreServer.fetch(`/message/${this.id}/reaction/${reaction.emoji}`, 'POST');
+                printReaction(emoji, reaction.emoji, reaction.users.length + (self ? -1 : 1))
+            }
+            REACTIONS.appendChild(emoji)
+        }
+        contentDiv.appendChild(REACTIONS)
+    }
+
+    /** @param {string} data */
+    #span(data) {
+        const span = document.createElement("span")
+        span.innerText = data
+        return span;
+    }
+
+    /** @param {string} emoji */
+    #emoji(emoji) {
+        const img = document.createElement("img")
+        img.src = MediaServer.emote(emoji)
+        img.className = 'emoji'
+        img.alt = emoji
+        return img;
     }
 }
 
