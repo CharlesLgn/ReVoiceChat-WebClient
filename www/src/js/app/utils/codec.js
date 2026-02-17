@@ -106,6 +106,7 @@ export default class Codec {
             width: null,
             height: null,
             bitrate: null,
+            bitratemode: "variable",
             latencyMode: "realtime",
         }
 

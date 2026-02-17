@@ -139,7 +139,8 @@ export class Demultiplexer {
             decoderConfig: {
                 codec: null,
                 codedHeight: null,
-                codedWidth: null
+                codedWidth: null,
+                optimizeforlatency: true
             },
         }
 
