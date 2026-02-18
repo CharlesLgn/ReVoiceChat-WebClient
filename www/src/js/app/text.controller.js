@@ -124,8 +124,8 @@ export default class TextController {
         element.scrollTop = document.getElementById('cache-container').scrollTop;
     }
 
-    #isScrollAtBottom(){
-        return Math.abs(container.scrollHeight - container.scrollTop - container.clientHeight) < 1;
+    #isScrollAtBottom(element){
+        return Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 1;
     }
 
     async #loadMore(element) {
