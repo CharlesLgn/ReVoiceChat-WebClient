@@ -124,6 +124,10 @@ export default class TextController {
         element.scrollTop = document.getElementById('cache-container').scrollTop;
     }
 
+    #isScrollAtBottom(){
+        return Math.abs(container.scrollHeight - container.scrollTop - container.clientHeight) < 1;
+    }
+
     async #loadMore(element) {
         if (element.content.scrollTop === 0 && element.page !== element.total && element.loaded) {
             const cachedRooms = document.getElementById('cache-container');
@@ -201,9 +205,20 @@ export default class TextController {
         const room = this.#getTextContentElement(data.message.roomId);
         switch (data.action) {
             case "ADD":
+                const container = document.getElementById('cache-container');
+                const isAtBottom = this.#isScrollAtBottom(container);
+
+                // Add message
                 room.content.appendChild(this.create(message));
-                if (!document.getElementById(data.message.roomId).classList.contains('active')) {
+
+                // Notification dot
+                if (this.#room.id != data.message.roomId) {
                     document.getElementById(`room-extension-dot-${data.message.roomId}`).classList.remove('hidden');
+                }
+
+                // Scroll auto
+                if(isAtBottom && container.scrollTop < container.scrollHeight){
+                    container.scrollTop = container.scrollHeight;
                 }
                 break;
             case "MODIFY":
