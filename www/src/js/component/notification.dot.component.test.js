@@ -1,6 +1,5 @@
 import {beforeEach, afterEach, describe, expect, test} from 'vitest';
 
-// Import du fichier qui enregistre les custom elements
 import './notification.dot.component.js';
 
 describe('DotComponent', () => {
