@@ -9,7 +9,6 @@ describe('IconComponent', () => {
             beforeEach(async () => {
                 const icon = document.createElement(iconsKey);
                 document.body.appendChild(icon);
-                // Attendre que le custom element soit complètement initialisé
                 await new Promise(resolve => setTimeout(resolve, 0));
             });
 
