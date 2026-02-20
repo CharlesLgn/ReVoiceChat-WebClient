@@ -173,7 +173,9 @@ export default class Room {
             const notification = document.createElement('revoice-notification-dot')
             notification.id = `room-extension-dot-${room.id}`
             notification.style.margin = 'auto'
-            if (!room.unreadMessages.hasUnreadMessage) {
+            if (room.unreadMessages.hasUnreadMessage) {
+                notification.setAttribute('mentions', '' + room.unreadMessages.mentions)
+            } else {
                 notification.className = 'hidden'
             }
             extension.appendChild(notification);

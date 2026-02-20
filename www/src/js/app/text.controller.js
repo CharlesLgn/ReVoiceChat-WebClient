@@ -259,11 +259,16 @@ export default class TextController {
             }
         }
         if (data.action === "ADD" && this.#room.id !== data.message.roomId) {
+            console.log(data.message)
+            const mention = this.#hasMention(data.message) ? 1 : 0
             const roomToNotify = document.getElementById(`room-extension-dot-${data.message.roomId}`);
             if (roomToNotify) {
                 roomToNotify.classList.remove('hidden');
+                roomToNotify.setAttribute('mentions', '' + (roomToNotify.mentionsAttribute + mention))
             }
-            document.getElementById(`server-notification-dot-${data.message.serverId}`).classList.remove('hidden');
+            const serverToNotify = document.getElementById(`server-notification-dot-${data.message.serverId}`);
+            serverToNotify.classList.remove('hidden');
+            serverToNotify.setAttribute('mentions', '' + (serverToNotify.mentionsAttribute + mention));
         }
 
         room.scrollTop = room.scrollHeight;
@@ -646,10 +651,19 @@ export default class TextController {
 
     #markAsRead(roomId) {
         void CoreServer.fetch(`/room/${roomId}/read-status`, 'PUT');
-        document.getElementById(`room-extension-dot-${roomId}`).classList.add('hidden');
-        if (document.querySelectorAll("#rooms revoice-notification-dot:not(.hidden)").length === 0) {
-            document.getElementById(`server-notification-dot-${RVC.server.id}`).classList.add('hidden');
+        const currentRoom = document.getElementById(`room-extension-dot-${roomId}`);
+        const mentionsToRemove = currentRoom.mentionsAttribute
+        currentRoom.classList.add('hidden');
+        currentRoom.setAttribute('mentions', '0')
 
+        const currentServer = document.getElementById(`server-notification-dot-${RVC.server.id}`);
+        currentServer.setAttribute('mentions', '' + (currentServer.mentionsAttribute - mentionsToRemove))
+        if (document.querySelectorAll("#rooms revoice-notification-dot:not(.hidden)").length === 0) {
+            currentServer.classList.add('hidden');
         }
+    }
+
+    #hasMention(message) {
+        return message?.answeredTo?.userId === this.#user.id;
     }
 }

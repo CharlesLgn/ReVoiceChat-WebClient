@@ -88,7 +88,9 @@ export default class ServerController {
         const notification = document.createElement('revoice-notification-dot')
         notification.id = `server-notification-dot-${instance.id}`
         notification.classList.add('server-notification')
-        if (!instance.unreadMessages.hasUnreadMessage) {
+        if (instance.unreadMessages.hasUnreadMessage) {
+            notification.setAttribute('mentions', '' + instance.unreadMessages.mentions)
+        } else {
             notification.classList.add('hidden')
         }
         DIV.appendChild(notification);

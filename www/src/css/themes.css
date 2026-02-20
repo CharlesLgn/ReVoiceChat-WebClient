@@ -33,6 +33,9 @@
     --ter-button-hover-color: #731818;
     --ter-button-text-color: var(--pri-text-color);
 
+    --notification-color: #6fc281;
+    --notification-mention-color: #b70e0e;
+
     /* hljs */
     --hljs-theme: 'src/css/highlightjs/dark.css';
     --hljs-background: #1c1b1b;
@@ -72,6 +75,9 @@
     --ter-button-bg-color: #a22121;
     --ter-button-hover-color: #731818;
     --ter-button-text-color: var(--pri-text-color);
+
+    --notification-color: #6fc281;
+    --notification-mention-color: #b70e0e;
 
     /* hljs */
     --hljs-theme: 'src/css/highlightjs/darker.css';
@@ -113,6 +119,9 @@
     --ter-button-hover-color: #731818;
     --ter-button-text-color: var(--pri-text-color);
 
+    --notification-color: #6fc281;
+    --notification-mention-color: #b70e0e;
+
     /* hljs */
     --hljs-theme: 'src/css/highlightjs/light.css';
     --hljs-background: #f6f6f6;
@@ -152,6 +161,9 @@
     --ter-button-bg-color: #a22121;
     --ter-button-hover-color: #731818;
     --ter-button-text-color: var(--pri-text-color);
+
+    --notification-color: #6fc281;
+    --notification-mention-color: #b70e0e;
 
     /* hljs */
     --hljs-theme: 'src/css/highlightjs/femboy.css';
