@@ -1,10 +1,10 @@
 import Alert from './utils/alert.js';
-import { humanFileSize, sanitizeString, timestampToText } from "../lib/tools.js";
-import { i18n } from "../lib/i18n.js";
+import {humanFileSize, sanitizeString, timestampToText} from "../lib/tools.js";
+import {i18n} from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 import Modal from "../component/modal.component.js";
-import { emojiPicker } from "./emoji.js";
+import {emojiPicker} from "./emoji.js";
 
 export default class TextController {
     static MODE_SEND = 0;
@@ -58,7 +58,10 @@ export default class TextController {
                 }
             }
         });
-        this.#observer.observe(this.#cachedElements.textReplyMessage, { attributes: true, attributeFilter: ['data-message-id'] });
+        this.#observer.observe(this.#cachedElements.textReplyMessage, {
+            attributes: true,
+            attributeFilter: ['data-message-id']
+        });
     }
 
     /** @param {HTMLElement} element */
@@ -110,10 +113,18 @@ export default class TextController {
             const textContent = document.createElement("div");
             textContent.className = "room-content scrollbar";
             this.#cachedElements.cacheContainer.appendChild(textContent);
-
+            if (roomId !== this.#room.id) {
+                textContent.classList.add('hidden');
+            }
             let obj = {};
-            obj[roomId] = { content: textContent, scrollTop: null, firstMessageId: null };
+            obj[roomId] = {content: textContent, scrollTop: null, firstMessageId: null};
             Object.assign(this.#cachedRooms, obj);
+
+            textContent.addEventListener('scroll', () => {
+                if (this.#isAtBottom(textContent)) {
+                    this.#markAsRead(roomId);
+                }
+            });
         }
 
         return this.#cachedRooms[roomId]
@@ -146,6 +157,10 @@ export default class TextController {
         this.#cachedRooms = {}
     }
 
+    /**
+     * @param {string}  roomId
+     * @param {boolean} reload
+     */
     async load(roomId, reload = false) {
         for (const [, room] of Object.entries(this.#cachedRooms)) {
             room.content.classList.add('hidden');
@@ -183,6 +198,10 @@ export default class TextController {
 
         room.content.classList.remove('hidden');
         this.#cachedElements.cacheContainer.scrollTop = room.scrollTop;
+
+        if (this.#isAtBottom(room.content)) {
+            this.#markAsRead(this.#room.id);
+        }
     }
 
     async #loadMore(element) {
@@ -213,34 +232,38 @@ export default class TextController {
         }
 
         const message = data.message;
-        const room = this.#getTextContentElement(data.message.roomId);
-        switch (data.action) {
-            case "ADD":
-                const isAtBottom = this.#isScrollAtBottom(this.#cachedElements.cacheContainer);
+        const room = this.#cachedRooms[data.message.roomId];
+        if (room) {
+            switch (data.action) {
+                case "ADD":
+                    const isAtBottom = this.#isScrollAtBottom(this.#cachedElements.cacheContainer);
 
-                // Add message
-                room.content.appendChild(this.create(message));
+                    // Add message
+                    room.content.appendChild(this.create(message));
 
-                // Notification dot
-                if (this.#room.id != data.message.roomId) {
-                    document.getElementById(`room-extension-dot-${data.message.roomId}`).classList.remove('hidden');
-                }
-
-                // Scroll auto
-                if (isAtBottom && this.#cachedElements.cacheContainer.scrollTop < this.#cachedElements.cacheContainer.scrollHeight) {
-                    this.#cachedElements.cacheContainer.scrollTop = this.#cachedElements.cacheContainer.scrollHeight;
-                }
-                break;
-            case "MODIFY":
-                document.getElementById(message.id).replaceWith(this.#createContent(message));
-                document.getElementById(`header-message-${message.id}`).replaceWith(this.#createHeader(message));
-                break;
-            case "REMOVE":
-                document.getElementById(`container-${message.id}`).remove();
-                break;
-            default:
-                console.error("Unsupported action : ", data.action);
-                break;
+                    // Scroll auto
+                    if (isAtBottom && this.#cachedElements.cacheContainer.scrollTop < this.#cachedElements.cacheContainer.scrollHeight) {
+                        this.#cachedElements.cacheContainer.scrollTop = this.#cachedElements.cacheContainer.scrollHeight;
+                    }
+                    break;
+                case "MODIFY":
+                    document.getElementById(message.id).replaceWith(this.#createContent(message));
+                    document.getElementById(`header-message-${message.id}`).replaceWith(this.#createHeader(message));
+                    break;
+                case "REMOVE":
+                    document.getElementById(`container-${message.id}`).remove();
+                    break;
+                default:
+                    console.error("Unsupported action : ", data.action);
+                    break;
+            }
+        }
+        if (data.action === "ADD" && this.#room.id !== data.message.roomId) {
+            const roomToNotify = document.getElementById(`room-extension-dot-${data.message.roomId}`);
+            if (roomToNotify) {
+                roomToNotify.classList.remove('hidden');
+            }
+            document.getElementById(`server-notification-dot-${data.message.serverId}`).classList.remove('hidden');
         }
 
         room.scrollTop = room.scrollHeight;
@@ -316,10 +339,9 @@ export default class TextController {
         if (this.#cachedElements.textAttachment && this.mode === TextController.MODE_SEND) {
             for (const element of this.#cachedElements.textAttachment.files) {
                 if (element.size < this.#attachmentMaxSize) {
-                    data.medias.push({ name: element.name });
+                    data.medias.push({name: element.name});
                     attachments[element.name] = element;
-                }
-                else {
+                } else {
                     await Modal.toggle({
                         icon: "error",
                         title: i18n.translateOne("attachement.error.size.title"),
@@ -351,8 +373,8 @@ export default class TextController {
         }
 
         await Modal.toggleError(
-            i18n.translateOne("attachement.error.title"),
-            i18n.translateOne("attachement.error.body")
+                i18n.translateOne("attachement.error.title"),
+                i18n.translateOne("attachement.error.body")
         );
     }
 
@@ -443,8 +465,8 @@ export default class TextController {
 
         // Truncate text if too long
         messagePreview.textContent = answeredTo.text.length > 50
-            ? answeredTo.text.substring(0, 50) + '...'
-            : answeredTo.text;
+                ? answeredTo.text.substring(0, 50) + '...'
+                : answeredTo.text;
 
         if (answeredTo.hasMedias) {
             const mediaIndicator = document.createElement('span');
@@ -461,7 +483,7 @@ export default class TextController {
         answerDiv.onclick = () => {
             const originalMessage = document.getElementById(`container-${answeredTo.id}`);
             if (originalMessage) {
-                originalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                originalMessage.scrollIntoView({behavior: 'smooth', block: 'center'});
                 originalMessage.style.backgroundColor = 'var(--highlight-color, rgba(59, 130, 246, 0.1))';
                 setTimeout(() => {
                     originalMessage.style.backgroundColor = '';
@@ -611,6 +633,23 @@ export default class TextController {
         const response = await MediaServer.fetch('/maxfilesize');
         if (response) {
             this.#attachmentMaxSize = response.maxFileSize;
+        }
+    }
+
+    /**
+     * Check if div is scrolled to bottom
+     * @param {Element} div
+     */
+    #isAtBottom(div) {
+        return div.scrollTop + div.clientHeight >= div.scrollHeight - 5;
+    }
+
+    #markAsRead(roomId) {
+        void CoreServer.fetch(`/room/${roomId}/read-status`, 'PUT');
+        document.getElementById(`room-extension-dot-${roomId}`).classList.add('hidden');
+        if (document.querySelectorAll("#rooms revoice-notification-dot:not(.hidden)").length === 0) {
+            document.getElementById(`server-notification-dot-${RVC.server.id}`).classList.add('hidden');
+
         }
     }
 }
