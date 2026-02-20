@@ -259,7 +259,6 @@ export default class TextController {
             }
         }
         if (data.action === "ADD" && this.#room.id !== data.message.roomId) {
-            console.log(data.message)
             const mention = this.#hasMention(data.message) ? 1 : 0
             const roomToNotify = document.getElementById(`room-extension-dot-${data.message.roomId}`);
             if (roomToNotify) {
