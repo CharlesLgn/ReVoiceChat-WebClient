@@ -18,46 +18,49 @@ class AttachementMessageComponent extends HTMLElement {
         if (!typeComponentRetriever) {
           typeComponentRetriever = this.#TYPES["OTHER"]
         }
-        const src = MediaServer.attachments(id);
-        this.innerHTML = `${typeComponentRetriever(src, name)}`
+        this.innerHTML = `${typeComponentRetriever(id, name)}`
     }
 
 
     #TYPES = {
-        "PICTURE"    : (src, name) => this.#picture(src, name),
-        "VIDEO"      : (src, name) => this.#video(src, name),
-        "AUDIO"      : (src, name) => this.#audio(src, name),
-        "SVG"        : (src, name) => this.#link(src, name, this.#SVG_ICON),
-        "PDF"        : (src, name) => this.#link(src, name, this.#PDF_ICON),
-        "TEXT"       : (src, name) => this.#link(src, name, this.#TEXT_ICON),
-        "OFFICE"     : (src, name) => this.#link(src, name, this.#OFFICE_ICON),
-        "ARCHIVE"    : (src, name) => this.#link(src, name, this.#ARCHIVE_ICON),
-        "CODE"       : (src, name) => this.#link(src, name, this.#CODE_ICON),
-        "FONT"       : (src, name) => this.#link(src, name, this.#FONT_ICON),
-        "MODEL"      : (src, name) => this.#link(src, name, this.#MODEL_ICON),
-        "EXECUTABLE" : (src, name) => this.#link(src, name, this.#EXECUTABLE_ICON),
-        "DATA"       : (src, name) => this.#link(src, name, this.#DATA_ICON),
-        "OTHER"      : (src, name) => this.#link(src, name, this.#OTHER_ICON),
+        "PICTURE"    : (id, name) => this.#picture(id, name),
+        "VIDEO"      : (id, name) => this.#video(id, name),
+        "AUDIO"      : (id, name) => this.#audio(id, name),
+        "SVG"        : (id, name) => this.#link(id, name, this.#SVG_ICON),
+        "PDF"        : (id, name) => this.#link(id, name, this.#PDF_ICON),
+        "TEXT"       : (id, name) => this.#link(id, name, this.#TEXT_ICON),
+        "OFFICE"     : (id, name) => this.#link(id, name, this.#OFFICE_ICON),
+        "ARCHIVE"    : (id, name) => this.#link(id, name, this.#ARCHIVE_ICON),
+        "CODE"       : (id, name) => this.#link(id, name, this.#CODE_ICON),
+        "FONT"       : (id, name) => this.#link(id, name, this.#FONT_ICON),
+        "MODEL"      : (id, name) => this.#link(id, name, this.#MODEL_ICON),
+        "EXECUTABLE" : (id, name) => this.#link(id, name, this.#EXECUTABLE_ICON),
+        "DATA"       : (id, name) => this.#link(id, name, this.#DATA_ICON),
+        "OTHER"      : (id, name) => this.#link(id, name, this.#OTHER_ICON),
     }
 
-    #picture(src, name) {
+    #picture(id, name) {
+        const src = MediaServer.attachments(id);
+        const thumbnail = MediaServer.attachmentsThumbnail(id);
         return `<a class='media' href="${src}" target="_blank">
                   <img class='media' 
-                       src="${src}/thumbnail" 
+                       src="${thumbnail}" 
                        loading="lazy" 
                        alt="${name}"
                 </a>`
     }
 
-    #video(src, name) {
-      return `<video class='media' preload="metadata" controls><source src="${src}"></video>`
+    #video(id, name) {
+        const src = MediaServer.attachments(id);
+        return `<video class='media' preload="metadata" controls><source src="${src}"></video>`
     }
 
-    #audio(src, name) {
-      return `<audio class='media' preload="metadata" controls><source src="${src}"></audio>`
+    #audio(id, name) {
+        const src = MediaServer.attachments(id);
+        return `<audio class='media' preload="metadata" controls><source src="${src}"></audio>`
     }
 
-    #link(src, name, svgType) {
+    #link(id, name, svgType) {
         const handler = globalThis.isTauri ? `onclick="__TAURI__.opener.openUrl('${src}');"` : '';
         return `<a class='media file-type-link' href="${src}" ${handler}>
                     ${svgType}

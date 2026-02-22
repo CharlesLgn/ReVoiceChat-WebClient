@@ -1,4 +1,4 @@
-import {apiFetch} from "../../lib/tools.js";
+import { apiFetch } from "../../lib/tools.js";
 
 export default class MediaServer {
     /** @type {MediaServer} */
@@ -56,6 +56,15 @@ export default class MediaServer {
     }
 
     /**
+     * @param {string} id
+     * @param {string} t
+     * @return {string}
+     */
+    static attachmentsThumbnail(id, t = '') {
+        return `${MediaServer.#instance.url}/attachments/thumbnail/${id}?t=${t}`
+    }
+
+    /**
      * @param {string} path
      * @param {HTTPMethod} method
      * @param {*} rawData
@@ -69,7 +78,7 @@ export default class MediaServer {
 
         let signal = null;
 
-        if(timeout){
+        if (timeout) {
             signal = AbortSignal.timeout(5000);
         }
 
