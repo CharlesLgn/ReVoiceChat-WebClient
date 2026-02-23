@@ -2,6 +2,7 @@ import UserSettingsController from "./user.settings.controller.js";
 import {eraseCookie, statusToColor} from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
+import PrivateMessagesController from "./private.messages.controller.js";
 
 export default class UserController {
     /** @type {UserSettingsController} */
@@ -24,6 +25,7 @@ export default class UserController {
     }
 
     constructor() {
+        this.privateMessage = new PrivateMessagesController(this)
         this.settings = new UserSettingsController(this);
         this.#cachedElements.statusContainer = document.getElementById("status-container");
         this.#cachedElements.userName = document.getElementById("user-name");
@@ -52,6 +54,7 @@ export default class UserController {
         }
 
         await this.settings.load();
+        await this.privateMessage.load();
     }
 
     /** @param {UserRepresentation} data */

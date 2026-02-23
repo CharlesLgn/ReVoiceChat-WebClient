@@ -30,11 +30,11 @@
 
         <!-- Private Container -->
         <div class="private hidden" id="route-private">
-            <!-- Sidebar Friends-->
-            <div class="sidebar friends" id="friends-sidebar">
+            <!-- Sidebar Private messages-->
+            <div class="sidebar private-messages" id="friends-sidebar">
                 <div class="header">
-                    <revoice-icon-users></revoice-icon-users>
-                    <h2 data-i18n="private.friends.title">Friends</h2>
+                    <revoice-icon-private-discussion></revoice-icon-private-discussion>
+                    <h2 data-i18n="private.private-messages.title">Private messages</h2>
                 </div>
 
                 <!-- User List -->
@@ -50,16 +50,16 @@
                     <button class="mobile-btn" id="privateToggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
                     <div style="display: flex; column-gap: 0.5rem">
                         <span id="private-room-icon"></span>
-                        <h3 class="room-name" id="private-room-name">[ROOM-NAME]</h3>
+                        <h3 class="room-name" id="private-room-name"></h3>
                     </div>
                     <button class="mobile-btn" id="privateToggleUsers"><revoice-icon-users></revoice-icon-users></button>
                 </div>
 
                 <!-- Text Container -->
                 <div class="room-container" id="private-text-container">
+                    <div class="room-cache scrollbar" id="private-text-cache-container"></div>
                     <!-- Chat Control -->
                     <div class="room-control-container">
-                        <div class="emoji-picker" id="private-emoji-picker"></div>
                         <div class="text-control">
                             <div class="text-control-reply hidden" id="private-text-reply-message" data-message-id="">
                             </div>
@@ -147,7 +147,7 @@
                     <button class="mobile-btn" id="toggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
                     <div style="display: flex; column-gap: 0.5rem">
                         <span id="room-icon"></span>
-                        <h3 class="room-name" id="room-name">[ROOM-NAME]</h3>
+                        <h3 class="room-name" id="room-name"></h3>
                     </div>
                     <button class="mobile-btn" id="toggleUsers"><revoice-icon-users></revoice-icon-users></button>
                 </div>
@@ -158,7 +158,6 @@
 
                     <!-- Chat Control -->
                     <div class="room-control-container">
-                        <div class="emoji-picker" id="emoji-picker"></div>
                         <div class="text-control">
                             <div class="text-control-reply hidden" id="text-reply-message" data-message-id="">
                             </div>
@@ -197,6 +196,7 @@
         </div>
 
         <div class="overlay" id="overlay"></div>
+        <div class="emoji-picker" id="emoji-picker"></div>
         <voice-context-menu id="voice-context-menu"></voice-context-menu>
         <stream-context-menu id="stream-context-menu"></stream-context-menu>
     </div>

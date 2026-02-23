@@ -4,17 +4,23 @@ const emojiPicker = new EmojiPicker();
 emojiPicker.init().then(async () => {
     await initPicker()
     const pickerContainer = document.getElementById('emoji-picker');
-    const emojiBtn = document.getElementById('emoji-picker-button');
-    emojiBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        emojiPicker.onEmojiSelect = handlePickerForMessage;
-        emojiPicker.show(e.clientX, e.clientY);
-    });
-    document.addEventListener('click', (e) => {
-        if (!pickerContainer.contains(e.target) && e.target !== emojiBtn) {
-            emojiPicker.hide();
-        }
-    });
+
+    function addEmojiPickerButton(elementId) {
+        const element = document.getElementById(elementId)
+        element.addEventListener('click', (e) => {
+            e.stopPropagation();
+            emojiPicker.onEmojiSelect = handlePickerForMessage;
+            emojiPicker.show(e.clientX, e.clientY);
+        });
+        document.addEventListener('click', (e) => {
+            if (!pickerContainer.contains(e.target) && e.target !== element) {
+                emojiPicker.hide();
+            }
+        });
+    }
+
+    addEmojiPickerButton('emoji-picker-button');
+    addEmojiPickerButton('private-emoji-picker-button');
 })
 
 async function reloadEmojis() {

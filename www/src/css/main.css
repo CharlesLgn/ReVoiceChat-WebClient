@@ -383,13 +383,13 @@ svg {
 }
 
 /* SIDEBAR SERVER */
-.sidebar.friends,
+.sidebar.private-messages,
 .sidebar.server {
     border-right-width: 1px;
     width: 19rem;
 }
 
-.sidebar.friends .header h2,
+.sidebar.private-messages .header h2,
 .sidebar.server .header h2 {
     font-weight: 600;
     margin-left: 0.75rem;
