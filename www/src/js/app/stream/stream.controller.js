@@ -64,26 +64,30 @@ export default class StreamController {
                 showCancelButton: true,
                 focusConfirm: false,
                 confirmButtonText: i18n.translateOne("stream.modal.confirm"),
+                width: "35rem",
                 html: `
                         <form class='popup' id='popup-stream'>
                             <label data-i18n="stream.modal.resolution">Resolution</label>
-                            <select id='popup-resolution'>
-                                <option value='HD' selected>HD (720p)</option>
-                                <option value='FHD'>FullHD (1080p)</option>
-                                <option value='QHD'>QuadHD (1440p)</option>
-                                <option value='UHD'>UltraHD (2160p)</option>
-                            </select>
+                            <input id='popup-resolution' type='range' list='datalist-resolution' step='1' min='0' max='3' value='1'>
+                            <datalist id="datalist-resolution">
+                                <option value='0' label='720p'></option>
+                                <option value='1' label='1080p'></option>
+                                <option value='2' label='1440p'></option>
+                                <option value='3' label='2160p'></option>
+                            </datalist>
 
                             <label data-i18n="stream.modal.framerate">Framerate</label>
-                            <select id='popup-framerate'>
-                                <option value='10'>10</option>
-                                <option value='30' selected>30 (default)</option>
-                                <option value='60'>60</option>
-                            </select>
+                            <input id='popup-framerate' type='range' list='datalist-framerate' step='1' min='0' max='3' value='1'>
+                            <datalist id='datalist-framerate'>
+                                <option value='0'>10</option>
+                                <option value='1'>30</option>
+                                <option value='2'>60</option>
+                                <option value='3'>120</option>
+                            </datalist>
 
                             <label data-i18n="stream.modal.codec">Codec</label>
                             <select id='popup-codec'>
-                                <option value='AUTO' selected>Auto</option>
+                                <option value='AUTO'>Auto</option>
                                 <option value='VP9'>${i18n.translateOne("stream.modal.vp9")}</option>
                                 <option value='AV1'>${i18n.translateOne("stream.modal.av1")}</option>
                             </select>

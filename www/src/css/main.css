@@ -301,7 +301,9 @@ button {
     text-align: center;
 }
 
-.main, .public, .private {
+.main,
+.public,
+.private {
     display: flex;
     position: relative;
     z-index: 10;
@@ -956,6 +958,12 @@ form.popup select,
     padding-bottom: 0.5rem;
     padding-left: 0.75rem;
     margin-bottom: 1rem;
+    width: 100%;
+}
+
+form.popup datalist {
+    display: flex;
+    justify-content: space-between;
     width: 100%;
 }
 

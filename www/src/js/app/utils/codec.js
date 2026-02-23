@@ -60,6 +60,7 @@ export default class Codec {
             width: 1920,
             height: 1080,
             bitrate: 3_000_000,
+            bitratemode: "variable",
             latencyMode: "realtime",
         }
 
@@ -77,28 +78,30 @@ export default class Codec {
     }
 
     static async streamConfig(inputResolution, inputFps, inputCodec) {
-        const resolution = {
-            HD: {
+        const resolution = [
+            {
                 width: 1280,
                 height: 720,
                 bitrate: 3_000_000
             },
-            FHD: {
+            {
                 width: 1920,
                 height: 1080,
                 bitrate: 4_000_000
             },
-            QHD: {
+            {
                 width: 2560,
                 height: 1440,
                 bitrate: 6_000_000
             },
-            UHD: {
+            {
                 width: 3840,
                 height: 2160,
                 bitrate: 10_000_000
             }
-        }
+        ]
+
+        const fps = [10, 30, 60, 120];
 
         let config = {
             codec: null,
@@ -113,7 +116,7 @@ export default class Codec {
         config.width = resolution[inputResolution].width;
         config.height = resolution[inputResolution].height;
         config.bitrate = resolution[inputResolution].bitrate;
-        config.framerate = inputFps;
+        config.framerate = fps[inputFps];
 
         if (inputCodec === "AUTO") {
             config.codec = Codec.VIDEO_CODEC.AV1;
