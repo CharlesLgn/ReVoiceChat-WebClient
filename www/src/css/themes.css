@@ -217,7 +217,7 @@ body {
 }
 
 /* Sidebars */
-.sidebar.friends,
+.sidebar.private-messages,
 .sidebar.instances-list,
 .sidebar.server {
     border-color: var(--pri-bd-color);
