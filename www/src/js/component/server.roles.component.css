@@ -24,7 +24,6 @@
 
 .room-container {
     padding-left: 2rem;
-    width: 35rem;
     background-color: #00000000;
 }
 
@@ -115,4 +114,22 @@
 .tab button.active {
     background-color: var(--pri-active-color);
     color: var(--pri-button-bg-color);
+}
+
+.risk-management-section {
+    display: flex;
+    column-gap: 2rem;
+}
+
+.risk-member-item {
+    max-width: 15rem;
+    min-width: 15rem;
+}
+
+.risk-member-item .name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 10rem;
+    min-width: 10rem;
 }
