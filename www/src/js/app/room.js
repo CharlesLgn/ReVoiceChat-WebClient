@@ -1,6 +1,8 @@
 import TextController from './text.controller.js';
 import VoiceController from './voice/voice.controller.js';
 import CoreServer from "./core/core.server.js";
+import MediaServer from './media/media.server.js';
+import { statusToColor } from "../lib/tools.js";
 
 export default class Room {
     /** @type {TextController} */
@@ -19,7 +21,7 @@ export default class Room {
         this.voiceController = new VoiceController(user, this);
     }
 
-    attachEvents(){
+    attachEvents() {
         this.textController.attachEvents();
         this.voiceController.attachEvents();
     }
@@ -213,6 +215,62 @@ export default class Room {
                 this.#selectVoice();
                 break;
         }
+
+        this.#loadUsers();
+    }
+
+    async #loadUsers() {
+        /** @type {UserRepresentation[]} */
+        const result = await CoreServer.fetch(`/room/${this.id}/user`, 'GET');
+
+        if (result && result.allUser) {
+            const sortedByDisplayName = [...result.allUser].sort((a, b) => {
+                return a.displayName.localeCompare(b.displayName);
+            });
+
+            const sortedByStatus = [...sortedByDisplayName].sort((a, b) => {
+                if (a.status === b.status) {
+                    return 0;
+                }
+                else {
+                    if (a.status === "OFFLINE") {
+                        return 1;
+                    }
+                    if (b.status === "OFFLINE") {
+                        return -1;
+                    }
+                }
+            });
+
+            const userList = document.getElementById("user-list");
+            userList.innerHTML = "";
+
+            for (const user of sortedByStatus) {
+                userList.appendChild(await this.#createUser(user));
+            }
+        }
+    }
+
+    async #createUser(data) {
+        const id = data.id;
+        const name = data.displayName;
+        const status = data.status;
+        const profilePicture = MediaServer.profiles(id);
+
+        const DIV = document.createElement('div');
+        DIV.id = id;
+        DIV.className = `${id} user-profile`
+        DIV.innerHTML = `
+            <div class="relative">
+                <img src="${profilePicture}" alt="PFP" class="icon ring-2" data-id="${id}" name="user-picture-${id}" />
+                <revoice-status-dot name="dot-${id}" color="${statusToColor(status)}"></revoice-status-dot>
+            </div>
+            <div class="user">
+                <h2 class="name" name="user-name-${id}">${name}</h2>
+            </div>
+        `;
+
+        return DIV;
     }
 
     #selectText() {

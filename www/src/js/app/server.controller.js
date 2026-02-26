@@ -285,7 +285,7 @@ export default class ServerController {
         document.getElementById(id).classList.add('active');
 
         this.#updateServerName(id, name);
-        this.#usersLoad();
+        //this.#usersLoad();
         this.room.load(id);
         this.router.routeTo(Router.APP);
     }
