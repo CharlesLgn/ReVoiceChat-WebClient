@@ -216,12 +216,14 @@ export default class Room {
                 break;
         }
 
-        this.#loadUsers();
+        this.loadUsers();
     }
 
-    async #loadUsers() {
+    async loadUsers() {
         /** @type {UserRepresentation[]} */
         const result = await CoreServer.fetch(`/room/${this.id}/user`, 'GET');
+
+        console.log(result)
 
         if (result && result.allUser) {
             const sortedByDisplayName = [...result.allUser].sort((a, b) => {

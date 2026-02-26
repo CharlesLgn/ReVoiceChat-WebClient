@@ -285,7 +285,6 @@ export default class ServerController {
         document.getElementById(id).classList.add('active');
 
         this.#updateServerName(id, name);
-        //this.#usersLoad();
         this.room.load(id);
         this.router.routeTo(Router.APP);
     }
@@ -320,65 +319,7 @@ export default class ServerController {
     /** @param {NewUserInServer} data */
     updateUserInServer(data) {
         if (this.id === data.server) {
-            this.#usersLoad();
+            this.room.loadUsers();
         }
-    }
-
-    async #usersLoad() {
-        /** @type {UserRepresentation[]} */
-        const result = await CoreServer.fetch(`/server/${this.id}/user`, 'GET');
-
-        if (result !== null) {
-            const sortedByDisplayName = [...result].sort((a, b) => {
-                return a.displayName.localeCompare(b.displayName);
-            });
-
-            const sortedByStatus = [...sortedByDisplayName].sort((a, b) => {
-                if (a.status === b.status) {
-                    return 0;
-                }
-                else {
-                    if (a.status === "OFFLINE") {
-                        return 1;
-                    }
-                    if (b.status === "OFFLINE") {
-                        return -1;
-                    }
-                }
-            });
-
-            const userList = document.getElementById("user-list");
-            userList.innerHTML = "";
-
-            for (const user of sortedByStatus) {
-                userList.appendChild(await this.#createUser(user));
-            }
-        }
-    }
-
-    /**
-     * @param  {UserRepresentation} data
-     * @return {Promise<HTMLDivElement>}
-     */
-    async #createUser(data) {
-        const id = data.id;
-        const name = data.displayName;
-        const status = data.status;
-        const profilePicture = MediaServer.profiles(id);
-
-        const DIV = document.createElement('div');
-        DIV.id = id;
-        DIV.className = `${id} user-profile`
-        DIV.innerHTML = `
-            <div class="relative">
-                <img src="${profilePicture}" alt="PFP" class="icon ring-2" data-id="${id}" name="user-picture-${id}" />
-                <revoice-status-dot name="dot-${id}" color="${statusToColor(status)}"></revoice-status-dot>
-            </div>
-            <div class="user">
-                <h2 class="name" name="user-name-${id}">${name}</h2>
-            </div>
-        `;
-
-        return DIV;
     }
 }
