@@ -176,8 +176,8 @@ export default class VoiceController {
     async showJoinedUsers(roomId, voiceContent) {
         const result = await CoreServer.fetch(`/room/${roomId}/user`, 'GET');
 
-        if (result.connectedUser === null) {
-            console.debug("VOICE : No user in room");
+        if (!result || result.connectedUser.length == 0) {
+            console.debug(`No user in voice room: ${roomId}`);
             return;
         }
 
@@ -497,7 +497,7 @@ export default class VoiceController {
     // Count user in room
     async usersCount(roomId) {
         const result = await CoreServer.fetch(`/room/${roomId}/user`, 'GET');
-        return result.connectedUser ? result.connectedUser.length : 0;
+        return result?.connectedUser ? result.connectedUser.length : 0;
     }
 
     // Update users counter
