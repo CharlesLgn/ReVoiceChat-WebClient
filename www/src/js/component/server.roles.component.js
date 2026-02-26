@@ -1,4 +1,4 @@
-import {i18n} from "../lib/i18n.js";
+import { i18n } from "../lib/i18n.js";
 import MediaServer from "../app/media/media.server.js";
 import CoreServer from "../app/core/core.server.js";
 import Modal from "./modal.component.js";
@@ -7,7 +7,7 @@ class ServerRolesWebComponent extends HTMLElement {
 
     constructor() {
         super();
-        this.attachShadow({mode: 'open'});
+        this.attachShadow({ mode: 'open' });
         this.serverId = null
     }
 
@@ -65,6 +65,10 @@ class ServerRolesWebComponent extends HTMLElement {
 
     async createRoleAPI(roleData) {
         return await CoreServer.fetch(`/server/${this.serverId}/role`, 'PUT', roleData);
+    }
+
+    async patchRoleAPI(roleId, roleData) {
+        return await CoreServer.fetch(`/role/${roleId}`, 'PATCH', roleData);
     }
 
     async updateRoleRisk(roleId, riskName, status) {
@@ -150,17 +154,22 @@ class ServerRolesWebComponent extends HTMLElement {
                 <h2>${role.name}</h2>
 
                 <div class="tab">
-                    <button class="active" id="role-tab-auth" data-i18n="server.roles.authorizations">Authorizations</button>
-                    <button id="role-tab-members" data-i18n="server.roles.members">Members</button>
+                    <button class="active" id="role-tab-members" data-i18n="server.roles.members">Members</button>
+                    <button id="role-tab-auth" data-i18n="server.roles.authorizations">Authorizations</button>
                 </div>
             </div>
 
-            <div class="config-section" id="auth-section">
+            <div class="config-section hidden" id="auth-section">
+                <div class="config-buttons">
+                    <button class="button" id="role-edit" data-i18n="server.roles.edit">Edit</button>
+                    <button class="button" id="role-delete" data-i18n="server.roles.delete">Delete</button>
+                </div>
+
                 ${this.#renderServerCategory(role)}
                 ${this.#renderRoomCategory(role)}
             </div>
 
-            <div class="config-section hidden" id="members-section">
+            <div class="config-section" id="members-section">
                 <button class="button" id="role-member-add" data-i18n="server.roles.add.members">Add user</button>
                 <br/>
                 <div id="role-member-list" class="config-members-list"></div>
@@ -193,6 +202,8 @@ class ServerRolesWebComponent extends HTMLElement {
         this.shadowRoot.getElementById("role-tab-auth").addEventListener('click', () => this.#selectRoleTab("auth-section"));
         this.shadowRoot.getElementById("role-tab-members").addEventListener('click', () => this.#selectRoleTab("members-section"));
         this.shadowRoot.getElementById("role-member-add").addEventListener('click', () => this.#assignedUser(role));
+        this.shadowRoot.getElementById("role-edit").addEventListener('click', () => this.#edit(role));
+        this.shadowRoot.getElementById("role-delete").addEventListener('click', () => this.#delete(role));
 
         const users = [];
         for (const user of this.availableUsers) {
@@ -342,7 +353,7 @@ class ServerRolesWebComponent extends HTMLElement {
                 const name = document.getElementById('roleName').value;
                 const color = document.getElementById('roleColor').value;
                 const priority = document.getElementById('rolePriority').value;
-                return {name: name, color: color, priority: Number.parseInt(priority)};
+                return { name: name, color: color, priority: Number.parseInt(priority) };
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
@@ -454,6 +465,63 @@ class ServerRolesWebComponent extends HTMLElement {
             return null;
         }
         return entity;
+    }
+
+    #edit(role) {
+        Modal.toggle({
+            title: i18n.translateOne("server.roles.edit.title"),
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: i18n.translateOne("modal.save"),
+            width: "30rem",
+            html: `
+            <form id="new-role-popup" class='popup'>
+                <div class="server-structure-form-group">
+                    <label for="roleName" data-i18n="server.roles.new.name">Role Name</label>
+                    <input type="text" id="roleName" data-i18n-placeholder="server.roles.new.name.placeholder" placeholder="Enter role name" value="${role.name}">
+                </div>
+                <div class="server-structure-form-group">
+                    <label for="roleColor" data-i18n="server.roles.new.color">Color</label>
+                    <input style="height: 2.5rem; padding: 0" type="color" id="roleColor" value="${role.color}">
+                </div>
+                <div class="server-structure-form-group">
+                    <label for="rolePriority" data-i18n="server.roles.new.priority">Priority</label>
+                    <input type="number" id="rolePriority" placeholder="1" min="1" value="${role.priority}">
+                </div>
+            </form > `,
+            didOpen: () => {
+                i18n.translatePage(document.getElementById("new-role-popup"))
+            },
+            preConfirm: () => {
+                const name = document.getElementById('roleName').value;
+                const color = document.getElementById('roleColor').value;
+                const priority = document.getElementById('rolePriority').value;
+                return { name: name, color: color, priority: Number.parseInt(priority) };
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await this.patchRoleAPI(role.id, result.data);
+                await this.fetchRoles();
+                this.renderRoles();
+                this.selectRole(role.id);
+            }
+        });
+    }
+
+    #delete(role) {
+        Modal.toggle({
+            title: i18n.translateOne("server.roles.delete.title"),
+            focusConfirm: false,
+            confirmButtonText: i18n.translateOne("modal.delete"),
+            confirmButtonClass: "background-red",
+            showCancelButton: true,
+            cancelButtonText: i18n.translateOne("modal.cancel"),
+            width: "30rem",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                console.warn("Not implemented in API");
+            }
+        });
     }
 }
 
