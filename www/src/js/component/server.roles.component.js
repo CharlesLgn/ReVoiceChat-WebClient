@@ -153,27 +153,24 @@ class ServerRolesWebComponent extends HTMLElement {
                 <div class="icon" style="background: ${role.color}"></div>
                 <h2>${role.name}</h2>
 
-                <div class="tab">
-                    <button class="active" id="role-tab-members" data-i18n="server.roles.members">Members</button>
-                    <button id="role-tab-auth" data-i18n="server.roles.authorizations">Authorizations</button>
-                </div>
-            </div>
-
-            <div class="config-section hidden" id="auth-section">
                 <div class="config-buttons">
+                    <button class="button" id="role-member-add" data-i18n="server.roles.add.members">Add user</button>
                     <button class="button" id="role-edit" data-i18n="server.roles.edit">Edit</button>
                     <button class="button" id="role-delete" data-i18n="server.roles.delete">Delete</button>
                 </div>
-
-                ${this.#renderServerCategory(role)}
-                ${this.#renderRoomCategory(role)}
             </div>
 
-            <div class="config-section" id="members-section">
-                <button class="button" id="role-member-add" data-i18n="server.roles.add.members">Add user</button>
-                <br/>
-                <div id="role-member-list" class="config-members-list"></div>
-            </div >`;
+            <div class="risk-management-section">
+                <div class="config-section" id="members-section">
+                    <h2 data-i18n="server.roles.members">Members</h2>
+                    <br/>
+                    <div id="role-member-list" class="config-members-list"></div>
+                </div >
+                <div class="config-section" id="auth-section">
+                    ${this.#renderServerCategory(role)}
+                    ${this.#renderRoomCategory(role)}
+                </div>
+            </div>`;
 
         // Add event listeners for risk toggles
         for (const btn of roleDetails.querySelectorAll('.toggle-btn')) {
@@ -199,8 +196,6 @@ class ServerRolesWebComponent extends HTMLElement {
         }
 
         // Add event listener
-        this.shadowRoot.getElementById("role-tab-auth").addEventListener('click', () => this.#selectRoleTab("auth-section"));
-        this.shadowRoot.getElementById("role-tab-members").addEventListener('click', () => this.#selectRoleTab("members-section"));
         this.shadowRoot.getElementById("role-member-add").addEventListener('click', () => this.#assignedUser(role));
         this.shadowRoot.getElementById("role-edit").addEventListener('click', () => this.#edit(role));
         this.shadowRoot.getElementById("role-delete").addEventListener('click', () => this.#delete(role));
@@ -265,7 +260,7 @@ class ServerRolesWebComponent extends HTMLElement {
 
     #memberItemList(data, roleId) {
         const DIV = document.createElement('div');
-        DIV.className = `config-item`;
+        DIV.className = `config-item risk-member-item`;
 
         const profilePicture = MediaServer.profiles(data.id);
 
@@ -290,25 +285,6 @@ class ServerRolesWebComponent extends HTMLElement {
         return DIV;
     }
 
-    #selectRoleTab(tab) {
-        this.shadowRoot.getElementById("auth-section").classList.add('hidden');
-        this.shadowRoot.getElementById("members-section").classList.add('hidden');
-        this.shadowRoot.getElementById("role-tab-auth").classList.remove('active');
-        this.shadowRoot.getElementById("role-tab-members").classList.remove('active');
-
-        switch (tab) {
-            case "auth-section":
-                this.shadowRoot.getElementById("auth-section").classList.remove('hidden');
-                this.shadowRoot.getElementById("role-tab-auth").classList.add('active')
-                break;
-
-            case "members-section":
-                this.shadowRoot.getElementById("members-section").classList.remove('hidden');
-                this.shadowRoot.getElementById("role-tab-members").classList.add('active')
-                break;
-        }
-    }
-
     #findRisk(role, risk) {
         return role.risks.find(item => item.type === risk.type && item.entity === this.#entity);
     }
@@ -318,7 +294,6 @@ class ServerRolesWebComponent extends HTMLElement {
             await this.updateRoleRisk(roleId, riskName, status);
             await this.fetchRoles();
             this.renderRoleDetails();
-            this.#selectRoleTab("auth-section");
         } catch (error) {
             console.error('Error updating risk:', error);
             this.showError('server.roles.error.update.risk');
@@ -421,7 +396,6 @@ class ServerRolesWebComponent extends HTMLElement {
             await CoreServer.fetch(`/role/${roleId}/user`, type, user)
             await this.fetchRoles();
             this.renderRoleDetails();
-            this.#selectRoleTab("members-section");
         } catch (error) {
             console.error('Error updating user:', error);
             this.showError('server.roles.error.update.user');
@@ -505,7 +479,6 @@ class ServerRolesWebComponent extends HTMLElement {
                 await this.fetchRoles();
                 this.renderRoles();
                 this.selectRole(role.id);
-                this.#selectRoleTab("auth-section");
             }
         });
     }
