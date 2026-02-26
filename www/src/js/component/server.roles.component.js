@@ -80,11 +80,11 @@ class ServerRolesWebComponent extends HTMLElement {
             <link href="src/css/emoji.css" rel="stylesheet" />
             <link href="src/css/themes.css" rel="stylesheet" />
             <link href="src/js/component/server.roles.component.css" rel="stylesheet" />
-            <div class="config">            
+            <div class="config config-right">            
                 <div class="role-settings-main">
                     <div class="role-settings-sidebar">
                         <div class="config-buttons">
-                            <button id="createRoleBtn"><revoice-icon-circle-plus></revoice-icon-circle-plus> <span data-i18n="server.roles.new">New</span></button>
+                            <button class="button" id="createRoleBtn"><revoice-icon-circle-plus></revoice-icon-circle-plus> <span data-i18n="server.roles.new">New</span></button>
                         </div>
                         <div class="sidebar-room-container" id="rolesList"></div>
                     </div>
@@ -161,7 +161,7 @@ class ServerRolesWebComponent extends HTMLElement {
             </div>
 
             <div class="config-section hidden" id="members-section">
-                <button id="role-member-add" data-i18n="server.roles.add.members">Add user</button>
+                <button class="button" id="role-member-add" data-i18n="server.roles.add.members">Add user</button>
                 <br/>
                 <div id="role-member-list" class="config-members-list"></div>
             </div >`;
@@ -319,6 +319,7 @@ class ServerRolesWebComponent extends HTMLElement {
             showCancelButton: true,
             focusConfirm: false,
             confirmButtonText: i18n.translateOne("modal.add"),
+            width: "30rem",
             html: `
             <form id="new-role-popup" class='popup'>
                 <div class="server-structure-form-group">
@@ -359,6 +360,7 @@ class ServerRolesWebComponent extends HTMLElement {
             showCancelButton: true,
             focusConfirm: false,
             confirmButtonText: i18n.translateOne("modal.save"),
+            width: "30rem",
             preConfirm: () => {
                 // Get form values
                 let users = Array.from(document.querySelectorAll('.assigned-user-item'));
