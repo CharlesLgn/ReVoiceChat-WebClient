@@ -318,6 +318,7 @@ class ServerRolesWebComponent extends HTMLElement {
             await this.updateRoleRisk(roleId, riskName, status);
             await this.fetchRoles();
             this.renderRoleDetails();
+            this.#selectRoleTab("auth-section");
         } catch (error) {
             console.error('Error updating risk:', error);
             this.showError('server.roles.error.update.risk');
