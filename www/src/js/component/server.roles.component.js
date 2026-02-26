@@ -505,6 +505,7 @@ class ServerRolesWebComponent extends HTMLElement {
                 await this.fetchRoles();
                 this.renderRoles();
                 this.selectRole(role.id);
+                this.#selectRoleTab("auth-section");
             }
         });
     }
