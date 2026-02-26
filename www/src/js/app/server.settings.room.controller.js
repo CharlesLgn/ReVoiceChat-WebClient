@@ -154,8 +154,9 @@ export class ServerSettingsRoomController {
             title: i18n.translateOne("server.structure.room.edit", [data.name]),
             showCancelButton: false,
             focusConfirm: false,
-            confirmButtonText: "X",
+            confirmButtonText: "Close",
             confirmButtonClass: "danger",
+            width: "60rem",
             html: `<revoice-server-roles server-id="${this.serverSettings.server.id}" entity="${id}"></revoice-server-roles>`
         }).then(async () => {/* do nothing */});
     }
