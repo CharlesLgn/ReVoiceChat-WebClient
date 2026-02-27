@@ -156,7 +156,7 @@ export class ServerSettingsRoomController {
             focusConfirm: false,
             confirmButtonText: "Close",
             confirmButtonClass: "danger",
-            width: "60rem",
+            width: "70rem",
             html: `<revoice-server-roles server-id="${this.serverSettings.server.id}" entity="${id}"></revoice-server-roles>`
         }).then(async () => {/* do nothing */});
     }
