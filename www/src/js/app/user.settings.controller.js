@@ -32,36 +32,8 @@ export default class UserSettingsController {
         stream: 0.5,
     }
 
-    #cachedElements = {
-        userUUID: null,
-        userName: null,
-        userPicture: null,
-        overviewPicture: null,
-        overviewPictureNew: null,
-        inputVolume: null,
-        inputVolumeLabel: null,
-        gateThreshold: null,
-        gateThresholdLabel: null,
-        outputNotificationLabel: null,
-        outputVoiceLabel: null,
-        outputStreamLabel: null,
-    }
-
     constructor(user) {
         this.#user = user;
-
-        this.#cachedElements.userUUID = document.getElementById("setting-user-uuid");
-        this.#cachedElements.userName = document.getElementById("settings-user-name");
-        this.#cachedElements.userPicture = document.getElementById("setting-user-picture");
-        this.#cachedElements.overviewPicture = document.getElementById("overview-picture");
-        this.#cachedElements.overviewPictureNew = document.getElementById("overview-picture-new");
-        this.#cachedElements.inputVolume = document.getElementById("input-volume");
-        this.#cachedElements.inputVolumeLabel = document.getElementById("input-volume-label");
-        this.#cachedElements.gateThreshold = document.getElementById("gate-threshold");
-        this.#cachedElements.gateThresholdLabel = document.getElementById("gate-threshold-label");
-        this.#cachedElements.outputNotificationLabel = document.getElementById('output-notification-label');
-        this.#cachedElements.outputVoiceLabel = document.getElementById('output-voice-label');
-        this.#cachedElements.outputStreamLabel = document.getElementById('output-stream-label');
 
         // Add events
         this.#selectEventHandler();
@@ -185,17 +157,17 @@ export default class UserSettingsController {
 
     #overviewLoad() {
         this.#newProfilPictureFile = null
-        this.#cachedElements.userUUID.innerText = this.#user.id;
-        this.#cachedElements.userName.value = this.#user.displayName;
-        this.#cachedElements.userPicture.src = MediaServer.profiles(this.#user.id);
-        this.#cachedElements.userPicture.dataset.id = this.#user.id;
-        this.#cachedElements.overviewPictureNew.addEventListener("change", () => {
-            const file = this.#cachedElements.overviewPictureNew.files[0];
+        document.getElementById("setting-user-uuid").innerText = this.#user.id;
+        document.getElementById("settings-user-name").value = this.#user.displayName;
+        document.getElementById("setting-user-picture").src = MediaServer.profiles(this.#user.id);
+        document.getElementById("setting-user-picture").dataset.id = this.#user.id;
+        document.getElementById("overview-picture-new").addEventListener("change", () => {
+            const file = document.getElementById("overview-picture-new").files[0];
             if (file) {
                 this.#newProfilPictureFile = file;
-                this.#cachedElements.overviewPicture.value = file.name;
-                this.#cachedElements.userPicture.src = URL.createObjectURL(file);
-                this.#cachedElements.userPicture.style.display = "block";
+                document.getElementById("overview-picture").value = file.name;
+                document.getElementById("setting-user-picture").src = URL.createObjectURL(file);
+                document.getElementById("setting-user-picture").style.display = "block";
             }
         });
     }
@@ -257,12 +229,12 @@ export default class UserSettingsController {
     }
 
     async #overviewChangeName() {
-        const displayName = this.#cachedElements.userName.value
+        const displayName = document.getElementById("settings-user-name").value
         if (displayName && displayName !== "") {
             const result = await CoreServer.fetch(`/user/me`, 'PATCH', { displayName: displayName });
             if (result) {
                 this.#user.displayName = result.displayName
-                this.#cachedElements.userName.value = result.displayName;
+                document.getElementById("settings-user-name").value = result.displayName;
             }
         }
         else {
@@ -271,17 +243,17 @@ export default class UserSettingsController {
     }
 
     async #overviewChangePicture() {
-        if (this.#cachedElements.overviewPicture.value && this.#newProfilPictureFile) {
+        if (document.getElementById("overview-picture").value && this.#newProfilPictureFile) {
             const formData = new FormData();
             formData.append("file", this.#newProfilPictureFile);
             await MediaServer.fetch(`/profiles/${this.#user.id}`, 'POST', formData);
             this.#newProfilPictureFile = null
-            this.#cachedElements.overviewPicture.value = null
+            document.getElementById("overview-picture").value = null
         }
     }
 
     #overviewSelectPicture() {
-        this.#cachedElements.overviewPictureNew.click();
+        document.getElementById("overview-picture-new").click();
     }
 
     #themeLoadPreviews() {
@@ -391,13 +363,13 @@ export default class UserSettingsController {
 
     #audioInputLoad() {
         // Volume
-        i18n.updateValue(this.#cachedElements.inputVolumeLabel, Number.parseInt((this.voice.self.volume * 100)).toString());
-        this.#cachedElements.inputVolume.value = this.voice.self.volume;
+        i18n.updateValue(document.getElementById("input-volume-label"), Number.parseInt((this.voice.self.volume * 100)).toString());
+        document.getElementById("input-volume").value = this.voice.self.volume;
 
         // Voice detection
-        i18n.updateValue(this.#cachedElements.gateThresholdLabel, (this.voice.gate.threshold).toString());
-        this.#cachedElements.gateThreshold.value = this.voice.gate.threshold;
-        this.#cachedElements.gateThreshold.title = this.voice.gate.threshold + "dB";
+        i18n.updateValue(document.getElementById("gate-threshold-label"), (this.voice.gate.threshold).toString());
+        document.getElementById("gate-threshold").value = this.voice.gate.threshold;
+        document.getElementById("gate-threshold").title = this.voice.gate.threshold + "dB";
 
         // Compressor
         const buttonEnabled = document.getElementById('compressor-enabled')
@@ -415,10 +387,10 @@ export default class UserSettingsController {
     #audioInputUpdateUI(param, element) {
         switch (param) {
             case 'input-volume':
-                i18n.updateValue(this.#cachedElements.inputVolumeLabel, Number.parseInt((element.value * 100)).toString());
+                i18n.updateValue(document.getElementById("input-volume-label"), Number.parseInt((element.value * 100)).toString());
                 break;
             case 'gate-threshold': {
-                i18n.updateValue(this.#cachedElements.gateThresholdLabel, (element.value).toString());
+                i18n.updateValue(document.getElementById("gate-threshold-label"), (element.value).toString());
                 break;
             }
         }
@@ -506,13 +478,13 @@ export default class UserSettingsController {
     #audioOutputUpdateUI(param, value) {
         switch (param) {
             case 'output-notification-volume':
-                this.#cachedElements.outputNotificationLabel.innerText = `Volume ${Number.parseInt(value * 100)}%`;
+                document.getElementById('output-notification-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
                 break;
             case 'output-voice-volume':
-                this.#cachedElements.outputVoiceLabel.innerText = `Volume ${Number.parseInt(value * 100)}%`;
+                document.getElementById('output-voice-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
                 break;
             case 'output-stream-volume':
-                this.#cachedElements.outputStreamLabel.innerText = `Volume ${Number.parseInt(value * 100)}%`;
+                document.getElementById('output-stream-label').innerText = `Volume ${Number.parseInt(value * 100)}%`;
                 break;
         }
     }

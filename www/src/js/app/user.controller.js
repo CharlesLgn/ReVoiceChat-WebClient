@@ -14,26 +14,9 @@ export default class UserController {
     /** @type {string} */
     #type;
 
-    #cachedElements = {
-        statusContainer: null,
-        userName: null,
-        userStatus: null,
-        userDot: null,
-        userPicture: null,
-        settingsUserName: null,
-        settingsUserPicture: null
-    }
-
     constructor() {
         this.privateMessage = new PrivateMessagesController(this)
         this.settings = new UserSettingsController(this);
-        this.#cachedElements.statusContainer = document.getElementById("status-container");
-        this.#cachedElements.userName = document.getElementById("user-name");
-        this.#cachedElements.userStatus = document.getElementById("user-status");
-        this.#cachedElements.userDot = document.getElementById("user-dot");
-        this.#cachedElements.userPicture = document.getElementById("user-picture");
-        this.#cachedElements.settingsUserName = document.getElementById('settings-user-name');
-        this.#cachedElements.settingsUserPicture = document.getElementById('setting-user-picture');
     }
 
     async load() {
@@ -45,12 +28,14 @@ export default class UserController {
             this.displayName = result.displayName;
             this.#type = result.type;
             
-            this.#cachedElements.statusContainer.classList.add(result.id);
-            this.#cachedElements.userName.innerText = result.displayName;
-            this.#cachedElements.userStatus.innerText = result.status;
-            this.#cachedElements.userDot.setAttribute('color', statusToColor(result.status));
-            this.#cachedElements.userPicture.src = MediaServer.profiles(result.id);
-            this.#cachedElements.userPicture.dataset.id = result.id;
+            document.getElementById("status-container").classList.add(result.id);
+            document.getElementById("user-name").innerText = result.displayName;
+            document.getElementById("user-status").innerText = result.status;
+            document.getElementById("user-dot").setAttribute('color', statusToColor(result.status));
+
+            const userPicture = document.getElementById("user-picture");
+            userPicture.src = MediaServer.profiles(result.id);
+            userPicture.dataset.id = result.id;
         }
 
         await this.settings.load();
@@ -66,11 +51,11 @@ export default class UserController {
         // Static elements for self
         if(this.id === id){
             // Main page
-            this.#cachedElements.userName.innerText = name;
-            this.#cachedElements.userPicture.src = picture;
+            document.getElementById("user-name").innerText = name;
+            document.getElementById("user-picture").src = picture;
             // User settings
-            this.#cachedElements.settingsUserName.value = name;
-            this.#cachedElements.settingsUserPicture.src = picture;
+            document.getElementById('settings-user-name').value = name;
+            document.getElementById('settings-user-picture').src = picture;
         }
          
         // Dynamic elements
@@ -95,7 +80,7 @@ export default class UserController {
 
         // Static elements for self
         if(this.id === id){
-            this.#cachedElements.userDot.setAttribute('color', color);
+            document.getElementById("user-dot").setAttribute('color', color);
         }
 
         // Dynamic elements
