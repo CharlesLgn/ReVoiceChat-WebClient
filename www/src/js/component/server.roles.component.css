@@ -133,3 +133,7 @@
     max-width: 10rem;
     min-width: 10rem;
 }
+
+.config-section {
+    min-width: 15rem;
+}
