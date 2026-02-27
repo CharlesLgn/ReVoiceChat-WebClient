@@ -501,6 +501,90 @@
         </div>
     </div>
 
+    <!-- Admin Settings Containter -->
+    <div class="main config hidden" id="route-admin-setting">
+        <div class="config-container-left">
+            <h2 data-i18n="admin.title">Admin Dashboard</h2>
+            <div class="config-left">
+                <div class="category">
+                    <!-- Overview -->
+                    <button class="sub-category" id="admin-setting-tab-overview">
+                        <revoice-icon-information></revoice-icon-information> <span data-i18n="admin.overview">Overview</span>
+                    </button>
+
+                    <!-- Rooms -->
+                    <button class="sub-category" id="admin-setting-tab-servers">
+                        <revoice-icon-server-stack></revoice-icon-server-stack> <span data-i18n="admin.servers">Servers</span>
+                    </button>
+
+                    <!-- Emotes -->
+                    <button class="sub-category" id="admin-setting-tab-emotes">
+                        <revoice-icon-emoji></revoice-icon-emoji> <span data-i18n="admin.emotes">Emotes</span>
+                    </button>
+
+                    <!-- Members -->
+                    <button class="sub-category" id="admin-setting-tab-members">
+                        <revoice-icon-users></revoice-icon-users> <span data-i18n="admin.members">Members</span>
+                    </button>
+
+                    <!-- Invitation -->
+                    <button class="sub-category" id="admin-setting-tab-invitations">
+                        <revoice-icon-envelope></revoice-icon-envelope> <span data-i18n="admin.invitations">Invitations</span>
+                    </button>
+                </div>
+
+                <!-- Exit -->
+                <div class="category">
+                    <button class="sub-category" id="admin-setting-close">
+                        <revoice-icon-circle-x></revoice-icon-circle-x> <span data-i18n="common.exit">Exit</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="config-container-right">
+            <div class="config-right">
+                <!-- Overview -->
+                <div class="hidden" id="admin-setting-content-overview">
+                    <h1 data-i18n="admin.overview">Overview</h1>
+
+                    <h2>Technical parameters</h2>
+                    <div id="admin-setting-technical-list"></div>
+                </div>
+
+                <!-- Servers -->
+                <div class="hidden" id="admin-setting-content-servers">
+                    <h1 data-i18n="admin.servers">Servers</h1>
+                    <div id="admin-setting-server-list"></div>
+                </div>
+
+                <!-- Emotes -->
+                <div class="hidden" id="admin-setting-content-emotes">
+                    <h1 data-i18n="admin.emotes">Emotes</h1>
+                    <revoice-emoji-manager path="global" id="setting-emotes-form"></revoice-emoji-manager>
+                </div>
+
+                <!-- Members -->
+                <div class="hidden" id="admin-setting-content-members">
+                    <h1 data-i18n="admin.admins">Admins</h1>
+                    <div id="admin-setting-admins-list" class="config-members-list"></div>
+
+                    <h1 data-i18n="admin.members">Members</h1>
+                    <div id="admin-setting-members-list" class="config-members-list"></div>
+                </div>
+
+                <!-- Invitations -->
+                <div class="hidden" id="admin-setting-content-invitations">
+                    <h1 data-i18n="server.invitations">Invitations</h1>
+                    <button id='admin-setting-invitation-create' data-i18n="invitation.new">New invitation</button>
+
+                    <h2 data-i18n="invitation.valid">Valid invitation</h2>
+                    <div id="admin-setting-invitation" class="config-invitation-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Libraries -->
     <script src="src/js/lib/marked.min.js"></script>
     <script src="src/js/lib/highlight.min.js"></script>

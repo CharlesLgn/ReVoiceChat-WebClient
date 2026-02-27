@@ -38,7 +38,12 @@ export default class ServerController {
         // Create instances list
         const instancesList = document.getElementById('instances');
         instancesList.innerHTML = "";
-        for (const instance of result) {
+
+        const instancesSortedByName = [...result].sort((a, b) => {
+            return a.name.localeCompare(b.name);
+        });
+
+        for (const instance of instancesSortedByName) {
             const element = await this.#instanceElement(instance);
             if (element) {
                 instancesList.appendChild(element);
@@ -48,7 +53,8 @@ export default class ServerController {
         instancesList.appendChild(this.#discorverInstanceElement());
 
         if (this.user.isAdmin()) {
-            instancesList.appendChild(this.#createInstanceElement());
+            instancesList.appendChild(this.#miscElement('revoice-icon-square-plus', "server.create.title", () => this.#create()));
+            instancesList.appendChild(this.#miscElement('revoice-icon-wrench', "admin.title", () => this.router.routeTo(Router.ADMIN)));
         }
 
         // Select default server
@@ -132,14 +138,14 @@ export default class ServerController {
         return BUTTON;
     }
 
-    #createInstanceElement() {
+    #miscElement(icon, title, callback) {
         const BUTTON = document.createElement('button');
 
         BUTTON.className = "element";
-        BUTTON.dataset.i18nTitle = "server.create.title";
-        BUTTON.onclick = () => this.#create();
+        BUTTON.dataset.i18nTitle = title;
+        BUTTON.onclick = callback;
 
-        const IMG = document.createElement('revoice-icon-square-plus');
+        const IMG = document.createElement(icon);
         IMG.className = "icon";
         BUTTON.appendChild(IMG);
 
@@ -167,7 +173,7 @@ export default class ServerController {
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
-                if(await CoreServer.fetch(`/server/join/${this.#popupData}`, 'POST')){
+                if (await CoreServer.fetch(`/server/join/${this.#popupData}`, 'POST')) {
                     await this.load();
                 }
             }

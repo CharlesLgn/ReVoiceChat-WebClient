@@ -223,8 +223,6 @@ export default class Room {
         /** @type {UserRepresentation[]} */
         const result = await CoreServer.fetch(`/room/${this.id}/user`, 'GET');
 
-        console.log(result)
-
         if (result && result.allUser) {
             const sortedByDisplayName = [...result.allUser].sort((a, b) => {
                 return a.displayName.localeCompare(b.displayName);

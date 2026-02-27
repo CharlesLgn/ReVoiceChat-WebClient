@@ -1456,3 +1456,37 @@ summary::marker {
 #setting-message-exemple {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
+
+.technical-list {
+    padding: 5px;
+    width: 100%;
+}
+
+.technical-list td {
+    padding: 10px;
+    background-color: var(--ter-bg-color);
+}
+
+.technical-list tr {
+    border: var(--sec-bg-color) 1px solid;
+    border-bottom: var(--sec-bg-color) 10px solid;
+    border-radius: 5px;
+}
+
+.card-list {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 5px;
+}
+
+.id-tooltip {
+    font-size: 12px;
+    margin: 5px;
+    padding: 2px 5px 2px 5px;
+    border-radius: 5px;
+    background-color: var(--qua-bg-color);
+    color: var(--pri-placeholder-color);
+    text-wrap: nowrap;
+}

@@ -3,6 +3,7 @@ export default class Router {
     static USER_SETTINGS = 'user-settings';
     static SERVER_SETTINGS = 'server-settings';
     static PRIVATE = 'private';
+    static ADMIN = 'admin';
 
     constructor(){
         document.getElementById('user-setting-open').addEventListener('click', () => this.routeTo(Router.USER_SETTINGS));
@@ -12,6 +13,8 @@ export default class Router {
         document.getElementById('server-setting-close').addEventListener('click', () => this.routeTo(Router.APP));
 
         document.getElementById('private-open').addEventListener('click', () => this.routeTo(Router.PRIVATE));
+
+        document.getElementById('admin-setting-close').addEventListener('click', () => this.routeTo(Router.APP));
     }
 
     /** @param {string} destination */
@@ -38,6 +41,11 @@ export default class Router {
                 Router.#pushState(Router.PRIVATE);
                 document.getElementById('route-private').classList.remove('hidden');
                 document.getElementById('route-app').classList.remove('hidden');
+                break;
+
+            case Router.ADMIN:
+                Router.#pushState(Router.ADMIN);
+                document.getElementById('route-admin-setting').classList.remove('hidden');
                 break;
 
             case Router.APP:

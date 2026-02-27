@@ -12,6 +12,7 @@ import {getCookie, getQueryVariable, initTools} from "../lib/tools.js";
 import '../component/components.js';
 import { i18n } from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
+import AdminSettingsController from './admin/admin.settings.controller.js';
 
 export default class ReVoiceChat {
     /** @type {string} */
@@ -28,6 +29,8 @@ export default class ReVoiceChat {
     state;
     /** @type {Sse} */
     #sse;
+
+    adminSettings;
 
     constructor() {
         initTools();
@@ -47,6 +50,7 @@ export default class ReVoiceChat {
         this.room = new Room(this.user);
         this.server = new ServerController(this.room, this.router, this.user);
         this.state = new State(this);
+        this.adminSettings = new AdminSettingsController(this.user);
 
         // Add missing classes
         this.user.settings.setRoom(this.room);
@@ -76,6 +80,10 @@ export default class ReVoiceChat {
         Alert.attachEvents();
         this.user.settings.buildMessageExemple();
         this.router.routeTo(getQueryVariable('r'));
+
+        if(this.user.isAdmin()){
+            await this.adminSettings.load();
+        }
     }
 
     /** @return {string} Token */
