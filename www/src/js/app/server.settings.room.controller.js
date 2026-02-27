@@ -151,7 +151,7 @@ export class ServerSettingsRoomController {
         this.#popupData.name = data.name;
 
         this.#modalRisks.fire({
-            title: i18n.translateOne("server.structure.room.edit", [data.name]),
+            title: i18n.translateOne("server.structure.room.roles", [data.name]),
             showCancelButton: false,
             focusConfirm: false,
             confirmButtonText: "Close",
