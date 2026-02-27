@@ -44,7 +44,7 @@ export default class VoiceCall {
     #audioTimestamp = 0;
     #compressorNode;
     #buffer = [];
-    #bufferMaxLength = Number.parseInt(this.#codec.sampleRate * (this.#codec.opus.frameDuration / 1_000_000)); // 48000Hz × 0.020 sec = 960 samples
+    #bufferMaxLength = 960; // 48000Hz × 0.020 sec = 960 samples
     #gainNode;
     #gateNode;
     #user;
@@ -68,6 +68,14 @@ export default class VoiceCall {
         else {
             this.#settings = DEFAULT_SETTINGS;
         }
+
+        // Determine sampleRate
+        const audioCtx = new AudioContext();
+        this.#codec.sampleRate = audioCtx.sampleRate;
+        audioCtx.close();
+
+        // Determine buffer length
+        this.#bufferMaxLength = Number.parseInt(this.#codec.sampleRate * (this.#codec.opus.frameDuration / 1_000_000));
     }
 
     async open(voiceUrl, roomId, token, controller, anormalClosureHandler) {

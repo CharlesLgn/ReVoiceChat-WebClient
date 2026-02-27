@@ -37,7 +37,7 @@ export default class Streamer {
     // Audio Encoder
     #audioCodec = structuredClone(Codec.STREAM_AUDIO);
     #audioBuffer = [];
-    #audioBufferMaxLength = Number.parseInt(this.#audioCodec.sampleRate * this.#audioCodec.numberOfChannels * (this.#audioCodec.opus.frameDuration / 1_000_000)); // 2ch x 48000Hz × 0.020 sec = 1920 samples
+    #audioBufferMaxLength = 1920; // 2ch x 48000Hz × 0.020 sec = 1920 samples
     #audioCollector;
     #audioContext;
     #audioEncoder;
@@ -70,6 +70,14 @@ export default class Streamer {
         this.#user = user;
         this.#streamUrl = streamUrl;
         this.#token = token;
+
+        // Determine sampleRate
+        const audioCtx = new AudioContext();
+        this.#audioCodec.sampleRate = audioCtx.sampleRate;
+        audioCtx.close();
+
+        // Determine buffer length
+        this.#audioBufferMaxLength = Number.parseInt(this.#audioCodec.sampleRate * this.#audioCodec.numberOfChannels * (this.#audioCodec.opus.frameDuration / 1_000_000));
     }
 
     async start(type, videoCodec) {
