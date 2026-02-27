@@ -5,12 +5,12 @@ export default class Listener {
     #muted;
     #gainNode;
     #outputGain;
-    #setUserGlow;
     #audioContext;
+    #controller;
 
-    constructor(id, setUserGlow, codec, settings, audioContext, outputGain) {
+    constructor(id, controller, codec, settings, audioContext, outputGain) {
         this.#id = id;
-        this.#setUserGlow = setUserGlow;
+        this.#controller = controller;
         this.#audioContext = audioContext;
 
         // Set user state from settings
@@ -73,12 +73,12 @@ export default class Listener {
 
         // If user sending packet is locally muted OR we are deaf, we stop
         if (this.#muted || selfDeaf) {
-            this.#setUserGlow(this.#id, false);
+            this.#controller.setUserGlow(this.#id, false);
             return;
         }
 
         // User gate open/close
-        this.#setUserGlow(this.#id, gateState);
+        this.#controller.setUserGlow(this.#id, gateState);
 
         // Decode and read audio
         if (this.#decoder !== null && this.#decoder.state === "configured") {

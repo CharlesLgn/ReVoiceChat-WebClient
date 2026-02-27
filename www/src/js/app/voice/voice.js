@@ -53,8 +53,7 @@ export default class VoiceCall {
     #settings = {};
     #gateState = false;
     #outputGain;
-    #setUserGlow;
-    #setSelfGlow;
+    #controller;
 
     constructor(user) {
         if (!user) {
@@ -71,7 +70,7 @@ export default class VoiceCall {
         }
     }
 
-    async open(voiceUrl, roomId, token, setUserGlow, setSelfGlow, anormalClosureHandler) {
+    async open(voiceUrl, roomId, token, controller, anormalClosureHandler) {
         if (!voiceUrl) {
             throw new Error('VoiceUrl is null or undefined');
         }
@@ -85,9 +84,7 @@ export default class VoiceCall {
         }
 
         this.#state = VoiceCall.CONNECTING;
-
-        this.#setUserGlow = setUserGlow;
-        this.#setSelfGlow = setSelfGlow;
+        this.#controller = controller;
 
         // Create WebSocket
         this.#socket = new WebSocket(`${voiceUrl}/${roomId}`, ["Bearer." + token]);
@@ -153,10 +150,10 @@ export default class VoiceCall {
                 user.decoder = null;
             }
             // Remove glow
-            this.#setUserGlow(userId, false);
+            this.#controller.setUserGlow(userId, false);
         }
 
-        this.#setSelfGlow(false);
+        this.#controller.setSelfGlow(false);
     }
 
     getState() {
@@ -332,11 +329,11 @@ export default class VoiceCall {
             this.#gateState = state;
 
             if (this.#settings.self.muted) {
-                this.#setUserGlow(this.#user.id, false);
-                this.#setSelfGlow(false);
+                this.#controller.setUserGlow(this.#user.id, false);
+                this.#controller.setSelfGlow(false);
             } else {
-                this.#setUserGlow(this.#user.id, state);
-                this.#setSelfGlow(state);
+                this.#controller.setUserGlow(this.#user.id, state);
+                this.#controller.setSelfGlow(state);
             }
         }
 
@@ -432,7 +429,7 @@ export default class VoiceCall {
             const listenerCodec = (userType === EncodedVoice.music ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER);
             const isSupported = (await AudioDecoder.isConfigSupported(listenerCodec)).supported;
             if (isSupported) {
-                this.#users[userId] = new Listener(userId, this.#setUserGlow, listenerCodec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
+                this.#users[userId] = new Listener(userId, this.#controller, listenerCodec, this.#settings.users[userId], this.#audioContext, this.#outputGain);
             } else {
                 throw new Error("Decoder Codec not supported");
             }

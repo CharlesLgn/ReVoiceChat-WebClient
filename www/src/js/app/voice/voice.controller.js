@@ -22,6 +22,11 @@ export default class VoiceController {
     /** @type {StreamController} */
     streamController;
 
+    #cachedElement = {
+        voiceSelfMute: null,
+        usersGlow: [],
+    }
+
     /**
      * @param {UserController} user
      * @param {Room} room
@@ -31,6 +36,7 @@ export default class VoiceController {
         this.#room = room;
         this.streamController = new StreamController(user, room);
         this.#contextMenu = document.getElementById('voice-context-menu');
+        this.#cachedElement.voiceSelfMute = document.getElementById(`voice-self-mute`);
     }
 
     attachEvents() {
@@ -46,19 +52,19 @@ export default class VoiceController {
     // <user> call this to join a call in a room
     async join(roomId) {
         if (this.#activeRoom) {
-            if(this.#activeRoom !== roomId){
+            if (this.#activeRoom !== roomId) {
                 await this.leave(this.#activeRoom);
             }
-            else{
+            else {
                 return;
-            } 
+            }
         }
 
         this.#activeRoom = roomId;
 
         try {
             this.#voiceCall = new VoiceCall(this.#user);
-            await this.#voiceCall.open(CoreServer.voiceUrl(), roomId, ReVoiceChat.getToken(), this.#setUserGlow, this.#setSelfGlow, (reason) => this.#voiceError(reason));
+            await this.#voiceCall.open(CoreServer.voiceUrl(), roomId, ReVoiceChat.getToken(), this, (reason) => this.#voiceError(reason));
 
             // Update users in room
             await this.#updateJoinedUsers();
@@ -191,31 +197,32 @@ export default class VoiceController {
         for (const connectedUser of sortedByDisplayName) {
             voiceContent.appendChild(this.#createUserElement(connectedUser));
         }
-        
+
         // Room is currently active
         if (this.#activeRoom === roomId) {
             this.#updateJoinedUsers();
         }
     }
 
-    #setUserGlow(userId, enabled) {
-        const gate = document.getElementById(`voice-gate-${userId}`);
-        if (gate) {
-            if (enabled) {
-                gate.classList.add('active');
-            }
-            else {
-                gate.classList.remove('active');
-            }
+    setUserGlow(userId, enabled) {
+        if (!this.#cachedElement.usersGlow[userId]) {
+            this.#cachedElement.usersGlow[userId] = document.getElementById(`voice-gate-${userId}`)
+        }
+
+        if (enabled) {
+            this.#cachedElement.usersGlow[userId].classList.add('active');
+        }
+        else {
+            this.#cachedElement.usersGlow[userId].classList.remove('active');
         }
     }
 
-    #setSelfGlow(enabled) {
+    setSelfGlow(enabled) {
         if (enabled) {
-            document.getElementById(`voice-self-mute`).classList.add('green');
+            this.#cachedElement.voiceSelfMute.classList.add('green');
         }
         else {
-            document.getElementById(`voice-self-mute`).classList.remove('green');
+            this.#cachedElement.voiceSelfMute.classList.remove('green');
         }
     }
 
