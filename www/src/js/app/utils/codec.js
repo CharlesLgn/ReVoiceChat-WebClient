@@ -77,31 +77,40 @@ export default class Codec {
         return config;
     }
 
-    static async streamConfig(inputResolution, inputFps, inputCodec) {
+    static async streamConfig(inputResolution, inputFps, inputCodec, inputBitrate) {
         const resolution = [
             {
                 width: 1280,
-                height: 720,
-                bitrate: 3_000_000
+                height: 720
             },
             {
                 width: 1920,
-                height: 1080,
-                bitrate: 4_000_000
+                height: 1080
             },
             {
                 width: 2560,
-                height: 1440,
-                bitrate: 6_000_000
+                height: 1440
             },
             {
                 width: 3840,
-                height: 2160,
-                bitrate: 10_000_000
+                height: 2160
             }
         ]
 
         const fps = [10, 30, 60, 120];
+        const bitrate = [
+            0,
+            1_000_000, 
+            2_000_000, 
+            3_000_000, 
+            4_000_000, 
+            5_000_000, 
+            6_000_000, 
+            7_000_000, 
+            8_000_000, 
+            9_000_000, 
+            10_000_000
+        ];
 
         let config = {
             codec: null,
@@ -112,11 +121,16 @@ export default class Codec {
             bitratemode: "variable",
             latencyMode: "realtime",
         }
-
+        
         config.width = resolution[inputResolution].width;
         config.height = resolution[inputResolution].height;
-        config.bitrate = resolution[inputResolution].bitrate;
+        config.bitrate = bitrate[inputBitrate];
         config.framerate = fps[inputFps];
+        
+        if(!config.width || !config.height || !config.bitrate || !config.framerate){
+            console.error('Codec: Error in configuration');
+            return;
+        }
 
         if (inputCodec === "AUTO") {
             config.codec = Codec.VIDEO_CODEC.AV1;

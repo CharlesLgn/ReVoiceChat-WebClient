@@ -56,9 +56,10 @@ export default class StreamController {
                 div: div
             }
 
-            let resolution = 'HD';
-            let framerate = '30';
+            let resolution = 1;
+            let framerate = 1;
             let codec = 'AUTO';
+            let bitrate = 3;
             Modal.toggle({
                 title: i18n.translateOne("stream.modal.title"),
                 showCancelButton: true,
@@ -85,6 +86,21 @@ export default class StreamController {
                                 <option value='3'>120</option>
                             </datalist>
 
+                            <label data-i18n="stream.modal.bitrate">Bitrate (Mbps)</label>
+                            <input id='popup-bitrate' type='range' list='datalist-bitrate' step='1' min='1' max='10' value='3'>
+                            <datalist id='datalist-bitrate'>
+                                <option value='1'>1</option>
+                                <option value='2'>2</option>
+                                <option value='3'>3</option>
+                                <option value='4'>4</option>
+                                <option value='5'>5</option>
+                                <option value='6'>6</option>
+                                <option value='7'>7</option>
+                                <option value='8'>8</option>
+                                <option value='9'>9</option>
+                                <option value='10'>10</option>
+                            </datalist>
+
                             <label data-i18n="stream.modal.codec">Codec</label>
                             <select id='popup-codec'>
                                 <option value='AUTO'>Auto</option>
@@ -97,23 +113,28 @@ export default class StreamController {
                     document.getElementById('popup-resolution').oninput = () => { resolution = document.getElementById('popup-resolution').value };
                     document.getElementById('popup-framerate').oninput = () => { framerate = document.getElementById('popup-framerate').value };
                     document.getElementById('popup-codec').oninput = () => { codec = document.getElementById('popup-codec').value };
+                    document.getElementById('popup-bitrate').oninput = () => { bitrate = document.getElementById('popup-bitrate').value };
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const player = await this.#streamer["display"].stream.start("display", await Codec.streamConfig(resolution, framerate, codec));
+                    const codecConfig = await Codec.streamConfig(resolution, framerate, codec, bitrate);
 
-                    div.className = "player";
-                    div.appendChild(player);
-                    div.onclick = () => {
-                        this.focus(div)
-                    }
-                    div.oncontextmenu = (event) => {
-                        event.preventDefault();
-                    }
-                    document.getElementById('stream-container').appendChild(div);
+                    if (codecConfig) {
+                        const player = await this.#streamer["display"].stream.start("display", codecConfig);
 
-                    this.#displayEnabled = true;
-                    document.getElementById("stream-display").classList.add("green");
+                        div.className = "player";
+                        div.appendChild(player);
+                        div.onclick = () => {
+                            this.focus(div)
+                        }
+                        div.oncontextmenu = (event) => {
+                            event.preventDefault();
+                        }
+                        document.getElementById('stream-container').appendChild(div);
+
+                        this.#displayEnabled = true;
+                        document.getElementById("stream-display").classList.add("green");
+                    }
                 }
             });
         }
