@@ -55,7 +55,10 @@ class ServerRolesWebComponent extends HTMLElement {
     }
 
     async fetchUsers() {
-        this.availableUsers = await CoreServer.fetch(`/server/${this.serverId}/user`);
+        const result = await CoreServer.fetch(`/server/${this.serverId}/user`);
+        this.availableUsers = [...result].sort((a, b) => {
+            return a.displayName.localeCompare(b.displayName);
+        });
     }
 
     async fetchRisks() {
@@ -200,17 +203,14 @@ class ServerRolesWebComponent extends HTMLElement {
         this.shadowRoot.getElementById("role-edit").addEventListener('click', () => this.#edit(role));
         this.shadowRoot.getElementById("role-delete").addEventListener('click', () => this.#delete(role));
 
-        const users = [];
-        for (const user of this.availableUsers) {
-            users[user.id] = user;
-        }
-
         // Populate role member
         const memberList = this.shadowRoot.getElementById("role-member-list");
-        for (const memberId of role.members) {
-            const member = users[memberId]
+        const members = this.availableUsers.filter((member) => { return role.members.includes(member.id) })
+
+        for (const member of members) {
             memberList.appendChild(this.#memberItemList(member, role.id));
         }
+        
         i18n.translatePage(roleDetails);
     }
 
