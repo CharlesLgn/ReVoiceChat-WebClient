@@ -3,24 +3,28 @@ export default class MobileController {
   static load() {
     const toggleSidebar = document.getElementById('toggleSidebar');
     const toggleUsers = document.getElementById('toggleUsers');
-    const sidebar = document.querySelector('.sidebar.left');
+    const sidebarServers = document.querySelector('.sidebar.instances-list');
+    const sidebarRooms = document.querySelector('.sidebar.server');
     const sidebarRight = document.getElementById('sidebar-users');
     const overlay = document.getElementById('overlay');
 
     toggleSidebar.addEventListener('click', () => {
-      sidebar.classList.toggle('show');
+      sidebarServers.classList.toggle('show');
+      sidebarRooms.classList.toggle('show');
       sidebarRight.classList.remove('show');
       overlay.classList.toggle('show');
     });
 
     toggleUsers.addEventListener('click', () => {
       sidebarRight.classList.toggle('show');
-      sidebar.classList.remove('show');
+      sidebarServers.classList.remove('show');
+      sidebarRooms.classList.remove('show');
       overlay.classList.toggle('show');
     });
 
     overlay.addEventListener('click', () => {
-      sidebar.classList.remove('show');
+      sidebarServers.classList.remove('show');
+      sidebarRooms.classList.remove('show');
       sidebarRight.classList.remove('show');
       overlay.classList.remove('show');
     });

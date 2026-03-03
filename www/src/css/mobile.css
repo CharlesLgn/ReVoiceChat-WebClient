@@ -11,8 +11,14 @@
         width: 15rem;
     }
 
-    .sidebar.show {
+    .sidebar.instances-list.show {
         left: 0;
+        max-width: 4rem;
+        min-width: 4rem;
+    }
+
+    .sidebar.server.show {
+        left: 4rem;
     }
 
     .sidebar .right {
