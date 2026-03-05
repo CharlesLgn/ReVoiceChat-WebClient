@@ -1,17 +1,19 @@
 import CoreServer from "../core/core.server.js";
 import MediaServer from "../media/media.server.js";
+import Modal from "../../component/modal.component.js";
 
 export default class AdminSettingsMembersController {
     #user;
 
-    constructor() {
-
+    constructor(user) {
+        this.#user = user;
     }
 
     load() {
         CoreServer.fetch("/user").then((users) => {
-            this.#buildUserList("admin-setting-admins-list", Array.from(users).filter(u => u.type === "ADMIN"))
-            this.#buildUserList("admin-setting-members-list", Array.from(users))
+
+            this.#buildUserList("admin-setting-admins-list", users.filter(u => u.type === "ADMIN"))
+            this.#buildUserList("admin-setting-members-list", users)
         });
     }
 
@@ -30,7 +32,7 @@ export default class AdminSettingsMembersController {
             DIV.appendChild(this.#buildProfilPictureElement(user))
             DIV.appendChild(this.#buildUserInfos(user))
             if (user.id === this.#user.id) {
-                DIV.className = "user config-item you";
+                DIV.className = "user config-item self";
             } else {
                 DIV.addEventListener('click', () => this.#update(user))
                 DIV.className = "user config-item";
@@ -81,16 +83,16 @@ export default class AdminSettingsMembersController {
 
     #update(user) {
         let type = user.type;
-        Swal.fire({
+        Modal.toggle({
             title: `Update user`,
             html: `
             <form class='popup'>
                 <div class="server-structure-form-group">
                     <label for="userType">Type</label>
                     <select id='userType'>
-                        <option value='USER'>simple user</option>
-                        <option value='BOT'>bot</option>
-                        <option value='ADMIN'>admin</option>
+                        <option value='USER'>User</option>
+                        <option value='BOT'>Bot</option>
+                        <option value='ADMIN'>Admin</option>
                     </select>
                 </div>
             </form > `,
@@ -98,8 +100,6 @@ export default class AdminSettingsMembersController {
                 document.getElementById('userType').value = user.type
                 document.getElementById('userType').oninput = () => { type = document.getElementById('userType').value };
             },
-            animation: false,
-            customClass: SwalCustomClass,
             showCancelButton: true,
             confirmButtonText: "Update",
             allowOutsideClick: false,

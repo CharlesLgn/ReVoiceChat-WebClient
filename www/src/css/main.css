@@ -1046,6 +1046,24 @@ textarea.config-item {
     cursor: default;
 }
 
+.config-item.self{
+    background-color: var(--qua-bg-color);
+    border: var(--qua-bg-color) 2px solid;
+}
+
+.config-item.self:hover {
+    background-color: var(--qua-bg-color);
+    cursor: auto;
+}
+
+.user-login-tooltip {
+    margin: 5px;
+    padding: 2px 5px 2px 5px;
+    border-radius: 5px;
+    color: var(--pri-placeholder-color);
+    text-wrap: nowrap;
+}
+
 @keyframes voice-call {
     from {
         background-color: green;
