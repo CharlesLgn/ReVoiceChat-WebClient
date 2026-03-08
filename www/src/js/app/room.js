@@ -3,6 +3,7 @@ import VoiceController from './voice/voice.controller.js';
 import CoreServer from "./core/core.server.js";
 import MediaServer from './media/media.server.js';
 import { statusToColor } from "../lib/tools.js";
+import { i18n } from '../lib/i18n.js';
 
 export default class Room {
     /** @type {TextController} */
@@ -12,6 +13,7 @@ export default class Room {
     id;
     name;
     type;
+    #serverId;
 
     /**
      * @param {UserController} user
@@ -31,6 +33,8 @@ export default class Room {
      * @return {Promise<void>}
      */
     async load(serverId) {
+        this.#serverId = serverId;
+
         await this.textController.getAttachmentMaxSize();
 
         /** @type {RoomRepresentation[]} */
@@ -221,37 +225,48 @@ export default class Room {
 
     async loadUsers() {
         /** @type {UserRepresentation[]} */
-        const result = await CoreServer.fetch(`/room/${this.id}/user`, 'GET');
+        const users = await CoreServer.fetch(`/room/${this.id}/user`, 'GET');
+        const roles = await CoreServer.fetch(`/server/${this.#serverId}/role`, 'GET');
 
-        if (result && result.allUser) {
-            const sortedByDisplayName = [...result.allUser].sort((a, b) => {
-                return a.displayName.localeCompare(b.displayName);
-            });
-
-            const sortedByStatus = [...sortedByDisplayName].sort((a, b) => {
-                if (a.status === b.status) {
-                    return 0;
-                }
-                else {
-                    if (a.status === "OFFLINE") {
-                        return 1;
-                    }
-                    if (b.status === "OFFLINE") {
-                        return -1;
-                    }
-                }
-            });
-
+        const excludedUsers = [];
+        const offlineUsers = [];
+        if (users && users.allUser && roles) {
             const userList = document.getElementById("user-list");
             userList.innerHTML = "";
 
-            for (const user of sortedByStatus) {
-                userList.appendChild(await this.#createUser(user));
+            for (const role of roles) {
+                const usersInRole = [...users.allUser].filter((user) => { return (role.members.includes(user.id) && !excludedUsers.includes(user.id)) })
+
+                const onlineUsers = [...usersInRole].filter((user) => { return user.status !== "OFFLINE" } ).length;
+                if (onlineUsers > 0) {
+                    userList.appendChild(this.#createSeparator(`${role.name} - ${usersInRole.length}`));
+                }
+
+                const sortedByDisplayName = [...usersInRole].sort((a, b) => {
+                    return a.displayName.localeCompare(b.displayName);
+                });
+
+                for (const user of sortedByDisplayName) {
+                    if (user.status === "OFFLINE") {
+                        offlineUsers.push(this.#createUser(user, role.color, true));
+                    }
+                    else {
+                        userList.appendChild(this.#createUser(user, role.color));
+                    }
+                    excludedUsers.push(user.id);
+                }
+            }
+
+            if (offlineUsers.length > 0) {
+                userList.appendChild(this.#createSeparator(`${i18n.translateOne("user.role.offline")} - ${offlineUsers.length}`));
+                for (const user of offlineUsers) {
+                    userList.appendChild(user);
+                }
             }
         }
     }
 
-    async #createUser(data) {
+    #createUser(data, color, offline = false) {
         const id = data.id;
         const name = data.displayName;
         const status = data.status;
@@ -266,11 +281,21 @@ export default class Room {
                 <revoice-status-dot name="dot-${id}" color="${statusToColor(status)}"></revoice-status-dot>
             </div>
             <div class="user">
-                <h2 class="name" name="user-name-${id}">${name}</h2>
+                <h2 class="name" name="user-name-${id}" style="color:${color}">${name}</h2>
             </div>
         `;
 
+        if(offline){
+            DIV.classList.add("offline");
+        }
+
         return DIV;
+    }
+
+    #createSeparator(name) {
+        const root = document.createElement('summary');
+        root.innerText = name;
+        return root;
     }
 
     #selectText() {

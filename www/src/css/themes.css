@@ -238,6 +238,7 @@ body {
 }
 
 /* Rooms */
+
 .rooms summary,
 .rooms .element {
     border-color: var(--pri-bd-color);
@@ -247,8 +248,13 @@ body {
     font-weight: 600;
 }
 
+.sidebar.users summary,
 .rooms summary:hover {
     color: var(--pri-text-color);
+}
+
+.sidebar.users summary {
+    color: var(--pri-placeholder-color);
 }
 
 .rooms .element:hover {

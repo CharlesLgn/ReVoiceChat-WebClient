@@ -438,9 +438,24 @@ svg {
 
 .sidebar.users .content .icon {
     border-radius: 9999px;
-    min-width: 2rem;
-    max-width: 2rem;
+    width: 2rem;
+    height: 2rem;
     aspect-ratio: auto;
+}
+
+.sidebar.users summary {
+    display: block;
+    padding: 0.1rem;
+    margin-left: 0.5rem;
+    min-width: 0;
+}
+
+.sidebar.users .offline{
+    opacity: 50%;
+}
+
+.sidebar.users .offline:hover{
+    opacity: 100%;
 }
 
 .message-container .icon {
