@@ -17,11 +17,11 @@ class I18n {
     /**
      * Parse a .properties file into a JavaScript object
      * @param {string} content - Content of the .properties file
+     * @param {Object} result - Content of the .properties file
      * @returns {Object} Object with key/value pairs
      */
-    parseProperties(content) {
+    parseProperties(content, result = {}) {
         const lines = content.split('\n');
-        const result = {};
 
         for (const line of lines) {
             const trimmed = line.trim();
@@ -46,26 +46,35 @@ class I18n {
      */
     async loadTranslations(lang) {
         try {
-            const response = await fetch(`${this.translationDir}/i18n_${lang}.properties`);
-
-            if (!response.ok) {
-                throw new Error(`File i18n_${lang}.properties not found`);
+            const files = await this.#getTranslationFiles()
+            const values = {}
+            for (const file of files) {
+                const response = await fetch(`${this.translationDir}/${file}_${lang}.properties`);
+                if (response.ok) {
+                    const content = await response.text();
+                    this.parseProperties(content, values)
+                } else if (lang === 'en') {
+                    throw new Error(`File ${file}_${lang}.properties not found`);
+                } else {
+                    console.warn(`Language ${lang} not found, falling back to English`);
+                    const response = await fetch(`${this.translationDir}/${file}_en.properties`);
+                    const content = await response.text();
+                    return this.parseProperties(content, values);
+                }
             }
-
-            const content = await response.text();
-            return this.parseProperties(content);
-        } catch (error) {
-            // If file doesn't exist and it's not English, fallback to English
-            if (lang !== 'en') {
-                console.warn(`Language ${lang} not found, falling back to English`);
-                const response = await fetch(`${this.translationDir}/i18n_en.properties`);
-                const content = await response.text();
-                return this.parseProperties(content);
-            }
-            throw error;
+            return values;
         } finally {
             this.translationsLoaded = true
         }
+    }
+
+    async #getTranslationFiles() {
+        const response = await fetch(`${this.translationDir}/files.txt`);
+        if (!response.ok) {
+            throw new Error(`File files.txt not found`);
+        }
+        const content = await response.text();
+        return content.split("\n").map(str => str.trim()).filter(str => str !== "");
     }
 
     /**

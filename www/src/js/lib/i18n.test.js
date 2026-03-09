@@ -135,15 +135,18 @@ describe('I18n', () => {
     });
 
     it('should load translations for specified language', async () => {
-      const mockContent = 'hello=Bonjour\nbye=Au revoir';
       globalThis.fetch.mockResolvedValueOnce({
         ok: true,
-        text: async () => mockContent
+        text: async () => 'data'
+      });
+      globalThis.fetch.mockResolvedValueOnce({
+        ok: true,
+        text: async () => 'hello=Bonjour\nbye=Au revoir'
       });
 
       const result = await i18n.loadTranslations('fr');
 
-      expect(globalThis.fetch).toHaveBeenCalledWith('translations/i18n_fr.properties');
+      expect(globalThis.fetch).toHaveBeenCalledWith('translations/data_fr.properties');
       expect(result).toEqual({
         hello: 'Bonjour',
         bye: 'Au revoir'
@@ -152,6 +155,10 @@ describe('I18n', () => {
     });
 
     it('should throw error when response is not ok', async () => {
+      globalThis.fetch.mockResolvedValueOnce({
+        ok: true,
+        text: async () => 'data'
+      });
       globalThis.fetch.mockResolvedValueOnce({
         ok: false,
         status: 404
@@ -164,7 +171,10 @@ describe('I18n', () => {
     it('should fallback to English if language file not found', async () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const mockEnglishContent = 'hello=Hello\nbye=Goodbye';
-
+      globalThis.fetch.mockResolvedValueOnce({
+        ok: true,
+        text: async () => 'data'
+      });
       globalThis.fetch
           .mockResolvedValueOnce({
             ok: false,
@@ -188,6 +198,10 @@ describe('I18n', () => {
     });
 
     it('should throw error if English fallback also fails', async () => {
+      globalThis.fetch.mockResolvedValueOnce({
+        ok: true,
+        text: async () => 'data'
+      });
       globalThis.fetch.mockRejectedValue(new Error('Network error'));
 
       await expect(i18n.loadTranslations('en')).rejects.toThrow('Network error');
@@ -195,6 +209,10 @@ describe('I18n', () => {
     });
 
     it('should set translationsLoaded to true even on error', async () => {
+      globalThis.fetch.mockResolvedValueOnce({
+        ok: true,
+        text: async () => 'data'
+      });
       globalThis.fetch.mockRejectedValue(new Error('Network error'));
 
       try {
@@ -532,10 +550,13 @@ describe('I18n', () => {
     });
 
     it('should load translations and translate page', async () => {
-      const mockContent = 'hello=Bonjour';
       globalThis.fetch.mockResolvedValueOnce({
         ok: true,
-        text: async () => mockContent
+        text: async () => 'data'
+      });
+      globalThis.fetch.mockResolvedValueOnce({
+        ok: true,
+        text: async () => 'hello=Bonjour'
       });
 
       const element = document.createElement('div');
@@ -552,6 +573,10 @@ describe('I18n', () => {
       const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       globalThis.fetch.mockResolvedValueOnce({
         ok: true,
+        text: async () => 'data'
+      });
+      globalThis.fetch.mockResolvedValueOnce({
+        ok: true,
         text: async () => 'hello=Hello'
       });
 
@@ -563,6 +588,10 @@ describe('I18n', () => {
 
     it('should log error on failure', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      globalThis.fetch.mockResolvedValueOnce({
+        ok: true,
+        text: async () => 'data'
+      });
       globalThis.fetch.mockRejectedValueOnce(new Error('Network error'));
 
       await i18n.translate('en');
