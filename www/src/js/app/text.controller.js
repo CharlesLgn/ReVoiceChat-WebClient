@@ -27,6 +27,8 @@ export default class TextController {
     #observer = null;
 
     #coreSend = null;
+    #coreLoad = null;
+    #coreLoadMore = null;
     #cachedElements = {
         cacheContainer: null,
         textReplyMessage: null,
@@ -49,6 +51,8 @@ export default class TextController {
             this.#cachedElements.textAttachment = document.getElementById("private-text-attachment");
             this.#cachedElements.textAttachmentDiv = document.getElementById("private-text-attachment-div");
             this.#coreSend = async (roomId, data) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'PUT', data) }
+            this.#coreLoad = async (roomId) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'GET') }
+            this.#coreLoadMore = async (roomId, firstMessageId) => { return await CoreServer.fetch(`/private-message/${roomId}/message?lastMessage=${firstMessageId}`, 'GET') }
         }
         else {
             this.#cachedElements.cacheContainer = document.getElementById("cache-container");
@@ -57,6 +61,8 @@ export default class TextController {
             this.#cachedElements.textAttachment = document.getElementById("text-attachment");
             this.#cachedElements.textAttachmentDiv = document.getElementById("text-attachment-div");
             this.#coreSend = async (roomId, data) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'PUT', data) }
+            this.#coreLoad = async (roomId) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'GET') }
+            this.#coreLoadMore = async (roomId, firstMessageId) => { return await CoreServer.fetch(`/room/${roomId}/message?lastMessage=${firstMessageId}`, 'GET'); }
         }
         this.#observeReply();
     }
@@ -182,7 +188,7 @@ export default class TextController {
         // Room not loaded in cache yet
         if (!this.#cachedRooms[roomId] || reload) {
             /** @type {PageResult<MessageRepresentation>} */
-            const result = await CoreServer.fetch(`/room/${roomId}/message`, 'GET');
+            const result = await this.#coreLoad(roomId);
 
             if (result !== null) {
                 const element = this.#getTextContentElement(roomId);
@@ -222,7 +228,7 @@ export default class TextController {
             let lastScrollHeight = this.#cachedElements.cacheContainer.scrollHeight;
 
             /** @type {PageResult<MessageRepresentation>} */
-            const result = await CoreServer.fetch(`/room/${this.#room.id}/message?lastMessage=${element.firstMessageId}`, 'GET');
+            const result = await this.#coreLoadMore(this.#room.id, element.firstMessageId);
             if (result !== null) {
                 const invertedSortedResult = [...result.content].sort((a, b) => {
                     return new Date(a.createdDate) + new Date(b.createdDate);
