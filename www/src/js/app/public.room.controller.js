@@ -5,7 +5,7 @@ import MediaServer from './media/media.server.js';
 import { statusToColor } from "../lib/tools.js";
 import { i18n } from '../lib/i18n.js';
 
-export default class Room {
+export default class PublicRoom {
     /** @type {TextController} */
     textController;
     /** @type {VoiceController} */

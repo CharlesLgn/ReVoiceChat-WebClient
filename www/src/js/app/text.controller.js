@@ -1,11 +1,11 @@
 import Alert from './utils/alert.js';
-import {humanFileSize, sanitizeString, timestampToText} from "../lib/tools.js";
-import {i18n} from "../lib/i18n.js";
+import { humanFileSize, sanitizeString, timestampToText } from "../lib/tools.js";
+import { i18n } from "../lib/i18n.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 import Modal from "../component/modal.component.js";
-import {emojiPicker} from "./emoji.js";
-import {renderEmojis} from "../component/emoji.component.js";
+import { emojiPicker } from "./emoji.js";
+import { renderEmojis } from "../component/emoji.component.js";
 
 export default class TextController {
     static MODE_SEND = 0;
@@ -26,6 +26,7 @@ export default class TextController {
     /** @type {MutationObserver|null} */
     #observer = null;
 
+    #coreSend = null;
     #cachedElements = {
         cacheContainer: null,
         textReplyMessage: null,
@@ -38,14 +39,25 @@ export default class TextController {
      * @param {UserController} user
      * @param {Room} room
      */
-    constructor(user, room) {
+    constructor(user, room, privateRoom = false) {
         this.#user = user;
         this.#room = room;
-        this.#cachedElements.cacheContainer = document.getElementById("cache-container");
-        this.#cachedElements.textReplyMessage = document.getElementById("text-reply-message");
-        this.#cachedElements.textInput = document.getElementById("text-input");
-        this.#cachedElements.textAttachment = document.getElementById("text-attachment");
-        this.#cachedElements.textAttachmentDiv = document.getElementById("text-attachment-div");
+        if (privateRoom) {
+            this.#cachedElements.cacheContainer = document.getElementById("private-cache-container");
+            this.#cachedElements.textReplyMessage = document.getElementById("private-text-reply-message");
+            this.#cachedElements.textInput = document.getElementById("private-text-input");
+            this.#cachedElements.textAttachment = document.getElementById("private-text-attachment");
+            this.#cachedElements.textAttachmentDiv = document.getElementById("private-text-attachment-div");
+            this.#coreSend = async (roomId, data) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'PUT', data) }
+        }
+        else {
+            this.#cachedElements.cacheContainer = document.getElementById("cache-container");
+            this.#cachedElements.textReplyMessage = document.getElementById("text-reply-message");
+            this.#cachedElements.textInput = document.getElementById("text-input");
+            this.#cachedElements.textAttachment = document.getElementById("text-attachment");
+            this.#cachedElements.textAttachmentDiv = document.getElementById("text-attachment-div");
+            this.#coreSend = async (roomId, data) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'PUT', data) }
+        }
         this.#observeReply();
     }
 
@@ -118,7 +130,7 @@ export default class TextController {
                 textContent.classList.add('hidden');
             }
             let obj = {};
-            obj[roomId] = {content: textContent, scrollTop: null, firstMessageId: null};
+            obj[roomId] = { content: textContent, scrollTop: null, firstMessageId: null };
             Object.assign(this.#cachedRooms, obj);
 
             textContent.addEventListener('scroll', () => {
@@ -344,7 +356,7 @@ export default class TextController {
         if (this.#cachedElements.textAttachment && this.mode === TextController.MODE_SEND) {
             for (const element of this.#cachedElements.textAttachment.files) {
                 if (element.size < this.#attachmentMaxSize) {
-                    data.medias.push({name: element.name});
+                    data.medias.push({ name: element.name });
                     attachments[element.name] = element;
                 } else {
                     await Modal.toggle({
@@ -378,8 +390,8 @@ export default class TextController {
         }
 
         await Modal.toggleError(
-                i18n.translateOne("attachement.error.title"),
-                i18n.translateOne("attachement.error.body")
+            i18n.translateOne("attachement.error.title"),
+            i18n.translateOne("attachement.error.body")
         );
     }
 
@@ -391,11 +403,11 @@ export default class TextController {
         let result = null;
         switch (this.mode) {
             case TextController.MODE_SEND:
-                result = await CoreServer.fetch(`/room/${this.#room.id}/message`, 'PUT', data);
+                result = await this.#coreSend(this.#room.id, data);
                 break;
 
             case TextController.MODE_EDIT:
-                result = await CoreServer.fetch(`/message/${this.#editId}`, 'PATCH', data);
+                result = await CoreServer.fetch(`/message/${editId}`, 'PATCH', data);
                 break;
 
             default:
@@ -471,8 +483,8 @@ export default class TextController {
 
         // Truncate text if too long
         messagePreview.textContent = answeredTo.text.length > 50
-                ? answeredTo.text.substring(0, 50) + '...'
-                : answeredTo.text;
+            ? answeredTo.text.substring(0, 50) + '...'
+            : answeredTo.text;
 
         if (answeredTo.hasMedias) {
             const mediaIndicator = document.createElement('span');
@@ -489,7 +501,7 @@ export default class TextController {
         answerDiv.onclick = () => {
             const originalMessage = document.getElementById(`container-${answeredTo.id}`);
             if (originalMessage) {
-                originalMessage.scrollIntoView({behavior: 'smooth', block: 'center'});
+                originalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 originalMessage.style.backgroundColor = 'var(--highlight-color, rgba(59, 130, 246, 0.1))';
                 setTimeout(() => {
                     originalMessage.style.backgroundColor = '';
