@@ -26,9 +26,11 @@ export default class TextController {
     /** @type {MutationObserver|null} */
     #observer = null;
 
-    #coreSend = null;
-    #coreLoad = null;
-    #coreLoadMore = null;
+    #core = {
+        send: null,
+        load: null,
+        loadMore: null
+    }
     #cachedElements = {
         cacheContainer: null,
         textReplyMessage: null,
@@ -50,9 +52,9 @@ export default class TextController {
             this.#cachedElements.textInput = document.getElementById("private-text-input");
             this.#cachedElements.textAttachment = document.getElementById("private-text-attachment");
             this.#cachedElements.textAttachmentDiv = document.getElementById("private-text-attachment-div");
-            this.#coreSend = async (roomId, data) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'PUT', data) }
-            this.#coreLoad = async (roomId) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'GET') }
-            this.#coreLoadMore = async (roomId, firstMessageId) => { return await CoreServer.fetch(`/private-message/${roomId}/message?lastMessage=${firstMessageId}`, 'GET') }
+            this.#core.send = async (roomId, data) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'PUT', data) }
+            this.#core.load = async (roomId) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'GET') }
+            this.#core.loadMore = async (roomId, firstMessageId) => { return await CoreServer.fetch(`/private-message/${roomId}/message?lastMessage=${firstMessageId}`, 'GET') }
         }
         else {
             this.#cachedElements.cacheContainer = document.getElementById("cache-container");
@@ -60,9 +62,9 @@ export default class TextController {
             this.#cachedElements.textInput = document.getElementById("text-input");
             this.#cachedElements.textAttachment = document.getElementById("text-attachment");
             this.#cachedElements.textAttachmentDiv = document.getElementById("text-attachment-div");
-            this.#coreSend = async (roomId, data) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'PUT', data) }
-            this.#coreLoad = async (roomId) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'GET') }
-            this.#coreLoadMore = async (roomId, firstMessageId) => { return await CoreServer.fetch(`/room/${roomId}/message?lastMessage=${firstMessageId}`, 'GET'); }
+            this.#core.send = async (roomId, data) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'PUT', data) }
+            this.#core.load = async (roomId) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'GET') }
+            this.#core.loadMore = async (roomId, firstMessageId) => { return await CoreServer.fetch(`/room/${roomId}/message?lastMessage=${firstMessageId}`, 'GET'); }
         }
         this.#observeReply();
     }
@@ -188,7 +190,7 @@ export default class TextController {
         // Room not loaded in cache yet
         if (!this.#cachedRooms[roomId] || reload) {
             /** @type {PageResult<MessageRepresentation>} */
-            const result = await this.#coreLoad(roomId);
+            const result = await this.#core.load(roomId);
 
             if (result !== null) {
                 const element = this.#getTextContentElement(roomId);
@@ -228,7 +230,7 @@ export default class TextController {
             let lastScrollHeight = this.#cachedElements.cacheContainer.scrollHeight;
 
             /** @type {PageResult<MessageRepresentation>} */
-            const result = await this.#coreLoadMore(this.#room.id, element.firstMessageId);
+            const result = await this.#core.loadMore(this.#room.id, element.firstMessageId);
             if (result !== null) {
                 const invertedSortedResult = [...result.content].sort((a, b) => {
                     return new Date(a.createdDate) + new Date(b.createdDate);
@@ -409,7 +411,7 @@ export default class TextController {
         let result = null;
         switch (this.mode) {
             case TextController.MODE_SEND:
-                result = await this.#coreSend(this.#room.id, data);
+                result = await this.#core.send(this.#room.id, data);
                 break;
 
             case TextController.MODE_EDIT:
